@@ -36,6 +36,26 @@ export default async function AircraftPage({
         </div>
       </section>
 
+      <section className="aircraft-section" aria-labelledby="start-title">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">Start here</p>
+            <h2 id="start-title">Fly it from cold & dark</h2>
+          </div>
+          <p>The default simulator path is a complete normal sector. System theory stays available as supporting context, not a prerequisite.</p>
+        </div>
+        <div className="aircraft-grid">
+          <Link className="aircraft-card" href={`/aircraft/${aircraft.id}/cold-dark`}>
+            <div>
+              <span className="source-pill">Simulator quick path</span>
+              <h3>Cold & Dark → Shutdown</h3>
+              <p>Power up, start, taxi, takeoff, climb, approach, landing and shutdown in one guided flow.</p>
+            </div>
+            <span className="card-action">Start training →</span>
+          </Link>
+        </div>
+      </section>
+
       <section className="provenance-strip" aria-label="Manual provenance">
         <div><span>Identity</span><strong>PDF page {manual.sourceReferences.identityPage}</strong></div>
         <div><span>Authority notice</span><strong>PDF page {manual.sourceReferences.authorityNoticePage}</strong></div>
@@ -46,10 +66,10 @@ export default async function AircraftPage({
       <section className="curriculum" aria-labelledby="curriculum-title">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">Curriculum</p>
-            <h2 id="curriculum-title">21 manual chapters</h2>
+            <p className="eyebrow">Manual reference</p>
+            <h2 id="curriculum-title">21 chapters when you need the detail</h2>
           </div>
-          <p>Chapter 1 is the first content slice. Remaining chapters stay planned until their draft and approval workflow is implemented.</p>
+          <p>The full manual structure remains available for deeper study, but it no longer defines the primary learning path.</p>
         </div>
 
         <ol className="chapter-list">
@@ -58,7 +78,7 @@ export default async function AircraftPage({
               <span className="chapter-number">{String(chapter.number).padStart(2, "0")}</span>
               <div>
                 <strong>{chapter.title}</strong>
-                <span>{chapter.status === "READY_TO_DRAFT" ? "Next: build source-backed lesson" : "Planned"}</span>
+                <span>Reference module</span>
               </div>
             </li>
           ))}
