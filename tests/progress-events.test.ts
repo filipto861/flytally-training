@@ -14,7 +14,7 @@ test("progress summary stays scoped to one aircraft", () => {
   assert.equal(summary.attempts, 2);
   assert.equal(summary.completedActivities, 2);
   assert.equal(summary.latestActivityAt, "2026-09-09T11:00:00Z");
-  assert.deepEqual(summary.weakAreas.sort(), ["Fire", "Fuel"]);
+  assert.deepEqual([...summary.weakAreas].sort(), ["Fire", "Fuel"]);
 });
 
 test("progress storage keys are aircraft-specific", () => {
