@@ -1,61 +1,221 @@
 # FlyTally Training Roadmap
 
-## Foundation — current
+## Release strategy
 
-- separate private repository
-- canonical `main`
-- Next.js / React / TypeScript skeleton
-- provenance and approval invariant
-- development and architecture contracts
-- basic CI verification
+FlyTally Training is being built toward one complete first product release: **v1.0**.
 
-## v0.1 — Manual-driven aircraft training
+The capabilities below are not separate public v0.x products. They are internal implementation milestones that together form v1.0. We may deliver them incrementally to production while developing, but FlyTally Training is not considered feature-complete until the full v1.0 acceptance scope is satisfied.
 
-- aircraft type catalogue for training
-- manual upload and metadata
+## Reference aircraft
+
+**Learjet 35/36** is the v1.0 reference implementation and testbed.
+
+Every major v1.0 capability must work end-to-end on the Learjet before v1.0 is declared complete. The Learjet is not allowed to become a hard-coded special case: subsequent aircraft must fit the same product and content model.
+
+## Product objective
+
+The target user is a simulator pilot learning a new aircraft/add-on.
+
+The product should make it possible to move from an unfamiliar aircraft to a competent first simulator flight in roughly **2-4 focused hours**, without requiring the user to read the full source manual first.
+
+The default normal learning journey always starts **Cold & Dark** and ends **Shutdown / Cold & Dark**.
+
+The primary path is practical:
+
+`Choose aircraft -> Quick Start -> First Flight from Cold & Dark -> Practice -> Reference -> Progress`
+
+Manual chapter order remains available as reference structure, but it must not define the main learner journey.
+
+## v1.0 internal implementation milestones
+
+### M1 — Product shell and aircraft experience
+
+- aircraft library
+- aircraft detail page
+- Start Here experience
+- Quick Start entry point
+- Learn / Checklist / Practice / Reference / Progress information architecture
+- source/manual metadata visible without dominating the pilot workflow
+
+**Learjet acceptance:** Learjet 35/36 is discoverable, its controlled training source is registered, and the pilot can enter the practical training path immediately.
+
+### M2 — First Flight and normal checklist engine
+
+- complete guided normal flight from Cold & Dark to Shutdown
+- simulator-oriented checklist derived from available source material
+- phase-by-phase flow
+- item completion and reset
+- concise Why? explanation per action where useful
+- source reference per technical item
+- individual phase practice
+
+Checklist modes required for v1.0:
+- Learn
+- Practice
+- Flow
+- Challenge & Response
+
+**Learjet acceptance:** a pilot can complete one normal sector from a fully cold cockpit to shutdown using the Training UI.
+
+### M3 — Cockpit orientation
+
+- cockpit regions/panels
+- checklist/procedure item -> cockpit location mapping
+- Show me interaction
+- image/diagram hotspot support
+- independent cockpit orientation practice
+
+A 3D cockpit is not required.
+
+**Learjet acceptance:** key controls used by the normal flow can be located from the training interface.
+
+### M4 — Essential systems and Quick Start learning
+
+Short pilot-focused lessons rather than manual reproductions.
+
+Each system follows a consistent structure:
+- what it does
+- what feeds/powers it
+- what the pilot controls
+- what the pilot monitors
+- normal configuration
+- important failure implications
+- short knowledge check
+- source references
+
+Learjet baseline systems:
+- electrical
+- fuel
+- powerplant
+- hydraulics
+- pneumatics / bleed air
+- pressurization
+- flight controls
+- anti-ice / rain protection
+- landing gear and brakes
+
+**Learjet acceptance:** essential systems can be learned quickly enough to support the First Flight and abnormal training paths.
+
+### M5 — Abnormal and emergency practice
+
+- scenario-based abnormal/emergency training
+- recognition
+- aircraft-control priority
+- immediate actions
+- checklist/procedure continuation
+- targeted repeat practice
+
+Learjet target scenarios include, where supported by the available source set:
+- engine failure
+- engine fire
+- rejected takeoff
+- generator/electrical failure
+- hydraulic failure
+- pressurization failure / decompression
+- anti-ice related failures
+- landing gear / flap abnormalities
+
+**Learjet acceptance:** the pilot can practice representative high-value failures without reading an entire emergency chapter first.
+
+### M6 — Quick Reference, knowledge and progress
+
+Quick Reference:
+- important speeds
+- limitations
+- engine limits
+- fuel capacities
+- pressurization references
+- memory items
+- system summaries
+- checklist quick access
+- controlled source/manual references
+- compact FLY mode for use while flying the simulator
+
+Knowledge:
+- source-linked question bank
+- short quizzes by system/procedure
+- immediate explanations
+- weak-area review
+- memory/procedure recall
+
+Progress:
+- aircraft completion state
+- checklist/procedure attempts
+- quiz attempts and scores
+- weak-area identification
+- recently practiced items
+
+**Learjet acceptance:** progress across the complete Learjet learning path can be measured and revisited.
+
+### M7 — Persistence and FlyTally identity
+
+- PostgreSQL-backed product data
+- persistent user progress
+- cross-device continuation
+- aircraft learning state
+- checklist/procedure attempts
+- quiz history
+- stable FlyTally user identity
+
+Training should share identity with FlyTally Logbook through an explicit account/session contract. Do not copy Logbook internals or directly couple the two databases.
+
+**Learjet acceptance:** a user can leave Training and return later without losing Learjet progress.
+
+### M8 — Content engine and aircraft administration
+
+The product must make the second aircraft materially easier to add than the first.
+
+Required administration workflow:
+- create aircraft/type and variants
+- upload/register manuals
 - immutable manual revisions
+- revision metadata
 - source references by revision / section / page
 - AI-assisted extraction into draft content
-- human review and approval workflow
-- course / module / lesson structure
-- source-aware learner presentation
+- draft lesson/procedure/checklist/question generation
+- human review/edit
+- explicit approval
+- publish
+- revision-change detection
+- stale-content review workflow
 
-## v0.2 — Procedures and checklist trainer
+AI may draft and structure. It may not silently publish technical content or become the source of authority.
 
-- structured procedures and steps
-- normal / abnormal / emergency classification
-- Learn mode
-- Practice mode
-- Flow training
-- Challenge & Response
-- memory-item handling with explicit source provenance
+**Learjet acceptance:** the Learjet content set can be managed through the same content model intended for future aircraft rather than only through hard-coded source files.
 
-## v0.3 — Knowledge and progress
+## v1.0 definition of done
 
-- question banks and quizzes
-- source-linked questions
-- attempts and scoring
-- lesson completion
-- aircraft-type progress dashboard
-- weak-area review
+FlyTally Training v1.0 is complete only when the Learjet 35/36 demonstrates all of the following in production:
 
-## v0.4 — Shared FlyTally identity
+- Quick Start
+- cockpit orientation
+- complete Cold & Dark -> Shutdown First Flight
+- normal simulator checklist
+- Learn / Practice / Flow / Challenge & Response checklist modes
+- essential systems
+- abnormal/emergency scenarios
+- Quick Reference / FLY mode
+- quizzes and weak-area review
+- persistent progress
+- source provenance and manual revision control
+- content administration / approval workflow
+- stable FlyTally identity boundary
+- responsive production UX on `training.fly-tally.com`
 
-- stable cross-product user identity
-- SSO/session contract with FlyTally Logbook
-- account linking/migration plan if needed
-- no direct cross-database coupling
+## Explicitly outside v1.0
 
-## Later — organization and flight-school capabilities
+- flight-school administration
+- organizations, instructors and students
+- regulatory training records or certificates
+- LMS/SCORM enterprise workflows
+- native mobile applications
+- 3D cockpit rendering
+- direct MSFS/X-Plane telemetry or switch-state tracking
+- multiplayer crew synchronization
+- voice recognition as a required workflow
 
-Only after the individual Training product is proven:
+These may be evaluated after the individual simulator-training product is proven.
 
-- organizations and memberships
-- students and instructors
-- training programs and syllabi
-- flight exercises
-- instructor sign-offs
-- formal training records
-- school administration
+## After v1.0
 
-A separate `flytally-school` product remains an option if those workflows become a materially different application boundary.
+The first post-v1.0 objective is **multi-aircraft scaling**: prove that the same content/admin architecture can bring additional aircraft online efficiently without weakening the Learjet-quality standard.

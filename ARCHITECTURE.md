@@ -4,117 +4,205 @@
 
 FlyTally Training is a separate web application and repository from FlyTally Logbook.
 
-The intended deployment boundary is `training.fly-tally.com`. FlyTally Logbook remains responsible for operational flight records, certification evidence and regulatory logbook functions. Training is responsible for learning content, procedures, checklists, assessment and progress.
+Production boundary: `training.fly-tally.com`.
 
-No runtime code is imported directly from the Logbook repository. Shared capabilities should become explicit contracts or shared services only when a real cross-product requirement exists.
+FlyTally Logbook remains responsible for operational flight records, certification evidence and regulatory logbook functions. FlyTally Training is responsible for simulator-oriented aircraft learning, procedures, checklists, cockpit orientation, scenarios, knowledge, reference and progress.
 
-## 2. Technology baseline
+No runtime code is imported directly from the Logbook repository. Cross-product capabilities must use explicit contracts or shared services only when a real requirement exists.
+
+## 2. Primary user and learning model
+
+The primary v1.0 user is a simulator pilot learning a new aircraft/add-on.
+
+The product is optimized for practical competence rather than exhaustive type-rating-style study.
+
+Core learning principles:
+- default normal training starts Cold & Dark and ends Shutdown / Cold & Dark,
+- checklist/procedure flow is the spine of learning,
+- theory is delivered progressively when the pilot needs it,
+- the source manual remains available for depth and provenance,
+- manual chapter order is reference structure, not the primary learner journey.
+
+The preferred information pattern is:
+
+`Action -> Why? -> Show me / System detail -> Source`
+
+A user should be able to ignore deeper layers when they only need to complete a normal simulator flight.
+
+## 3. Technology baseline
 
 - Next.js 16
 - React 19
 - TypeScript with strict checking
 - server-first application architecture
-- PostgreSQL is the expected persistence layer when product data is introduced
+- PostgreSQL for persistent v1.0 product state
+- Vercel deployment at `training.fly-tally.com`
 
-The database is deliberately not introduced in the foundation commit. Schema design follows the approved product model rather than being inherited from Logbook.
+Persistence is part of v1.0 because progress, attempts and aircraft learning state must survive across sessions and devices.
 
-## 3. Identity boundary
+## 4. Reference implementation rule
 
-Training should ultimately use the same FlyTally account identity as Logbook, without duplicating user accounts.
+Learjet 35/36 is the v1.0 reference aircraft.
 
-Until a shared identity contract is implemented:
+It is used to prove all product capabilities end-to-end, but it must not become a special-case architecture.
 
+Aircraft-specific content is data. Product behavior is generic.
+
+Any implementation that requires future aircraft to duplicate Learjet-specific UI or business logic should be treated as an architectural smell and refactored before multi-aircraft scaling.
+
+## 5. Identity boundary
+
+Training should use the same stable FlyTally account identity as Logbook without duplicating user accounts.
+
+Until the shared identity contract is implemented:
 - do not copy Logbook auth code into Training,
 - do not query the Logbook database directly,
 - do not treat Logbook session internals as a public API,
-- keep Training user references ready for an external/stable FlyTally user identity.
+- keep Training user references compatible with an external/stable FlyTally user identity.
 
-A later identity phase should define a narrow SSO/session contract and migration strategy before authenticated product data is created.
+The v1.0 identity phase must define a narrow SSO/session contract and migration strategy before persisted user state is considered final.
 
-## 4. Authoritative content model
+## 6. Source and provenance model
 
 Training content follows this provenance chain:
 
 `Manual -> Manual revision -> Source reference -> Draft training content -> Human approval -> Published training content`
 
-A source reference identifies the manual revision and, when available, section and page. Approved content never silently changes when a new manual revision is uploaded.
+A source reference identifies manual revision and, where available, section and page.
 
-When a manual is revised, affected approved content should be marked for review. New extraction may propose updates, but it must not overwrite approved material automatically.
+Approved content never silently changes when a new manual revision is uploaded. A new revision may mark affected content stale and propose an update, but must not overwrite approved material automatically.
 
-## 5. AI boundary
+For simulator-derived checklists and procedures, the UI must distinguish between:
+- source-backed simulator training content,
+- and an approved operational AFM/QRH checklist.
 
-AI is an assistant, not an authority.
+The product may derive simulator-oriented flows from the available source set, but it must not falsely label them as approved aircraft checklists.
+
+## 7. AI boundary
+
+AI is a content-production assistant, not source authority.
 
 Allowed uses include:
-
-- extracting candidate procedures and facts from uploaded manuals,
-- proposing lesson structure,
-- generating draft questions from approved source material,
-- explaining approved material in learner-friendly language,
+- extracting candidate facts, procedures and limitations from manuals,
+- proposing Quick Start and system lesson structure,
+- generating draft simulator checklists from supported source material,
+- generating draft questions from approved/source-backed content,
+- producing concise learner-friendly explanations,
 - identifying possible differences between manual revisions.
 
-AI output remains draft until the required provenance and approval gates are satisfied.
+AI output remains draft until required provenance and approval gates are satisfied.
 
-## 6. Core product domains
+## 8. Core product domains
 
 ### Aircraft
-Aircraft types and training variants. A course is tied to an explicit aircraft/type context rather than an ambiguous free-text label.
+Aircraft types, variants, training status and aircraft-level navigation.
 
-### Manuals
-Source documents and immutable manual revisions. Each revision has its own identity and source metadata.
+### Manuals and revisions
+Controlled source documents, immutable revisions, source metadata and revision-change handling.
 
-### Courses
-Courses, modules and lessons built from approved content.
+### First Flight
+A complete normal simulator sector from Cold & Dark through Shutdown. This is the primary practical learning journey.
 
-### Procedures and checklists
-Structured procedural training, including normal, abnormal and emergency material. Planned trainer modes include Learn, Practice, Flow and Challenge & Response. Memory items require explicit source provenance.
+### Checklists and procedures
+Structured normal, abnormal and emergency procedural content with reusable steps, phases, explanations, source references and trainer modes.
+
+Required v1.0 modes:
+- Learn
+- Practice
+- Flow
+- Challenge & Response
+
+### Cockpit orientation
+Cockpit panels/regions, control locations, images/diagrams, hotspots and Show me links from training actions.
+
+### Systems and Quick Start
+Concise pilot-oriented system learning that supports actual operation rather than reproducing entire manual chapters.
+
+### Scenarios
+Abnormal and emergency practice with recognition, control priority, immediate action and checklist continuation.
+
+### Reference
+Speeds, limitations, capacities, memory items, system summaries, quick checklist access and compact FLY mode.
 
 ### Assessment
-Question banks, questions, answers, attempts and scoring. Questions should retain source references to the material they assess.
+Source-linked questions, answers, attempts, scoring, explanations and weak-area identification.
 
 ### Progress
-Enrollment, lesson completion, procedure practice and assessment attempts.
+Aircraft-level completion, attempts, recently practiced content and cross-device continuation.
+
+### Content administration
+Aircraft/manual registration, draft generation, review, approval, publication and stale-content handling.
 
 ### Organizations — later
-School/organization management, instructor sign-off and formal training records are intentionally deferred until the individual training product is proven.
+School/organization management, instructor sign-off and formal training records remain outside v1.0.
 
-## 7. Anticipated persistence model
+## 9. Learner information architecture
 
-The expected first database model includes:
+The v1.0 product should converge on six primary user-facing areas:
 
-- users / external user identity mapping,
-- aircraft_types,
-- manuals,
-- manual_revisions,
-- manual_sources or source_references,
-- courses,
-- modules,
-- lessons,
-- procedures,
-- procedure_steps,
-- checklists,
-- checklist_items,
-- question_banks,
-- questions,
-- answers,
-- enrollments,
-- progress,
-- attempts.
+- Aircraft
+- Learn
+- Checklist
+- Practice
+- Reference
+- Progress
 
-This is an architectural target, not permission to create all tables at once. Add persistence incrementally with each product capability.
+Within an aircraft, the strongest entry point is:
 
-## 8. Safety and integrity invariants
+`START HERE -> FIRST FLIGHT FROM COLD & DARK`
 
-- publishable technical content requires at least one authoritative source reference,
+Source-management and content-admin interfaces are separate from the pilot learning experience and should not clutter the normal learner UI.
+
+## 10. Anticipated persistence model
+
+The v1.0 database is expected to grow incrementally around real product capabilities. Likely entities include:
+
+- external user identity mapping
+- aircraft_types
+- aircraft_variants
+- manuals
+- manual_revisions
+- source_references
+- courses / learning_paths
+- lessons
+- systems_topics
+- cockpit_regions
+- cockpit_controls / hotspots
+- procedures
+- procedure_phases
+- procedure_steps
+- checklists
+- checklist_items
+- scenarios
+- question_banks
+- questions
+- answers
+- user_aircraft_progress
+- procedure_attempts
+- quiz_attempts
+- weak_area_state
+- content_approvals
+
+Do not create the full schema speculatively. Add tables with the corresponding product milestone while preserving stable identifiers and provenance.
+
+## 11. Safety and integrity invariants
+
+- publishable technical content requires at least one source reference,
 - publishable technical content requires explicit approval,
-- approved content is not automatically overwritten by AI or a newer manual revision,
+- approved content is not automatically overwritten by AI or newer manual revisions,
 - manual revisions are immutable evidence objects,
 - source provenance survives edits to training presentation,
 - learner progress is separate from source-content approval state,
-- Logbook regulatory evidence is never rewritten by Training.
+- Logbook regulatory evidence is never rewritten by Training,
+- a simulator-derived checklist is never presented as an approved aircraft checklist unless the source set explicitly supports that status,
+- normal training defaults to Cold & Dark -> Shutdown.
 
-## 9. Deployment boundary
+## 12. Deployment and development boundary
 
-Training will receive its own Vercel project and deployment lifecycle. Do not attach this repository to the existing Logbook Vercel project.
+Training has its own GitHub repository and Vercel project.
 
-A production deployment is intentionally deferred until the application foundation, dependency lockfile and verification gate are stable.
+`main` is the canonical long-lived branch. Product work uses short-lived feature/fix branches, candidate-first verification and PR merge after green CI.
+
+Vercel production follows `main` and serves `training.fly-tally.com`.
+
+The Learjet reference implementation may evolve incrementally in production during development, but the product must not be called v1.0 complete until the v1.0 acceptance scope in `ROADMAP.md` and `FEATURES.md` is satisfied.
