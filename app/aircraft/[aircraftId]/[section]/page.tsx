@@ -35,11 +35,11 @@ const definitions: Record<Exclude<AircraftWorkspaceSection, "overview">, Workspa
   checklist: {
     eyebrow: "Checklist",
     title: "Train the flow, then verify it.",
-    description: "The checklist is the spine of FlyTally Training. The current normal flow already runs from cold & dark through shutdown.",
+    description: "The checklist is the spine of FlyTally Training. Choose how much help you want, then practice the complete flight or only one phase.",
     cards: [
       { title: "Normal Flight Checklist", description: "Complete simulator-oriented normal flow from power-up to shutdown, with source-backed explanations.", status: "Available", href: "cold-dark" },
-      { title: "Trainer Modes", description: "Learn, Practice, Flow and Challenge & Response will share the same underlying checklist data.", status: "M2" },
-      { title: "Phase Practice", description: "Practice engine start, takeoff, approach or shutdown without running the entire flight.", status: "M2" },
+      { title: "Trainer Modes", description: "Switch between Learn, Practice, Flow and Challenge & Response using the same checklist data.", status: "Available", href: "cold-dark" },
+      { title: "Phase Practice", description: "Practice engine start, takeoff, approach, shutdown or any other phase without running the entire flight.", status: "Available", href: "cold-dark" },
     ],
   },
   practice: {
