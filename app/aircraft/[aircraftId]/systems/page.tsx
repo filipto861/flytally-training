@@ -2,16 +2,19 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
-import { getTrainingAircraft } from "@/lib/aircraft-catalog";
-import { getAircraftLearningContent, getEssentialSystemsMinutes } from "@/lib/learning-content";
+import { getEssentialSystemsMinutes } from "@/lib/content-metrics";
+import { getTrainingContentRepository } from "@/lib/content-store";
 import styles from "../learning.module.css";
 
 export default async function EssentialSystemsPage({
   params,
 }: Readonly<{ params: Promise<{ aircraftId: string }> }>) {
   const { aircraftId } = await params;
-  const aircraft = getTrainingAircraft(aircraftId);
-  const content = getAircraftLearningContent(aircraftId);
+  const repository = getTrainingContentRepository();
+  const [aircraft, content] = await Promise.all([
+    repository.getAircraft(aircraftId),
+    repository.getLearningContent(aircraftId),
+  ]);
 
   if (!aircraft || !content) notFound();
 
@@ -22,7 +25,7 @@ export default async function EssentialSystemsPage({
 
       <section className="workspace-section-hero">
         <p className="eyebrow">Essential Systems · {aircraft.displayName}</p>
-        <h1>Nine systems. Only the pilot-facing mental model.</h1>
+        <h1>{content.systems.length} systems. Only the pilot-facing mental model.</h1>
         <p className="lede">
           Open a system when you need it. Each lesson answers the same questions: what is doing the work, what you control, what you monitor, what normal looks like and what is worth remembering.
         </p>
@@ -30,12 +33,12 @@ export default async function EssentialSystemsPage({
 
       <section className={styles.learningHeader}>
         <p>
-          This is not a replacement for the manual. It is a simulator briefing layer built from it. Where Learjet configuration changes by serial number, the lesson says so instead of flattening different aircraft into one false configuration.
+          This is not a replacement for the manual. It is a simulator briefing layer built from it. Where configuration changes by variant, serial number or modification status, the lesson must preserve that distinction rather than flatten different aircraft into one false configuration.
         </p>
         <span className={styles.timeBadge}>~{getEssentialSystemsMinutes(content)} min if read end-to-end</span>
       </section>
 
-      <section className={styles.systemsGrid} aria-label="Learjet essential systems">
+      <section className={styles.systemsGrid} aria-label={`${aircraft.displayName} essential systems`}>
         {content.systems.map((system, index) => (
           <details className={styles.systemCard} key={system.id} open={index === 0}>
             <summary>

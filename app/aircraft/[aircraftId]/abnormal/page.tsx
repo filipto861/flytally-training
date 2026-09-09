@@ -3,16 +3,19 @@ import { notFound } from "next/navigation";
 
 import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
 import { ScenarioTrainer } from "@/components/scenario-trainer";
-import { getTrainingAircraft } from "@/lib/aircraft-catalog";
-import { getAbnormalTrainingMinutes, getAircraftAbnormalTraining } from "@/lib/abnormal-scenarios";
+import { getAbnormalTrainingMinutes } from "@/lib/content-metrics";
+import { getTrainingContentRepository } from "@/lib/content-store";
 import styles from "../learning.module.css";
 
 export default async function AbnormalEmergencyPage({
   params,
 }: Readonly<{ params: Promise<{ aircraftId: string }> }>) {
   const { aircraftId } = await params;
-  const aircraft = getTrainingAircraft(aircraftId);
-  const training = getAircraftAbnormalTraining(aircraftId);
+  const repository = getTrainingContentRepository();
+  const [aircraft, training] = await Promise.all([
+    repository.getAircraft(aircraftId),
+    repository.getAbnormalTraining(aircraftId),
+  ]);
 
   if (!aircraft || !training) notFound();
 

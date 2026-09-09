@@ -1,8 +1,17 @@
 import Link from "next/link";
 
-import { trainingAircraft } from "@/lib/aircraft-catalog";
+import { getTrainingContentRepository } from "@/lib/content-store";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const repository = getTrainingContentRepository();
+  const aircraft = await repository.listAircraft();
+  const aircraftEntries = await Promise.all(
+    aircraft.map(async (item) => ({
+      aircraft: item,
+      normalFlight: await repository.getNormalFlight(item.id),
+    })),
+  );
+
   return (
     <main className="shell home-shell">
       <section className="hero hero-compact">
@@ -19,24 +28,28 @@ export default function HomePage() {
             <p className="eyebrow">Aircraft library</p>
             <h2 id="aircraft-title">Your training aircraft</h2>
           </div>
-          <p>Learjet 35/36 is the reference aircraft used to build and validate the complete FlyTally Training v1.0 experience.</p>
+          <p>Aircraft with controlled training content appear here. The product experience is shared; the aircraft-specific material comes from the content repository.</p>
         </div>
 
-        <div className="aircraft-grid aircraft-grid-single">
-          {trainingAircraft.map((aircraft) => {
-            const manual = aircraft.manuals[0];
+        <div className={`aircraft-grid ${aircraftEntries.length === 1 ? "aircraft-grid-single" : ""}`}>
+          {aircraftEntries.map(({ aircraft: item, normalFlight }) => {
+            const manual = item.manuals[0];
             return (
-              <Link className="aircraft-card aircraft-card-featured" href={`/aircraft/${aircraft.id}`} key={aircraft.id}>
+              <Link
+                className={`aircraft-card ${aircraftEntries.length === 1 ? "aircraft-card-featured" : ""}`}
+                href={`/aircraft/${item.id}`}
+                key={item.id}
+              >
                 <div>
                   <div className="card-kicker-row">
-                    <span className="source-pill">Reference aircraft</span>
-                    <span className="availability-dot">First Flight available</span>
+                    <span className="source-pill">Training aircraft</span>
+                    <span className="availability-dot">{normalFlight ? "First Flight available" : "Content in progress"}</span>
                   </div>
-                  <h3>{aircraft.displayName}</h3>
-                  <p className="aircraft-subtitle">Variants {aircraft.variants.join(" · ")}</p>
+                  <h3>{item.displayName}</h3>
+                  <p className="aircraft-subtitle">Variants {item.variants.join(" · ")}</p>
                   <div className="aircraft-card-meta">
-                    <span>Cold & Dark → Shutdown</span>
-                    <span>{manual?.publisher} · Rev {manual?.revision}</span>
+                    {normalFlight ? <span>{normalFlight.title}</span> : null}
+                    {manual ? <span>{manual.publisher} · Rev {manual.revision}</span> : <span>Source registration in progress</span>}
                   </div>
                 </div>
                 <span className="card-action">Open training workspace →</span>

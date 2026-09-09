@@ -1,9 +1,4 @@
-export type CockpitRegionId =
-  | "pilot-instrument"
-  | "center-instrument"
-  | "center-switch"
-  | "copilot-lower-right"
-  | "pedestal";
+export type CockpitRegionId = string;
 
 export type CockpitSourceReference = {
   readonly chapter: number;

@@ -8,13 +8,19 @@ import {
   splitChecklistChallenge,
   type ChecklistTrainingMode,
 } from "@/lib/checklist-training";
-import { getCockpitLocationForChecklistItem } from "@/lib/cockpit-orientation";
+import type { CockpitOrientation } from "@/lib/cockpit-orientation";
 import type { SimulatorFlightFlow, SimulatorChecklistItem } from "@/lib/simulator-checklists";
 import styles from "./checklist-runner.module.css";
 
 const ALL_PHASES = "all";
 
-export function ChecklistRunner({ flow }: Readonly<{ flow: SimulatorFlightFlow }>) {
+export function ChecklistRunner({
+  flow,
+  orientation,
+}: Readonly<{
+  flow: SimulatorFlightFlow;
+  orientation?: CockpitOrientation;
+}>) {
   const [mode, setMode] = useState<ChecklistTrainingMode>("learn");
   const [phaseFilter, setPhaseFilter] = useState<string>(ALL_PHASES);
   const [completed, setCompleted] = useState<Set<string>>(() => new Set());
@@ -70,7 +76,7 @@ export function ChecklistRunner({ flow }: Readonly<{ flow: SimulatorFlightFlow }
   }
 
   function showMeLink(item: SimulatorChecklistItem) {
-    const location = getCockpitLocationForChecklistItem(flow.aircraftId, item.id);
+    const location = orientation?.controls.find((control) => control.checklistItemIds.includes(item.id));
     if (!location) return null;
 
     return (
