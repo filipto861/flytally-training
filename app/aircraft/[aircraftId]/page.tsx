@@ -1,7 +1,16 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
 import { getTrainingAircraft } from "@/lib/aircraft-catalog";
+
+const workspaceCards = [
+  ["Learn", "Quick Start and concise system lessons that explain only what you need to operate the aircraft."],
+  ["Checklist", "Normal simulator checklist with training modes built around the full flight flow."],
+  ["Practice", "First Flight, cockpit orientation and targeted procedure practice."],
+  ["Reference", "Speeds, limits, systems and the controlled manual when you need deeper detail."],
+  ["Progress", "Aircraft learning status, attempts, weak areas and recent practice."],
+] as const;
 
 export default async function AircraftPage({
   params,
@@ -17,72 +26,60 @@ export default async function AircraftPage({
   return (
     <main className="shell aircraft-detail">
       <Link className="back-link" href="/">← Aircraft library</Link>
+      <AircraftWorkspaceNav aircraftId={aircraft.id} active="overview" />
 
-      <section className="detail-hero">
+      <section className="detail-hero workspace-hero">
         <div>
-          <p className="eyebrow">Aircraft type</p>
+          <p className="eyebrow">Training workspace</p>
           <h1>{aircraft.displayName}</h1>
-          <p className="lede">Variants covered by this training source: {aircraft.variants.join(", ")}.</p>
+          <p className="lede">
+            Learn the {aircraft.displayName} by operating it. The normal path starts fully cold & dark and ends after shutdown.
+          </p>
+          <div className="hero-facts">
+            <span>Variants {aircraft.variants.join(" · ")}</span>
+            <span>Target first-flight prep 2–4 h</span>
+          </div>
         </div>
-        <div className="manual-summary">
-          <span className="source-pill">Training source · not AFM</span>
+
+        <aside className="manual-summary compact-summary">
+          <span className="source-pill">Controlled training source</span>
           <h2>{manual.title}</h2>
           <dl>
             <div><dt>Publisher</dt><dd>{manual.publisher}</dd></div>
             <div><dt>Revision</dt><dd>{manual.revision}</dd></div>
             <div><dt>Issue</dt><dd>January 2020</dd></div>
           </dl>
-          <p>{manual.authorityNote}</p>
-        </div>
+          <p>Simulator training content stays traceable to this source while the pilot-facing experience remains concise.</p>
+        </aside>
       </section>
 
-      <section className="aircraft-section" aria-labelledby="start-title">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">Start here</p>
-            <h2 id="start-title">Fly it from cold & dark</h2>
-          </div>
-          <p>The default simulator path is a complete normal sector. System theory stays available as supporting context, not a prerequisite.</p>
+      <section className="start-panel" aria-labelledby="start-title">
+        <div>
+          <p className="eyebrow">Start here</p>
+          <h2 id="start-title">Your first flight starts cold & dark.</h2>
+          <p>Power up, start both engines, taxi, take off, fly one normal sector, land and shut the aircraft down again.</p>
         </div>
-        <div className="aircraft-grid">
-          <Link className="aircraft-card" href={`/aircraft/${aircraft.id}/cold-dark`}>
-            <div>
-              <span className="source-pill">Simulator quick path</span>
-              <h3>Cold & Dark → Shutdown</h3>
-              <p>Power up, start, taxi, takeoff, climb, approach, landing and shutdown in one guided flow.</p>
-            </div>
-            <span className="card-action">Start training →</span>
-          </Link>
-        </div>
+        <Link className="primary-action" href={`/aircraft/${aircraft.id}/cold-dark`}>
+          Start First Flight →
+        </Link>
       </section>
 
-      <section className="provenance-strip" aria-label="Manual provenance">
-        <div><span>Identity</span><strong>PDF page {manual.sourceReferences.identityPage}</strong></div>
-        <div><span>Authority notice</span><strong>PDF page {manual.sourceReferences.authorityNoticePage}</strong></div>
-        <div><span>Revision record</span><strong>PDF page {manual.sourceReferences.revisionPage}</strong></div>
-        <div><span>Curriculum source</span><strong>PDF page {manual.sourceReferences.contentsPage}</strong></div>
-      </section>
-
-      <section className="curriculum" aria-labelledby="curriculum-title">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">Manual reference</p>
-            <h2 id="curriculum-title">21 chapters when you need the detail</h2>
-          </div>
-          <p>The full manual structure remains available for deeper study, but it no longer defines the primary learning path.</p>
-        </div>
-
-        <ol className="chapter-list">
-          {manual.chapters.map((chapter) => (
-            <li className={chapter.status === "READY_TO_DRAFT" ? "chapter-ready" : undefined} key={chapter.number}>
-              <span className="chapter-number">{String(chapter.number).padStart(2, "0")}</span>
-              <div>
-                <strong>{chapter.title}</strong>
-                <span>Reference module</span>
+      <section className="workspace-overview" aria-label="Training areas">
+        {workspaceCards.map(([title, description]) => {
+          const section = title.toLowerCase();
+          const href = `/aircraft/${aircraft.id}/${section}`;
+          const available = title === "Checklist" || title === "Practice" || title === "Reference";
+          return (
+            <Link className="workspace-card" href={href} key={title}>
+              <div className="workspace-card-topline">
+                <span>{title}</span>
+                <small>{available ? "Open" : "v1.0"}</small>
               </div>
-            </li>
-          ))}
-        </ol>
+              <p>{description}</p>
+              <strong>Explore →</strong>
+            </Link>
+          );
+        })}
       </section>
     </main>
   );

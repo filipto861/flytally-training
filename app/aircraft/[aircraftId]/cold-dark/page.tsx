@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
 import { ChecklistRunner } from "@/components/checklist-runner";
 import { getTrainingAircraft } from "@/lib/aircraft-catalog";
 import { getSimulatorFlightFlow } from "@/lib/simulator-checklists";
@@ -17,17 +18,17 @@ export default async function ColdDarkPage({
   return (
     <main className="shell aircraft-detail">
       <Link className="back-link" href={`/aircraft/${aircraft.id}`}>← {aircraft.displayName}</Link>
+      <AircraftWorkspaceNav aircraftId={aircraft.id} active="practice" />
 
-      <section className="detail-hero">
+      <section className="detail-hero workspace-hero">
         <div>
-          <p className="eyebrow">Simulator quick path</p>
+          <p className="eyebrow">First Flight</p>
           <h1>{flow.title}</h1>
           <p className="lede">
-            Start from a fully cold cockpit, fly one normal sector and return the aircraft to cold & dark.
-            This is the default FlyTally Training path — learn by doing, not by reading the full manual first.
+            Start from a fully cold cockpit, fly one normal sector and return the aircraft to cold & dark. Do the action in the sim and open the explanation only when you need the context.
           </p>
         </div>
-        <aside className="manual-summary">
+        <aside className="manual-summary compact-summary">
           <span className="source-pill">Simulator checklist · not AFM</span>
           <h2>{aircraft.displayName}</h2>
           <dl>
@@ -37,14 +38,6 @@ export default async function ColdDarkPage({
           </dl>
           <p>{flow.sourceNote}</p>
         </aside>
-      </section>
-
-      <section className="principle">
-        <div>
-          <p className="eyebrow">How to use it</p>
-          <h2>Do the action in the sim. Tick it off. Read the “why” only when you need it.</h2>
-        </div>
-        <p>Every technical item keeps a chapter/page pointer back to the FlightSafety training manual, but the flow itself is deliberately optimized for simulator flying.</p>
       </section>
 
       <ChecklistRunner flow={flow} />
