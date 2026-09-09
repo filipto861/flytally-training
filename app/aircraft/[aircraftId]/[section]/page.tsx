@@ -72,17 +72,14 @@ const definitions: Record<Exclude<AircraftWorkspaceSection, "overview">, Workspa
     description: "Progress combines aircraft completion, attempts, recent practice and weak areas while keeping the focus on simulator competence.",
     cards: [
       { title: "Knowledge & weak-area review", description: "Source-linked questions with immediate explanations and weak-area identification.", status: "M6", href: "knowledge", capability: "knowledge" },
-      { title: "Aircraft Progress", description: "Quick Start, First Flight, checklist, systems, scenarios and knowledge completion in one aircraft view.", status: "M6/M7" },
+      { title: "Aircraft Progress", description: "Checklist, scenarios and knowledge attempts feed one aircraft-scoped activity stream with recent practice and weak areas.", status: "M6", href: "progress-overview", capability: "knowledge" },
       { title: "Cross-device continuation", description: "Persist progress, checklist attempts and quiz history through the shared FlyTally identity.", status: "M7" },
     ],
   },
 };
 
-export default async function AircraftWorkspaceSectionPage({
-  params,
-}: Readonly<{ params: Promise<{ aircraftId: string; section: string }> }>) {
+export default async function AircraftWorkspaceSectionPage({ params }: Readonly<{ params: Promise<{ aircraftId: string; section: string }> }>) {
   const { aircraftId, section } = await params;
-
   if (!isAircraftWorkspaceSection(section) || section === "overview") notFound();
 
   const bundle = await getAircraftContentBundle(getTrainingContentRepository(), aircraftId);
@@ -96,7 +93,6 @@ export default async function AircraftWorkspaceSectionPage({
     <main className="shell aircraft-detail">
       <Link className="back-link" href={`/aircraft/${aircraft.id}`}>← {aircraft.displayName}</Link>
       <AircraftWorkspaceNav aircraftId={aircraft.id} active={section} />
-
       <section className="workspace-section-hero">
         <p className="eyebrow">{definition.eyebrow} · {aircraft.displayName}</p>
         <h1>{definition.title}</h1>
@@ -109,39 +105,23 @@ export default async function AircraftWorkspaceSectionPage({
           const href = card.href && available ? `/aircraft/${aircraft.id}/${card.href}` : undefined;
           const content = (
             <>
-              <div className="workspace-card-topline">
-                <span>{card.title}</span>
-                <small>{available ? "Available" : card.status}</small>
-              </div>
+              <div className="workspace-card-topline"><span>{card.title}</span><small>{available ? "Available" : card.status}</small></div>
               <p>{card.description}</p>
               <strong>{href ? "Open →" : available ? "Available in this section" : "Included in v1.0"}</strong>
             </>
           );
-
-          return href ? (
-            <Link className="workspace-card" href={href} key={card.title}>{content}</Link>
-          ) : (
-            <article className="workspace-card workspace-card-static" key={card.title}>{content}</article>
-          );
+          return href ? <Link className="workspace-card" href={href} key={card.title}>{content}</Link> : <article className="workspace-card workspace-card-static" key={card.title}>{content}</article>;
         })}
       </section>
 
       {section === "reference" && manual ? (
         <section className="reference-library" aria-labelledby="manual-library-title">
           <div className="section-heading">
-            <div>
-              <p className="eyebrow">Manual library</p>
-              <h2 id="manual-library-title">{manual.title}</h2>
-            </div>
+            <div><p className="eyebrow">Manual library</p><h2 id="manual-library-title">{manual.title}</h2></div>
             <p>{manual.publisher} · Revision {manual.revision} · {manual.issueDate}</p>
           </div>
           <ol className="chapter-list">
-            {manual.chapters.map((chapter) => (
-              <li key={chapter.number}>
-                <span className="chapter-number">{String(chapter.number).padStart(2, "0")}</span>
-                <div><strong>{chapter.title}</strong><span>Source chapter</span></div>
-              </li>
-            ))}
+            {manual.chapters.map((chapter) => <li key={chapter.number}><span className="chapter-number">{String(chapter.number).padStart(2, "0")}</span><div><strong>{chapter.title}</strong><span>Source chapter</span></div></li>)}
           </ol>
         </section>
       ) : null}
