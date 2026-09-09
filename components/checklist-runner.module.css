@@ -31,6 +31,8 @@
 .checkButton[aria-pressed="true"] .checkmark { border-color: #172033; background: #172033; box-shadow: inset 0 0 0 5px #fff; }
 .copy > strong { display: block; line-height: 1.4; }
 .itemComplete .copy { opacity: .58; }
+.showMe { display: inline-block; margin-top: 6px; color: #35536f; font-size: .78rem; font-weight: 800; text-decoration: none; text-transform: capitalize; }
+.showMe:hover { text-decoration: underline; }
 .explanation { margin-top: 8px; }
 .explanation summary { width: fit-content; color: #526579; font-size: .85rem; font-weight: 760; cursor: pointer; }
 .explanation p { margin: 8px 0 0; color: #607084; line-height: 1.5; font-size: .92rem; }
