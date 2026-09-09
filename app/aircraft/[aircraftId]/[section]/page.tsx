@@ -49,7 +49,7 @@ const definitions: Record<Exclude<AircraftWorkspaceSection, "overview">, Workspa
     cards: [
       { title: "First Flight", description: "Cold & Dark → engine start → taxi → takeoff → cruise → approach → landing → shutdown.", status: "Available", href: "cold-dark" },
       { title: "Cockpit Orientation", description: "Learn verified cockpit regions and jump to them with Show me from supported checklist items.", status: "Available", href: "orientation" },
-      { title: "Abnormal & Emergency", description: "Scenario-based engine, electrical, hydraulic, pressurization and other simulator-relevant practice.", status: "M5" },
+      { title: "Abnormal & Emergency", description: "Scenario-based engine, electrical, hydraulic, pressurization and other simulator-relevant practice.", status: "Available", href: "abnormal" },
     ],
   },
   reference: {
