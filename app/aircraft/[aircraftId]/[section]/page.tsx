@@ -63,7 +63,7 @@ const definitions: Record<Exclude<AircraftWorkspaceSection, "overview">, Workspa
     description: "Reference is intentionally separate from the primary learning path: use it for limits, systems, source material and quick in-flight lookup.",
     cards: [
       { title: "Controlled Manual", description: "Registered source material with revision and source provenance retained.", status: "v1.0", capability: "manual" },
-      { title: "Quick Reference / FLY mode", description: "Speeds, limitations, capacities, memory items and compact checklist access while flying.", status: "M6" },
+      { title: "Quick Reference / FLY mode", description: "Source-backed speeds, capacities, system references and compact simulator-side cues without inventing fixed performance data.", status: "M6", href: "quick-reference", capability: "quickReference" },
     ],
   },
   progress: {
@@ -71,6 +71,7 @@ const definitions: Record<Exclude<AircraftWorkspaceSection, "overview">, Workspa
     title: "Know what you can do without turning training into an exam.",
     description: "Progress combines aircraft completion, attempts, recent practice and weak areas while keeping the focus on simulator competence.",
     cards: [
+      { title: "Knowledge & weak-area review", description: "Source-linked questions with immediate explanations and weak-area identification.", status: "M6", href: "knowledge", capability: "knowledge" },
       { title: "Aircraft Progress", description: "Quick Start, First Flight, checklist, systems, scenarios and knowledge completion in one aircraft view.", status: "M6/M7" },
       { title: "Cross-device continuation", description: "Persist progress, checklist attempts and quiz history through the shared FlyTally identity.", status: "M7" },
     ],
