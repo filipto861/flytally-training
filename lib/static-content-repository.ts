@@ -1,9 +1,9 @@
-import { learjet3536AbnormalTraining, type AircraftAbnormalTraining } from "./abnormal-scenarios";
-import { trainingAircraft, type TrainingAircraft } from "./aircraft-catalog";
-import { learjet3536CockpitOrientation, type CockpitOrientation } from "./cockpit-orientation";
-import type { TrainingContentRepository } from "./content-repository";
-import { learjet3536LearningContent, type AircraftLearningContent } from "./learning-content";
-import { learjet3536ColdDarkFlow, type SimulatorFlightFlow } from "./simulator-checklists";
+import { learjet3536AbnormalTraining, type AircraftAbnormalTraining } from "./abnormal-scenarios.ts";
+import { trainingAircraft, type TrainingAircraft } from "./aircraft-catalog.ts";
+import { learjet3536CockpitOrientation, type CockpitOrientation } from "./cockpit-orientation.ts";
+import type { TrainingContentRepository } from "./content-repository.ts";
+import { learjet3536LearningContent, type AircraftLearningContent } from "./learning-content.ts";
+import { learjet3536ColdDarkFlow, type SimulatorFlightFlow } from "./simulator-checklists.ts";
 
 export type StaticTrainingContentSeed = {
   readonly aircraft: readonly TrainingAircraft[];
