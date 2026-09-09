@@ -22,8 +22,8 @@ test("learner-facing UI resolves aircraft data through the repository boundary",
     "getTrainingAircraft(",
     "getAircraftLearningContent(",
     "getSimulatorFlightFlow(",
-    "getCockpitOrientation(",
     "getAircraftAbnormalTraining(",
+    "getCockpitLocationForChecklistItem(",
     "static-content-repository",
   ];
 
@@ -36,5 +36,12 @@ test("learner-facing UI resolves aircraft data through the repository boundary",
         `${path.relative(process.cwd(), file)} bypasses the aircraft content repository with ${token}`,
       );
     }
+
+    const importsLegacyOrientationGetter = /import\s*\{[^}]*\bgetCockpitOrientation\b[^}]*\}\s*from\s*["']@\/lib\/cockpit-orientation["']/s.test(source);
+    assert.equal(
+      importsLegacyOrientationGetter,
+      false,
+      `${path.relative(process.cwd(), file)} imports the legacy cockpit-orientation getter directly`,
+    );
   }
 });

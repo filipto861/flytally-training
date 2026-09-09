@@ -35,7 +35,7 @@ export class StaticTrainingContentRepository implements TrainingContentRepositor
   private readonly orientationByAircraftId: ReadonlyMap<string, CockpitOrientation>;
   private readonly abnormalByAircraftId: ReadonlyMap<string, AircraftAbnormalTraining>;
 
-  constructor(private readonly seed: StaticTrainingContentSeed = staticTrainingContentSeed) {
+  constructor(seed: StaticTrainingContentSeed = staticTrainingContentSeed) {
     this.aircraftById = new Map(seed.aircraft.map((item) => [item.id, item] as const));
     this.learningByAircraftId = new Map(seed.learningContent.map((item) => [item.aircraftId, item] as const));
     this.normalFlightByAircraftId = new Map(seed.normalFlights.map((item) => [item.aircraftId, item] as const));
