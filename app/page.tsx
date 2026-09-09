@@ -1,3 +1,7 @@
+import Link from "next/link";
+
+import { trainingAircraft } from "@/lib/aircraft-catalog";
+
 const capabilities = [
   ["Manuals", "Revision-controlled source documents with explicit provenance."],
   ["Lessons", "Aircraft-specific learning modules built from approved material."],
@@ -14,9 +18,32 @@ export default function HomePage() {
         <p className="eyebrow">FlyTally ecosystem</p>
         <h1>Training built from the aircraft manual.</h1>
         <p className="lede">
-          A dedicated workspace for learning an aircraft, practicing procedures and proving where every technical training item came from.
+          Learn an aircraft by system, procedure and source — with every technical training item traceable to a controlled manual revision.
         </p>
-        <div className="status">Foundation · v0.0.1</div>
+        <div className="status">Manual-driven training · v0.1</div>
+      </section>
+
+      <section className="aircraft-section" aria-labelledby="aircraft-title">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">Aircraft library</p>
+            <h2 id="aircraft-title">Choose an aircraft</h2>
+          </div>
+          <p>The first real training type is now connected to a controlled source record.</p>
+        </div>
+
+        <div className="aircraft-grid">
+          {trainingAircraft.map((aircraft) => (
+            <Link className="aircraft-card" href={`/aircraft/${aircraft.id}`} key={aircraft.id}>
+              <div>
+                <span className="source-pill">{aircraft.manuals.length} controlled manual</span>
+                <h3>{aircraft.displayName}</h3>
+                <p>{aircraft.manuals[0]?.publisher} · Revision {aircraft.manuals[0]?.revision}</p>
+              </div>
+              <span className="card-action">Open aircraft →</span>
+            </Link>
+          ))}
+        </div>
       </section>
 
       <section className="principle" aria-labelledby="source-of-truth">
@@ -29,7 +56,7 @@ export default function HomePage() {
         </p>
       </section>
 
-      <section className="grid" aria-label="Planned Training capabilities">
+      <section className="grid" aria-label="Training capabilities">
         {capabilities.map(([title, description]) => (
           <article className="card" key={title}>
             <h2>{title}</h2>
