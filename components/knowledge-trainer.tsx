@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 
+import { appendBrowserProgress } from "@/lib/browser-progress";
 import type { AircraftReferenceKnowledge } from "@/lib/reference-knowledge";
 import styles from "./m6-training.module.css";
 
@@ -26,8 +27,8 @@ export function KnowledgeTrainer({ content }: Readonly<{ content: AircraftRefere
   const attempted = Object.keys(answers).length;
   const correct = content.questions.filter((question) => answers[question.id] === question.correctIndex).length;
   const weakAreas = areas.filter((candidateArea) => {
-    const areaQuestions = content.questions.filter((question) => question.area === candidateArea && answers[question.id] !== undefined);
-    return areaQuestions.length > 0 && areaQuestions.some((question) => answers[question.id] !== question.correctIndex);
+    const areaQuestions = content.questions.filter((candidate) => candidate.area === candidateArea && answers[candidate.id] !== undefined);
+    return areaQuestions.length > 0 && areaQuestions.some((candidate) => answers[candidate.id] !== candidate.correctIndex);
   });
 
   function changeArea(nextArea: string) {
@@ -37,8 +38,18 @@ export function KnowledgeTrainer({ content }: Readonly<{ content: AircraftRefere
   }
 
   function submit() {
-    if (!question || selected === null) return;
+    if (!question || selected === null || answers[question.id] !== undefined) return;
+    const isCorrect = selected === question.correctIndex;
     setAnswers((current) => ({ ...current, [question.id]: selected }));
+    appendBrowserProgress({
+      aircraftId: content.aircraftId,
+      kind: "knowledge",
+      contentId: question.id,
+      occurredAt: new Date().toISOString(),
+      completed: true,
+      scorePercent: isCorrect ? 100 : 0,
+      weakAreas: isCorrect ? [] : [question.area],
+    });
   }
 
   function next() {
@@ -71,7 +82,7 @@ export function KnowledgeTrainer({ content }: Readonly<{ content: AircraftRefere
         </div>
         <div className={styles.scoreCard}>
           <strong>{correct} correct · {attempted} attempted</strong>
-          <p>Results are session-local until M7 persistence is connected.</p>
+          <p>Saved on this device. M7 will move the same progress stream to the FlyTally account.</p>
         </div>
         {weakAreas.length ? (
           <div className={styles.weakList} aria-label="Weak areas">
@@ -92,13 +103,7 @@ export function KnowledgeTrainer({ content }: Readonly<{ content: AircraftRefere
             const wrongChoice = revealed && optionIndex === choice && optionIndex !== question.correctIndex;
             const className = [styles.choice, optionIndex === choice ? styles.choiceSelected : "", correctChoice ? styles.choiceCorrect : "", wrongChoice ? styles.choiceWrong : ""].filter(Boolean).join(" ");
             return (
-              <button
-                className={className}
-                disabled={revealed}
-                key={option}
-                type="button"
-                onClick={() => setSelected(optionIndex)}
-              >
+              <button className={className} disabled={revealed} key={option} type="button" onClick={() => setSelected(optionIndex)}>
                 <span>{String.fromCharCode(65 + optionIndex)}.</span>
                 <span>{option}</span>
               </button>
