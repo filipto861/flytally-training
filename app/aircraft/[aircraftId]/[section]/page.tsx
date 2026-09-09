@@ -26,10 +26,10 @@ const definitions: Record<Exclude<AircraftWorkspaceSection, "overview">, Workspa
   learn: {
     eyebrow: "Learn",
     title: "Understand only what you need to fly.",
-    description: "Quick Start and essential systems will stay short, practical and connected to the actions you perform in the simulator.",
+    description: "Quick Start and essential systems stay short, practical and connected to the actions you perform in the simulator.",
     cards: [
-      { title: "Quick Start", description: "Aircraft orientation before the first flight: cockpit, engines, fuel, electrical, hydraulics and pressurization at a practical level.", status: "Building next" },
-      { title: "Essential Systems", description: "Short system lessons structured around what the pilot controls, monitors and needs when something changes.", status: "v1.0" },
+      { title: "Quick Start", description: "A roughly 20-minute mental model before the first flight: power, start, fuel, bleed air, pressurization, hydraulics, controls and ice protection.", status: "Available", href: "quick-start" },
+      { title: "Essential Systems", description: "Nine compact system lessons structured around what the pilot controls, monitors, expects and needs to remember.", status: "Available", href: "systems" },
     ],
   },
   checklist: {
