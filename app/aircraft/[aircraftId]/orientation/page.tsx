@@ -3,11 +3,7 @@ import { notFound } from "next/navigation";
 
 import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
 import { CockpitOrientationExplorer } from "@/components/cockpit-orientation-explorer";
-import { getTrainingAircraft } from "@/lib/aircraft-catalog";
-import {
-  getCockpitLocationForChecklistItem,
-  getCockpitOrientation,
-} from "@/lib/cockpit-orientation";
+import { getTrainingContentRepository } from "@/lib/content-store";
 
 export default async function CockpitOrientationPage({
   params,
@@ -18,12 +14,17 @@ export default async function CockpitOrientationPage({
 }>) {
   const { aircraftId } = await params;
   const { item } = await searchParams;
-  const aircraft = getTrainingAircraft(aircraftId);
-  const orientation = getCockpitOrientation(aircraftId);
+  const repository = getTrainingContentRepository();
+  const [aircraft, orientation] = await Promise.all([
+    repository.getAircraft(aircraftId),
+    repository.getCockpitOrientation(aircraftId),
+  ]);
 
   if (!aircraft || !orientation) notFound();
 
-  const selectedLocation = item ? getCockpitLocationForChecklistItem(aircraftId, item) : undefined;
+  const selectedLocation = item
+    ? orientation.controls.find((control) => control.checklistItemIds.includes(item))
+    : undefined;
 
   return (
     <main className="shell aircraft-detail">
@@ -34,7 +35,7 @@ export default async function CockpitOrientationPage({
         <p className="eyebrow">Cockpit orientation · {aircraft.displayName}</p>
         <h1>Know which panel to look at before you hunt for a switch.</h1>
         <p className="lede">
-          This first orientation layer deliberately teaches verified cockpit regions rather than pretending to know pixel-perfect switch coordinates.
+          This orientation layer deliberately teaches verified cockpit regions rather than pretending to know pixel-perfect switch coordinates.
           More controls can be added as their locations are confirmed from the source set.
         </p>
       </section>

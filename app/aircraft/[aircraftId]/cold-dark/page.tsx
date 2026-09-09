@@ -3,15 +3,18 @@ import { notFound } from "next/navigation";
 
 import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
 import { ChecklistRunner } from "@/components/checklist-runner";
-import { getTrainingAircraft } from "@/lib/aircraft-catalog";
-import { getSimulatorFlightFlow } from "@/lib/simulator-checklists";
+import { getTrainingContentRepository } from "@/lib/content-store";
 
 export default async function ColdDarkPage({
   params,
 }: Readonly<{ params: Promise<{ aircraftId: string }> }>) {
   const { aircraftId } = await params;
-  const aircraft = getTrainingAircraft(aircraftId);
-  const flow = getSimulatorFlightFlow(aircraftId);
+  const repository = getTrainingContentRepository();
+  const [aircraft, flow, orientation] = await Promise.all([
+    repository.getAircraft(aircraftId),
+    repository.getNormalFlight(aircraftId),
+    repository.getCockpitOrientation(aircraftId),
+  ]);
 
   if (!aircraft || !flow) notFound();
 
@@ -40,7 +43,7 @@ export default async function ColdDarkPage({
         </aside>
       </section>
 
-      <ChecklistRunner flow={flow} />
+      <ChecklistRunner flow={flow} orientation={orientation} />
     </main>
   );
 }

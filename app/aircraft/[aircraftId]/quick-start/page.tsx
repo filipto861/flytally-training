@@ -2,16 +2,19 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
-import { getTrainingAircraft } from "@/lib/aircraft-catalog";
-import { getAircraftLearningContent, getQuickStartMinutes } from "@/lib/learning-content";
+import { getQuickStartMinutes } from "@/lib/content-metrics";
+import { getTrainingContentRepository } from "@/lib/content-store";
 import styles from "../learning.module.css";
 
 export default async function QuickStartPage({
   params,
 }: Readonly<{ params: Promise<{ aircraftId: string }> }>) {
   const { aircraftId } = await params;
-  const aircraft = getTrainingAircraft(aircraftId);
-  const content = getAircraftLearningContent(aircraftId);
+  const repository = getTrainingContentRepository();
+  const [aircraft, content] = await Promise.all([
+    repository.getAircraft(aircraftId),
+    repository.getLearningContent(aircraftId),
+  ]);
 
   if (!aircraft || !content) notFound();
 
@@ -28,7 +31,7 @@ export default async function QuickStartPage({
 
       <section className={styles.learningHeader}>
         <p>
-          Read this once before the first Cold & Dark session. Every block is deliberately compressed to a simulator mental model; serial-number detail stays in the source-backed system lessons and manual.
+          Read this once before the first Cold & Dark session. Every block is deliberately compressed to a simulator mental model; configuration detail stays in the source-backed system lessons and manual.
         </p>
         <span className={styles.timeBadge}>~{getQuickStartMinutes(content)} min total</span>
       </section>
