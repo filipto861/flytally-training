@@ -48,7 +48,7 @@ const definitions: Record<Exclude<AircraftWorkspaceSection, "overview">, Workspa
     description: "First Flight is the primary training path. Later practice modes reuse the same aircraft data for orientation, procedures and scenarios.",
     cards: [
       { title: "First Flight", description: "Cold & Dark → engine start → taxi → takeoff → cruise → approach → landing → shutdown.", status: "Available", href: "cold-dark" },
-      { title: "Cockpit Orientation", description: "Learn where controls and panels are, then use Show me directly from checklist items.", status: "M3" },
+      { title: "Cockpit Orientation", description: "Learn verified cockpit regions and jump to them with Show me from supported checklist items.", status: "Available", href: "orientation" },
       { title: "Abnormal & Emergency", description: "Scenario-based engine, electrical, hydraulic, pressurization and other simulator-relevant practice.", status: "M5" },
     ],
   },

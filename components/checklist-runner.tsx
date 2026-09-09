@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import {
@@ -7,6 +8,7 @@ import {
   splitChecklistChallenge,
   type ChecklistTrainingMode,
 } from "@/lib/checklist-training";
+import { getCockpitLocationForChecklistItem } from "@/lib/cockpit-orientation";
 import type { SimulatorFlightFlow, SimulatorChecklistItem } from "@/lib/simulator-checklists";
 import styles from "./checklist-runner.module.css";
 
@@ -67,6 +69,20 @@ export function ChecklistRunner({ flow }: Readonly<{ flow: SimulatorFlightFlow }
     setRevealedResponses((current) => new Set(current).add(itemId));
   }
 
+  function showMeLink(item: SimulatorChecklistItem) {
+    const location = getCockpitLocationForChecklistItem(flow.aircraftId, item.id);
+    if (!location) return null;
+
+    return (
+      <Link
+        className={styles.showMe}
+        href={`/aircraft/${flow.aircraftId}/orientation?item=${encodeURIComponent(item.id)}`}
+      >
+        Show me · {location.regionId.replaceAll("-", " ")} →
+      </Link>
+    );
+  }
+
   function renderStandardItem(item: SimulatorChecklistItem) {
     const isDone = completed.has(item.id);
     const showExplanation = mode === "learn";
@@ -84,6 +100,7 @@ export function ChecklistRunner({ flow }: Readonly<{ flow: SimulatorFlightFlow }
         </button>
         <div className={styles.copy}>
           <strong>{item.action}</strong>
+          {showMeLink(item)}
           {showExplanation && item.why ? (
             <details className={styles.explanation}>
               <summary>Why?</summary>
@@ -106,6 +123,7 @@ export function ChecklistRunner({ flow }: Readonly<{ flow: SimulatorFlightFlow }
         <div className={styles.challengeCopy}>
           <small>Challenge</small>
           <strong>{challenge.challenge}</strong>
+          {showMeLink(item)}
           {revealed ? (
             <div className={styles.response}>
               <small>Response</small>
