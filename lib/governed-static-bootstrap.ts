@@ -8,6 +8,7 @@ import {
   publishGovernedContentVersion,
 } from "./content-governed-lifecycle";
 import { sql } from "./db";
+import type { SourceAuthorityRole } from "./source-authority";
 import { staticTrainingContentSeed } from "./static-content-repository";
 
 async function ensureBootstrapReference(
@@ -20,6 +21,7 @@ async function ensureBootstrapReference(
     revision: string;
     issueDate: string;
     sourceKind: string;
+    authorityRole: SourceAuthorityRole;
     authorityNote: string;
     sourceReferences: object;
     chapters: readonly unknown[];
@@ -33,8 +35,8 @@ async function ensureBootstrapReference(
   const manuals = await sql`SELECT aircraft_id FROM training_manuals WHERE manual_id=${manualId} LIMIT 1` as Array<{aircraft_id:string}>;
   if (manuals[0]?.aircraft_id !== aircraftId) throw new Error(`Bootstrap manual ${manualId} belongs to another aircraft.`);
 
-  await sql`INSERT INTO training_manual_revisions(revision_id,manual_id,revision_code,issue_date,authority_note,source_metadata,chapters,registered_by)
-    VALUES(${revision.id},${manualId},${revision.revision},${revision.issueDate},${revision.authorityNote},${JSON.stringify(revision.sourceReferences)}::jsonb,${JSON.stringify(revision.chapters)}::jsonb,${subject})
+  await sql`INSERT INTO training_manual_revisions(revision_id,manual_id,revision_code,issue_date,authority_role,authority_note,source_metadata,chapters,registered_by)
+    VALUES(${revision.id},${manualId},${revision.revision},${revision.issueDate},${revision.authorityRole},${revision.authorityNote},${JSON.stringify(revision.sourceReferences)}::jsonb,${JSON.stringify(revision.chapters)}::jsonb,${subject})
     ON CONFLICT(revision_id) DO NOTHING`;
 
   const revisions = await sql`SELECT manual_id FROM training_manual_revisions WHERE revision_id=${revision.id} LIMIT 1` as Array<{manual_id:string}>;
