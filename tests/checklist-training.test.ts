@@ -7,14 +7,15 @@ import {
   splitChecklistChallenge,
 } from "../lib/checklist-training.ts";
 
-test("checklist trainer exposes all four v1.0 training modes", () => {
+test("checklist trainer exposes operational and training modes", () => {
   assert.deepEqual(
     checklistTrainingModes.map((mode) => mode.key),
-    ["learn", "practice", "flow", "challenge"],
+    ["run", "learn", "practice", "flow", "challenge"],
   );
+  assert.equal(checklistTrainingModes[0]?.label, "Run");
 });
 
-test("challenge and response parser preserves simulator checklist wording", () => {
+test("challenge and response parser preserves checklist wording", () => {
   assert.deepEqual(splitChecklistChallenge("BAT 1 and BAT 2 — ON"), {
     challenge: "BAT 1 and BAT 2",
     response: "ON",
@@ -27,6 +28,7 @@ test("challenge and response parser preserves simulator checklist wording", () =
 });
 
 test("unknown checklist modes are rejected", () => {
+  assert.equal(isChecklistTrainingMode("run"), true);
   assert.equal(isChecklistTrainingMode("flow"), true);
   assert.equal(isChecklistTrainingMode("challenge"), true);
   assert.equal(isChecklistTrainingMode("exam"), false);
