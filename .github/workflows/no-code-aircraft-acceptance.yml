@@ -2,6 +2,15 @@ name: No-code aircraft acceptance
 
 on:
   workflow_dispatch:
+    inputs:
+      confirm_disposable:
+        description: I confirm TRAINING_ACCEPTANCE_DATABASE_URL points to a disposable database
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
 
 concurrency:
   group: training-no-code-aircraft-acceptance
@@ -18,13 +27,21 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
       - name: Require disposable acceptance database
         run: |
           if [ -z "$TRAINING_ACCEPTANCE_DATABASE_URL" ]; then
             echo "TRAINING_ACCEPTANCE_DATABASE_URL GitHub Actions secret is required and must point to a disposable Training database." >&2
             exit 2
           fi
-      - name: Install dependencies
-        run: npm install --no-audit --no-fund
+          if [ "${{ inputs.confirm_disposable }}" != "true" ]; then
+            echo "Explicit disposable-database confirmation is required." >&2
+            exit 2
+          fi
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
       - name: Execute second-aircraft PostgreSQL acceptance
+        env:
+          TRAINING_ACCEPTANCE_CONFIRM_DISPOSABLE: I_UNDERSTAND_THIS_IS_DISPOSABLE
         run: npm run test:no-code-aircraft

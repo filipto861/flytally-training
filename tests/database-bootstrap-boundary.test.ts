@@ -5,6 +5,7 @@ import test from "node:test";
 const bootstrap = fs.readFileSync(new URL("../lib/database-bootstrap.ts", import.meta.url), "utf8");
 const cli = fs.readFileSync(new URL("../tooling/init-training-database.ts", import.meta.url), "utf8");
 const runner = fs.readFileSync(new URL("../tooling/run-no-code-aircraft-acceptance.mjs", import.meta.url), "utf8");
+const acceptanceWorkflow = fs.readFileSync(new URL("../.github/workflows/no-code-aircraft-acceptance.yml", import.meta.url), "utf8");
 const adminActions = fs.readFileSync(new URL("../app/admin/actions.ts", import.meta.url), "utf8");
 const acceptance = fs.readFileSync(new URL("./no-code-postgres-acceptance.test.ts", import.meta.url), "utf8");
 const packageJson = JSON.parse(fs.readFileSync(new URL("../package.json", import.meta.url), "utf8")) as {
@@ -36,10 +37,20 @@ test("first-deploy CLI requires an explicit Training database and preserves serv
 
 test("no-code PostgreSQL acceptance runs through the same bootstrap in a React Server Node process", () => {
   assert.match(runner, /--conditions=react-server/);
-  assert.match(runner, /--import","tsx/);
+  assert.match(runner, /--import",\s*"tsx/);
   const bootstrapCall = acceptance.indexOf("await initializeTrainingDatabase()");
   const firstWrite = acceptance.indexOf("await createAircraft(");
   assert.ok(bootstrapCall >= 0 && firstWrite > bootstrapCall, "schema bootstrap must complete before the synthetic aircraft write");
+});
+
+test("database-writing no-code acceptance requires an explicit disposable-target acknowledgement", () => {
+  assert.match(runner, /TRAINING_ACCEPTANCE_CONFIRM_DISPOSABLE/);
+  assert.match(runner, /I_UNDERSTAND_THIS_IS_DISPOSABLE/);
+  assert.match(runner, /productionUrl\s*&&\s*productionUrl\s*===\s*acceptanceUrl/);
+  assert.match(acceptanceWorkflow, /confirm_disposable:/);
+  assert.match(acceptanceWorkflow, /type:\s*boolean/);
+  assert.match(acceptanceWorkflow, /TRAINING_ACCEPTANCE_CONFIRM_DISPOSABLE:\s*I_UNDERSTAND_THIS_IS_DISPOSABLE/);
+  assert.match(acceptanceWorkflow, /npm ci --no-audit --no-fund/);
 });
 
 test("authenticated admin initialization reuses the deployment bootstrap instead of duplicating schema orchestration", () => {
