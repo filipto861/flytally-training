@@ -6,9 +6,16 @@ export const trainingContentDomains = [
   "reference-knowledge",
 ] as const;
 
+export const contentVersionOrigins = ["human", "ai-assisted", "import", "bootstrap-migration"] as const;
+
 export type TrainingContentDomain = typeof trainingContentDomains[number];
-export type ContentVersionOrigin = "human" | "ai-assisted" | "import" | "bootstrap-migration";
+export type ContentVersionOrigin = typeof contentVersionOrigins[number];
 export type ContentVersionState = "draft" | "approved" | "published" | "stale" | "archived";
+
+export function parseContentVersionOrigin(value: string): ContentVersionOrigin {
+  if (!(contentVersionOrigins as readonly string[]).includes(value)) throw new Error("Unsupported content version origin.");
+  return value as ContentVersionOrigin;
+}
 
 export type AdminAircraftSummary = {
   readonly id: string;

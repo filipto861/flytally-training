@@ -3,7 +3,7 @@ import "server-only";
 import type { AircraftAbnormalTraining } from "./abnormal-scenarios";
 import type { TrainingAircraft, TrainingManualRevision } from "./aircraft-catalog";
 import type { CockpitOrientation } from "./cockpit-orientation";
-import { ensureContentSchema } from "./content-admin-repository";
+import { ensureContentReadSchema } from "./content-read-schema";
 import type { TrainingContentRepository } from "./content-repository";
 import { sql } from "./db";
 import type { AircraftLearningContent } from "./learning-content";
@@ -16,20 +16,20 @@ function asObject(value:unknown):Record<string,unknown>{if(value&&typeof value==
 
 export class PostgresTrainingContentRepository implements TrainingContentRepository {
   private async publishedPayload<T>(aircraftId:string,domain:TrainingContentDomain):Promise<T|undefined>{
-    await ensureContentSchema();
+    await ensureContentReadSchema();
     const rows=await sql`SELECT v.payload FROM training_content_items i JOIN training_content_publications p ON p.item_id=i.item_id JOIN training_content_versions v ON v.version_id=p.version_id JOIN training_aircraft_types a ON a.aircraft_id=i.aircraft_id WHERE i.aircraft_id=${aircraftId} AND i.domain=${domain} AND i.content_key='bundle' AND a.status='published' LIMIT 1` as Array<{payload:unknown}>;
     return rows[0]?.payload as T|undefined;
   }
 
   async listAircraft():Promise<readonly TrainingAircraft[]>{
-    await ensureContentSchema();
+    await ensureContentReadSchema();
     const rows=await sql`SELECT aircraft_id FROM training_aircraft_types WHERE status='published' ORDER BY display_name` as Array<{aircraft_id:string}>;
     const aircraft=await Promise.all(rows.map(row=>this.getAircraft(row.aircraft_id)));
     return aircraft.filter((item):item is TrainingAircraft=>Boolean(item));
   }
 
   async getAircraft(aircraftId:string):Promise<TrainingAircraft|undefined>{
-    await ensureContentSchema();
+    await ensureContentReadSchema();
     const rows=await sql`SELECT aircraft_id,manufacturer,model,display_name FROM training_aircraft_types WHERE aircraft_id=${aircraftId} AND status='published' LIMIT 1` as Array<{aircraft_id:string;manufacturer:string;model:string;display_name:string}>;
     const row=rows[0];if(!row)return undefined;
     const variants=await sql`SELECT variant_key FROM training_aircraft_variants WHERE aircraft_id=${aircraftId} ORDER BY variant_key` as Array<{variant_key:string}>;
