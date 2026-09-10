@@ -51,7 +51,10 @@ export function ProgressPanel({ aircraftId }: Readonly<{ aircraftId: string }>) 
       <section className={styles.referenceGroup}>
         <h2>{persistence === "account" ? "FlyTally account sync" : persistence === "loading" ? "Checking progress sync…" : "Local progress"}</h2>
         {persistence === "account" ? (
-          <p>Your progress is backed by the Training PostgreSQL store and can continue on another signed-in device. <Link href="/api/auth/logout">Sign out</Link></p>
+          <>
+            <p>Your progress is backed by the Training PostgreSQL store and can continue on another signed-in device.</p>
+            <form action="/api/auth/logout" method="post"><button className={styles.progressTextButton} type="submit">Sign out</button></form>
+          </>
         ) : persistence === "local" ? (
           <p>This device keeps working locally. <Link href={`/api/auth/flytally/start?next=${encodeURIComponent(`/aircraft/${aircraftId}/progress-overview`)}`}>Sign in with FlyTally</Link> to migrate these events and enable cross-device continuation.</p>
         ) : <p>Loading the most recent aircraft state.</p>}
@@ -80,7 +83,7 @@ export function ProgressPanel({ aircraftId }: Readonly<{ aircraftId: string }>) 
               </article>
             ))}
           </div>
-        ) : <div className={styles.emptyProgress}>Complete a checklist, scenario or knowledge question and it will appear here.</div>}
+        ) : <div className={styles.emptyProgress}>Complete Quick Start, a system lesson, checklist, scenario or knowledge question and it will appear here.</div>}
       </section>
     </section>
   );
