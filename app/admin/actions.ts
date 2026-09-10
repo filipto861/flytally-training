@@ -7,7 +7,6 @@ import { requireTrainingAdmin } from "@/lib/admin-auth";
 import { publishGovernedAircraft } from "@/lib/aircraft-publication";
 import { addAircraftVariant,createAircraft,createSourceReference,resolveStaleFlag } from "@/lib/content-admin-repository";
 import { parseContentVersionOrigin,trainingContentDomains,type TrainingContentDomain } from "@/lib/content-admin-types";
-import { assertContentVersionValidForApprovalOrPublication } from "@/lib/content-governance";
 import { approveGovernedContentVersion,createGovernedDraftVersion,publishGovernedContentVersion } from "@/lib/content-governed-lifecycle";
 import { initializeTrainingDatabase } from "@/lib/database-bootstrap";
 import { bootstrapStaticContentGoverned } from "@/lib/governed-static-bootstrap";
@@ -38,8 +37,8 @@ export async function reSourceVersionAction(form:FormData){
   revalidatePath(`/admin/aircraft/${result.aircraftId}`);
   redirect(`/admin/aircraft/${encodeURIComponent(result.aircraftId)}/content/${encodeURIComponent(result.versionId)}`);
 }
-export async function approveVersionAction(form:FormData){const session=await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");const versionId=text(form,"versionId");await assertContentVersionValidForApprovalOrPublication(versionId);await approveGovernedContentVersion(versionId,session.subject,text(form,"note"));revalidatePath(`/admin/aircraft/${aircraftId}`);revalidatePath(`/admin/aircraft/${aircraftId}/content/${versionId}`);}
-export async function publishVersionAction(form:FormData){const session=await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");const versionId=text(form,"versionId");await assertContentVersionValidForApprovalOrPublication(versionId);await publishGovernedContentVersion(versionId,session.subject);revalidatePath("/");revalidatePath(`/admin/aircraft/${aircraftId}`);revalidatePath(`/admin/aircraft/${aircraftId}/content/${versionId}`);}
+export async function approveVersionAction(form:FormData){const session=await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");const versionId=text(form,"versionId");await approveGovernedContentVersion(versionId,session.subject,text(form,"note"));revalidatePath(`/admin/aircraft/${aircraftId}`);revalidatePath(`/admin/aircraft/${aircraftId}/content/${versionId}`);}
+export async function publishVersionAction(form:FormData){const session=await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");const versionId=text(form,"versionId");await publishGovernedContentVersion(versionId,session.subject);revalidatePath("/");revalidatePath(`/admin/aircraft/${aircraftId}`);revalidatePath(`/admin/aircraft/${aircraftId}/content/${versionId}`);}
 export async function resolveStaleAction(form:FormData){const session=await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");await resolveStaleFlag(Number(text(form,"staleId")),session.subject,text(form,"note"));revalidatePath(`/admin/aircraft/${aircraftId}`);}
 export async function initializeTrainingDatabaseAction(){await requireTrainingAdmin();await initializeTrainingDatabase();revalidatePath("/admin");}
 export async function bootstrapStaticAction(form:FormData){

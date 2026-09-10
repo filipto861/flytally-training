@@ -7,6 +7,7 @@ import {
   type ContentVersionOrigin,
   type TrainingContentDomain,
 } from "./content-admin-types";
+import { assertContentVersionValidForApprovalOrPublication } from "./content-governance";
 import { sql } from "./db";
 
 export type GovernedAiDraftAudit = {
@@ -155,6 +156,9 @@ export async function createGovernedDraftVersion(input: {
 }
 
 export async function approveGovernedContentVersion(versionId: string, subject: string, note?: string): Promise<void> {
+  // The governed writer owns the publishability contract. Callers cannot
+  // bypass payload/schema or source-aircraft validation by invoking it directly.
+  await assertContentVersionValidForApprovalOrPublication(versionId);
   const approvalId = randomUUID();
 
   const results = await sql.transaction((txn) => [
@@ -201,6 +205,10 @@ export async function approveGovernedContentVersion(versionId: string, subject: 
 }
 
 export async function publishGovernedContentVersion(versionId: string, subject: string): Promise<void> {
+  // Revalidate at publication rather than trusting an earlier approval. This
+  // also protects historical approved rows if the contract becomes stricter.
+  await assertContentVersionValidForApprovalOrPublication(versionId);
+
   const results = await sql.transaction((txn) => [
     txn`SELECT pg_advisory_xact_lock(COALESCE((SELECT item_id FROM training_content_versions WHERE version_id=${versionId}),-1)::bigint)`,
     txn`WITH target AS (
