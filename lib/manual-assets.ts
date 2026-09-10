@@ -72,8 +72,6 @@ function mapAsset(row: {
   };
 }
 
-const assetColumns = "asset_id,aircraft_id,pathname,blob_url,original_filename,content_type,size_bytes,checksum_sha256,status,attached_revision_id,created_at";
-
 export async function issueManualAssetUpload(input: ManualUploadMetadata, subject: string): Promise<{assetId:string;pathname:string;presignedUrl:string;validUntil:number}> {
   const metadata = validateManualUploadMetadata(input);
   await ensureManualAssetSchema();
@@ -94,7 +92,7 @@ export async function issueManualAssetUpload(input: ManualUploadMetadata, subjec
       maximumSizeInBytes: MAX_MANUAL_ASSET_BYTES,
       validUntil,
     });
-    const signed = await presignUrl(token, { pathname, operation: "put", validUntil });
+    const signed = await presignUrl(token, { pathname, operation: "put", validUntil, access: "private" });
     return { assetId, pathname, presignedUrl: signed.presignedUrl, validUntil };
   } catch (error) {
     await sql`UPDATE training_manual_assets SET status='failed' WHERE asset_id=${assetId}`;
@@ -114,7 +112,7 @@ export async function finalizeManualAsset(assetId: string, subject: string): Pro
   if (row.status !== "pending") throw new Error(`Manual asset cannot be finalized from state ${row.status}.`);
 
   try {
-    const blob = await head(row.pathname, { access: "private" });
+    const blob = await head(row.pathname);
     if (Number(blob.size) !== Number(row.size_bytes)) throw new Error("Uploaded PDF size does not match the signed upload request.");
     if (blob.contentType !== "application/pdf") throw new Error("Uploaded object is not application/pdf.");
     await sql`UPDATE training_manual_assets SET status='ready',blob_url=${blob.url},finalized_at=NOW() WHERE asset_id=${assetId} AND status='pending'`;
@@ -169,6 +167,6 @@ export async function issueManualAssetDownload(assetId: string): Promise<string>
   if (!row || !["ready","claimed","attached"].includes(row.status)) throw new Error("Manual asset is not available for download.");
   const validUntil = Date.now() + 5 * 60 * 1000;
   const token = await issueSignedToken({ pathname: row.pathname, operations: ["get"], validUntil });
-  const signed = await presignUrl(token, { pathname: row.pathname, operation: "get", validUntil, useCache: false });
+  const signed = await presignUrl(token, { pathname: row.pathname, operation: "get", validUntil, access: "private", useCache: false });
   return signed.presignedUrl;
 }
