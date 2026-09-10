@@ -7,7 +7,7 @@ The product is not v1.0-ready merely because the application build is green. The
 - Pull requests: TypeScript, unit/regression tests and production build.
 - `npm run test:v1-content`: the Learjet reference implementation must pass the aggregate source-backed content gate, including the complete Cold & Dark → Shutdown path, all nine baseline systems and the product authority boundary.
 - `GET /api/health`: process liveness only; it intentionally does not touch dependencies.
-- `GET /api/readiness`: production configuration, Training PostgreSQL connectivity, persistent-progress tables and at least one published aircraft through the configured content repository. It returns HTTP 503 until all are true.
+- `GET /api/readiness`: production configuration, Training PostgreSQL connectivity, persistent-progress tables, controlled-manual persistence and at least one published aircraft through the configured content repository. It returns HTTP 503 until all are true.
 - Manual GitHub workflow `No-code aircraft acceptance`: must pass against a disposable PostgreSQL database before the no-code multi-aircraft architecture is marked proven.
 
 The aggregate content gate is aircraft-agnostic. It evaluates a resolved `AircraftContentBundle`; the Learjet test adds the v1 reference-aircraft specifics such as the exact nine-system baseline and complete practical flight phase sequence.
@@ -21,15 +21,17 @@ A production-ready Training deployment requires:
 - strong `TRAINING_SESSION_SECRET`
 - strong shared `FLYTALLY_IDENTITY_SECRET`
 - HTTPS `FLYTALLY_LOGBOOK_URL`
-- private controlled-manual Blob storage configured for the Training project
+- private Vercel Blob storage with `BLOB_READ_WRITE_TOKEN` configured for controlled manuals
 - governed Learjet content bootstrapped/reviewed/published into PostgreSQL
-- Training progress and aircraft-state tables initialized through the explicit admin/deployment bootstrap path
+- Training progress, aircraft-state and controlled-manual asset tables initialized through the explicit admin/deployment bootstrap path
 
 Static TypeScript content remains a development/bootstrap adapter and is not an acceptable v1.0 production backend.
 
 The learner PostgreSQL content adapter is deliberately **read-only at runtime**: ordinary aircraft/library/lesson requests do not execute schema DDL. Schema creation and governance changes belong to the admin/write/bootstrap path. Aircraft-library hydration is batched rather than issuing one aircraft/variant/manual query set per published aircraft.
 
 Persistent progress follows the same boundary. Runtime progress requests perform only SELECT/INSERT/UPSERT operations; they never create tables or indexes. A sync batch is ingested in one PostgreSQL statement, and per-aircraft continuation state is derived from canonical persisted events so idempotent replay cannot move state using conflicting client data.
+
+Controlled manuals are also part of readiness rather than an optional admin extra. The release check requires the Blob credential and the `training_manual_assets` persistence table so `/api/readiness` cannot report ready while PDF upload/download is structurally unavailable.
 
 ## Human acceptance gate
 
@@ -42,6 +44,6 @@ Before declaring v1.0 complete on `training.fly-tally.com`, verify on desktop an
 5. sign-in returns from FlyTally Logbook, progress survives a second browser/device, and sign-out clears only the Training session.
 6. admin can initialize Training-owned runtime tables, upload a controlled PDF, register an immutable revision, create source references, draft/review/approve/publish content and observe stale-content review after a newer revision.
 7. current approved AFM/QRH/operator material remains explicitly controlling over Training content.
-8. `/api/readiness` returns HTTP 200, including the persistent-progress check.
+8. `/api/readiness` returns HTTP 200, including persistent-progress and controlled-manual checks.
 
 Only after these checks and the no-code PostgreSQL acceptance run should the release be called FlyTally Training v1.0.
