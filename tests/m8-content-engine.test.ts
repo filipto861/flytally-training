@@ -2,15 +2,18 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
 
-import { parseContentVersionOrigin, trainingContentDomains } from "../lib/content-admin-types.ts";
+import { legacyTrainingContentDomains, parseContentVersionOrigin, trainingContentDomains } from "../lib/content-admin-types.ts";
+import { universalTrainingContentDomains } from "../lib/universal-aircraft-content.ts";
 
 const governedLifecycle=fs.readFileSync(new URL("../lib/content-governed-lifecycle.ts",import.meta.url),"utf8");
 const governedManuals=fs.readFileSync(new URL("../lib/governed-manual-registration.ts",import.meta.url),"utf8");
 const pgRepo=fs.readFileSync(new URL("../lib/postgres-content-repository.ts",import.meta.url),"utf8");
 const store=fs.readFileSync(new URL("../lib/content-store.ts",import.meta.url),"utf8");
 
-test("M8 content domains are aircraft-agnostic product domains",()=>{
-  assert.deepEqual(trainingContentDomains,["learning","normal-flight","orientation","abnormal","reference-knowledge"]);
+test("content domains remain aircraft-agnostic while M9 adds universal modules",()=>{
+  assert.deepEqual(legacyTrainingContentDomains,["learning","normal-flight","orientation","reference-knowledge"]);
+  for(const domain of universalTrainingContentDomains) assert.ok(trainingContentDomains.includes(domain));
+  assert.ok(trainingContentDomains.includes("abnormal"));
   assert.doesNotMatch(pgRepo,/learjet-35-36/i);
 });
 
