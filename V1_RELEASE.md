@@ -7,10 +7,12 @@ The product is not v1.0-ready merely because the application build is green. The
 - Pull requests: TypeScript, unit/regression tests and production build.
 - `npm run test:v1-content`: the Learjet reference implementation must pass the aggregate source-backed content gate, including the complete Cold & Dark → Shutdown path, all nine baseline systems and the product authority boundary.
 - `GET /api/health`: process liveness only; it intentionally does not touch dependencies.
-- `GET /api/readiness`: production configuration, Training PostgreSQL connectivity, persistent-progress tables, controlled-manual persistence, the identity assertion replay ledger and at least one published aircraft through the configured content repository. It returns HTTP 503 until all are true.
+- `GET /api/readiness`: production configuration, Training PostgreSQL connectivity, persistent-progress tables, controlled-manual persistence, the identity assertion replay ledger, a readable published-aircraft catalog and **at least one complete v1 aircraft bundle** through the configured content repository. It returns HTTP 503 until all are true.
 - Manual GitHub workflow `No-code aircraft acceptance`: must pass against a disposable PostgreSQL database before the no-code multi-aircraft architecture is marked proven.
 
 The aggregate content gate is aircraft-agnostic. It evaluates a resolved `AircraftContentBundle`; the Learjet test adds the v1 reference-aircraft specifics such as the exact nine-system baseline and complete practical flight phase sequence.
+
+The runtime completeness check is aircraft-agnostic too. A v1-ready aircraft must expose Quick Start, Systems, Normal Flight, Cockpit Orientation, Abnormal/Emergency, Quick Reference, Knowledge and a controlled manual. Readiness does not special-case the Learjet aircraft ID.
 
 ## Production configuration gate
 
@@ -29,7 +31,7 @@ Static TypeScript content remains a development/bootstrap adapter and is not an 
 
 The learner PostgreSQL content adapter is deliberately **read-only at runtime**: ordinary aircraft/library/lesson requests do not execute schema DDL. Schema creation and governance changes belong to the admin/write/bootstrap path. Aircraft-library hydration is batched rather than issuing one aircraft/variant/manual query set per published aircraft.
 
-Persistent progress follows the same boundary. Runtime progress requests perform only SELECT/INSERT/UPSERT operations; they never create tables or indexes. A sync batch is ingested in one PostgreSQL statement, and per-aircraft continuation state is derived from canonical persisted events so idempotent replay cannot move state using conflicting client data.
+Persistent progress follows the same boundary. Runtime progress requests perform only SELECT/INSERT/UPSERT operations; they never create tables or indexes. A sync batch is ingested in one PostgreSQL statement, and per-aircraft continuation state is derived from canonical persisted events so idempotent replay cannot move state using conflicting client data. Excessive future device-clock skew is normalized to server time without discarding otherwise valid offline progress.
 
 Controlled manuals are also part of readiness rather than an optional admin extra. The release check requires the Blob credential and the `training_manual_assets` persistence table so `/api/readiness` cannot report ready while PDF upload/download is structurally unavailable.
 
@@ -46,6 +48,6 @@ Before declaring v1.0 complete on `training.fly-tally.com`, verify on desktop an
 5. sign-in returns from FlyTally Logbook, progress survives a second browser/device, sign-out clears only the Training session, and a previously consumed identity callback cannot be replayed.
 6. admin can initialize Training-owned runtime tables, upload a controlled PDF, register an immutable revision, create source references, draft/review/approve/publish content and observe stale-content review after a newer revision.
 7. current approved AFM/QRH/operator material remains explicitly controlling over Training content.
-8. `/api/readiness` returns HTTP 200, including persistent-progress, controlled-manual and identity replay-protection checks.
+8. `/api/readiness` returns HTTP 200, including persistent-progress, controlled-manual, identity replay-protection and complete-v1-aircraft checks.
 
 Only after these checks and the no-code PostgreSQL acceptance run should the release be called FlyTally Training v1.0.
