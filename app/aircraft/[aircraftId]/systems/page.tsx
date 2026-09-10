@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 
 import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
 import { LearningCompletionButton } from "@/components/learning-completion-button";
-import { configurationForVariant, filterSystemsForConfiguration, resolveSelectedVariant, withVariantQuery } from "@/lib/aircraft-applicability";
+import { configurationForAircraftVariant, filterSystemsForConfiguration, resolveSelectedVariant, withVariantQuery } from "@/lib/aircraft-applicability";
 import { getPublishedAircraftModule } from "@/lib/content-repository";
 import { getTrainingContentRepository } from "@/lib/content-store";
 import type { AircraftSystemLesson, AircraftSystemsContent, TrainingSourceReference } from "@/lib/universal-aircraft-content";
@@ -35,7 +35,7 @@ export default async function SystemsPage({
 
   const selectedVariant = resolveSelectedVariant(variant, aircraft.variants);
   const configuredUniversal = universal
-    ? filterSystemsForConfiguration(universal, configurationForVariant(selectedVariant))
+    ? filterSystemsForConfiguration(universal, configurationForAircraftVariant(aircraft, selectedVariant))
     : undefined;
   const systems: readonly RuntimeSystem[] = configuredUniversal ? configuredUniversal.systems.map((system) => ({
     ...system,
@@ -57,7 +57,7 @@ export default async function SystemsPage({
   return (
     <main className="shell aircraft-detail">
       <Link className="back-link" href={withVariantQuery(`/aircraft/${aircraft.id}`, selectedVariant)}>← {aircraft.displayName}</Link>
-      <AircraftWorkspaceNav aircraftId={aircraft.id} active="systems" variants={aircraft.variants} selectedVariant={selectedVariant} />
+      <AircraftWorkspaceNav aircraftId={aircraft.id} active="systems" variants={aircraft.variants} variantProfiles={aircraft.variantProfiles} selectedVariant={selectedVariant} />
       <section className="workspace-section-hero">
         <p className="eyebrow">Systems · {aircraft.displayName}{selectedVariant ? ` · ${selectedVariant}` : ""}</p>
         <h1>{configuredUniversal?.title ?? `${systems.length} aircraft systems`}</h1>
