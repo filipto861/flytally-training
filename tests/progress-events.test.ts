@@ -17,8 +17,16 @@ test("progress summary stays scoped to one aircraft", () => {
   assert.deepEqual([...summary.weakAreas].sort(), ["Fire", "Fuel"]);
 });
 
-test("cockpit orientation is a first-class aircraft progress activity", () => {
-  assert.equal(trainingActivityKinds.includes("orientation"), true);
+test("v1 progress activity contract includes the complete learner path", () => {
+  assert.deepEqual(trainingActivityKinds, [
+    "quick-start",
+    "systems",
+    "orientation",
+    "normal-flight",
+    "checklist-phase",
+    "scenario",
+    "knowledge",
+  ]);
 });
 
 test("progress storage keys are aircraft-specific", () => {
