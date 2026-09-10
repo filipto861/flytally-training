@@ -6,13 +6,19 @@ The harness first runs the same idempotent Training database bootstrap used for 
 
 It deliberately does **not** add a React component, route, repository method, aircraft-specific `if`/`switch`, or learner-facing aircraft literal. The test fixture is data used to exercise the same admin/content contracts that a real second aircraft uses.
 
-Run only against a disposable or preview database:
+Run only against a disposable or preview database. The standalone command requires an explicit destructive-test acknowledgement in addition to the database URL:
 
 ```bash
-TRAINING_ACCEPTANCE_DATABASE_URL='postgresql://...' npm run test:no-code-aircraft
+TRAINING_ACCEPTANCE_DATABASE_URL='postgresql://...' \
+TRAINING_ACCEPTANCE_CONFIRM_DISPOSABLE='I_UNDERSTAND_THIS_IS_DISPOSABLE' \
+npm run test:no-code-aircraft
 ```
 
+The runner refuses to start without the acknowledgement. It also refuses when `TRAINING_DATABASE_URL` is present and exactly matches `TRAINING_ACCEPTANCE_DATABASE_URL`. This is an additional guard, not a substitute for checking the target database yourself.
+
 Never point `TRAINING_ACCEPTANCE_DATABASE_URL` at production. The test performs real schema initialization, writes and cleanup. A skipped default unit test is not acceptance evidence; the dedicated command must complete successfully against PostgreSQL before the no-code criterion is marked complete.
+
+The manual GitHub Actions workflow adds the same safety boundary: it requires the disposable database secret plus an explicit boolean confirmation before the runner receives the acknowledgement token. Dependencies are installed from the committed lockfile with `npm ci`.
 
 The dedicated runner executes TypeScript server modules with the React Server condition enabled, so imports guarded by `server-only` behave the same way they do in the Next.js server runtime instead of failing in the standalone Node acceptance process.
 
