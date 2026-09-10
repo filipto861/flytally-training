@@ -34,11 +34,14 @@ test("M9 requires controlled provenance only for modules the aircraft actually p
   assert.match(helper,/ci\.domain<>'orientation'/);
 });
 
-test("HTTP readiness requires complete controlled-source coverage for a modular aircraft", () => {
+test("HTTP readiness still measures complete controlled-source coverage without using it as the operational gate", () => {
   assert.match(readiness,/hasCompletePublishedControlledManualCoverage\(item\.id\)/);
-  assert.match(readiness,/controlledManualStorage = true/);
-  assert.match(readiness,/&& controlledManualStorage/);
-  assert.match(readiness,/controlledManualStorage,/);
+  assert.match(readiness,/controlledManualCoverage = true/);
+  assert.match(readiness,/const controlledDocumentRelease/);
+  assert.match(readiness,/&& controlledManualCoverage/);
+  assert.match(readiness,/controlledManualCoverage,/);
+  assert.match(readiness,/operational: ready/);
+  assert.doesNotMatch(readiness,/const ready[\s\S]*&& controlledManualCoverage[\s\S]*const controlledDocumentRelease/);
   assert.doesNotMatch(readiness,/hasAvailablePublishedControlledManual/);
   assert.doesNotMatch(readiness,/learjet-35-36/i);
 });
