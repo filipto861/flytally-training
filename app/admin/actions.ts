@@ -4,12 +4,13 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createAiAssistedDraft } from "@/lib/ai-draft-workflow";
 import { requireTrainingAdmin } from "@/lib/admin-auth";
-import { addAircraftVariant,approveContentVersion,bootstrapStaticContent,createAircraft,createDraftVersion,createSourceReference,ensureContentSchema,publishAircraft,publishContentVersion,registerManualRevision,resolveStaleFlag } from "@/lib/content-admin-repository";
+import { addAircraftVariant,approveContentVersion,bootstrapStaticContent,createAircraft,createDraftVersion,createSourceReference,ensureContentSchema,publishAircraft,publishContentVersion,resolveStaleFlag } from "@/lib/content-admin-repository";
 import { parseContentVersionOrigin,trainingContentDomains,type TrainingContentDomain } from "@/lib/content-admin-types";
 import { assertContentVersionValidForApprovalOrPublication,assertSourceReferencesBelongToAircraft } from "@/lib/content-governance";
+import { registerGovernedManualRevision } from "@/lib/governed-manual-registration";
 import { ensureTrainingIdentitySchema } from "@/lib/identity-schema";
 import { reviseContentVersion } from "@/lib/content-review-repository";
-import { attachClaimedManualAsset,claimManualAsset,ensureManualAssetSchema,releaseManualAssetClaim } from "@/lib/manual-assets";
+import { ensureManualAssetSchema } from "@/lib/manual-assets";
 import { ensureTrainingProgressSchema } from "@/lib/progress-schema";
 
 const text=(form:FormData,key:string)=>String(form.get(key)??"").trim();
@@ -21,12 +22,8 @@ export async function createAircraftAction(form:FormData){const session=await re
 export async function addVariantAction(form:FormData){await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");await addAircraftVariant(aircraftId,text(form,"variant"));revalidatePath(`/admin/aircraft/${aircraftId}`);}
 export async function publishAircraftAction(form:FormData){await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");await publishAircraft(aircraftId);revalidatePath("/");revalidatePath(`/admin/aircraft/${aircraftId}`);}
 export async function registerRevisionAction(form:FormData){
-  const session=await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");const revisionId=text(form,"revisionId");const assetId=text(form,"assetId");let claimed:Awaited<ReturnType<typeof claimManualAsset>>|undefined;
-  try{
-    if(assetId)claimed=await claimManualAsset(aircraftId,assetId,session.subject);
-    await registerManualRevision({aircraftId,manualId:text(form,"manualId"),revisionId,title:text(form,"title"),publisher:text(form,"publisher"),sourceKind:text(form,"sourceKind"),revision:text(form,"revision"),issueDate:text(form,"issueDate"),authorityNote:text(form,"authorityNote"),sourceUri:claimed?.blobUrl??text(form,"sourceUri"),checksumSha256:claimed?.checksumSha256??text(form,"checksum")},session.subject);
-    if(claimed)await attachClaimedManualAsset(claimed.id,revisionId,session.subject);
-  }catch(error){if(claimed)await releaseManualAssetClaim(claimed.id,session.subject).catch(()=>undefined);throw error;}
+  const session=await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");
+  await registerGovernedManualRevision({aircraftId,manualId:text(form,"manualId"),revisionId:text(form,"revisionId"),title:text(form,"title"),publisher:text(form,"publisher"),sourceKind:text(form,"sourceKind"),revision:text(form,"revision"),issueDate:text(form,"issueDate"),authorityNote:text(form,"authorityNote"),sourceUri:text(form,"sourceUri"),checksumSha256:text(form,"checksum"),assetId:text(form,"assetId")||undefined},session.subject);
   revalidatePath(`/admin/aircraft/${aircraftId}`);
 }
 export async function createReferenceAction(form:FormData){const session=await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");await createSourceReference({revisionId:text(form,"revisionId"),chapter:text(form,"chapter"),section:text(form,"section"),pageLabel:text(form,"pageLabel"),note:text(form,"note")},session.subject);revalidatePath(`/admin/aircraft/${aircraftId}`);}

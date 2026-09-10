@@ -35,6 +35,8 @@ Persistent progress follows the same boundary. Runtime progress requests perform
 
 Controlled manuals are also part of readiness rather than an optional admin extra. The release check requires the Blob credential and the `training_manual_assets` persistence table so `/api/readiness` cannot report ready while PDF upload/download is structurally unavailable. A browser-computed SHA-256 is only the expected digest: before an asset becomes `ready`, Training streams the stored private Blob, recomputes SHA-256 and byte count server-side, and compares both to the signed upload metadata. Upload URLs are non-overwriting. Proven byte/digest mismatches fail closed; transient readback failures remain retryable.
 
+Registering an immutable controlled manual revision uses one non-interactive PostgreSQL transaction: claim the verified asset, resolve its server-owned URI/checksum, insert the revision, create stale-content flags and attach the asset. A failed revision or uniqueness constraint rolls the whole transaction back, so the admin workflow cannot leave the PDF claimed while the revision or stale-governance state only partially exists. External controlled sources use the same transactional revision/stale-flag boundary.
+
 FlyTally identity handoff is short-lived **and one-time**. After cryptographic verification, Training atomically consumes the assertion `jti` in its own PostgreSQL replay ledger before issuing the Training session cookie. Replaying the same signed assertion is rejected, and the authentication callback does not create schema at runtime. SSO return targets are normalized as same-origin local paths before either application redirects through the handoff.
 
 Training session privilege lifetime is role-sensitive. Standard learner sessions may remain valid for up to seven days; admin sessions are capped at twelve hours. The reader enforces the current role-specific maximum too, so a legacy longer-lived admin cookie cannot keep stale administrative authority after this policy is deployed.
@@ -48,7 +50,7 @@ Before declaring v1.0 complete on `training.fly-tally.com`, verify on desktop an
 3. Learn / Practice / Flow / Challenge & Response modes remain usable on touch and desktop.
 4. abnormal scenarios, Quick Reference / FLY mode and knowledge review work end-to-end.
 5. sign-in returns from FlyTally Logbook, progress survives a second browser/device, sign-out clears only the Training session, a previously consumed identity callback cannot be replayed, and an admin session expires/re-authenticates on the shorter privilege TTL.
-6. admin can initialize Training-owned runtime tables, upload a controlled PDF whose stored bytes pass server-side SHA-256 verification, register an immutable revision, create source references, draft/review/approve/publish content and observe stale-content review after a newer revision.
+6. admin can initialize Training-owned runtime tables, upload a controlled PDF whose stored bytes pass server-side SHA-256 verification, register and atomically attach an immutable revision, create source references, draft/review/approve/publish content and observe stale-content review after a newer revision.
 7. current approved AFM/QRH/operator material remains explicitly controlling over Training content.
 8. `/api/readiness` returns HTTP 200, including persistent-progress, controlled-manual, identity replay-protection and complete-v1-aircraft checks.
 
