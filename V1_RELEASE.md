@@ -8,6 +8,7 @@ The product is not v1.0-ready merely because the application build is green. The
 - `npm run test:v1-content`: the Learjet reference implementation must pass the aggregate source-backed content gate, including the complete Cold & Dark → Shutdown path, all nine baseline systems and the product authority boundary.
 - `GET /api/health`: process liveness only; it intentionally does not touch dependencies.
 - `GET /api/readiness`: production configuration, Training PostgreSQL connectivity, persistent-progress tables, controlled-manual persistence, complete live private controlled-manual coverage across every canonical learner domain, current-content freshness, AI-draft audit persistence, the identity assertion replay ledger, a readable published-aircraft catalog and **at least one release-ready complete v1 aircraft bundle** through the configured content repository. It returns HTTP 503 until all are true.
+- GitHub workflow `Production readiness probe`: runs automatically after pushes to `main` (and can be dispatched manually), polls `https://training.fly-tally.com/api/readiness` for up to roughly six minutes and succeeds only on HTTP 200 with `status: ready`. This gives release evidence against the actual production custom domain rather than only build/deployment status.
 - Manual GitHub workflow `No-code aircraft acceptance`: must pass against a disposable PostgreSQL database before the no-code multi-aircraft architecture is marked proven.
 
 The aggregate content gate is aircraft-agnostic. It evaluates a resolved `AircraftContentBundle`; the Learjet test adds the v1 reference-aircraft specifics such as the exact nine-system baseline and complete practical flight phase sequence.
@@ -79,6 +80,6 @@ Before declaring v1.0 complete on `training.fly-tally.com`, verify on desktop an
 8. every canonical published Learjet bundle is re-sourced to live attached controlled provenance, and `/api/readiness` fails if even one canonical domain lacks that coverage.
 9. registering a newer source revision creates stale review; `/api/readiness` stays 503 until every stale flag on the currently effective canonical bundles is explicitly resolved or replaced by reviewed current content.
 10. current approved AFM/QRH/operator material remains explicitly controlling over Training content.
-11. `/api/readiness` returns HTTP 200, including persistent-progress, complete controlled-manual coverage, current-content freshness, AI-draft audit persistence, identity replay-protection and the same-aircraft release-ready check.
+11. `/api/readiness` returns HTTP 200, including persistent-progress, complete controlled-manual coverage, current-content freshness, AI-draft audit persistence, identity replay-protection and the same-aircraft release-ready check. The `Production readiness probe` workflow should provide the matching production-domain evidence.
 
 Only after these checks and the no-code PostgreSQL acceptance run should the release be called FlyTally Training v1.0.

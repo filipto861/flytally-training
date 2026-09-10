@@ -1,0 +1,48 @@
+name: Production readiness probe
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: training-production-readiness
+  cancel-in-progress: true
+
+jobs:
+  readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Wait for production readiness
+        env:
+          READINESS_URL: https://training.fly-tally.com/api/readiness
+        run: |
+          set -euo pipefail
+          last_code=""
+          last_body=""
+
+          for attempt in $(seq 1 24); do
+            response_file="$(mktemp)"
+            code="$(curl --silent --show-error --location --connect-timeout 10 --max-time 20 --output "$response_file" --write-out '%{http_code}' "$READINESS_URL" || true)"
+            body="$(cat "$response_file")"
+            rm -f "$response_file"
+
+            echo "Readiness attempt ${attempt}/24: HTTP ${code:-curl-error}"
+            if [ "$code" = "200" ] && printf '%s' "$body" | grep -Eq '"status"[[:space:]]*:[[:space:]]*"ready"'; then
+              echo "Production readiness confirmed."
+              exit 0
+            fi
+
+            last_code="$code"
+            last_body="$body"
+            sleep 15
+          done
+
+          echo "Production readiness did not become ready. Last HTTP status: ${last_code:-curl-error}" >&2
+          printf '%s\n' "$last_body" | head -c 4000 >&2
+          exit 1
