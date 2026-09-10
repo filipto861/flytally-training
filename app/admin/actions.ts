@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createAiAssistedDraft } from "@/lib/ai-draft-workflow";
+import { ensureTrainingAiDraftSchema } from "@/lib/ai-draft-schema";
 import { requireTrainingAdmin } from "@/lib/admin-auth";
 import { addAircraftVariant,bootstrapStaticContent,createAircraft,createSourceReference,ensureContentSchema,publishAircraft,resolveStaleFlag } from "@/lib/content-admin-repository";
 import { parseContentVersionOrigin,trainingContentDomains,type TrainingContentDomain } from "@/lib/content-admin-types";
@@ -34,5 +35,5 @@ export async function reviseVersionAction(form:FormData){const session=await req
 export async function approveVersionAction(form:FormData){const session=await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");const versionId=text(form,"versionId");await assertContentVersionValidForApprovalOrPublication(versionId);await approveGovernedContentVersion(versionId,session.subject,text(form,"note"));revalidatePath(`/admin/aircraft/${aircraftId}`);revalidatePath(`/admin/aircraft/${aircraftId}/content/${versionId}`);}
 export async function publishVersionAction(form:FormData){const session=await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");const versionId=text(form,"versionId");await assertContentVersionValidForApprovalOrPublication(versionId);await publishGovernedContentVersion(versionId,session.subject);revalidatePath("/");revalidatePath(`/admin/aircraft/${aircraftId}`);revalidatePath(`/admin/aircraft/${aircraftId}/content/${versionId}`);}
 export async function resolveStaleAction(form:FormData){const session=await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");await resolveStaleFlag(Number(text(form,"staleId")),session.subject,text(form,"note"));revalidatePath(`/admin/aircraft/${aircraftId}`);}
-export async function initializeTrainingDatabaseAction(){await requireTrainingAdmin();await ensureContentSchema();await Promise.all([ensureTrainingProgressSchema(),ensureManualAssetSchema(),ensureTrainingIdentitySchema()]);revalidatePath("/admin");}
-export async function bootstrapStaticAction(){const session=await requireTrainingAdmin();await Promise.all([ensureTrainingProgressSchema(),ensureManualAssetSchema(),ensureTrainingIdentitySchema()]);await bootstrapStaticContent(session.subject);revalidatePath("/");revalidatePath("/admin");}
+export async function initializeTrainingDatabaseAction(){await requireTrainingAdmin();await ensureContentSchema();await Promise.all([ensureTrainingProgressSchema(),ensureManualAssetSchema(),ensureTrainingIdentitySchema(),ensureTrainingAiDraftSchema()]);revalidatePath("/admin");}
+export async function bootstrapStaticAction(){const session=await requireTrainingAdmin();await Promise.all([ensureTrainingProgressSchema(),ensureManualAssetSchema(),ensureTrainingIdentitySchema(),ensureTrainingAiDraftSchema()]);await bootstrapStaticContent(session.subject);revalidatePath("/");revalidatePath("/admin");}
