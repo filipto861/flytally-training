@@ -7,6 +7,7 @@ import {
   createGovernedDraftVersion,
   publishGovernedContentVersion,
 } from "./content-governed-lifecycle";
+import { selectContentSourceReferenceIds } from "./content-source-binding";
 import { sql } from "./db";
 import type { SourceAuthorityRole } from "./source-authority";
 import { staticTrainingContentSeed } from "./static-content-repository";
@@ -82,7 +83,7 @@ function bootstrapContentRecords(): BootstrapContentRecord[] {
  * new aircraft-specific branch in the bootstrap code.
  */
 export async function bootstrapStaticContentGoverned(subject: string): Promise<void> {
-  const referencesByAircraft = new Map<string, string[]>();
+  const referencesByAircraft = new Map<string, Map<string, string>>();
 
   for (const aircraft of staticTrainingContentSeed.aircraft) {
     await sql`INSERT INTO training_aircraft_types(aircraft_id,manufacturer,model,display_name,status)
@@ -96,14 +97,15 @@ export async function bootstrapStaticContentGoverned(subject: string): Promise<v
         ON CONFLICT(aircraft_id,variant_key) DO NOTHING`;
     }
 
-    const references: string[] = [];
+    const references = new Map<string, string>();
     for (const revision of aircraft.manuals) {
-      references.push(await ensureBootstrapReference(
+      const referenceId = await ensureBootstrapReference(
         aircraft.id,
         revision.id,
         revision as typeof revision & { sourceReferences: object; chapters: readonly unknown[] },
         subject,
-      ));
+      );
+      references.set(revision.id, referenceId);
     }
     referencesByAircraft.set(aircraft.id, references);
   }
@@ -116,13 +118,20 @@ export async function bootstrapStaticContentGoverned(subject: string): Promise<v
       LIMIT 1` as unknown[];
     if (published[0]) continue;
 
+    const sourceReferences = referencesByAircraft.get(record.aircraftId) ?? new Map<string, string>();
+    const sourceReferenceIds = selectContentSourceReferenceIds(
+      record.payload,
+      sourceReferences,
+      [...sourceReferences.values()],
+    );
+
     const versionId = await createGovernedDraftVersion({
       aircraftId: record.aircraftId,
       domain: record.domain,
       contentKey: "bundle",
       payload: record.payload,
       origin: "bootstrap-migration",
-      sourceReferenceIds: referencesByAircraft.get(record.aircraftId) ?? [],
+      sourceReferenceIds,
     }, subject);
     await approveGovernedContentVersion(
       versionId,
