@@ -82,42 +82,6 @@ export const learjet3536: TrainingAircraft = {
         { number: 21, title: "Crew Resource Management", status: "PLANNED" },
       ],
     },
-    {
-      id: "jaydee-learjet-35a-msfs-guide-v1-35-wip1",
-      title: "Learjet 35A Guide – Checklist & Procedures for MS Flight Simulator",
-      publisher: "JayDee",
-      revision: "1.35.WIP1",
-      issueDate: "2024",
-      sourceKind: "SIMULATOR_GUIDE",
-      authorityRole: "SIMULATOR_WORKFLOW",
-      authorityNote:
-        "Flight-simulator workflow guide only. The source explicitly states that some procedures are intentionally altered from real-world procedures for efficient simulator operation; it is not an aircraft operating authority.",
-      sourceReferences: {
-        identityPage: 1,
-        authorityNoticePage: 1,
-        revisionPage: 1,
-        contentsPage: 0,
-      },
-      chapters: [],
-    },
-    {
-      id: "flysimware-learjet-35a-msfs-v1-2",
-      title: "Flysimware Learjet 35A",
-      publisher: "Flysimware",
-      revision: "1.2",
-      issueDate: "2024",
-      sourceKind: "SIMULATOR_MANUAL",
-      authorityRole: "SIMULATOR_IMPLEMENTATION",
-      authorityNote:
-        "Product/simulator implementation source for the Flysimware Learjet 35A. Use it for modeled cockpit, feature and binding behavior, not as an aircraft operating authority.",
-      sourceReferences: {
-        identityPage: 1,
-        authorityNoticePage: 2,
-        revisionPage: 1,
-        contentsPage: 5,
-      },
-      chapters: [],
-    },
   ],
 };
 
