@@ -1,10 +1,10 @@
 import "server-only";
 
 import { createHash,randomUUID } from "node:crypto";
-import { createDraftVersion } from "./content-admin-repository";
 import type { TrainingContentDomain } from "./content-admin-types";
 import type { DraftingSourceReference } from "./content-drafting-provider";
 import { assertSourceReferencesBelongToAircraft } from "./content-governance";
+import { createGovernedDraftVersion } from "./content-governed-lifecycle";
 import { sql } from "./db";
 import { getContentDraftingProvider } from "./openai-content-drafting";
 
@@ -53,7 +53,7 @@ export async function createAiAssistedDraft(input:{aircraftId:string;domain:Trai
   if(draft.aircraftId===undefined)draft.aircraftId=input.aircraftId;
   if(draft.aircraftId!==input.aircraftId)throw new Error("AI draft returned a mismatched aircraftId.");
   const warnings=[...result.warnings,...references.filter(reference=>!result.sourceCoverage.includes(reference.id)).map(reference=>`Selected source ${reference.id} was not reported in AI source coverage.`)];
-  const versionId=await createDraftVersion({aircraftId:input.aircraftId,domain:input.domain,contentKey:input.contentKey||"bundle",payload:draft,origin:"ai-assisted",sourceReferenceIds:input.sourceReferenceIds},subject);
+  const versionId=await createGovernedDraftVersion({aircraftId:input.aircraftId,domain:input.domain,contentKey:input.contentKey||"bundle",payload:draft,origin:"ai-assisted",sourceReferenceIds:input.sourceReferenceIds},subject);
   await recordRun({versionId,provider:result.provider,model:result.model,responseId:result.responseId,sourceText,sourceReferenceIds:input.sourceReferenceIds,warnings},subject);
   return versionId;
 }
