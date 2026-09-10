@@ -21,7 +21,7 @@ export default async function ProgressOverviewPage({
   return (
     <main className="shell aircraft-detail">
       <Link className="back-link" href={withVariantQuery(`/aircraft/${aircraft.id}`, selectedVariant)}>← {aircraft.displayName}</Link>
-      <AircraftWorkspaceNav aircraftId={aircraft.id} active="progress" variants={aircraft.variants} selectedVariant={selectedVariant} />
+      <AircraftWorkspaceNav aircraftId={aircraft.id} active="progress" variants={aircraft.variants} variantProfiles={aircraft.variantProfiles} selectedVariant={selectedVariant} />
       <section className="workspace-section-hero">
         <p className="eyebrow">Progress · {aircraft.displayName}{selectedVariant ? ` · ${selectedVariant}` : ""}</p>
         <h1>What you have practiced — and what needs another pass.</h1>
