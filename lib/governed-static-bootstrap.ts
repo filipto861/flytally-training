@@ -9,7 +9,7 @@ import {
 } from "./content-governed-lifecycle";
 import { selectContentSourceReferenceIds } from "./content-source-binding";
 import { sql } from "./db";
-import type { SourceAuthorityRole } from "./source-authority";
+import { isSimulatorOnlyAuthority, type SourceAuthorityRole } from "./source-authority";
 import { staticTrainingContentSeed } from "./static-content-repository";
 
 async function ensureBootstrapReference(
@@ -84,6 +84,7 @@ function bootstrapContentRecords(): BootstrapContentRecord[] {
  */
 export async function bootstrapStaticContentGoverned(subject: string): Promise<void> {
   const referencesByAircraft = new Map<string, Map<string, string>>();
+  const legacyFallbackByAircraft = new Map<string, string[]>();
 
   for (const aircraft of staticTrainingContentSeed.aircraft) {
     await sql`INSERT INTO training_aircraft_types(aircraft_id,manufacturer,model,display_name,status)
@@ -98,6 +99,7 @@ export async function bootstrapStaticContentGoverned(subject: string): Promise<v
     }
 
     const references = new Map<string, string>();
+    const legacyFallback: string[] = [];
     for (const revision of aircraft.manuals) {
       const referenceId = await ensureBootstrapReference(
         aircraft.id,
@@ -106,8 +108,10 @@ export async function bootstrapStaticContentGoverned(subject: string): Promise<v
         subject,
       );
       references.set(revision.id, referenceId);
+      if (!isSimulatorOnlyAuthority(revision.authorityRole)) legacyFallback.push(referenceId);
     }
     referencesByAircraft.set(aircraft.id, references);
+    legacyFallbackByAircraft.set(aircraft.id, legacyFallback);
   }
 
   for (const record of bootstrapContentRecords()) {
@@ -122,7 +126,7 @@ export async function bootstrapStaticContentGoverned(subject: string): Promise<v
     const sourceReferenceIds = selectContentSourceReferenceIds(
       record.payload,
       sourceReferences,
-      [...sourceReferences.values()],
+      legacyFallbackByAircraft.get(record.aircraftId) ?? [],
     );
 
     const versionId = await createGovernedDraftVersion({
