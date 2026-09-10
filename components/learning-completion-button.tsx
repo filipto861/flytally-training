@@ -13,7 +13,12 @@ const initialLoads = new Map<string, Promise<Awaited<ReturnType<typeof loadTrain
 function loadOnce(aircraftId: string) {
   let pending = initialLoads.get(aircraftId);
   if (!pending) {
-    pending = loadTrainingProgress(aircraftId).catch((error) => {
+    pending = loadTrainingProgress(aircraftId).then((result) => {
+      // Share one account round-trip across the system buttons on this mount, but
+      // do not pin an offline/unauthenticated result for the rest of the session.
+      if (result.persistence === "local") initialLoads.delete(aircraftId);
+      return result;
+    }).catch((error) => {
       initialLoads.delete(aircraftId);
       throw error;
     });
