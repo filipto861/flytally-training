@@ -35,15 +35,6 @@ function weakAreas(value: unknown): string[] {
   return [];
 }
 
-function latestEventsByAircraft(events: readonly PersistedTrainingProgressEvent[]): PersistedTrainingProgressEvent[] {
-  const latest = new Map<string, PersistedTrainingProgressEvent>();
-  for (const event of events) {
-    const current = latest.get(event.aircraftId);
-    if (!current || event.occurredAt > current.occurredAt) latest.set(event.aircraftId, event);
-  }
-  return [...latest.values()];
-}
-
 export class PostgresTrainingProgressRepository implements TrainingProgressRepository {
   /** Runtime progress access is deliberately DML-only. Schema provisioning belongs to admin/deployment bootstrap. */
   async listEvents(accountSubject: string, aircraftId: string): Promise<readonly PersistedTrainingProgressEvent[]> {
@@ -76,39 +67,42 @@ export class PostgresTrainingProgressRepository implements TrainingProgressRepos
       weak_areas: event.weakAreas ?? [],
     })));
 
-    await sql`INSERT INTO training_progress_events(account_subject,event_id,aircraft_id,activity_kind,content_id,occurred_at,completed,score_percent,weak_areas)
-      SELECT ${accountSubject},x.event_id,x.aircraft_id,x.activity_kind,x.content_id,x.occurred_at::timestamptz,x.completed,x.score_percent::smallint,COALESCE(x.weak_areas,'[]'::jsonb)
-      FROM jsonb_to_recordset(${eventRows}::jsonb) AS x(
-        event_id text,
-        aircraft_id text,
-        activity_kind text,
-        content_id text,
-        occurred_at text,
-        completed boolean,
-        score_percent integer,
-        weak_areas jsonb
+    // One statement ingests the whole sync batch and then derives each affected
+    // aircraft's state from canonical persisted rows. Replaying an event id with
+    // different client data therefore cannot rewrite the learning-state pointer.
+    await sql`WITH incoming AS (
+        SELECT * FROM jsonb_to_recordset(${eventRows}::jsonb) AS x(
+          event_id text,
+          aircraft_id text,
+          activity_kind text,
+          content_id text,
+          occurred_at text,
+          completed boolean,
+          score_percent integer,
+          weak_areas jsonb
+        )
+      ), inserted AS (
+        INSERT INTO training_progress_events(account_subject,event_id,aircraft_id,activity_kind,content_id,occurred_at,completed,score_percent,weak_areas)
+        SELECT ${accountSubject},x.event_id,x.aircraft_id,x.activity_kind,x.content_id,x.occurred_at::timestamptz,x.completed,x.score_percent::smallint,COALESCE(x.weak_areas,'[]'::jsonb)
+        FROM incoming x
+        ON CONFLICT(account_subject,event_id) DO NOTHING
+        RETURNING aircraft_id
+      ), affected AS (
+        SELECT DISTINCT aircraft_id FROM incoming
+      ), latest AS (
+        SELECT DISTINCT ON (e.aircraft_id)
+          e.aircraft_id,e.activity_kind,e.content_id,e.occurred_at
+        FROM training_progress_events e
+        JOIN affected a ON a.aircraft_id=e.aircraft_id
+        WHERE e.account_subject=${accountSubject}
+        ORDER BY e.aircraft_id,e.occurred_at DESC,e.id DESC
       )
-      ON CONFLICT(account_subject,event_id) DO NOTHING`;
-
-    const stateRows = JSON.stringify(latestEventsByAircraft(events).map((event) => ({
-      aircraft_id: event.aircraftId,
-      last_activity_kind: event.kind,
-      last_content_id: event.contentId,
-      last_activity_at: event.occurredAt,
-    })));
-
-    await sql`INSERT INTO training_aircraft_state(account_subject,aircraft_id,last_activity_kind,last_content_id,last_activity_at)
-      SELECT ${accountSubject},x.aircraft_id,x.last_activity_kind,x.last_content_id,x.last_activity_at::timestamptz
-      FROM jsonb_to_recordset(${stateRows}::jsonb) AS x(
-        aircraft_id text,
-        last_activity_kind text,
-        last_content_id text,
-        last_activity_at text
-      )
+      INSERT INTO training_aircraft_state(account_subject,aircraft_id,last_activity_kind,last_content_id,last_activity_at)
+      SELECT ${accountSubject},aircraft_id,activity_kind,content_id,occurred_at FROM latest
       ON CONFLICT(account_subject,aircraft_id) DO UPDATE SET
-        last_activity_kind=CASE WHEN EXCLUDED.last_activity_at >= COALESCE(training_aircraft_state.last_activity_at, '-infinity'::timestamptz) THEN EXCLUDED.last_activity_kind ELSE training_aircraft_state.last_activity_kind END,
-        last_content_id=CASE WHEN EXCLUDED.last_activity_at >= COALESCE(training_aircraft_state.last_activity_at, '-infinity'::timestamptz) THEN EXCLUDED.last_content_id ELSE training_aircraft_state.last_content_id END,
-        last_activity_at=GREATEST(COALESCE(training_aircraft_state.last_activity_at, '-infinity'::timestamptz), EXCLUDED.last_activity_at),
+        last_activity_kind=EXCLUDED.last_activity_kind,
+        last_content_id=EXCLUDED.last_content_id,
+        last_activity_at=EXCLUDED.last_activity_at,
         updated_at=NOW()`;
   }
 
