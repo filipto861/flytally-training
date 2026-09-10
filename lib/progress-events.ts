@@ -1,6 +1,7 @@
 export const trainingActivityKinds = [
   "quick-start",
   "systems",
+  "orientation",
   "normal-flight",
   "checklist-phase",
   "scenario",
