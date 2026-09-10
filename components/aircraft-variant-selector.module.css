@@ -1,0 +1,21 @@
+.selector {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 240px);
+  gap: 24px;
+  align-items: center;
+  margin: -26px 0 34px;
+  padding: 16px 18px;
+  border: 1px solid #d4dfe8;
+  border-radius: 14px;
+  background: rgba(255,255,255,.82);
+}
+.selector p { margin-bottom: 4px; }
+.selector strong { display: block; font-size: .98rem; }
+.selector > div > span { display: block; margin-top: 5px; color: #68798c; font-size: .82rem; line-height: 1.45; }
+.selector label { display: grid; gap: 5px; }
+.selector label > span { color: #6b7b8d; font-size: .7rem; font-weight: 820; text-transform: uppercase; letter-spacing: .08em; }
+.selector select { width: 100%; padding: 10px 11px; border: 1px solid #c9d5df; border-radius: 10px; background: #fff; color: #172033; font: inherit; font-weight: 720; }
+
+@media (max-width: 760px) {
+  .selector { grid-template-columns: 1fr; margin-top: -18px; }
+}
