@@ -8,6 +8,7 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test --experimental-strip-types tests/*.test.ts",
+    "test:v1-content": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test --experimental-strip-types tests/v1-learjet-acceptance.test.ts",
     "test:no-code-aircraft": "node tooling/run-no-code-aircraft-acceptance.mjs",
     "verify": "npm run typecheck && npm test && npm run build"
   },
