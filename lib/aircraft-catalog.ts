@@ -1,3 +1,5 @@
+import type { SourceAuthorityRole } from "./source-authority.ts";
+
 export type CurriculumStatus = "READY_TO_DRAFT" | "PLANNED";
 
 export type ManualChapter = {
@@ -12,7 +14,8 @@ export type TrainingManualRevision = {
   readonly publisher: string;
   readonly revision: string;
   readonly issueDate: string;
-  readonly sourceKind: "TRAINING_MANUAL" | "AFM" | "POH" | "FCOM" | "QRH";
+  readonly sourceKind: "TRAINING_MANUAL" | "AFM" | "POH" | "FCOM" | "QRH" | "SIMULATOR_MANUAL" | "SIMULATOR_GUIDE";
+  readonly authorityRole: SourceAuthorityRole;
   readonly authorityNote: string;
   readonly sourceReferences: {
     readonly identityPage: number;
@@ -46,6 +49,7 @@ export const learjet3536: TrainingAircraft = {
       revision: "1.1",
       issueDate: "2020-01",
       sourceKind: "TRAINING_MANUAL",
+      authorityRole: "TRAINING_REFERENCE",
       authorityNote:
         "Training and familiarization source. Manufacturer and regulatory publications take precedence if information conflicts.",
       sourceReferences: {
