@@ -1,4 +1,5 @@
 import type { TrainingAircraft, TrainingAircraftVariantProfile } from "./aircraft-catalog.ts";
+import type { AircraftAbnormalEmergencyContent } from "./universal-abnormal-emergency.ts";
 import type {
   AircraftApplicability,
   AircraftChecklistContent,
@@ -144,6 +145,22 @@ export function filterKnowledgeForConfiguration(
   return {
     ...content,
     questions: content.questions.filter((question) => matchesAircraftApplicability(question.applicability, configuration)),
+  };
+}
+
+export function filterAbnormalEmergencyForConfiguration(
+  content: AircraftAbnormalEmergencyContent,
+  configuration: AircraftConfiguration,
+): AircraftAbnormalEmergencyContent {
+  return {
+    ...content,
+    scenarios: content.scenarios
+      .filter((scenario) => matchesAircraftApplicability(scenario.applicability, configuration))
+      .map((scenario) => ({
+        ...scenario,
+        stages: scenario.stages.filter((stage) => matchesAircraftApplicability(stage.applicability, configuration)),
+      }))
+      .filter((scenario) => scenario.stages.length > 0),
   };
 }
 
