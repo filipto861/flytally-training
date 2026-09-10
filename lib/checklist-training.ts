@@ -1,10 +1,15 @@
-export type ChecklistTrainingMode = "learn" | "practice" | "flow" | "challenge";
+export type ChecklistTrainingMode = "run" | "learn" | "practice" | "flow" | "challenge";
 
 export const checklistTrainingModes = [
   {
+    key: "run",
+    label: "Run",
+    description: "Use the concise checklist directly and mark each item complete as you proceed.",
+  },
+  {
     key: "learn",
     label: "Learn",
-    description: "See the action, explanation and source while you work through the checklist.",
+    description: "See the action, explanation, verification and source while you work through the checklist.",
   },
   {
     key: "practice",
@@ -14,7 +19,7 @@ export const checklistTrainingModes = [
   {
     key: "flow",
     label: "Flow",
-    description: "Perform the cockpit flow from memory first, then reveal the checklist to verify it.",
+    description: "Perform the sequence from memory first, then reveal the checklist to verify it.",
   },
   {
     key: "challenge",

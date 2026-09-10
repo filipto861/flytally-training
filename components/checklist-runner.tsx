@@ -18,7 +18,7 @@ import styles from "./checklist-runner.module.css";
 const ALL_PHASES = "all";
 
 export function ChecklistRunner({ checklist }: Readonly<{ checklist: RuntimeChecklist }>) {
-  const [mode, setMode] = useState<ChecklistTrainingMode>("learn");
+  const [mode, setMode] = useState<ChecklistTrainingMode>("run");
   const [phaseFilter, setPhaseFilter] = useState<string>(ALL_PHASES);
   const [completed, setCompleted] = useState<Set<string>>(() => new Set());
   const [revealedFlowPhases, setRevealedFlowPhases] = useState<Set<string>>(() => new Set());
@@ -70,11 +70,26 @@ export function ChecklistRunner({ checklist }: Readonly<{ checklist: RuntimeChec
   function revealFlowPhase(phaseId: string) { setRevealedFlowPhases((current) => new Set(current).add(phaseId)); }
   function revealResponse(itemId: string) { setRevealedResponses((current) => new Set(current).add(itemId)); }
 
+  function renderOperationalNotices(item: RuntimeChecklistItem) {
+    const notices = item.notices?.filter((notice) => notice.kind !== "note" || mode === "learn") ?? [];
+    if (!notices.length) return null;
+    return (
+      <div className={styles.notices}>
+        {notices.map((notice, index) => (
+          <p className={styles[notice.kind]} key={`${item.id}-${notice.kind}-${index}`}>
+            <strong>{notice.kind.toUpperCase()}:</strong> {notice.text}
+          </p>
+        ))}
+      </div>
+    );
+  }
+
   function renderDetails(item: RuntimeChecklistItem) {
-    if (mode !== "learn" || (!item.explanation && !item.verification && !item.procedureId && !item.sourceLabel)) return null;
+    if (mode !== "learn" || (!item.explanation && !item.verification && !item.condition && !item.procedureId && !item.sourceLabel)) return null;
     return (
       <details className={styles.explanation}>
         <summary>Procedure / explanation</summary>
+        {item.condition ? <p><strong>When:</strong> {item.condition}</p> : null}
         {item.explanation ? <p>{item.explanation}</p> : null}
         {item.verification ? <p><strong>Verify:</strong> {item.verification}</p> : null}
         {item.procedureId ? <p><Link href={`/aircraft/${checklist.aircraftId}/procedures#${encodeURIComponent(item.procedureId)}`}>Open detailed procedure →</Link></p> : null}
@@ -91,6 +106,7 @@ export function ChecklistRunner({ checklist }: Readonly<{ checklist: RuntimeChec
         <button aria-label={`${isDone ? "Uncheck" : "Complete"} ${action}`} aria-pressed={isDone} className={styles.checkButton} onClick={() => toggle(item.id)} type="button"><span className={styles.checkmark} aria-hidden="true" /></button>
         <div className={styles.copy}>
           <strong>{action}</strong>
+          {renderOperationalNotices(item)}
           {renderDetails(item)}
         </div>
       </div>
@@ -105,6 +121,7 @@ export function ChecklistRunner({ checklist }: Readonly<{ checklist: RuntimeChec
         <div className={styles.challengeCopy}>
           <small>Challenge</small><strong>{item.challenge}</strong>
           {revealed ? <div className={styles.response}><small>Response</small><span>{item.response ?? "Confirm action"}</span></div> : null}
+          {revealed ? renderOperationalNotices(item) : null}
         </div>
         <div className={styles.challengeActions}>
           {!revealed ? <button type="button" onClick={() => revealResponse(item.id)}>Reveal response</button> : <button aria-pressed={isDone} type="button" onClick={() => toggle(item.id)}>{isDone ? "Completed ✓" : "Confirm"}</button>}
@@ -114,13 +131,13 @@ export function ChecklistRunner({ checklist }: Readonly<{ checklist: RuntimeChec
   }
 
   return (
-    <section className={styles.runner} aria-label="Aircraft checklist trainer">
+    <section className={styles.runner} aria-label="Aircraft checklist">
       <div className={styles.trainingControls}>
         <div className={styles.modeHeader}>
-          <div><p className="eyebrow">Training mode</p><strong>{activeMode.label}</strong><span>{activeMode.description}</span></div>
-          <label className={styles.phaseSelect}><span>Practice</span><select value={phaseFilter} onChange={(event) => changePhase(event.target.value)}><option value={ALL_PHASES}>Complete checklist</option>{checklist.phases.map((phase) => <option value={phase.id} key={phase.id}>{phase.title}</option>)}</select></label>
+          <div><p className="eyebrow">Checklist mode</p><strong>{activeMode.label}</strong><span>{activeMode.description}</span></div>
+          <label className={styles.phaseSelect}><span>Scope</span><select value={phaseFilter} onChange={(event) => changePhase(event.target.value)}><option value={ALL_PHASES}>Complete checklist</option>{checklist.phases.map((phase) => <option value={phase.id} key={phase.id}>{phase.title}</option>)}</select></label>
         </div>
-        <div className={styles.modeTabs} role="group" aria-label="Checklist training mode">
+        <div className={styles.modeTabs} role="group" aria-label="Checklist mode">
           {checklistTrainingModes.map((candidate) => <button aria-pressed={candidate.key === mode} className={candidate.key === mode ? styles.modeActive : undefined} key={candidate.key} onClick={() => changeMode(candidate.key)} type="button">{candidate.label}</button>)}
         </div>
       </div>
@@ -139,7 +156,7 @@ export function ChecklistRunner({ checklist }: Readonly<{ checklist: RuntimeChec
             <section className={`${styles.phase} ${phaseComplete ? styles.phaseComplete : ""}`} key={phase.id}>
               <div className={styles.phaseHeading}><span>{String(phaseIndex + 1).padStart(2, "0")}</span><div><h2>{phase.title}</h2><small>{phase.items.length} items</small></div></div>
               {mode === "flow" && !flowRevealed ? (
-                <div className={styles.flowPrompt}><div><strong>Perform this flow from memory.</strong><p>When finished, reveal the checklist and verify every item.</p></div><button type="button" onClick={() => revealFlowPhase(phase.id)}>Reveal checklist</button></div>
+                <div className={styles.flowPrompt}><div><strong>Perform this sequence from memory.</strong><p>When finished, reveal the checklist and verify every item.</p></div><button type="button" onClick={() => revealFlowPhase(phase.id)}>Reveal checklist</button></div>
               ) : <div className={styles.items}>{phase.items.map((item) => mode === "challenge" ? renderChallengeItem(item) : renderStandardItem(item))}</div>}
             </section>
           );

@@ -8,7 +8,7 @@
 .phaseSelect { display: grid; gap: 6px; min-width: 240px; }
 .phaseSelect > span { color: #6b7b8d; font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
 .phaseSelect select { width: 100%; padding: 10px 12px; border: 1px solid #cbd7e2; border-radius: 10px; background: #fff; color: #172033; font: inherit; font-weight: 700; }
-.modeTabs { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px; margin-top: 16px; }
+.modeTabs { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 8px; margin-top: 16px; }
 .modeTabs button { padding: 11px 12px; border: 1px solid #ced9e3; border-radius: 11px; background: #f8fafc; color: #526579; font: inherit; font-size: .86rem; font-weight: 760; cursor: pointer; }
 .modeTabs button:hover { border-color: #b4c3d1; }
 .modeTabs button.modeActive { border-color: #172033; background: #172033; color: #fff; }
@@ -37,6 +37,11 @@
 .explanation summary { width: fit-content; color: #526579; font-size: .85rem; font-weight: 760; cursor: pointer; }
 .explanation p { margin: 8px 0 0; color: #607084; line-height: 1.5; font-size: .92rem; }
 .explanation small { display: block; margin-top: 7px; color: #8190a1; font-size: .75rem; }
+.notices { display: grid; gap: 6px; margin-top: 9px; }
+.notices p { margin: 0; padding: 8px 10px; border-radius: 9px; line-height: 1.4; font-size: .82rem; }
+.warning { border: 1px solid #e4b7b7; background: #fff4f4; color: #6d2929; }
+.caution { border: 1px solid #e5cf9c; background: #fff9e9; color: #6b541d; }
+.note { border: 1px solid #cad8e5; background: #f5f9fc; color: #476079; }
 .flowPrompt { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 22px; border: 1px dashed #b7c5d3; border-radius: 16px; background: #f6f9fb; }
 .flowPrompt strong { display: block; }
 .flowPrompt p { margin: 5px 0 0; color: #67778a; line-height: 1.5; }
@@ -48,6 +53,10 @@
 .response span { font-weight: 780; }
 .challengeActions { align-self: center; }
 .challengeActions button[aria-pressed="true"] { border-color: #172033; background: #172033; color: #fff; }
+
+@media (max-width: 900px) {
+  .modeTabs { grid-template-columns: repeat(3, minmax(0,1fr)); }
+}
 
 @media (max-width: 760px) {
   .modeHeader { display: grid; gap: 16px; }

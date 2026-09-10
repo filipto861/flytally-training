@@ -1,6 +1,6 @@
 import { splitChecklistChallenge } from "./checklist-training.ts";
 import type { SimulatorFlightFlow } from "./simulator-checklists.ts";
-import type { AircraftChecklistContent, TrainingSourceReference } from "./universal-aircraft-content.ts";
+import type { AircraftChecklistContent, TrainingNotice, TrainingSourceReference } from "./universal-aircraft-content.ts";
 
 export type RuntimeChecklistItem = {
   readonly id: string;
@@ -8,6 +8,8 @@ export type RuntimeChecklistItem = {
   readonly response?: string;
   readonly explanation?: string;
   readonly verification?: string;
+  readonly condition?: string;
+  readonly notices?: readonly TrainingNotice[];
   readonly procedureId?: string;
   readonly sourceLabel?: string;
 };
@@ -50,6 +52,8 @@ export function normalizeUniversalChecklist(content: AircraftChecklistContent): 
           response: item.response,
           explanation: item.explanation,
           verification: item.verification,
+          condition: item.condition,
+          notices: item.notices,
           procedureId: item.procedureId,
           sourceLabel: item.sources?.map(formatSource).join(" · "),
         })),
