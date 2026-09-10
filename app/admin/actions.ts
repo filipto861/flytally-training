@@ -12,6 +12,7 @@ import { initializeTrainingDatabase } from "@/lib/database-bootstrap";
 import { bootstrapStaticContentGoverned } from "@/lib/governed-static-bootstrap";
 import { registerGovernedManualRevision } from "@/lib/governed-manual-registration";
 import { reSourceContentVersion,reviseContentVersion } from "@/lib/content-review-repository";
+import { parseSourceAuthorityRole } from "@/lib/source-authority";
 
 const text=(form:FormData,key:string)=>String(form.get(key)??"").trim();
 const refs=(form:FormData)=>text(form,"sourceReferenceIds").split(",").map(v=>v.trim()).filter(Boolean);
@@ -24,7 +25,7 @@ export async function addVariantAction(form:FormData){await requireTrainingAdmin
 export async function publishAircraftAction(form:FormData){await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");await publishGovernedAircraft(aircraftId);revalidatePath("/");revalidatePath(`/admin/aircraft/${aircraftId}`);}
 export async function registerRevisionAction(form:FormData){
   const session=await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");
-  await registerGovernedManualRevision({aircraftId,manualId:text(form,"manualId"),revisionId:text(form,"revisionId"),title:text(form,"title"),publisher:text(form,"publisher"),sourceKind:text(form,"sourceKind"),revision:text(form,"revision"),issueDate:text(form,"issueDate"),authorityNote:text(form,"authorityNote"),sourceUri:text(form,"sourceUri"),checksumSha256:text(form,"checksum"),assetId:text(form,"assetId")||undefined},session.subject);
+  await registerGovernedManualRevision({aircraftId,manualId:text(form,"manualId"),revisionId:text(form,"revisionId"),title:text(form,"title"),publisher:text(form,"publisher"),sourceKind:text(form,"sourceKind"),revision:text(form,"revision"),issueDate:text(form,"issueDate"),authorityRole:parseSourceAuthorityRole(text(form,"authorityRole")),authorityNote:text(form,"authorityNote"),sourceUri:text(form,"sourceUri"),checksumSha256:text(form,"checksum"),assetId:text(form,"assetId")||undefined},session.subject);
   revalidatePath(`/admin/aircraft/${aircraftId}`);
 }
 export async function createReferenceAction(form:FormData){const session=await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");await createSourceReference({revisionId:text(form,"revisionId"),chapter:text(form,"chapter"),section:text(form,"section"),pageLabel:text(form,"pageLabel"),note:text(form,"note")},session.subject);revalidatePath(`/admin/aircraft/${aircraftId}`);}

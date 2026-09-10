@@ -3,10 +3,10 @@
 import { useMemo, useState } from "react";
 
 import { appendBrowserProgress } from "@/lib/browser-progress";
-import type { AircraftReferenceKnowledge } from "@/lib/reference-knowledge";
+import type { RuntimeKnowledgeContent } from "@/lib/knowledge-runtime";
 import styles from "./m6-training.module.css";
 
-export function KnowledgeTrainer({ content }: Readonly<{ content: AircraftReferenceKnowledge }>) {
+export function KnowledgeTrainer({ content }: Readonly<{ content: RuntimeKnowledgeContent }>) {
   const areas = useMemo(() => [...new Set(content.questions.map((question) => question.area))], [content.questions]);
   const [area, setArea] = useState("all");
   const [index, setIndex] = useState(0);
@@ -82,7 +82,7 @@ export function KnowledgeTrainer({ content }: Readonly<{ content: AircraftRefere
         </div>
         <div className={styles.scoreCard}>
           <strong>{correct} correct · {attempted} attempted</strong>
-          <p>Saved on this device. M7 will move the same progress stream to the FlyTally account.</p>
+          <p>Your answer events use the same aircraft progress stream as the rest of Training.</p>
         </div>
         {weakAreas.length ? (
           <div className={styles.weakList} aria-label="Weak areas">
@@ -121,7 +121,7 @@ export function KnowledgeTrainer({ content }: Readonly<{ content: AircraftRefere
             <div className={styles.feedback}>
               <strong>{choice === question.correctIndex ? "Correct" : "Review this area"}</strong>
               <p>{question.explanation}</p>
-              <small className={styles.source}>Source · {question.source.map((source) => `Ch ${source.chapter} · ${source.section} · p. ${source.manualPage}`).join(" · ")}</small>
+              {question.sourceLabels.length ? <small className={styles.source}>Source · {question.sourceLabels.join(" · ")}</small> : null}
             </div>
             <div className={styles.quizActions}>
               <button type="button" onClick={previous} disabled={safeIndex === 0}>← Previous</button>

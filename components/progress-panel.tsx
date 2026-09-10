@@ -13,6 +13,7 @@ const kindLabels: Record<PersistedTrainingProgressEvent["kind"], string> = {
   orientation: "Cockpit orientation",
   "normal-flight": "Complete flight",
   "checklist-phase": "Checklist phase",
+  flow: "Flow",
   scenario: "Scenario",
   knowledge: "Knowledge",
 };
@@ -84,7 +85,7 @@ export function ProgressPanel({ aircraftId }: Readonly<{ aircraftId: string }>) 
               </article>
             ))}
           </div>
-        ) : <div className={styles.emptyProgress}>Complete Quick Start, a system lesson, cockpit orientation, checklist, scenario or knowledge question and it will appear here.</div>}
+        ) : <div className={styles.emptyProgress}>Complete Quick Start, a system lesson, cockpit orientation, checklist, flow, scenario or knowledge question and it will appear here.</div>}
       </section>
     </section>
   );

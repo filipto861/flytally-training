@@ -3,7 +3,9 @@ import { trainingAircraft, type TrainingAircraft } from "./aircraft-catalog.ts";
 import { learjet3536CockpitOrientation, type CockpitOrientation } from "./cockpit-orientation.ts";
 import type { TrainingContentDomain } from "./content-admin-types.ts";
 import type { TrainingContentRepository } from "./content-repository.ts";
+import { learjet3536NativeFlows } from "./learjet-native-flows.ts";
 import { learjet3536NativeModules, type StaticUniversalTrainingModule } from "./learjet-native-content.ts";
+import { learjet3536NativeKnowledge } from "./learjet-native-knowledge.ts";
 import { learjet3536LearningContent, type AircraftLearningContent } from "./learning-content.ts";
 import { learjet3536ReferenceKnowledge, type AircraftReferenceKnowledge } from "./reference-knowledge.ts";
 import { learjet3536ColdDarkFlow, type SimulatorFlightFlow } from "./simulator-checklists.ts";
@@ -20,7 +22,11 @@ export type StaticTrainingContentSeed = {
 
 export const staticTrainingContentSeed: StaticTrainingContentSeed = {
   aircraft: trainingAircraft,
-  universalModules: learjet3536NativeModules,
+  universalModules: [
+    ...learjet3536NativeModules,
+    { aircraftId: learjet3536NativeFlows.aircraftId, domain: "flows", payload: learjet3536NativeFlows },
+    { aircraftId: learjet3536NativeKnowledge.aircraftId, domain: "knowledge", payload: learjet3536NativeKnowledge },
+  ],
   learningContent: [learjet3536LearningContent],
   normalFlights: [learjet3536ColdDarkFlow],
   cockpitOrientations: [learjet3536CockpitOrientation],

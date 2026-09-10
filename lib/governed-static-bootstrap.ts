@@ -7,7 +7,9 @@ import {
   createGovernedDraftVersion,
   publishGovernedContentVersion,
 } from "./content-governed-lifecycle";
+import { selectContentSourceReferenceIds } from "./content-source-binding";
 import { sql } from "./db";
+import { isSimulatorOnlyAuthority, type SourceAuthorityRole } from "./source-authority";
 import { staticTrainingContentSeed } from "./static-content-repository";
 
 async function ensureBootstrapReference(
@@ -20,6 +22,7 @@ async function ensureBootstrapReference(
     revision: string;
     issueDate: string;
     sourceKind: string;
+    authorityRole: SourceAuthorityRole;
     authorityNote: string;
     sourceReferences: object;
     chapters: readonly unknown[];
@@ -33,8 +36,8 @@ async function ensureBootstrapReference(
   const manuals = await sql`SELECT aircraft_id FROM training_manuals WHERE manual_id=${manualId} LIMIT 1` as Array<{aircraft_id:string}>;
   if (manuals[0]?.aircraft_id !== aircraftId) throw new Error(`Bootstrap manual ${manualId} belongs to another aircraft.`);
 
-  await sql`INSERT INTO training_manual_revisions(revision_id,manual_id,revision_code,issue_date,authority_note,source_metadata,chapters,registered_by)
-    VALUES(${revision.id},${manualId},${revision.revision},${revision.issueDate},${revision.authorityNote},${JSON.stringify(revision.sourceReferences)}::jsonb,${JSON.stringify(revision.chapters)}::jsonb,${subject})
+  await sql`INSERT INTO training_manual_revisions(revision_id,manual_id,revision_code,issue_date,authority_role,authority_note,source_metadata,chapters,registered_by)
+    VALUES(${revision.id},${manualId},${revision.revision},${revision.issueDate},${revision.authorityRole},${revision.authorityNote},${JSON.stringify(revision.sourceReferences)}::jsonb,${JSON.stringify(revision.chapters)}::jsonb,${subject})
     ON CONFLICT(revision_id) DO NOTHING`;
 
   const revisions = await sql`SELECT manual_id FROM training_manual_revisions WHERE revision_id=${revision.id} LIMIT 1` as Array<{manual_id:string}>;
@@ -80,7 +83,8 @@ function bootstrapContentRecords(): BootstrapContentRecord[] {
  * new aircraft-specific branch in the bootstrap code.
  */
 export async function bootstrapStaticContentGoverned(subject: string): Promise<void> {
-  const referencesByAircraft = new Map<string, string[]>();
+  const referencesByAircraft = new Map<string, Map<string, string>>();
+  const legacyFallbackByAircraft = new Map<string, string[]>();
 
   for (const aircraft of staticTrainingContentSeed.aircraft) {
     await sql`INSERT INTO training_aircraft_types(aircraft_id,manufacturer,model,display_name,status)
@@ -94,16 +98,20 @@ export async function bootstrapStaticContentGoverned(subject: string): Promise<v
         ON CONFLICT(aircraft_id,variant_key) DO NOTHING`;
     }
 
-    const references: string[] = [];
+    const references = new Map<string, string>();
+    const legacyFallback: string[] = [];
     for (const revision of aircraft.manuals) {
-      references.push(await ensureBootstrapReference(
+      const referenceId = await ensureBootstrapReference(
         aircraft.id,
         revision.id,
         revision as typeof revision & { sourceReferences: object; chapters: readonly unknown[] },
         subject,
-      ));
+      );
+      references.set(revision.id, referenceId);
+      if (!isSimulatorOnlyAuthority(revision.authorityRole)) legacyFallback.push(referenceId);
     }
     referencesByAircraft.set(aircraft.id, references);
+    legacyFallbackByAircraft.set(aircraft.id, legacyFallback);
   }
 
   for (const record of bootstrapContentRecords()) {
@@ -114,13 +122,20 @@ export async function bootstrapStaticContentGoverned(subject: string): Promise<v
       LIMIT 1` as unknown[];
     if (published[0]) continue;
 
+    const sourceReferences = referencesByAircraft.get(record.aircraftId) ?? new Map<string, string>();
+    const sourceReferenceIds = selectContentSourceReferenceIds(
+      record.payload,
+      sourceReferences,
+      legacyFallbackByAircraft.get(record.aircraftId) ?? [],
+    );
+
     const versionId = await createGovernedDraftVersion({
       aircraftId: record.aircraftId,
       domain: record.domain,
       contentKey: "bundle",
       payload: record.payload,
       origin: "bootstrap-migration",
-      sourceReferenceIds: referencesByAircraft.get(record.aircraftId) ?? [],
+      sourceReferenceIds,
     }, subject);
     await approveGovernedContentVersion(
       versionId,

@@ -9,13 +9,14 @@ import { sql } from "./db";
 import type { AircraftLearningContent } from "./learning-content";
 import type { AircraftReferenceKnowledge } from "./reference-knowledge";
 import type { SimulatorFlightFlow } from "./simulator-checklists";
+import { parseSourceAuthorityRole } from "./source-authority";
 
 function asArray(value:unknown):unknown[]{if(Array.isArray(value))return value;if(typeof value==="string"){try{const parsed=JSON.parse(value);return Array.isArray(parsed)?parsed:[];}catch{return[];}}return[];}
 function asObject(value:unknown):Record<string,unknown>{if(value&&typeof value==="object"&&!Array.isArray(value))return value as Record<string,unknown>;if(typeof value==="string"){try{const parsed=JSON.parse(value);return parsed&&typeof parsed==="object"&&!Array.isArray(parsed)?parsed:{};}catch{return{};}}return{};}
 
 type AircraftRow={aircraft_id:string;manufacturer:string;model:string;display_name:string};
 type VariantRow={aircraft_id:string;variant_key:string};
-type ManualRow={aircraft_id:string;revision_id:string;title:string;publisher:string;revision_code:string;issue_date:string;source_kind:TrainingManualRevision["sourceKind"];authority_note:string;source_metadata:unknown;chapters:unknown};
+type ManualRow={aircraft_id:string;revision_id:string;title:string;publisher:string;revision_code:string;issue_date:string;source_kind:TrainingManualRevision["sourceKind"];authority_role:string;authority_note:string;source_metadata:unknown;chapters:unknown};
 type DomainRow={domain:TrainingContentDomain};
 
 function mapManual(row:ManualRow):TrainingManualRevision{
@@ -27,6 +28,7 @@ function mapManual(row:ManualRow):TrainingManualRevision{
     revision:row.revision_code,
     issueDate:row.issue_date,
     sourceKind:row.source_kind,
+    authorityRole:parseSourceAuthorityRole(row.authority_role||"UNCLASSIFIED"),
     authorityNote:row.authority_note,
     sourceReferences:{
       identityPage:Number(metadata.identityPage??0),
@@ -60,7 +62,7 @@ export class PostgresTrainingContentRepository implements TrainingContentReposit
     const [aircraftRaw,variantRaw,manualRaw]=await Promise.all([
       sql`SELECT aircraft_id,manufacturer,model,display_name FROM training_aircraft_types WHERE status='published' ORDER BY display_name`,
       sql`SELECT v.aircraft_id,v.variant_key FROM training_aircraft_variants v JOIN training_aircraft_types a ON a.aircraft_id=v.aircraft_id WHERE a.status='published' ORDER BY v.aircraft_id,v.variant_key`,
-      sql`SELECT m.aircraft_id,r.revision_id,m.title,m.publisher,r.revision_code,r.issue_date,m.source_kind,r.authority_note,r.source_metadata,r.chapters FROM training_manuals m JOIN training_manual_revisions r ON r.manual_id=m.manual_id JOIN training_aircraft_types a ON a.aircraft_id=m.aircraft_id WHERE a.status='published' ORDER BY m.aircraft_id,r.registered_at DESC`,
+      sql`SELECT m.aircraft_id,r.revision_id,m.title,m.publisher,r.revision_code,r.issue_date,m.source_kind,r.authority_role,r.authority_note,r.source_metadata,r.chapters FROM training_manuals m JOIN training_manual_revisions r ON r.manual_id=m.manual_id JOIN training_aircraft_types a ON a.aircraft_id=m.aircraft_id WHERE a.status='published' ORDER BY m.aircraft_id,r.registered_at DESC`,
     ]);
     const aircraftRows=aircraftRaw as AircraftRow[];
     const variantRows=variantRaw as VariantRow[];
@@ -86,7 +88,7 @@ export class PostgresTrainingContentRepository implements TrainingContentReposit
     const row=rows[0];if(!row)return undefined;
     const [variantRaw,manualRaw]=await Promise.all([
       sql`SELECT aircraft_id,variant_key FROM training_aircraft_variants WHERE aircraft_id=${aircraftId} ORDER BY variant_key`,
-      sql`SELECT m.aircraft_id,r.revision_id,m.title,m.publisher,r.revision_code,r.issue_date,m.source_kind,r.authority_note,r.source_metadata,r.chapters FROM training_manuals m JOIN training_manual_revisions r ON r.manual_id=m.manual_id WHERE m.aircraft_id=${aircraftId} ORDER BY r.registered_at DESC`,
+      sql`SELECT m.aircraft_id,r.revision_id,m.title,m.publisher,r.revision_code,r.issue_date,m.source_kind,r.authority_role,r.authority_note,r.source_metadata,r.chapters FROM training_manuals m JOIN training_manual_revisions r ON r.manual_id=m.manual_id WHERE m.aircraft_id=${aircraftId} ORDER BY r.registered_at DESC`,
     ]);
     const variants=variantRaw as VariantRow[];
     const manuals=manualRaw as ManualRow[];
