@@ -1,3 +1,4 @@
+import type { SourceAuthorityRole } from "./source-authority.ts";
 import { universalTrainingContentDomains } from "./universal-aircraft-content.ts";
 
 export const legacyTrainingContentDomains = [
@@ -48,6 +49,7 @@ export type AdminManualRevision = {
   readonly revision: string;
   readonly issueDate: string;
   readonly sourceKind: string;
+  readonly authorityRole: SourceAuthorityRole;
   readonly sourceUri?: string;
   readonly checksumSha256?: string;
 };
