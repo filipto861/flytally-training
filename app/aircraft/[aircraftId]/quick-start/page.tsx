@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
+import { LearningCompletionButton } from "@/components/learning-completion-button";
 import { getQuickStartMinutes } from "@/lib/content-metrics";
 import { getTrainingContentRepository } from "@/lib/content-store";
 import styles from "../learning.module.css";
@@ -53,6 +54,8 @@ export default async function QuickStartPage({
           </article>
         ))}
       </div>
+
+      <LearningCompletionButton aircraftId={aircraft.id} kind="quick-start" contentId="quick-start" label="Mark Quick Start complete" />
 
       <section className={styles.nextStep}>
         <div>

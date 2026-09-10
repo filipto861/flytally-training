@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
+import { LearningCompletionButton } from "@/components/learning-completion-button";
 import { getEssentialSystemsMinutes } from "@/lib/content-metrics";
 import { getTrainingContentRepository } from "@/lib/content-store";
 import styles from "../learning.module.css";
@@ -69,6 +70,7 @@ export default async function EssentialSystemsPage({
               <small className={styles.sourceLine}>
                 Source · {system.source.map((item) => `Ch ${item.chapter} · ${item.section} · p. ${item.manualPage}`).join(" · ")}
               </small>
+              <LearningCompletionButton aircraftId={aircraft.id} kind="systems" contentId={system.id} label={`Mark ${system.title} complete`} />
             </div>
           </details>
         ))}
