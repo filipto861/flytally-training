@@ -28,7 +28,7 @@ export default async function AbnormalEmergencyPage({
   return (
     <main className="shell aircraft-detail">
       <Link className="back-link" href={withVariantQuery(`/aircraft/${aircraft.id}`, selectedVariant)}>← {aircraft.displayName}</Link>
-      <AircraftWorkspaceNav aircraftId={aircraft.id} active="abnormal" variants={aircraft.variants} selectedVariant={selectedVariant} />
+      <AircraftWorkspaceNav aircraftId={aircraft.id} active="abnormal" variants={aircraft.variants} variantProfiles={aircraft.variantProfiles} selectedVariant={selectedVariant} />
 
       <section className="workspace-section-hero">
         <p className="eyebrow">Abnormal & Emergency · {aircraft.displayName}{selectedVariant ? ` · ${selectedVariant}` : ""}</p>
