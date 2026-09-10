@@ -1,12 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
-import { readBrowserProgress } from "@/lib/browser-progress";
-import { summarizeProgress, type TrainingProgressEvent } from "@/lib/progress-events";
+import { loadTrainingProgress } from "@/lib/browser-progress";
+import { summarizeProgress, type PersistedTrainingProgressEvent } from "@/lib/progress-events";
 import styles from "./m6-training.module.css";
 
-const kindLabels: Record<TrainingProgressEvent["kind"], string> = {
+const kindLabels: Record<PersistedTrainingProgressEvent["kind"], string> = {
   "quick-start": "Quick Start",
   systems: "Systems",
   "normal-flight": "Complete flight",
@@ -16,16 +17,27 @@ const kindLabels: Record<TrainingProgressEvent["kind"], string> = {
 };
 
 export function ProgressPanel({ aircraftId }: Readonly<{ aircraftId: string }>) {
-  const [events, setEvents] = useState<TrainingProgressEvent[]>([]);
+  const [events, setEvents] = useState<readonly PersistedTrainingProgressEvent[]>([]);
+  const [persistence, setPersistence] = useState<"loading" | "account" | "local">("loading");
+  const [lastContentId, setLastContentId] = useState<string | undefined>();
 
   useEffect(() => {
-    const refresh = () => setEvents(readBrowserProgress(aircraftId));
-    refresh();
-    window.addEventListener("flytally-training-progress", refresh);
-    window.addEventListener("storage", refresh);
+    let active = true;
+    const refresh = async () => {
+      const result = await loadTrainingProgress(aircraftId);
+      if (!active) return;
+      setEvents(result.events);
+      setPersistence(result.persistence);
+      setLastContentId(result.lastContentId);
+    };
+    void refresh();
+    const localRefresh = () => { void refresh(); };
+    window.addEventListener("flytally-training-progress", localRefresh);
+    window.addEventListener("storage", localRefresh);
     return () => {
-      window.removeEventListener("flytally-training-progress", refresh);
-      window.removeEventListener("storage", refresh);
+      active = false;
+      window.removeEventListener("flytally-training-progress", localRefresh);
+      window.removeEventListener("storage", localRefresh);
     };
   }, [aircraftId]);
 
@@ -36,6 +48,16 @@ export function ProgressPanel({ aircraftId }: Readonly<{ aircraftId: string }>) 
 
   return (
     <section aria-label="Aircraft progress">
+      <section className={styles.referenceGroup}>
+        <h2>{persistence === "account" ? "FlyTally account sync" : persistence === "loading" ? "Checking progress sync…" : "Local progress"}</h2>
+        {persistence === "account" ? (
+          <p>Your progress is backed by the Training PostgreSQL store and can continue on another signed-in device. <Link href="/api/auth/logout">Sign out</Link></p>
+        ) : persistence === "local" ? (
+          <p>This device keeps working locally. <Link href={`/api/auth/flytally/start?next=${encodeURIComponent(`/aircraft/${aircraftId}/progress-overview`)}`}>Sign in with FlyTally</Link> to migrate these events and enable cross-device continuation.</p>
+        ) : <p>Loading the most recent aircraft state.</p>}
+        {lastContentId ? <p><strong>Last activity:</strong> {lastContentId.replaceAll("-", " ")}</p> : null}
+      </section>
+
       <div className={styles.progressGrid}>
         <article className={styles.progressStat}><span>Attempts</span><strong>{summary.attempts}</strong></article>
         <article className={styles.progressStat}><span>Completed activities</span><strong>{summary.completedActivities}</strong></article>
@@ -44,9 +66,7 @@ export function ProgressPanel({ aircraftId }: Readonly<{ aircraftId: string }>) 
 
       <section className={styles.referenceGroup}>
         <h2>Weak areas</h2>
-        {summary.weakAreas.length ? (
-          <div className={styles.weakList}>{summary.weakAreas.map((area) => <span key={area}>{area}</span>)}</div>
-        ) : <p>No weak area has been identified on this device yet.</p>}
+        {summary.weakAreas.length ? <div className={styles.weakList}>{summary.weakAreas.map((area) => <span key={area}>{area}</span>)}</div> : <p>No weak area has been identified yet.</p>}
       </section>
 
       <section className={styles.referenceGroup} style={{ marginTop: 14 }}>
@@ -54,7 +74,7 @@ export function ProgressPanel({ aircraftId }: Readonly<{ aircraftId: string }>) 
         {summary.recent.length ? (
           <div className={styles.recentList}>
             {summary.recent.map((event, index) => (
-              <article className={styles.recentItem} key={`${event.occurredAt}:${event.kind}:${event.contentId}:${index}`}>
+              <article className={styles.recentItem} key={event.eventId ?? `${event.occurredAt}:${index}`}>
                 <div><strong>{kindLabels[event.kind]}</strong><span>{event.contentId.replaceAll("-", " ")}</span></div>
                 <time dateTime={event.occurredAt}>{new Date(event.occurredAt).toLocaleString()}</time>
               </article>
@@ -62,8 +82,6 @@ export function ProgressPanel({ aircraftId }: Readonly<{ aircraftId: string }>) 
           </div>
         ) : <div className={styles.emptyProgress}>Complete a checklist, scenario or knowledge question and it will appear here.</div>}
       </section>
-
-      <p className={styles.boundary}>M6 stores this progress locally in the browser using an aircraft-agnostic event contract. M7 will persist the same domain events to the FlyTally account for cross-device continuation.</p>
     </section>
   );
 }
