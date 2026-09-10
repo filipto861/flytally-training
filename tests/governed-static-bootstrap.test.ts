@@ -4,6 +4,7 @@ import test from "node:test";
 
 const bootstrap = fs.readFileSync(new URL("../lib/governed-static-bootstrap.ts", import.meta.url), "utf8");
 const actions = fs.readFileSync(new URL("../app/admin/actions.ts", import.meta.url), "utf8");
+const aircraftPublication = fs.readFileSync(new URL("../lib/aircraft-publication.ts", import.meta.url), "utf8");
 
 test("static seed publication uses the governed transactional lifecycle", () => {
   assert.match(bootstrap, /createGovernedDraftVersion/);
@@ -19,13 +20,14 @@ test("static seed publication uses the governed transactional lifecycle", () => 
   assert.ok(draft >= 0 && approval > draft && publication > approval, "seed must draft, then approve, then publish");
 });
 
-test("new seed aircraft remains hidden until every canonical domain is published", () => {
+test("new seed aircraft remains hidden until the shared catalogue policy accepts it", () => {
   assert.match(bootstrap, /VALUES\(\$\{aircraft\.id\},\$\{aircraft\.manufacturer\},\$\{aircraft\.model\},\$\{aircraft\.displayName\},'draft'\)/);
-  const completionCheck = bootstrap.indexOf("COUNT(DISTINCT i.domain)::int AS published_domains");
-  const publishAircraft = bootstrap.indexOf("SET status='published',updated_at=NOW()", completionCheck);
-  assert.ok(completionCheck >= 0 && publishAircraft > completionCheck, "catalogue publication must follow the complete-domain check");
-  assert.match(bootstrap, /trainingContentDomains\.length/);
-  assert.match(bootstrap, /aircraft remains hidden from the learner catalogue/);
+  assert.match(bootstrap, /import \{ publishGovernedAircraft \} from "\.\/aircraft-publication"/);
+  assert.match(bootstrap, /await publishGovernedAircraft\(aircraft\.id\)/);
+  assert.doesNotMatch(bootstrap, /SET status='published'/);
+  assert.doesNotMatch(bootstrap, /COUNT\(DISTINCT i\.domain\)::int AS published_domains/);
+  assert.match(aircraftPublication, /e\.has_manual/);
+  assert.match(aircraftPublication, /e\.published_domains=\$\{trainingContentDomains\.length\}/);
 });
 
 test("admin bootstrap action cannot fall back to the legacy multi-step lifecycle", () => {
