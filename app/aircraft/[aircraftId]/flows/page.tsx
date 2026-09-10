@@ -28,8 +28,8 @@ export default async function FlowsPage({ params }: Readonly<{ params: Promise<{
 
   return (
     <main className="shell aircraft-detail">
-      <Link className="back-link" href={`/aircraft/${aircraft.id}/checklist`}>← Checklist</Link>
-      <AircraftWorkspaceNav aircraftId={aircraft.id} active="checklist" />
+      <Link className="back-link" href={`/aircraft/${aircraft.id}`}>← {aircraft.displayName}</Link>
+      <AircraftWorkspaceNav aircraftId={aircraft.id} active="flows" />
       <section className="workspace-section-hero">
         <p className="eyebrow">Flows · {aircraft.displayName}</p>
         <h1>{content.title}</h1>
