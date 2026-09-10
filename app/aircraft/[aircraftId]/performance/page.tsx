@@ -2,12 +2,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
+import { PerformanceExplorer } from "@/components/performance-explorer";
 import { getPublishedAircraftModule } from "@/lib/content-repository";
 import { getTrainingContentRepository } from "@/lib/content-store";
-import type { AircraftPerformanceContent, TrainingSourceReference } from "@/lib/universal-aircraft-content";
-
-const formatSources = (sources: readonly TrainingSourceReference[] | undefined): string | undefined =>
-  sources?.map((item) => [item.chapter ? `Ch ${item.chapter}` : undefined, item.section, `p. ${item.pageLabel}`].filter(Boolean).join(" · ")).join(" · ");
+import type { AircraftPerformanceContent } from "@/lib/universal-aircraft-content";
 
 export default async function PerformancePage({ params }: Readonly<{ params: Promise<{ aircraftId: string }> }>) {
   const { aircraftId } = await params;
@@ -25,24 +23,11 @@ export default async function PerformancePage({ params }: Readonly<{ params: Pro
       <section className="workspace-section-hero">
         <p className="eyebrow">Performance · {aircraft.displayName}</p>
         <h1>{content.title}</h1>
-        <p className="lede">Performance tables are rendered from structured aircraft data. Interpolation is never assumed unless the dataset explicitly permits it.</p>
+        <p className="lede">Filter the published performance datasets by their own axes and read the exact source row. The generic explorer never invents interpolation or aircraft-specific calculation logic.</p>
         {content.disclaimer ? <p><strong>Training boundary:</strong> {content.disclaimer}</p> : null}
         {content.sourceNote ? <p><small>Source note · {content.sourceNote}</small></p> : null}
       </section>
-      {content.datasets.map((dataset) => (
-        <section className="reference-library" key={dataset.id}>
-          <div className="section-heading"><div><p className="eyebrow">{dataset.kind}</p><h2>{dataset.title}</h2></div><p>Interpolation: {dataset.interpolation === "none" ? "not applied" : "explicit linear"}</p></div>
-          {dataset.description ? <p>{dataset.description}</p> : null}
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead><tr>{dataset.axes.map((axis) => <th key={axis.key} style={{ textAlign: "left", padding: "0.6rem" }}>{axis.label}{axis.unit ? ` (${axis.unit})` : ""}</th>)}{dataset.outputs.map((output) => <th key={output.key} style={{ textAlign: "left", padding: "0.6rem" }}>{output.label}{output.unit ? ` (${output.unit})` : ""}</th>)}</tr></thead>
-              <tbody>{dataset.rows.map((row, index) => <tr key={index}>{dataset.axes.map((axis) => <td key={axis.key} style={{ padding: "0.6rem" }}>{String(row.inputs[axis.key])}</td>)}{dataset.outputs.map((output) => <td key={output.key} style={{ padding: "0.6rem" }}>{String(row.outputs[output.key])}</td>)}</tr>)}</tbody>
-            </table>
-          </div>
-          {dataset.notes?.length ? <ul>{dataset.notes.map((note) => <li key={note}>{note}</li>)}</ul> : null}
-          {formatSources(dataset.sources) ? <p><small>Source · {formatSources(dataset.sources)}</small></p> : null}
-        </section>
-      ))}
+      <PerformanceExplorer datasets={content.datasets} />
     </main>
   );
 }
