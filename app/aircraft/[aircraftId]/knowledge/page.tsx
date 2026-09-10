@@ -23,8 +23,8 @@ export default async function KnowledgePage({ params }: Readonly<{ params: Promi
 
   return (
     <main className="shell aircraft-detail">
-      <Link className="back-link" href={`/aircraft/${aircraft.id}/progress`}>← Progress</Link>
-      <AircraftWorkspaceNav aircraftId={aircraft.id} active="progress" />
+      <Link className="back-link" href={`/aircraft/${aircraft.id}`}>← {aircraft.displayName}</Link>
+      <AircraftWorkspaceNav aircraftId={aircraft.id} active="knowledge" />
       <section className="workspace-section-hero">
         <p className="eyebrow">Knowledge · {aircraft.displayName}</p>
         <h1>{content.title}</h1>

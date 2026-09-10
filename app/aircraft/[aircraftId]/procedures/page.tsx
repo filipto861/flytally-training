@@ -27,8 +27,8 @@ export default async function ProceduresPage({ params }: Readonly<{ params: Prom
 
   return (
     <main className="shell aircraft-detail">
-      <Link className="back-link" href={`/aircraft/${aircraft.id}/practice`}>← Practice</Link>
-      <AircraftWorkspaceNav aircraftId={aircraft.id} active="practice" />
+      <Link className="back-link" href={`/aircraft/${aircraft.id}`}>← {aircraft.displayName}</Link>
+      <AircraftWorkspaceNav aircraftId={aircraft.id} active="procedures" />
       <section className="workspace-section-hero">
         <p className="eyebrow">Procedures · {aircraft.displayName}</p>
         <h1>{universal?.title ?? "Operating procedures"}</h1>

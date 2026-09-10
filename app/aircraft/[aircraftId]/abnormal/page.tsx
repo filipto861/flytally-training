@@ -21,14 +21,14 @@ export default async function AbnormalEmergencyPage({
 
   return (
     <main className="shell aircraft-detail">
-      <Link className="back-link" href={`/aircraft/${aircraft.id}/practice`}>← Practice</Link>
-      <AircraftWorkspaceNav aircraftId={aircraft.id} active="practice" />
+      <Link className="back-link" href={`/aircraft/${aircraft.id}`}>← {aircraft.displayName}</Link>
+      <AircraftWorkspaceNav aircraftId={aircraft.id} active="abnormal" />
 
       <section className="workspace-section-hero">
         <p className="eyebrow">Abnormal & Emergency · {aircraft.displayName}</p>
         <h1>Recognize. Fly. Act. Continue.</h1>
         <p className="lede">
-          Practice high-value failures as short simulator scenarios. Every session follows the same discipline: recognize the problem, keep the aircraft under control, perform only source-backed immediate actions, then transition to the controlling checklist.
+          Practice high-value failures with the same discipline used in aircraft training: recognize the problem, keep the aircraft under control, perform only source-backed immediate actions, then transition to the controlling checklist.
         </p>
       </section>
 
