@@ -4,7 +4,10 @@ import { notFound } from "next/navigation";
 import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
 import { getPublishedAircraftModule } from "@/lib/content-repository";
 import { getTrainingContentRepository } from "@/lib/content-store";
-import type { AircraftPerformanceContent } from "@/lib/universal-aircraft-content";
+import type { AircraftPerformanceContent, TrainingSourceReference } from "@/lib/universal-aircraft-content";
+
+const formatSources = (sources: readonly TrainingSourceReference[] | undefined): string | undefined =>
+  sources?.map((item) => [item.chapter ? `Ch ${item.chapter}` : undefined, item.section, `p. ${item.pageLabel}`].filter(Boolean).join(" · ")).join(" · ");
 
 export default async function PerformancePage({ params }: Readonly<{ params: Promise<{ aircraftId: string }> }>) {
   const { aircraftId } = await params;
@@ -23,6 +26,8 @@ export default async function PerformancePage({ params }: Readonly<{ params: Pro
         <p className="eyebrow">Performance · {aircraft.displayName}</p>
         <h1>{content.title}</h1>
         <p className="lede">Performance tables are rendered from structured aircraft data. Interpolation is never assumed unless the dataset explicitly permits it.</p>
+        {content.disclaimer ? <p><strong>Training boundary:</strong> {content.disclaimer}</p> : null}
+        {content.sourceNote ? <p><small>Source note · {content.sourceNote}</small></p> : null}
       </section>
       {content.datasets.map((dataset) => (
         <section className="reference-library" key={dataset.id}>
@@ -35,6 +40,7 @@ export default async function PerformancePage({ params }: Readonly<{ params: Pro
             </table>
           </div>
           {dataset.notes?.length ? <ul>{dataset.notes.map((note) => <li key={note}>{note}</li>)}</ul> : null}
+          {formatSources(dataset.sources) ? <p><small>Source · {formatSources(dataset.sources)}</small></p> : null}
         </section>
       ))}
     </main>
