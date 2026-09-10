@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
-import { configurationForVariant, filterLimitationsForConfiguration, resolveSelectedVariant, withVariantQuery } from "@/lib/aircraft-applicability";
+import { configurationForAircraftVariant, filterLimitationsForConfiguration, resolveSelectedVariant, withVariantQuery } from "@/lib/aircraft-applicability";
 import { getPublishedAircraftModule } from "@/lib/content-repository";
 import { getTrainingContentRepository } from "@/lib/content-store";
 import type { AircraftLimitationsContent, TrainingSourceReference } from "@/lib/universal-aircraft-content";
@@ -26,13 +26,13 @@ export default async function LimitationsPage({
   if (!aircraft || !content) notFound();
 
   const selectedVariant = resolveSelectedVariant(variant, aircraft.variants);
-  const configuredContent = filterLimitationsForConfiguration(content, configurationForVariant(selectedVariant));
+  const configuredContent = filterLimitationsForConfiguration(content, configurationForAircraftVariant(aircraft, selectedVariant));
   if (!configuredContent.groups.length) notFound();
 
   return (
     <main className="shell aircraft-detail">
       <Link className="back-link" href={withVariantQuery(`/aircraft/${aircraft.id}`, selectedVariant)}>← {aircraft.displayName}</Link>
-      <AircraftWorkspaceNav aircraftId={aircraft.id} active="limitations" variants={aircraft.variants} selectedVariant={selectedVariant} />
+      <AircraftWorkspaceNav aircraftId={aircraft.id} active="limitations" variants={aircraft.variants} variantProfiles={aircraft.variantProfiles} selectedVariant={selectedVariant} />
       <section className="workspace-section-hero">
         <p className="eyebrow">Limitations · {aircraft.displayName}{selectedVariant ? ` · ${selectedVariant}` : ""}</p>
         <h1>{configuredContent.title}</h1>

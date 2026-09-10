@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 
 import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
 import { ChecklistRunner } from "@/components/checklist-runner";
-import { configurationForVariant, filterChecklistForConfiguration, resolveSelectedVariant, withVariantQuery } from "@/lib/aircraft-applicability";
+import { configurationForAircraftVariant, filterChecklistForConfiguration, resolveSelectedVariant, withVariantQuery } from "@/lib/aircraft-applicability";
 import { normalizeLegacyFlightFlow, normalizeUniversalChecklist } from "@/lib/checklist-runtime";
 import { getPublishedAircraftModule } from "@/lib/content-repository";
 import { getTrainingContentRepository } from "@/lib/content-store";
@@ -27,7 +27,7 @@ export default async function ChecklistsPage({
   if (!aircraft) notFound();
   const selectedVariant = resolveSelectedVariant(variant, aircraft.variants);
   const configuredUniversal = universal
-    ? filterChecklistForConfiguration(universal, configurationForVariant(selectedVariant))
+    ? filterChecklistForConfiguration(universal, configurationForAircraftVariant(aircraft, selectedVariant))
     : undefined;
   const checklist = configuredUniversal ? normalizeUniversalChecklist(configuredUniversal) : legacy ? normalizeLegacyFlightFlow(legacy) : undefined;
   if (!checklist || !checklist.phases.length) notFound();
@@ -35,7 +35,7 @@ export default async function ChecklistsPage({
   return (
     <main className="shell aircraft-detail">
       <Link className="back-link" href={withVariantQuery(`/aircraft/${aircraft.id}`, selectedVariant)}>← {aircraft.displayName}</Link>
-      <AircraftWorkspaceNav aircraftId={aircraft.id} active="checklists" variants={aircraft.variants} selectedVariant={selectedVariant} />
+      <AircraftWorkspaceNav aircraftId={aircraft.id} active="checklists" variants={aircraft.variants} variantProfiles={aircraft.variantProfiles} selectedVariant={selectedVariant} />
       <section className="workspace-section-hero">
         <p className="eyebrow">Checklists · {aircraft.displayName}{selectedVariant ? ` · ${selectedVariant}` : ""}</p>
         <h1>{checklist.title}</h1>

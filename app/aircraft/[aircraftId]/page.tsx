@@ -35,7 +35,7 @@ export default async function AircraftPage({
   return (
     <main className="shell aircraft-detail">
       <Link className="back-link" href="/">← Aircraft library</Link>
-      <AircraftWorkspaceNav aircraftId={aircraft.id} active="overview" variants={aircraft.variants} selectedVariant={selectedVariant} />
+      <AircraftWorkspaceNav aircraftId={aircraft.id} active="overview" variants={aircraft.variants} variantProfiles={aircraft.variantProfiles} selectedVariant={selectedVariant} />
       <section className="detail-hero workspace-hero">
         <div>
           <p className="eyebrow">Aircraft training workspace</p>

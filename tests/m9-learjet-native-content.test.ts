@@ -86,7 +86,7 @@ test("static repository serves native universal modules before legacy migration 
 
 test("knowledge learner route prefers applicability-filtered universal content with legacy fallback only for migration", () => {
   assert.match(knowledgePage, /getPublishedAircraftModule<AircraftKnowledgeContent>\(repository, aircraftId, "knowledge"\)/);
-  assert.match(knowledgePage, /filterKnowledgeForConfiguration\(universal, configurationForVariant\(selectedVariant\)\)/);
+  assert.match(knowledgePage, /filterKnowledgeForConfiguration\(universal, configurationForAircraftVariant\(aircraft, selectedVariant\)\)/);
   assert.match(knowledgePage, /configuredUniversal \? normalizeUniversalKnowledge\(configuredUniversal\) : legacy \? normalizeLegacyKnowledge\(legacy\)/);
 });
 

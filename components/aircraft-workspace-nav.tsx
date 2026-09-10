@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { AircraftVariantSelector } from "@/components/aircraft-variant-selector";
 import { withVariantQuery } from "@/lib/aircraft-applicability";
+import type { TrainingAircraftVariantProfile } from "@/lib/aircraft-catalog";
 import type { TrainingContentDomain } from "@/lib/content-admin-types";
 import { getTrainingContentRepository } from "@/lib/content-store";
 
@@ -38,11 +39,13 @@ export async function AircraftWorkspaceNav({
   aircraftId,
   active,
   variants = [],
+  variantProfiles = [],
   selectedVariant,
 }: Readonly<{
   aircraftId: string;
   active: AircraftModuleNavKey | string;
   variants?: readonly string[];
+  variantProfiles?: readonly TrainingAircraftVariantProfile[];
   selectedVariant?: string;
 }>) {
   const repository = getTrainingContentRepository();
@@ -66,7 +69,7 @@ export async function AircraftWorkspaceNav({
           </Link>
         ))}
       </nav>
-      <AircraftVariantSelector variants={variants} selectedVariant={selectedVariant} />
+      <AircraftVariantSelector variants={variants} variantProfiles={variantProfiles} selectedVariant={selectedVariant} />
     </>
   );
 }

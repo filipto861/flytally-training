@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 
 import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
 import { ProcedureBrowser } from "@/components/procedure-browser";
-import { configurationForVariant, filterProceduresForConfiguration, resolveSelectedVariant, withVariantQuery } from "@/lib/aircraft-applicability";
+import { configurationForAircraftVariant, filterProceduresForConfiguration, resolveSelectedVariant, withVariantQuery } from "@/lib/aircraft-applicability";
 import { getPublishedAircraftModule } from "@/lib/content-repository";
 import { getTrainingContentRepository } from "@/lib/content-store";
 import type { AircraftProcedureContent, AircraftProcedure } from "@/lib/universal-aircraft-content";
@@ -26,7 +26,7 @@ export default async function ProceduresPage({
 
   const selectedVariant = resolveSelectedVariant(variant, aircraft.variants);
   const configuredUniversal = universal
-    ? filterProceduresForConfiguration(universal, configurationForVariant(selectedVariant))
+    ? filterProceduresForConfiguration(universal, configurationForAircraftVariant(aircraft, selectedVariant))
     : undefined;
   const procedures: readonly AircraftProcedure[] = configuredUniversal?.procedures ?? legacy?.phases.map((phase) => ({
     id: phase.id,
@@ -39,7 +39,7 @@ export default async function ProceduresPage({
   return (
     <main className="shell aircraft-detail">
       <Link className="back-link" href={withVariantQuery(`/aircraft/${aircraft.id}`, selectedVariant)}>← {aircraft.displayName}</Link>
-      <AircraftWorkspaceNav aircraftId={aircraft.id} active="procedures" variants={aircraft.variants} selectedVariant={selectedVariant} />
+      <AircraftWorkspaceNav aircraftId={aircraft.id} active="procedures" variants={aircraft.variants} variantProfiles={aircraft.variantProfiles} selectedVariant={selectedVariant} />
       <section className="workspace-section-hero">
         <p className="eyebrow">Procedures · {aircraft.displayName}{selectedVariant ? ` · ${selectedVariant}` : ""}</p>
         <h1>{configuredUniversal?.title ?? "Operating procedures"}</h1>

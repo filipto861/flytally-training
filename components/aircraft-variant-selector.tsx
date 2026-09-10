@@ -2,20 +2,29 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
+import type { TrainingAircraftVariantProfile } from "@/lib/aircraft-catalog";
 import styles from "./aircraft-variant-selector.module.css";
 
 export function AircraftVariantSelector({
   variants,
+  variantProfiles = [],
   selectedVariant,
 }: Readonly<{
   variants: readonly string[];
+  variantProfiles?: readonly TrainingAircraftVariantProfile[];
   selectedVariant?: string;
 }>) {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const profiles = variants.map((variant) => variantProfiles.find((profile) => profile.key === variant) ?? {
+    key: variant,
+    displayName: variant,
+    equipmentTags: [] as readonly string[],
+  });
+  const activeProfile = profiles.find((profile) => profile.key === selectedVariant);
 
-  if (variants.length <= 1) return null;
+  if (profiles.length <= 1) return null;
 
   function selectVariant(variant: string) {
     const next = new URLSearchParams(searchParams.toString());
@@ -29,18 +38,20 @@ export function AircraftVariantSelector({
     <section className={styles.selector} aria-label="Aircraft configuration">
       <div>
         <p className="eyebrow">Aircraft configuration</p>
-        <strong>{selectedVariant ? `Variant ${selectedVariant}` : "Select the aircraft variant"}</strong>
+        <strong>{activeProfile ? activeProfile.displayName : "Select the aircraft variant"}</strong>
         <span>
-          {selectedVariant
-            ? "Configuration-specific content is filtered against the selected variant when the published module defines applicability."
-            : "Until a variant is selected, FlyTally hides content that is explicitly restricted to a specific variant."}
+          {activeProfile
+            ? activeProfile.note ?? (activeProfile.equipmentTags.length
+              ? `This configuration includes ${activeProfile.equipmentTags.length} explicitly registered equipment/modification tag${activeProfile.equipmentTags.length === 1 ? "" : "s"}.`
+              : "Variant-specific content is active. No optional equipment is inferred unless it is explicitly registered in the aircraft profile.")
+            : "Until a variant is selected, FlyTally hides content that is explicitly restricted to a specific variant or required equipment."}
         </span>
       </div>
       <label>
         <span>Variant</span>
         <select value={selectedVariant ?? ""} onChange={(event) => selectVariant(event.target.value)}>
           <option value="">Common content only</option>
-          {variants.map((variant) => <option key={variant} value={variant}>{variant}</option>)}
+          {profiles.map((profile) => <option key={profile.key} value={profile.key}>{profile.displayName}</option>)}
         </select>
       </label>
     </section>

@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 
 import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
 import { PerformanceExplorer } from "@/components/performance-explorer";
-import { configurationForVariant, filterPerformanceForConfiguration, resolveSelectedVariant, withVariantQuery } from "@/lib/aircraft-applicability";
+import { configurationForAircraftVariant, filterPerformanceForConfiguration, resolveSelectedVariant, withVariantQuery } from "@/lib/aircraft-applicability";
 import { getPublishedAircraftModule } from "@/lib/content-repository";
 import { getTrainingContentRepository } from "@/lib/content-store";
 import type { AircraftPerformanceContent } from "@/lib/universal-aircraft-content";
@@ -24,13 +24,13 @@ export default async function PerformancePage({
   if (!aircraft || !content) notFound();
 
   const selectedVariant = resolveSelectedVariant(variant, aircraft.variants);
-  const configuredContent = filterPerformanceForConfiguration(content, configurationForVariant(selectedVariant));
+  const configuredContent = filterPerformanceForConfiguration(content, configurationForAircraftVariant(aircraft, selectedVariant));
   if (!configuredContent.datasets.length) notFound();
 
   return (
     <main className="shell aircraft-detail">
       <Link className="back-link" href={withVariantQuery(`/aircraft/${aircraft.id}`, selectedVariant)}>← {aircraft.displayName}</Link>
-      <AircraftWorkspaceNav aircraftId={aircraft.id} active="performance" variants={aircraft.variants} selectedVariant={selectedVariant} />
+      <AircraftWorkspaceNav aircraftId={aircraft.id} active="performance" variants={aircraft.variants} variantProfiles={aircraft.variantProfiles} selectedVariant={selectedVariant} />
       <section className="workspace-section-hero">
         <p className="eyebrow">Performance · {aircraft.displayName}{selectedVariant ? ` · ${selectedVariant}` : ""}</p>
         <h1>{configuredContent.title}</h1>
