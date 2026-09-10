@@ -45,8 +45,8 @@ export default async function SystemsPage({ params }: Readonly<{ params: Promise
 
   return (
     <main className="shell aircraft-detail">
-      <Link className="back-link" href={`/aircraft/${aircraft.id}/learn`}>← Learn</Link>
-      <AircraftWorkspaceNav aircraftId={aircraft.id} active="learn" />
+      <Link className="back-link" href={`/aircraft/${aircraft.id}`}>← {aircraft.displayName}</Link>
+      <AircraftWorkspaceNav aircraftId={aircraft.id} active="systems" />
       <section className="workspace-section-hero">
         <p className="eyebrow">Systems · {aircraft.displayName}</p>
         <h1>{universal?.title ?? `${systems.length} aircraft systems`}</h1>
