@@ -3,9 +3,19 @@ import { notFound } from "next/navigation";
 
 import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
 import { ScenarioTrainer } from "@/components/scenario-trainer";
-import { resolveSelectedVariant, withVariantQuery } from "@/lib/aircraft-applicability";
-import { getAbnormalTrainingMinutes } from "@/lib/content-metrics";
+import {
+  configurationForAircraftVariant,
+  filterAbnormalEmergencyForConfiguration,
+  resolveSelectedVariant,
+  withVariantQuery,
+} from "@/lib/aircraft-applicability";
+import { normalizeLegacyAbnormalTraining, normalizeUniversalAbnormalEmergency } from "@/lib/abnormal-runtime";
+import { getPublishedAircraftModule } from "@/lib/content-repository";
 import { getTrainingContentRepository } from "@/lib/content-store";
+import {
+  isUniversalAbnormalEmergencyContent,
+  type AircraftAbnormalEmergencyContent,
+} from "@/lib/universal-abnormal-emergency";
 import styles from "../learning.module.css";
 
 export default async function AbnormalEmergencyPage({
@@ -17,13 +27,27 @@ export default async function AbnormalEmergencyPage({
 }>) {
   const [{ aircraftId }, { variant }] = await Promise.all([params, searchParams]);
   const repository = getTrainingContentRepository();
-  const [aircraft, training] = await Promise.all([
+  const [aircraft, published, legacy] = await Promise.all([
     repository.getAircraft(aircraftId),
+    getPublishedAircraftModule<unknown>(repository, aircraftId, "abnormal"),
     repository.getAbnormalTraining(aircraftId),
   ]);
 
-  if (!aircraft || !training) notFound();
+  if (!aircraft) notFound();
   const selectedVariant = resolveSelectedVariant(variant, aircraft.variants);
+  const universal = isUniversalAbnormalEmergencyContent(published)
+    ? filterAbnormalEmergencyForConfiguration(
+        published as AircraftAbnormalEmergencyContent,
+        configurationForAircraftVariant(aircraft, selectedVariant),
+      )
+    : undefined;
+  const training = universal
+    ? normalizeUniversalAbnormalEmergency(universal)
+    : legacy
+      ? normalizeLegacyAbnormalTraining(legacy)
+      : undefined;
+  if (!training?.scenarios.length) notFound();
+  const minutes = training.scenarios.reduce((total, scenario) => total + scenario.minutes, 0);
 
   return (
     <main className="shell aircraft-detail">
@@ -32,17 +56,19 @@ export default async function AbnormalEmergencyPage({
 
       <section className="workspace-section-hero">
         <p className="eyebrow">Abnormal & Emergency · {aircraft.displayName}{selectedVariant ? ` · ${selectedVariant}` : ""}</p>
-        <h1>Recognize. Fly. Act. Continue.</h1>
+        <h1>{training.title}</h1>
         <p className="lede">
-          Practice high-value failures with the same discipline used in aircraft training: recognize the problem, keep the aircraft under control, perform only source-backed immediate actions, then transition to the controlling checklist.
+          Practice published abnormal and emergency scenarios as structured training sequences. Stage names, actions and configuration applicability come from the aircraft content rather than from application code.
         </p>
       </section>
 
       <section className={styles.learningHeader}>
         <p>
-          <strong>Training boundary:</strong> this legacy abnormal module is not configuration-filtered until it is republished in the universal applicability-aware domain. The current approved AFM/QRH and operator SOPs take precedence.
+          {universal
+            ? "Scenario and stage applicability is filtered against the selected aircraft configuration. Current approved AFM/QRH, supplements and operator procedures remain controlling."
+            : "This published source set predates structured configuration applicability. FlyTally does not infer equipment-specific abnormal actions from the model name; current approved AFM/QRH, supplements and operator procedures remain controlling."}
         </p>
-        <span className={styles.timeBadge}>{training.scenarios.length} scenarios · ~{getAbnormalTrainingMinutes(training)} min full set</span>
+        <span className={styles.timeBadge}>{training.scenarios.length} scenarios · ~{minutes} min full set</span>
       </section>
 
       <ScenarioTrainer training={training} />

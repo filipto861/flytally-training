@@ -3,6 +3,7 @@ import {
   isUniversalTrainingContentDomain,
   validateUniversalTrainingContentPayload,
 } from "./universal-aircraft-content.ts";
+import { validateUniversalAbnormalEmergencyPayload } from "./universal-abnormal-emergency.ts";
 
 type RecordValue = Record<string, unknown>;
 const object=(value:unknown):value is RecordValue=>Boolean(value)&&typeof value==="object"&&!Array.isArray(value);
@@ -40,7 +41,7 @@ function validateOrientation(payload:RecordValue,errors:string[]){
 }
 
 const scenarioStageIds=["recognition","control","immediate","continue"];
-function validateAbnormal(payload:RecordValue,errors:string[]){
+function validateLegacyAbnormal(payload:RecordValue,errors:string[]){
   if(!text(payload.sourceNote)||!text(payload.disclaimer))errors.push("abnormal sourceNote and disclaimer are required");
   if(!objects(payload.scenarios)||payload.scenarios.length===0)errors.push("abnormal scenarios are required");
   else payload.scenarios.forEach((scenario,index)=>{
@@ -81,20 +82,31 @@ function validateEmbeddedApplicability(value:unknown,path:string,errors:string[]
   }
 }
 
+function looksLikeUniversalAbnormal(payload: RecordValue): boolean {
+  if (text(payload.title)) return true;
+  if (!objects(payload.scenarios)) return false;
+  return payload.scenarios.some((scenario) => objects(scenario.stages) && scenario.stages.some((stage) => text(stage.label) || text(stage.explanation)));
+}
+
 export function validateContentPayload(domain:TrainingContentDomain,payload:unknown,expectedAircraftId?:string):string[]{
   const errors:string[]=[];
   if(!object(payload))return ["Published content payload must be a JSON object"];
   if(!text(payload.aircraftId))errors.push("aircraftId is required");
   else if(expectedAircraftId&&payload.aircraftId!==expectedAircraftId)errors.push(`aircraftId must equal ${expectedAircraftId}`);
 
-  if(isUniversalTrainingContentDomain(domain)){
+  if(domain==="abnormal"){
+    if(looksLikeUniversalAbnormal(payload)){
+      errors.push(...validateUniversalAbnormalEmergencyPayload(payload));
+      validateEmbeddedApplicability(payload,"payload",errors);
+    } else validateLegacyAbnormal(payload,errors);
+  }
+  else if(isUniversalTrainingContentDomain(domain)){
     errors.push(...validateUniversalTrainingContentPayload(domain,payload));
     validateEmbeddedApplicability(payload,"payload",errors);
   }
   else if(domain==="learning")validateLearning(payload,errors);
   else if(domain==="normal-flight")validateNormalFlight(payload,errors);
   else if(domain==="orientation")validateOrientation(payload,errors);
-  else if(domain==="abnormal")validateAbnormal(payload,errors);
   else if(domain==="reference-knowledge")validateReferenceKnowledge(payload,errors);
   return errors;
 }
