@@ -14,7 +14,7 @@ export function CockpitOrientationExplorer({
   initialControlId,
 }: Readonly<{ orientation: CockpitOrientation; initialControlId?: string }>) {
   const initialControl = orientation.controls.find((control) => control.id === initialControlId);
-  const [activeRegion, setActiveRegion] = useState<CockpitRegionId>(initialControl?.regionId ?? "center-switch");
+  const [activeRegion, setActiveRegion] = useState<CockpitRegionId>(initialControl?.regionId ?? orientation.regions[0]?.id ?? "unknown");
   const [activeControlId, setActiveControlId] = useState<string | undefined>(initialControl?.id);
 
   const controls = useMemo(
@@ -46,7 +46,7 @@ export function CockpitOrientationExplorer({
           {orientation.regions.map((region) => (
             <button
               aria-pressed={activeRegion === region.id}
-              className={`${styles.region} ${styles[region.id]} ${activeRegion === region.id ? styles.activeRegion : ""}`}
+              className={`${styles.region} ${styles[region.id] ?? ""} ${activeRegion === region.id ? styles.activeRegion : ""}`}
               key={region.id}
               onClick={() => selectRegion(region.id)}
               type="button"
@@ -62,7 +62,7 @@ export function CockpitOrientationExplorer({
         <div className={styles.regionHeader}>
           <div>
             <p className="eyebrow">Selected region</p>
-            <h2>{orientation.regions.find((region) => region.id === activeRegion)?.label}</h2>
+            <h2>{orientation.regions.find((region) => region.id === activeRegion)?.label ?? "Cockpit region"}</h2>
           </div>
           <p>{orientation.regions.find((region) => region.id === activeRegion)?.description}</p>
         </div>
@@ -92,7 +92,7 @@ export function CockpitOrientationExplorer({
             <h3>{activeControl.label}</h3>
             <p>{activeControl.description}</p>
             <small>
-              FlightSafety Learjet 35/36 Pilot Training Manual · Ch {activeControl.source.chapter} · {activeControl.source.section} · p. {activeControl.source.manualPage}
+              Controlled source · Ch {activeControl.source.chapter} · {activeControl.source.section} · p. {activeControl.source.manualPage}
             </small>
           </aside>
         ) : null}
