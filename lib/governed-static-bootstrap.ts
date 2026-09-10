@@ -1,6 +1,7 @@
 import "server-only";
 
-import { trainingContentDomains, type TrainingContentDomain } from "./content-admin-types";
+import { publishGovernedAircraft } from "./aircraft-publication";
+import type { TrainingContentDomain } from "./content-admin-types";
 import {
   approveGovernedContentVersion,
   createGovernedDraftVersion,
@@ -49,7 +50,8 @@ async function ensureBootstrapReference(
 /**
  * Import the source-backed static v1 seed through the same governed lifecycle
  * used by ordinary authoring. A newly seeded aircraft remains hidden as draft
- * until every canonical learner domain has a published bundle.
+ * until the shared aircraft-publication policy confirms its learner catalogue
+ * is complete.
  */
 export async function bootstrapStaticContentGoverned(subject: string): Promise<void> {
   const referencesByAircraft = new Map<string, string[]>();
@@ -113,17 +115,6 @@ export async function bootstrapStaticContentGoverned(subject: string): Promise<v
   }
 
   for (const aircraft of staticTrainingContentSeed.aircraft) {
-    const rows = await sql`SELECT COUNT(DISTINCT i.domain)::int AS published_domains
-      FROM training_content_items i
-      JOIN training_content_publications p ON p.item_id=i.item_id
-      WHERE i.aircraft_id=${aircraft.id}
-        AND i.content_key='bundle'
-        AND i.domain IN ('learning','normal-flight','orientation','abnormal','reference-knowledge')` as Array<{published_domains:number|string}>;
-    if (Number(rows[0]?.published_domains ?? 0) !== trainingContentDomains.length) {
-      throw new Error(`Static seed for ${aircraft.id} is incomplete; aircraft remains hidden from the learner catalogue.`);
-    }
-    await sql`UPDATE training_aircraft_types
-      SET status='published',updated_at=NOW()
-      WHERE aircraft_id=${aircraft.id}`;
+    await publishGovernedAircraft(aircraft.id);
   }
 }
