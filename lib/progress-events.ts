@@ -53,17 +53,19 @@ export function isPersistedTrainingProgressEvent(value: unknown): value is Persi
 }
 
 /**
- * Server ingestion accepts arbitrarily old events so offline history can sync,
- * but it must not let a bad device clock or crafted client place continuation
- * state far in the future. Ten minutes covers ordinary device clock skew while
- * preventing a future timestamp from dominating aircraft progress indefinitely.
+ * Canonicalize timestamps before persistence. Old/offline history is preserved.
+ * Ordinary positive device-clock skew is preserved too, but a timestamp farther
+ * than the allowed skew is clamped to server time instead of poisoning the
+ * continuation pointer or causing one bad local event to block the whole batch.
  */
-export function isServerAcceptableProgressEvent(
+export function normalizeServerProgressEvent(
   value: unknown,
   nowMs = Date.now(),
-): value is PersistedTrainingProgressEvent {
-  if (!isPersistedTrainingProgressEvent(value)) return false;
-  return Date.parse(value.occurredAt) <= nowMs + MAX_PROGRESS_FUTURE_SKEW_MS;
+): PersistedTrainingProgressEvent | null {
+  if (!isPersistedTrainingProgressEvent(value)) return null;
+  const parsed = Date.parse(value.occurredAt);
+  const canonicalMs = parsed > nowMs + MAX_PROGRESS_FUTURE_SKEW_MS ? nowMs : parsed;
+  return { ...value, occurredAt: new Date(canonicalMs).toISOString() };
 }
 
 export function summarizeProgress(aircraftId: string, events: readonly TrainingProgressEvent[]): TrainingProgressSummary {
