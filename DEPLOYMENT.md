@@ -1,6 +1,6 @@
 # FlyTally Training deployment runbook
 
-This runbook defines the first production deployment order. A green application build alone is not a release.
+This runbook defines the production deployment order. A green application build alone is not a release.
 
 ## 1. Create the isolated Training deployment
 
@@ -10,7 +10,7 @@ The repository pins Node.js `24.x`, matching GitHub verification and the Vercel 
 
 ## 2. Provision Training-owned dependencies
 
-Provision a PostgreSQL database dedicated to Training and a private Vercel Blob store for controlled manuals. The Training database must not be the FlyTally Logbook database.
+Provision a PostgreSQL database dedicated to Training. The Training database must not be the FlyTally Logbook database.
 
 Configure the Training production environment:
 
@@ -19,8 +19,9 @@ Configure the Training production environment:
 - `FLYTALLY_IDENTITY_SECRET` — random shared identity-handoff secret, at least 32 characters; the exact same value must be configured in Logbook.
 - `FLYTALLY_LOGBOOK_URL` — HTTPS production origin of FlyTally Logbook.
 - `TRAINING_CONTENT_BACKEND=postgres` — static content is not a production backend.
-- private Blob authentication — Vercel deployment OIDC is preferred; `BLOB_READ_WRITE_TOKEN` is the supported explicit fallback.
 - `OPENAI_API_KEY` when live admin AI drafting is required; AI drafting remains draft-only regardless of configuration.
+
+Controlled manual PDFs are a separate release-governance layer. When that layer is enabled, provision a private Vercel Blob store and use Vercel deployment OIDC where available; `BLOB_READ_WRITE_TOKEN` remains the supported explicit fallback for local/non-Vercel operation. The learner application's operational readiness does not depend on this optional storage layer.
 
 Do not configure `TRAINING_ACCEPTANCE_DATABASE_URL` to the production database.
 
@@ -43,26 +44,24 @@ TRAINING_DATABASE_URL='postgresql://...' npm run db:init
 
 The command creates/verifies Training-owned persistence only. It does not publish aircraft content. Ordinary runtime requests intentionally do not self-provision schema.
 
-## 5. Migrate and govern the Learjet seed
+## 5. Migrate and govern aircraft content
 
-After SSO is configured, sign in with an admin account. The static-seed transition action is a privileged migration, not a passive import: after an explicit confirmation it records the acting administrator as the migration approver and immediately publishes seed bundles that are not already published. Review the current source-backed Learjet v1 seed before confirming the action.
+After SSO is configured, sign in with an admin account. Static-seed transition actions are privileged migrations, not passive imports: after explicit confirmation they record the acting administrator as the migration approver and publish seed bundles that are not already published.
 
-The migration bootstrap reference preserves the existing source metadata but does **not by itself satisfy controlled-manual production readiness**. Before release, the currently published learner versions must reference a source reference belonging to an attached controlled manual revision whose private Blob has passed byte/signature/hash verification.
+The migration bootstrap reference preserves source metadata but does **not by itself satisfy controlled-document release readiness**. When controlled-document release is enabled, the currently published learner versions must reference source records belonging to attached controlled manual revisions whose private Blob has passed byte/signature/hash verification.
 
 Use the admin review flow rather than copying bundle JSON by hand:
 
 1. upload and server-verify the controlled PDF;
 2. register its immutable manual revision and attach the verified asset;
 3. create the relevant page/chapter source reference(s);
-4. open each currently published Learjet bundle and use **Re-source this payload without rewriting it**;
+4. open each currently published bundle and use **Re-source this payload without rewriting it**;
 5. select only the controlled source reference(s) that support that bundle;
 6. Training creates a new immutable `human` draft with the exact existing payload and the selected controlled provenance;
 7. review the unchanged payload against the cited source, then explicitly approve and publish the new version;
 8. resolve any stale-source review state only after the replacement has been checked.
 
 The re-source action accepts only references whose manual revision has an `attached` controlled PDF asset. It never mutates the published version and does not auto-approve or auto-publish the replacement.
-
-A production aircraft is not complete merely because its catalogue row or bootstrap bundles are published. The current learner content must resolve all v1 capabilities and the controlled source must remain reachable.
 
 ## 6. Verify production readiness
 
@@ -73,7 +72,12 @@ GET https://training.fly-tally.com/api/health
 GET https://training.fly-tally.com/api/readiness
 ```
 
-`/api/health` proves process liveness only. `/api/readiness` must return HTTP 200 before release; it validates production configuration, PostgreSQL, progress persistence, controlled-manual persistence/storage, AI audit persistence, identity replay protection, published catalogue access and at least one complete v1 aircraft.
+`/api/health` proves process liveness only. `/api/readiness` exposes two explicit profiles:
+
+- `profiles.operational` — the learner application can use its production PostgreSQL backend, persistence, identity boundary and current published modular aircraft content. This controls the endpoint's HTTP 200/503 status.
+- `profiles.controlledDocumentRelease` — controlled PDF persistence, storage credentials and source coverage are complete for at least one fresh published aircraft. This may remain `false` while the controlled-document layer is intentionally deferred.
+
+The response also exposes individual boolean checks so a missing optional controlled-document capability cannot mask the state of the database or published content.
 
 ## 7. Prove the no-code second-aircraft architecture separately
 
@@ -83,4 +87,4 @@ Only a successful real PostgreSQL acceptance run counts as evidence that the mul
 
 ## 8. Human release acceptance
 
-Complete the desktop/mobile and cross-device checks in `V1_RELEASE.md`, including SSO replay rejection, progress synchronization, controlled manual upload/verification, governed authoring, stale-source handling and admin session expiry. Only then call the deployment FlyTally Training v1.0.
+Complete the desktop/mobile and cross-device checks in `V1_RELEASE.md`, including SSO replay rejection, progress synchronization, governed authoring, stale-source handling and admin session expiry. Controlled manual upload/verification is additionally required before declaring the controlled-document release profile complete.
