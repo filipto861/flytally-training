@@ -38,7 +38,7 @@ test("a second aircraft can be created, published and rendered through the gener
   try {
     await createAircraft({id:aircraftId,manufacturer:"Acceptance",model:"Second Aircraft",displayName:"Acceptance Second Aircraft"},subject);
     await addAircraftVariant(aircraftId,"A");
-    await registerGovernedManualRevision({aircraftId,manualId:`${aircraftId}-manual`,revisionId:`${aircraftId}-r1`,title:"Acceptance Manual",publisher:"FlyTally Acceptance",sourceKind:"TRAINING_MANUAL",revision:"1",issueDate:"2026-09",authorityNote:"Synthetic disposable acceptance source.",sourceUri:"acceptance://manual.pdf",checksumSha256:"a".repeat(64)},subject);
+    await registerGovernedManualRevision({aircraftId,manualId:`${aircraftId}-manual`,revisionId:`${aircraftId}-r1`,title:"Acceptance Manual",publisher:"FlyTally Acceptance",sourceKind:"TRAINING_MANUAL",revision:"1",issueDate:"2026-09",authorityRole:"TRAINING_REFERENCE",authorityNote:"Synthetic disposable acceptance source.",sourceUri:"acceptance://manual.pdf",checksumSha256:"a".repeat(64)},subject);
     const referenceId = await createSourceReference({revisionId:`${aircraftId}-r1`,chapter:"1",section:"Acceptance",pageLabel:"1"},subject);
 
     for (const [domain,payload] of Object.entries(domains)) {
@@ -53,7 +53,7 @@ test("a second aircraft can be created, published and rendered through the gener
     const bundle = await getAircraftContentBundle(repository,aircraftId);
     assert.ok(bundle);
     assert.equal(bundle.aircraft.id,aircraftId);
-    assert.deepEqual(bundle.capabilities,{quickStart:true,systems:true,normalFlight:true,cockpitOrientation:true,abnormalEmergency:true,quickReference:true,knowledge:true,manual:true});
+    assert.deepEqual(bundle.capabilities,{checklists:true,procedures:true,performance:false,limitations:false,systems:true,abnormalEmergency:true,flows:true,avionics:false,knowledge:true,manual:true,quickStart:true,normalFlight:true,cockpitOrientation:true,quickReference:true});
     assert.ok((await repository.listAircraft()).some(aircraft=>aircraft.id===aircraftId));
   } finally {
     await sql`DELETE FROM training_aircraft_types WHERE aircraft_id=${aircraftId}`;
