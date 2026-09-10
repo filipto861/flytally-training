@@ -2,10 +2,10 @@ import type { TrainingContentDomain } from "./content-admin-types.ts";
 
 type RecordValue = Record<string, unknown>;
 const object=(value:unknown):value is RecordValue=>Boolean(value)&&typeof value==="object"&&!Array.isArray(value);
-const text=(value:unknown)=>typeof value==="string"&&value.trim().length>0;
-const number=(value:unknown)=>typeof value==="number"&&Number.isFinite(value);
-const strings=(value:unknown)=>Array.isArray(value)&&value.every(text);
-const objects=(value:unknown)=>Array.isArray(value)&&value.every(object);
+const text=(value:unknown):value is string=>typeof value==="string"&&value.trim().length>0;
+const number=(value:unknown):value is number=>typeof value==="number"&&Number.isFinite(value);
+const strings=(value:unknown):value is string[]=>Array.isArray(value)&&value.every(text);
+const objects=(value:unknown):value is RecordValue[]=>Array.isArray(value)&&value.every(object);
 
 function source(value:unknown):boolean{return object(value)&&number(value.chapter)&&text(value.section)&&text(value.manualPage);}
 function sources(value:unknown):boolean{return Array.isArray(value)&&value.length>0&&value.every(source);}
@@ -30,9 +30,9 @@ function validateOrientation(payload:RecordValue,errors:string[]){
   if(!text(payload.title)||!text(payload.sourceNote))errors.push("orientation title and sourceNote are required");
   if(!objects(payload.regions)||payload.regions.length===0)errors.push("orientation regions are required");
   const regionIds=new Set<string>();
-  if(objects(payload.regions))payload.regions.forEach((region,index)=>{if(!text(region.id)||!text(region.label)||!text(region.description))errors.push(`regions[${index}] does not match the region contract`);else regionIds.add(region.id as string);});
+  if(objects(payload.regions))payload.regions.forEach((region,index)=>{if(!text(region.id)||!text(region.label)||!text(region.description))errors.push(`regions[${index}] does not match the region contract`);else regionIds.add(region.id);});
   if(!objects(payload.controls))errors.push("orientation controls must be an array");
-  else payload.controls.forEach((control,index)=>{if(!text(control.id)||!text(control.label)||!text(control.regionId)||!text(control.description)||!strings(control.checklistItemIds)||!source(control.source))errors.push(`controls[${index}] does not match the control contract`);else if(!regionIds.has(control.regionId as string))errors.push(`controls[${index}] references an unknown regionId`);});
+  else payload.controls.forEach((control,index)=>{if(!text(control.id)||!text(control.label)||!text(control.regionId)||!text(control.description)||!strings(control.checklistItemIds)||!source(control.source))errors.push(`controls[${index}] does not match the control contract`);else if(!regionIds.has(control.regionId))errors.push(`controls[${index}] references an unknown regionId`);});
 }
 
 const scenarioStageIds=["recognition","control","immediate","continue"];
@@ -43,7 +43,7 @@ function validateAbnormal(payload:RecordValue,errors:string[]){
     if(!idTitle(scenario)||!text(scenario.category)||!text(scenario.phase)||!(scenario.difficulty==="core"||scenario.difficulty==="advanced")||!number(scenario.minutes)||!text(scenario.summary)||!text(scenario.setup)||!strings(scenario.objectives)||!strings(scenario.debrief)||!objects(scenario.stages)){errors.push(`scenarios[${index}] does not match the scenario contract`);return;}
     const ids=scenario.stages.map(stage=>stage.id);
     if(ids.length!==4||ids.some((id,i)=>id!==scenarioStageIds[i]))errors.push(`scenarios[${index}] must use Recognize → Fly → Immediate → Continue stages`);
-    scenario.stages.forEach((stage,stageIndex)=>{if(!text(stage.prompt)||!strings(stage.expectedResponse)||stage.expectedResponse.length===0||!text(stage.why)||!sources(stage.source))errors.push(`scenarios[${index}].stages[${stageIndex}] does not match the stage contract`);});
+    scenario.stages.forEach((stage,stageIndex)=>{const expectedResponse=stage.expectedResponse;if(!text(stage.prompt)||!strings(expectedResponse)||expectedResponse.length===0||!text(stage.why)||!sources(stage.source))errors.push(`scenarios[${index}].stages[${stageIndex}] does not match the stage contract`);});
   });
 }
 
@@ -52,7 +52,7 @@ function validateReferenceKnowledge(payload:RecordValue,errors:string[]){
   if(!objects(payload.groups)||payload.groups.length===0)errors.push("Quick Reference groups are required");
   else payload.groups.forEach((group,index)=>{if(!idTitle(group)||!number(group.flyPriority)||!objects(group.items)||group.items.length===0){errors.push(`groups[${index}] does not match the reference group contract`);return;}group.items.forEach((item,itemIndex)=>{if(!text(item.id)||!text(item.label)||!text(item.value)||!sources(item.source))errors.push(`groups[${index}].items[${itemIndex}] does not match the reference item contract`);});});
   if(!objects(payload.questions)||payload.questions.length===0)errors.push("knowledge questions are required");
-  else payload.questions.forEach((question,index)=>{if(!text(question.id)||!text(question.area)||!text(question.prompt)||!strings(question.choices)||question.choices.length<2||!Number.isInteger(question.correctIndex)||Number(question.correctIndex)<0||Number(question.correctIndex)>=question.choices.length||!text(question.explanation)||!sources(question.source))errors.push(`questions[${index}] does not match the knowledge question contract`);});
+  else payload.questions.forEach((question,index)=>{const choices=question.choices;if(!text(question.id)||!text(question.area)||!text(question.prompt)||!strings(choices)||choices.length<2||!Number.isInteger(question.correctIndex)||Number(question.correctIndex)<0||Number(question.correctIndex)>=choices.length||!text(question.explanation)||!sources(question.source))errors.push(`questions[${index}] does not match the knowledge question contract`);});
 }
 
 export function validateContentPayload(domain:TrainingContentDomain,payload:unknown,expectedAircraftId?:string):string[]{
