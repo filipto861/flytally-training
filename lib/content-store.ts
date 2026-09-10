@@ -1,15 +1,11 @@
 import type { TrainingContentRepository } from "./content-repository";
+import { PostgresTrainingContentRepository } from "./postgres-content-repository";
 import { StaticTrainingContentRepository } from "./static-content-repository";
 
-const trainingContentRepository: TrainingContentRepository = new StaticTrainingContentRepository();
+const staticRepository: TrainingContentRepository = new StaticTrainingContentRepository();
+const postgresRepository: TrainingContentRepository = new PostgresTrainingContentRepository();
 
-/**
- * Single application entry point for aircraft-specific training content.
- *
- * Learner-facing code must consume this repository instead of importing
- * aircraft-specific registries directly. When PostgreSQL content persistence
- * lands, only this composition boundary should need to choose the new adapter.
- */
+/** Single application composition boundary for aircraft-specific training content. */
 export function getTrainingContentRepository(): TrainingContentRepository {
-  return trainingContentRepository;
+  return process.env.TRAINING_CONTENT_BACKEND?.trim().toLowerCase() === "postgres" ? postgresRepository : staticRepository;
 }
