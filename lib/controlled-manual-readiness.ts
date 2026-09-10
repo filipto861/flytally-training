@@ -35,7 +35,7 @@ export async function hasCompletePublishedControlledManualCoverage(aircraftId: s
       WHERE ci.aircraft_id=${aircraftId}
         AND ci.content_key='bundle'
         AND ci.domain<>'orientation'
-      ORDER BY ci.domain` as Promise<PublishedDomainRow[]>,
+      ORDER BY ci.domain` as unknown as Promise<PublishedDomainRow[]>,
     sql`WITH eligible AS (
       SELECT DISTINCT ci.domain,a.pathname,a.size_bytes,a.content_type,a.finalized_at
       FROM training_manual_assets a
@@ -59,7 +59,7 @@ export async function hasCompletePublishedControlledManualCoverage(aircraftId: s
     SELECT domain,pathname,size_bytes,content_type,finalized_at
     FROM ranked
     WHERE candidate_rank<=3
-    ORDER BY domain,finalized_at DESC NULLS LAST` as Promise<ControlledManualCandidate[]>,
+    ORDER BY domain,finalized_at DESC NULLS LAST` as unknown as Promise<ControlledManualCandidate[]>,
   ]);
 
   const requiredDomains = new Set<TrainingContentDomain>(publishedRows.map(row => row.domain));
