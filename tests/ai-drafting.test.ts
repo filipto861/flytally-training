@@ -18,9 +18,9 @@ test("OpenAI drafting uses Responses structured output without provider-side per
   assert.match(env,/TRAINING_DRAFTING_MODEL=gpt-5\.6-terra/);
 });
 
-test("AI workflow can create a draft but has no approval or publication capability",()=>{
-  assert.match(workflow,/createDraftVersion/);
-  assert.doesNotMatch(workflow,/approveContentVersion|publishContentVersion|training_content_approvals|training_content_publications/);
+test("AI workflow can create a governed draft but has no approval or publication capability",()=>{
+  assert.match(workflow,/createGovernedDraftVersion/);
+  assert.doesNotMatch(workflow,/approveGovernedContentVersion|publishGovernedContentVersion|training_content_approvals|training_content_publications/);
 });
 
 test("AI workflow binds selected references to the aircraft and audits the run",()=>{

@@ -5,8 +5,9 @@ const acceptanceUrl = process.env.TRAINING_ACCEPTANCE_DATABASE_URL?.trim();
 
 test("a second aircraft can be created, published and rendered through the generic PostgreSQL path without aircraft-specific application code", { skip: !acceptanceUrl }, async () => {
   process.env.TRAINING_DATABASE_URL = acceptanceUrl;
-  const [{createAircraft,addAircraftVariant,registerManualRevision,createSourceReference,createDraftVersion,approveContentVersion,publishContentVersion,publishAircraft},{PostgresTrainingContentRepository},{getAircraftContentBundle},{validateContentPayload},{sql}] = await Promise.all([
+  const [{createAircraft,addAircraftVariant,registerManualRevision,createSourceReference,publishAircraft},{createGovernedDraftVersion,approveGovernedContentVersion,publishGovernedContentVersion},{PostgresTrainingContentRepository},{getAircraftContentBundle},{validateContentPayload},{sql}] = await Promise.all([
     import("../lib/content-admin-repository.ts"),
+    import("../lib/content-governed-lifecycle.ts"),
     import("../lib/postgres-content-repository.ts"),
     import("../lib/content-repository.ts"),
     import("../lib/content-contracts.ts"),
@@ -38,9 +39,9 @@ test("a second aircraft can be created, published and rendered through the gener
 
     for (const [domain,payload] of Object.entries(domains)) {
       assert.deepEqual(validateContentPayload(domain as keyof typeof domains,payload,aircraftId),[]);
-      const versionId = await createDraftVersion({aircraftId,domain,contentKey:"bundle",payload,origin:"human",sourceReferenceIds:[referenceId]},subject);
-      await approveContentVersion(versionId,subject,"Disposable no-code acceptance fixture.");
-      await publishContentVersion(versionId,subject);
+      const versionId = await createGovernedDraftVersion({aircraftId,domain,contentKey:"bundle",payload,origin:"human",sourceReferenceIds:[referenceId]},subject);
+      await approveGovernedContentVersion(versionId,subject,"Disposable no-code acceptance fixture.");
+      await publishGovernedContentVersion(versionId,subject);
     }
     await publishAircraft(aircraftId);
 
