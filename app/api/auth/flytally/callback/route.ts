@@ -3,7 +3,8 @@ import { NextResponse } from "next/server";
 import { verifyFlyTallyIdentityAssertion } from "@/lib/identity-contract";
 import { consumeFlyTallyIdentityAssertion } from "@/lib/identity-replay";
 import { safeLocalPath } from "@/lib/local-path";
-import { createTrainingSessionToken, TRAINING_SESSION_COOKIE, TRAINING_SESSION_SECONDS } from "@/lib/training-session";
+import { createTrainingSessionToken, TRAINING_SESSION_COOKIE } from "@/lib/training-session";
+import { trainingSessionSeconds } from "@/lib/training-session-policy";
 
 function identitySecret(): string {
   const value = process.env.FLYTALLY_IDENTITY_SECRET?.trim();
@@ -42,7 +43,7 @@ export async function GET(request: Request) {
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
-    maxAge: TRAINING_SESSION_SECONDS,
+    maxAge: trainingSessionSeconds(claims.role),
   });
   return response;
 }

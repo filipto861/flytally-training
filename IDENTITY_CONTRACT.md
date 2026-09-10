@@ -32,11 +32,18 @@ Required claims:
 - `exp`: expiry Unix seconds; maximum accepted assertion lifetime is five minutes
 - `jti`: unique assertion id
 
-Training rejects malformed, expired, future-dated, wrong-audience, wrong-issuer, over-long-lived or incorrectly signed assertions.
+Training rejects malformed, expired, future-dated, wrong-audience, wrong-issuer, over-long-lived or incorrectly signed assertions. A cryptographically valid assertion is also one-time: Training atomically records its `jti` before issuing a session and rejects replay.
 
 ## Training session
 
-After a valid handoff Training issues its own seven-day host-only `flytally_training_session` cookie, signed with the separate `TRAINING_SESSION_SECRET`.
+After a valid handoff Training issues its own host-only `flytally_training_session` cookie, signed with the separate `TRAINING_SESSION_SECRET`.
+
+Session lifetime is role-sensitive:
+
+- `user`: up to seven days
+- `admin`: up to twelve hours
+
+The role-specific maximum is enforced when a cookie is **read**, not only when it is created. This means legacy seven-day admin cookies are rejected immediately after the shorter policy is deployed rather than remaining privileged until their historical expiry.
 
 The Training cookie contains only the stable account subject, role, issue time and expiry. Logbook session tokens are never copied to Training.
 

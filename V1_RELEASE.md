@@ -37,6 +37,8 @@ Controlled manuals are also part of readiness rather than an optional admin extr
 
 FlyTally identity handoff is short-lived **and one-time**. After cryptographic verification, Training atomically consumes the assertion `jti` in its own PostgreSQL replay ledger before issuing the Training session cookie. Replaying the same signed assertion is rejected, and the authentication callback does not create schema at runtime. SSO return targets are normalized as same-origin local paths before either application redirects through the handoff.
 
+Training session privilege lifetime is role-sensitive. Standard learner sessions may remain valid for up to seven days; admin sessions are capped at twelve hours. The reader enforces the current role-specific maximum too, so a legacy longer-lived admin cookie cannot keep stale administrative authority after this policy is deployed.
+
 ## Human acceptance gate
 
 Before declaring v1.0 complete on `training.fly-tally.com`, verify on desktop and mobile:
@@ -45,7 +47,7 @@ Before declaring v1.0 complete on `training.fly-tally.com`, verify on desktop an
 2. Quick Start, cockpit orientation and Cold & Dark → Shutdown First Flight work end-to-end.
 3. Learn / Practice / Flow / Challenge & Response modes remain usable on touch and desktop.
 4. abnormal scenarios, Quick Reference / FLY mode and knowledge review work end-to-end.
-5. sign-in returns from FlyTally Logbook, progress survives a second browser/device, sign-out clears only the Training session, and a previously consumed identity callback cannot be replayed.
+5. sign-in returns from FlyTally Logbook, progress survives a second browser/device, sign-out clears only the Training session, a previously consumed identity callback cannot be replayed, and an admin session expires/re-authenticates on the shorter privilege TTL.
 6. admin can initialize Training-owned runtime tables, upload a controlled PDF, register an immutable revision, create source references, draft/review/approve/publish content and observe stale-content review after a newer revision.
 7. current approved AFM/QRH/operator material remains explicitly controlling over Training content.
 8. `/api/readiness` returns HTTP 200, including persistent-progress, controlled-manual, identity replay-protection and complete-v1-aircraft checks.
