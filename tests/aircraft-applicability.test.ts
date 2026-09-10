@@ -4,6 +4,7 @@ import test from "node:test";
 import {
   configurationForAircraftVariant,
   configurationForVariant,
+  filterAbnormalEmergencyForConfiguration,
   filterChecklistForConfiguration,
   filterPerformanceForConfiguration,
   matchesAircraftApplicability,
@@ -85,6 +86,54 @@ test("performance dataset applicability is independent of aircraft-specific code
 
   assert.deepEqual(filterPerformanceForConfiguration(content, configurationForVariant("A")).datasets.map((item) => item.id), ["common"]);
   assert.deepEqual(filterPerformanceForConfiguration(content, configurationForVariant("B")).datasets.map((item) => item.id), ["common", "variant-b"]);
+});
+
+test("abnormal scenarios and individual stages use the same persisted equipment applicability", () => {
+  const source = [{ manualId: "manual", pageLabel: "1" }] as const;
+  const content = {
+    aircraftId: "generic-aircraft",
+    title: "Abnormal",
+    scenarios: [
+      {
+        id: "common",
+        title: "Common scenario",
+        category: "General",
+        phase: "Any",
+        difficulty: "core",
+        minutes: 2,
+        summary: "Common",
+        setup: "Condition",
+        objectives: ["Recognize"],
+        debrief: ["Review"],
+        stages: [
+          { id: "recognize", label: "Recognize", prompt: "What happened?", expectedResponse: ["Identify"], explanation: "Source-backed.", sources: source },
+          { id: "option", label: "Installed option", prompt: "What next?", expectedResponse: ["Use option"], explanation: "Only when installed.", applicability: { equipmentAllOf: ["option-x"] }, sources: source },
+        ],
+      },
+      {
+        id: "configured",
+        title: "Configured scenario",
+        category: "General",
+        phase: "Any",
+        difficulty: "advanced",
+        minutes: 2,
+        summary: "Configured",
+        setup: "Condition",
+        objectives: ["Respond"],
+        debrief: ["Review"],
+        applicability: { variants: ["B"] },
+        stages: [{ id: "act", label: "Act", prompt: "Action?", expectedResponse: ["Act"], explanation: "Source-backed.", sources: source }],
+      },
+    ],
+  } as const;
+
+  const variantA = filterAbnormalEmergencyForConfiguration(content, configurationForVariant("A"));
+  assert.deepEqual(variantA.scenarios.map((scenario) => scenario.id), ["common"]);
+  assert.deepEqual(variantA.scenarios[0].stages.map((stage) => stage.id), ["recognize"]);
+
+  const variantB = filterAbnormalEmergencyForConfiguration(content, configurationForVariant("B", ["option-x"]));
+  assert.deepEqual(variantB.scenarios.map((scenario) => scenario.id), ["common", "configured"]);
+  assert.deepEqual(variantB.scenarios[0].stages.map((stage) => stage.id), ["recognize", "option"]);
 });
 
 test("publication validation rejects malformed applicability metadata", () => {
