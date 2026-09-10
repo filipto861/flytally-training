@@ -20,8 +20,8 @@ export default async function LimitationsPage({ params }: Readonly<{ params: Pro
 
   return (
     <main className="shell aircraft-detail">
-      <Link className="back-link" href={`/aircraft/${aircraft.id}/reference`}>← Reference</Link>
-      <AircraftWorkspaceNav aircraftId={aircraft.id} active="reference" />
+      <Link className="back-link" href={`/aircraft/${aircraft.id}`}>← {aircraft.displayName}</Link>
+      <AircraftWorkspaceNav aircraftId={aircraft.id} active="limitations" />
       <section className="workspace-section-hero">
         <p className="eyebrow">Limitations · {aircraft.displayName}</p>
         <h1>{content.title}</h1>
