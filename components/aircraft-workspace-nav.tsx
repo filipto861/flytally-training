@@ -35,8 +35,12 @@ function moduleNavigation(aircraftId: string): readonly ModuleNavDefinition[] {
 export async function AircraftWorkspaceNav({
   aircraftId,
   active,
-}: Readonly<{ aircraftId: string; active: AircraftModuleNavKey }>) {
-  const domains = new Set(await getTrainingContentRepository().listPublishedModuleDomains(aircraftId));
+}: Readonly<{ aircraftId: string; active: AircraftModuleNavKey | string }>) {
+  const repository = getTrainingContentRepository();
+  const publishedDomains = repository.listPublishedModuleDomains
+    ? await repository.listPublishedModuleDomains(aircraftId)
+    : [];
+  const domains = new Set<TrainingContentDomain>(publishedDomains);
   const sections = moduleNavigation(aircraftId).filter((section) => section.available(domains));
 
   return (
