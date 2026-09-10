@@ -20,7 +20,7 @@ const secondAircraft = {
   displayName: "Repository Test Aircraft",
 };
 
-test("repository lookup is aircraft-agnostic and does not require Learjet-specific branching", async () => {
+test("repository lookup is aircraft-agnostic and legacy data maps into universal capabilities during migration", async () => {
   const repository = new StaticTrainingContentRepository({
     aircraft: [learjet3536, secondAircraft],
     learningContent: [learjet3536LearningContent, { ...learjet3536LearningContent, aircraftId: secondAircraftId }],
@@ -35,22 +35,25 @@ test("repository lookup is aircraft-agnostic and does not require Learjet-specif
   assert.equal(bundle.aircraft.displayName, "Repository Test Aircraft");
   assert.equal(bundle.learningContent?.aircraftId, secondAircraftId);
   assert.equal(bundle.normalFlight?.aircraftId, secondAircraftId);
-  assert.equal(bundle.cockpitOrientation?.aircraftId, secondAircraftId);
-  assert.equal(bundle.abnormalTraining?.aircraftId, secondAircraftId);
-  assert.equal(bundle.referenceKnowledge?.aircraftId, secondAircraftId);
   assert.deepEqual(bundle.capabilities, {
-    quickStart: true,
+    checklists: true,
+    procedures: true,
+    performance: false,
+    limitations: false,
     systems: true,
-    normalFlight: true,
-    cockpitOrientation: true,
     abnormalEmergency: true,
-    quickReference: true,
+    flows: true,
+    avionics: false,
     knowledge: true,
     manual: true,
+    quickStart: true,
+    normalFlight: true,
+    cockpitOrientation: true,
+    quickReference: true,
   });
 });
 
-test("repository capabilities describe partial aircraft content without inventing availability", async () => {
+test("repository capabilities describe a sparse aircraft without inventing modules", async () => {
   const repository = new StaticTrainingContentRepository({
     aircraft: [secondAircraft],
     learningContent: [],
@@ -62,12 +65,15 @@ test("repository capabilities describe partial aircraft content without inventin
 
   const bundle = await getAircraftContentBundle(repository, secondAircraftId);
   assert.ok(bundle);
-  assert.equal(bundle.capabilities.quickStart, false);
+  assert.equal(bundle.capabilities.checklists, false);
+  assert.equal(bundle.capabilities.procedures, false);
+  assert.equal(bundle.capabilities.performance, false);
+  assert.equal(bundle.capabilities.limitations, false);
   assert.equal(bundle.capabilities.systems, false);
-  assert.equal(bundle.capabilities.normalFlight, false);
-  assert.equal(bundle.capabilities.cockpitOrientation, false);
   assert.equal(bundle.capabilities.abnormalEmergency, false);
-  assert.equal(bundle.capabilities.quickReference, false);
+  assert.equal(bundle.capabilities.flows, false);
+  assert.equal(bundle.capabilities.avionics, false);
   assert.equal(bundle.capabilities.knowledge, false);
   assert.equal(bundle.capabilities.manual, true);
+  assert.equal(bundle.capabilities.cockpitOrientation, false);
 });

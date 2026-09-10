@@ -18,6 +18,7 @@ type WorkspaceCard = {
   status: string;
   href?: string;
   capability?: keyof AircraftContentCapabilities;
+  hrefCapability?: keyof AircraftContentCapabilities;
 };
 
 type WorkspaceDefinition = {
@@ -30,50 +31,52 @@ type WorkspaceDefinition = {
 const definitions: Record<Exclude<AircraftWorkspaceSection, "overview">, WorkspaceDefinition> = {
   learn: {
     eyebrow: "Learn",
-    title: "Understand only what you need to fly.",
-    description: "Quick Start and essential systems stay short, practical and connected to the actions you perform in the simulator.",
+    title: "Understand the aircraft you are operating.",
+    description: "System lessons are only shown when they exist for this aircraft and configuration.",
     cards: [
-      { title: "Quick Start", description: "A short mental model before the first flight: power, start, fuel, bleed air, pressurization, hydraulics, controls and ice protection.", status: "v1.0", href: "quick-start", capability: "quickStart" },
-      { title: "Essential Systems", description: "Compact system lessons structured around what the pilot controls, monitors, expects and needs to remember.", status: "v1.0", href: "systems", capability: "systems" },
+      { title: "Quick Start", description: "A concise orientation to the most important operating concepts when a quick-start module is published.", status: "Optional", href: "quick-start", capability: "quickStart" },
+      { title: "Systems", description: "Controls, indications, normal operation, limitations, abnormal cues and the mental model behind each installed system.", status: "Optional", href: "systems", capability: "systems" },
+      { title: "Avionics", description: "Configuration-specific avionics training when dedicated avionics material is published.", status: "Optional", capability: "avionics" },
     ],
   },
   checklist: {
     eyebrow: "Checklist",
-    title: "Train the flow, then verify it.",
-    description: "The checklist is the spine of FlyTally Training. Choose how much help you want, then practice the complete flight or only one phase.",
+    title: "Run the checklist. Expand the procedure when you need the detail.",
+    description: "Checklist items stay operationally concise while the training layer can explain actions, verification and expected results.",
     cards: [
-      { title: "Normal Flight Checklist", description: "Complete simulator-oriented normal flow from power-up to shutdown, with source-backed explanations.", status: "v1.0", href: "cold-dark", capability: "normalFlight" },
-      { title: "Trainer Modes", description: "Switch between Learn, Practice, Flow and Challenge & Response using the same checklist data.", status: "v1.0", href: "cold-dark", capability: "normalFlight" },
-      { title: "Phase Practice", description: "Practice engine start, takeoff, approach, shutdown or any other phase without running the entire flight.", status: "v1.0", href: "cold-dark", capability: "normalFlight" },
+      { title: "Flight Checklists", description: "Published flight-phase checklist content for this aircraft.", status: "Optional", href: "cold-dark", capability: "checklists", hrefCapability: "normalFlight" },
+      { title: "Trainer Modes", description: "Learn, Practice, Flow and Challenge & Response reuse the same checklist data where the interactive trainer is available.", status: "Optional", href: "cold-dark", capability: "checklists", hrefCapability: "normalFlight" },
+      { title: "Flows", description: "Memory flows are independent content and are only shown when the aircraft has published flow data.", status: "Optional", capability: "flows" },
     ],
   },
   practice: {
     eyebrow: "Practice",
-    title: "Learn the aircraft by operating it.",
-    description: "First Flight is the primary training path. Practice modes reuse the same aircraft data for orientation, procedures and scenarios.",
+    title: "Practice procedures and scenarios, not a fixed aircraft template.",
+    description: "The available practice areas are derived from published content. Cockpit orientation is intentionally not part of the primary M9 path.",
     cards: [
-      { title: "First Flight", description: "Cold & Dark → engine start → taxi → takeoff → cruise → approach → landing → shutdown.", status: "v1.0", href: "cold-dark", capability: "normalFlight" },
-      { title: "Cockpit Orientation", description: "Learn verified cockpit regions and jump to them with Show me from supported checklist items.", status: "v1.0", href: "orientation", capability: "cockpitOrientation" },
-      { title: "Abnormal & Emergency", description: "Scenario-based engine, electrical, hydraulic, pressurization and other simulator-relevant practice.", status: "v1.0", href: "abnormal", capability: "abnormalEmergency" },
+      { title: "Procedures", description: "Detailed operating procedures with prerequisites, actions, expected results, verification and short rationale.", status: "Optional", capability: "procedures" },
+      { title: "Abnormal & Emergency", description: "Published abnormal and emergency scenarios for this aircraft.", status: "Optional", href: "abnormal", capability: "abnormalEmergency" },
     ],
   },
   reference: {
     eyebrow: "Reference",
-    title: "The detail is here when you need it.",
-    description: "Reference is intentionally separate from the primary learning path: use it for limits, systems, source material and quick in-flight lookup.",
+    title: "Performance and limitations are first-class aircraft data.",
+    description: "Reference data is modular: an aircraft only exposes the datasets and limitations that have actually been published for it.",
     cards: [
-      { title: "Controlled Manual", description: "Registered source material with revision and source provenance retained.", status: "v1.0", capability: "manual" },
-      { title: "Quick Reference / FLY mode", description: "Source-backed speeds, capacities, system references and compact simulator-side cues without inventing fixed performance data.", status: "M6", href: "quick-reference", capability: "quickReference" },
+      { title: "Performance", description: "Generic lookup and reference tables driven by aircraft data rather than aircraft-specific UI code.", status: "Optional", capability: "performance" },
+      { title: "Limitations", description: "Speeds, weights, operating limits and conditional restrictions.", status: "Optional", capability: "limitations" },
+      { title: "Quick Reference", description: "Legacy compact reference remains available during migration to the universal domains.", status: "Migration", href: "quick-reference", capability: "quickReference" },
+      { title: "Source Library", description: "Registered source material with revision and provenance retained when available.", status: "Optional", capability: "manual" },
     ],
   },
   progress: {
     eyebrow: "Progress",
-    title: "Know what you can do without turning training into an exam.",
-    description: "Progress combines aircraft completion, attempts, recent practice and weak areas while keeping the focus on simulator competence.",
+    title: "Track proficiency per aircraft and per module.",
+    description: "Progress remains aircraft-scoped while the module set can differ completely between aircraft types.",
     cards: [
-      { title: "Knowledge & weak-area review", description: "Source-linked questions with immediate explanations and weak-area identification.", status: "M6", href: "knowledge", capability: "knowledge" },
-      { title: "Aircraft Progress", description: "Checklist, scenarios and knowledge attempts feed one aircraft-scoped activity stream with recent practice and weak areas.", status: "M6", href: "progress-overview", capability: "knowledge" },
-      { title: "Cross-device continuation", description: "Persist progress, checklist attempts and quiz history through the shared FlyTally identity.", status: "M7" },
+      { title: "Knowledge & weak-area review", description: "Questions and explanations when a knowledge module is published.", status: "Optional", href: "knowledge", capability: "knowledge" },
+      { title: "Aircraft Progress", description: "Training attempts feed one aircraft-scoped activity stream.", status: "Available", href: "progress-overview", capability: "knowledge" },
+      { title: "Cross-device continuation", description: "Persist progress and training history through the shared FlyTally identity.", status: "Platform" },
     ],
   },
 };
@@ -102,12 +105,13 @@ export default async function AircraftWorkspaceSectionPage({ params }: Readonly<
       <section className="workspace-section-grid">
         {definition.cards.map((card) => {
           const available = card.capability ? capabilities[card.capability] : false;
-          const href = card.href && available ? `/aircraft/${aircraft.id}/${card.href}` : undefined;
+          const routeAvailable = card.hrefCapability ? capabilities[card.hrefCapability] : available;
+          const href = card.href && available && routeAvailable ? `/aircraft/${aircraft.id}/${card.href}` : undefined;
           const content = (
             <>
               <div className="workspace-card-topline"><span>{card.title}</span><small>{available ? "Available" : card.status}</small></div>
               <p>{card.description}</p>
-              <strong>{href ? "Open →" : available ? "Available in this section" : "Included in v1.0"}</strong>
+              <strong>{href ? "Open →" : available ? "Published · renderer migration in progress" : "Not used for this aircraft"}</strong>
             </>
           );
           return href ? <Link className="workspace-card" href={href} key={card.title}>{content}</Link> : <article className="workspace-card workspace-card-static" key={card.title}>{content}</article>;
@@ -117,7 +121,7 @@ export default async function AircraftWorkspaceSectionPage({ params }: Readonly<
       {section === "reference" && manual ? (
         <section className="reference-library" aria-labelledby="manual-library-title">
           <div className="section-heading">
-            <div><p className="eyebrow">Manual library</p><h2 id="manual-library-title">{manual.title}</h2></div>
+            <div><p className="eyebrow">Source library</p><h2 id="manual-library-title">{manual.title}</h2></div>
             <p>{manual.publisher} · Revision {manual.revision} · {manual.issueDate}</p>
           </div>
           <ol className="chapter-list">
