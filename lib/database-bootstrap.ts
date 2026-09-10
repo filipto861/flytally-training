@@ -6,6 +6,7 @@ import { sql } from "./db";
 import { ensureTrainingIdentitySchema } from "./identity-schema";
 import { ensureManualAssetSchema } from "./manual-assets";
 import { ensureTrainingProgressSchema } from "./progress-schema";
+import { ensureSourceAuthoritySchema } from "./source-authority-schema";
 
 export const trainingDatabaseTables = [
   "training_aircraft_types",
@@ -33,6 +34,7 @@ export const trainingDatabaseTables = [
  */
 export async function initializeTrainingDatabase(): Promise<void> {
   await ensureContentSchema();
+  await ensureSourceAuthoritySchema();
   await Promise.all([
     ensureTrainingProgressSchema(),
     ensureManualAssetSchema(),
