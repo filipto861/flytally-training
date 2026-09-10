@@ -5,9 +5,12 @@ The product is not v1.0-ready merely because the application build is green. The
 ## Automated gates
 
 - Pull requests: TypeScript, unit/regression tests and production build.
+- `npm run test:v1-content`: the Learjet reference implementation must pass the aggregate source-backed content gate, including the complete Cold & Dark → Shutdown path, all nine baseline systems and the product authority boundary.
 - `GET /api/health`: process liveness only; it intentionally does not touch dependencies.
 - `GET /api/readiness`: production configuration, Training PostgreSQL connectivity and at least one published aircraft through the configured content repository. It returns HTTP 503 until all three are true.
 - Manual GitHub workflow `No-code aircraft acceptance`: must pass against a disposable PostgreSQL database before the no-code multi-aircraft architecture is marked proven.
+
+The aggregate content gate is aircraft-agnostic. It evaluates a resolved `AircraftContentBundle`; the Learjet test adds the v1 reference-aircraft specifics such as the exact nine-system baseline and complete practical flight phase sequence.
 
 ## Production configuration gate
 
