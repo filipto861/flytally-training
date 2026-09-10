@@ -15,6 +15,15 @@ test("readiness includes all Training-owned persistence boundaries without creat
   assert.doesNotMatch(readiness, /CREATE\s+TABLE|CREATE\s+INDEX/i);
 });
 
+test("readiness distinguishes a published catalog from a complete v1 learner aircraft", () => {
+  assert.match(readiness, /publishedAircraft/);
+  assert.match(readiness, /completeV1Aircraft/);
+  assert.match(readiness, /getAircraftContentBundle/);
+  assert.match(readiness, /hasCompleteV1AircraftCapabilities/);
+  assert.match(readiness, /&& completeV1Aircraft/);
+  assert.doesNotMatch(readiness, /learjet-35-36/i);
+});
+
 test("production configuration requires the controlled-manual Blob credential", () => {
   assert.match(releaseConfiguration, /BLOB_READ_WRITE_TOKEN/);
   assert.match(releaseConfiguration, /controlled-manual-storage/);

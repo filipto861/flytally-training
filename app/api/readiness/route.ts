@@ -1,6 +1,8 @@
+import { getAircraftContentBundle } from "@/lib/content-repository";
 import { getTrainingContentRepository } from "@/lib/content-store";
 import { sql } from "@/lib/db";
 import { inspectReleaseConfiguration } from "@/lib/release-readiness";
+import { hasCompleteV1AircraftCapabilities } from "@/lib/v1-aircraft-readiness";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -12,6 +14,7 @@ export async function GET() {
   let controlledManualPersistence = false;
   let identityReplayProtection = false;
   let publishedAircraft = false;
+  let completeV1Aircraft = false;
 
   if (configuration.ready) {
     try {
@@ -43,8 +46,25 @@ export async function GET() {
       }
 
       try {
-        const aircraft = await getTrainingContentRepository().listAircraft();
+        const repository = getTrainingContentRepository();
+        const aircraft = await repository.listAircraft();
         publishedAircraft = aircraft.length > 0;
+
+        // Readiness deliberately resolves the same generic learner bundles used
+        // by the application. It stops after the first complete aircraft, so the
+        // gate proves usable v1 content without hard-coding a Learjet identifier.
+        for (const item of aircraft) {
+          try {
+            const bundle = await getAircraftContentBundle(repository, item.id);
+            if (bundle && hasCompleteV1AircraftCapabilities(bundle.capabilities)) {
+              completeV1Aircraft = true;
+              break;
+            }
+          } catch {
+            // Keep the more specific completeness check false while preserving
+            // the fact that the published-aircraft catalog itself was readable.
+          }
+        }
       } catch {
         publishedAircraft = false;
       }
@@ -53,7 +73,14 @@ export async function GET() {
     }
   }
 
-  const ready = configuration.ready && database && progressPersistence && controlledManualPersistence && identityReplayProtection && publishedAircraft;
+  const ready = configuration.ready
+    && database
+    && progressPersistence
+    && controlledManualPersistence
+    && identityReplayProtection
+    && publishedAircraft
+    && completeV1Aircraft;
+
   return Response.json({
     status: ready ? "ready" : "not-ready",
     checks: {
@@ -63,6 +90,7 @@ export async function GET() {
       controlledManualPersistence,
       identityReplayProtection,
       publishedAircraft,
+      completeV1Aircraft,
     },
   }, {
     status: ready ? 200 : 503,
