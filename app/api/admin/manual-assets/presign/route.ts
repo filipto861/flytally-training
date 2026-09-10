@@ -1,13 +1,14 @@
 import { getTrainingSession } from "@/lib/training-session";
 import { issueManualAssetUpload } from "@/lib/manual-assets";
+import { privateCapabilityJson } from "@/lib/private-capability-response";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   const session = await getTrainingSession();
-  if (!session) return Response.json({ error: "Authentication required." }, { status: 401 });
-  if (session.role !== "admin") return Response.json({ error: "Administrator access is required." }, { status: 403 });
+  if (!session) return privateCapabilityJson({ error: "Authentication required." }, 401);
+  if (session.role !== "admin") return privateCapabilityJson({ error: "Administrator access is required." }, 403);
   try {
     const body = await request.json() as {aircraftId?:unknown;originalName?:unknown;sizeBytes?:unknown;checksumSha256?:unknown};
     const result = await issueManualAssetUpload({
@@ -16,8 +17,8 @@ export async function POST(request: Request) {
       sizeBytes: Number(body.sizeBytes),
       checksumSha256: String(body.checksumSha256 ?? ""),
     }, session.subject);
-    return Response.json(result);
+    return privateCapabilityJson(result);
   } catch (error) {
-    return Response.json({ error: error instanceof Error ? error.message : "Unable to authorize manual upload." }, { status: 400 });
+    return privateCapabilityJson({ error: error instanceof Error ? error.message : "Unable to authorize manual upload." }, 400);
   }
 }
