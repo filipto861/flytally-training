@@ -70,6 +70,7 @@ export function normalizeUniversalAbnormalEmergency(content: AircraftAbnormalEme
       debrief: scenario.debrief,
       notices: scenario.notices,
       configurationNote: scenario.applicability?.note,
+      boundaryNote: scenario.boundaryNote,
       stages: scenario.stages.map((stage) => ({
         id: stage.id,
         label: stage.label,
