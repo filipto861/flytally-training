@@ -23,7 +23,7 @@ A production-ready Training deployment requires:
 - strong `TRAINING_SESSION_SECRET`
 - strong shared `FLYTALLY_IDENTITY_SECRET`
 - HTTPS `FLYTALLY_LOGBOOK_URL`
-- private Vercel Blob storage with `BLOB_READ_WRITE_TOKEN` configured for controlled manuals
+- a private Vercel Blob store authenticated by the deployment-scoped `VERCEL_OIDC_TOKEN` (preferred on Vercel) or `BLOB_READ_WRITE_TOKEN` as an explicit/local fallback
 - governed Learjet content bootstrapped/reviewed/published into PostgreSQL
 - Training progress, aircraft-state, controlled-manual asset, AI-draft audit and identity-assertion tables initialized through the explicit admin/deployment bootstrap path
 

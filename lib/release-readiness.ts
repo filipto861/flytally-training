@@ -33,6 +33,14 @@ function validPostgresUrl(value: string | undefined): boolean {
   }
 }
 
+export function hasControlledManualStorageCredential(env: Environment): boolean {
+  // Private Vercel Blob supports the deployment-scoped OIDC credential and the
+  // explicit read/write token. Prefer OIDC on Vercel for automatic rotation;
+  // retain BLOB_READ_WRITE_TOKEN for local/non-Vercel operation.
+  return configured(env.VERCEL_OIDC_TOKEN, 32)
+    || configured(env.BLOB_READ_WRITE_TOKEN, 16);
+}
+
 export function inspectReleaseConfiguration(env: Environment): ReleaseConfigurationReport {
   const checks: ReleaseConfigurationCheck[] = [
     { id: "postgres-content-backend", ok: env.TRAINING_CONTENT_BACKEND?.trim() === "postgres" },
@@ -40,11 +48,7 @@ export function inspectReleaseConfiguration(env: Environment): ReleaseConfigurat
     { id: "training-session-secret", ok: configured(env.TRAINING_SESSION_SECRET, 32) },
     { id: "identity-secret", ok: configured(env.FLYTALLY_IDENTITY_SECRET, 32) },
     { id: "identity-provider", ok: validHttpsUrl(env.FLYTALLY_LOGBOOK_URL) },
-    // @vercel/blob's signed URL helpers use the project-scoped read/write token
-    // when no explicit token/OIDC credential is passed. Controlled manuals are a
-    // v1 production capability, so a deployment without the Blob credential is
-    // intentionally not release-ready.
-    { id: "controlled-manual-storage", ok: configured(env.BLOB_READ_WRITE_TOKEN, 16) },
+    { id: "controlled-manual-storage", ok: hasControlledManualStorageCredential(env) },
   ];
 
   return { ready: checks.every(check => check.ok), checks };
