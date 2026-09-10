@@ -32,6 +32,8 @@ export type TrainingProgressSummary = {
   readonly recent: readonly TrainingProgressEvent[];
 };
 
+export const MAX_PROGRESS_FUTURE_SKEW_MS = 10 * 60 * 1000;
+
 export function isTrainingActivityKind(value: unknown): value is TrainingActivityKind {
   return typeof value === "string" && (trainingActivityKinds as readonly string[]).includes(value);
 }
@@ -48,6 +50,20 @@ export function isPersistedTrainingProgressEvent(value: unknown): value is Persi
   if (event.scorePercent !== undefined && (typeof event.scorePercent !== "number" || !Number.isInteger(event.scorePercent) || event.scorePercent < 0 || event.scorePercent > 100)) return false;
   if (event.weakAreas !== undefined && (!Array.isArray(event.weakAreas) || event.weakAreas.length > 20 || event.weakAreas.some((area) => typeof area !== "string" || area.length > 100))) return false;
   return true;
+}
+
+/**
+ * Server ingestion accepts arbitrarily old events so offline history can sync,
+ * but it must not let a bad device clock or crafted client place continuation
+ * state far in the future. Ten minutes covers ordinary device clock skew while
+ * preventing a future timestamp from dominating aircraft progress indefinitely.
+ */
+export function isServerAcceptableProgressEvent(
+  value: unknown,
+  nowMs = Date.now(),
+): value is PersistedTrainingProgressEvent {
+  if (!isPersistedTrainingProgressEvent(value)) return false;
+  return Date.parse(value.occurredAt) <= nowMs + MAX_PROGRESS_FUTURE_SKEW_MS;
 }
 
 export function summarizeProgress(aircraftId: string, events: readonly TrainingProgressEvent[]): TrainingProgressSummary {
