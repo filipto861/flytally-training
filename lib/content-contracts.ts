@@ -59,13 +59,38 @@ function validateReferenceKnowledge(payload:RecordValue,errors:string[]){
   else payload.questions.forEach((question,index)=>{const choices=question.choices;if(!text(question.id)||!text(question.area)||!text(question.prompt)||!strings(choices)||choices.length<2||!Number.isInteger(question.correctIndex)||Number(question.correctIndex)<0||Number(question.correctIndex)>=choices.length||!text(question.explanation)||!sources(question.source))errors.push(`questions[${index}] does not match the knowledge question contract`);});
 }
 
+const applicabilityArrayKeys=["variants","equipmentAllOf","equipmentAnyOf","equipmentNoneOf"] as const;
+function validateApplicability(value:unknown,path:string,errors:string[]):void{
+  if(!object(value)){errors.push(`${path} must be an applicability object`);return;}
+  for(const key of applicabilityArrayKeys){
+    const candidate=value[key];
+    if(candidate!==undefined&&(!strings(candidate)||candidate.length===0))errors.push(`${path}.${key} must be a non-empty array of text when supplied`);
+  }
+  if(value.note!==undefined&&!text(value.note))errors.push(`${path}.note must be non-empty text when supplied`);
+}
+
+function validateEmbeddedApplicability(value:unknown,path:string,errors:string[]):void{
+  if(Array.isArray(value)){
+    value.forEach((item,index)=>validateEmbeddedApplicability(item,`${path}[${index}]`,errors));
+    return;
+  }
+  if(!object(value))return;
+  if(value.applicability!==undefined)validateApplicability(value.applicability,`${path}.applicability`,errors);
+  for(const [key,child] of Object.entries(value)){
+    if(key!=="applicability")validateEmbeddedApplicability(child,`${path}.${key}`,errors);
+  }
+}
+
 export function validateContentPayload(domain:TrainingContentDomain,payload:unknown,expectedAircraftId?:string):string[]{
   const errors:string[]=[];
   if(!object(payload))return ["Published content payload must be a JSON object"];
   if(!text(payload.aircraftId))errors.push("aircraftId is required");
   else if(expectedAircraftId&&payload.aircraftId!==expectedAircraftId)errors.push(`aircraftId must equal ${expectedAircraftId}`);
 
-  if(isUniversalTrainingContentDomain(domain)) errors.push(...validateUniversalTrainingContentPayload(domain,payload));
+  if(isUniversalTrainingContentDomain(domain)){
+    errors.push(...validateUniversalTrainingContentPayload(domain,payload));
+    validateEmbeddedApplicability(payload,"payload",errors);
+  }
   else if(domain==="learning")validateLearning(payload,errors);
   else if(domain==="normal-flight")validateNormalFlight(payload,errors);
   else if(domain==="orientation")validateOrientation(payload,errors);

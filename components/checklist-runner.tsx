@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import { withVariantQuery } from "@/lib/aircraft-applicability";
 import { appendBrowserProgress } from "@/lib/browser-progress";
 import {
   checklistTrainingModes,
@@ -17,7 +18,13 @@ import styles from "./checklist-runner.module.css";
 
 const ALL_PHASES = "all";
 
-export function ChecklistRunner({ checklist }: Readonly<{ checklist: RuntimeChecklist }>) {
+export function ChecklistRunner({
+  checklist,
+  selectedVariant,
+}: Readonly<{
+  checklist: RuntimeChecklist;
+  selectedVariant?: string;
+}>) {
   const [mode, setMode] = useState<ChecklistTrainingMode>("run");
   const [phaseFilter, setPhaseFilter] = useState<string>(ALL_PHASES);
   const [completed, setCompleted] = useState<Set<string>>(() => new Set());
@@ -86,13 +93,16 @@ export function ChecklistRunner({ checklist }: Readonly<{ checklist: RuntimeChec
 
   function renderDetails(item: RuntimeChecklistItem) {
     if (mode !== "learn" || (!item.explanation && !item.verification && !item.condition && !item.procedureId && !item.sourceLabel)) return null;
+    const procedureHref = item.procedureId
+      ? `${withVariantQuery(`/aircraft/${checklist.aircraftId}/procedures`, selectedVariant)}#${encodeURIComponent(item.procedureId)}`
+      : undefined;
     return (
       <details className={styles.explanation}>
         <summary>Procedure / explanation</summary>
         {item.condition ? <p><strong>When:</strong> {item.condition}</p> : null}
         {item.explanation ? <p>{item.explanation}</p> : null}
         {item.verification ? <p><strong>Verify:</strong> {item.verification}</p> : null}
-        {item.procedureId ? <p><Link href={`/aircraft/${checklist.aircraftId}/procedures#${encodeURIComponent(item.procedureId)}`}>Open detailed procedure →</Link></p> : null}
+        {procedureHref ? <p><Link href={procedureHref}>Open detailed procedure →</Link></p> : null}
         {item.sourceLabel ? <small>Source · {item.sourceLabel}</small> : null}
       </details>
     );

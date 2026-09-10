@@ -84,9 +84,10 @@ test("static repository serves native universal modules before legacy migration 
   assert.equal(knowledge?.title, learjet3536NativeKnowledge.title);
 });
 
-test("knowledge learner route prefers universal M9 content with legacy fallback only for migration", () => {
+test("knowledge learner route prefers applicability-filtered universal content with legacy fallback only for migration", () => {
   assert.match(knowledgePage, /getPublishedAircraftModule<AircraftKnowledgeContent>\(repository, aircraftId, "knowledge"\)/);
-  assert.match(knowledgePage, /universal \? normalizeUniversalKnowledge\(universal\) : legacy \? normalizeLegacyKnowledge\(legacy\)/);
+  assert.match(knowledgePage, /filterKnowledgeForConfiguration\(universal, configurationForVariant\(selectedVariant\)\)/);
+  assert.match(knowledgePage, /configuredUniversal \? normalizeUniversalKnowledge\(configuredUniversal\) : legacy \? normalizeLegacyKnowledge\(legacy\)/);
 });
 
 test("governed static bootstrap publishes universal modules through one generic loop", () => {

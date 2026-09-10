@@ -2,15 +2,23 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
+import { resolveSelectedVariant, withVariantQuery } from "@/lib/aircraft-applicability";
 import { getAircraftContentBundle } from "@/lib/content-repository";
 import { getTrainingContentRepository } from "@/lib/content-store";
 
-export default async function AircraftPage({ params }: Readonly<{ params: Promise<{ aircraftId: string }> }>) {
-  const { aircraftId } = await params;
+export default async function AircraftPage({
+  params,
+  searchParams,
+}: Readonly<{
+  params: Promise<{ aircraftId: string }>;
+  searchParams: Promise<{ variant?: string }>;
+}>) {
+  const [{ aircraftId }, { variant }] = await Promise.all([params, searchParams]);
   const bundle = await getAircraftContentBundle(getTrainingContentRepository(), aircraftId);
   if (!bundle) notFound();
 
   const { aircraft, capabilities } = bundle;
+  const selectedVariant = resolveSelectedVariant(variant, aircraft.variants);
   const manual = aircraft.manuals[0];
   const modules = [
     { key: "checklists", title: "Checklists", description: "Operational flight-phase checklists with Run, Learn, Practice, Flow and Challenge & Response modes.", available: capabilities.checklists, href: "checklists" },
@@ -22,26 +30,30 @@ export default async function AircraftPage({ params }: Readonly<{ params: Promis
     { key: "knowledge", title: "Knowledge", description: "Source-backed questions and explanations for recall and weak-area review.", available: capabilities.knowledge, href: "knowledge" },
   ] as const;
   const availableModules = modules.filter((module) => module.available);
+  const moduleHref = (href: string) => withVariantQuery(`/aircraft/${aircraft.id}/${href}`, selectedVariant);
 
   return (
     <main className="shell aircraft-detail">
       <Link className="back-link" href="/">← Aircraft library</Link>
-      <AircraftWorkspaceNav aircraftId={aircraft.id} active="overview" />
+      <AircraftWorkspaceNav aircraftId={aircraft.id} active="overview" variants={aircraft.variants} selectedVariant={selectedVariant} />
       <section className="detail-hero workspace-hero">
         <div>
           <p className="eyebrow">Aircraft training workspace</p>
           <h1>{aircraft.displayName}</h1>
           <p className="lede">Train the published material for this aircraft. Modules that are not published or do not apply are simply absent from the workspace.</p>
-          <div className="hero-facts">{aircraft.variants.length ? <span>Variants {aircraft.variants.join(" · ")}</span> : null}<span>{availableModules.length} module{availableModules.length === 1 ? "" : "s"} currently available</span></div>
+          <div className="hero-facts">
+            {selectedVariant ? <span>Selected variant {selectedVariant}</span> : aircraft.variants.length ? <span>{aircraft.variants.length} variants available</span> : null}
+            <span>{availableModules.length} module{availableModules.length === 1 ? "" : "s"} currently available</span>
+          </div>
         </div>
         {manual ? <aside className="manual-summary compact-summary"><span className="source-pill">Training source</span><h2>{manual.title}</h2><dl><div><dt>Publisher</dt><dd>{manual.publisher}</dd></div><div><dt>Revision</dt><dd>{manual.revision}</dd></div><div><dt>Issue</dt><dd>{manual.issueDate}</dd></div></dl><p>Published training content retains revision-aware source provenance.</p></aside> : null}
       </section>
       <section className="start-panel" aria-labelledby="start-title">
         <div><p className="eyebrow">Start training</p><h2 id="start-title">Open the material you need.</h2><p>The aircraft defines its own module set. FlyTally does not assume systems or procedures that are not present on the type.</p></div>
-        {capabilities.checklists ? <Link className="primary-action" href={`/aircraft/${aircraft.id}/checklists`}>Open Checklists →</Link> : capabilities.procedures ? <Link className="primary-action" href={`/aircraft/${aircraft.id}/procedures`}>Open Procedures →</Link> : capabilities.systems ? <Link className="primary-action" href={`/aircraft/${aircraft.id}/systems`}>Open Systems →</Link> : null}
+        {capabilities.checklists ? <Link className="primary-action" href={moduleHref("checklists")}>Open Checklists →</Link> : capabilities.procedures ? <Link className="primary-action" href={moduleHref("procedures")}>Open Procedures →</Link> : capabilities.systems ? <Link className="primary-action" href={moduleHref("systems")}>Open Systems →</Link> : null}
       </section>
       <section className="workspace-overview" aria-label="Available training modules">
-        {availableModules.map((module) => <Link className="workspace-card" href={`/aircraft/${aircraft.id}/${module.href}`} key={module.key}><div className="workspace-card-topline"><span>{module.title}</span><small>Available</small></div><p>{module.description}</p><strong>Open →</strong></Link>)}
+        {availableModules.map((module) => <Link className="workspace-card" href={moduleHref(module.href)} key={module.key}><div className="workspace-card-topline"><span>{module.title}</span><small>Available</small></div><p>{module.description}</p><strong>Open →</strong></Link>)}
       </section>
       <section className="reference-library"><p className="eyebrow">Operational note</p><p>FlyTally Training is a learning aid. Current approved aircraft, operator and regulatory documentation remains authoritative for flight operations.</p></section>
     </main>
