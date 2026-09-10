@@ -1,13 +1,15 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { AccountActions } from "@/components/account-actions";
+
 export function ProductShell({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <>
       <header className="app-header">
         <div className="app-header-inner">
-          <Link className="brand" href="/">
-            <span className="brand-mark">FT</span>
+          <Link className="brand" href="/" aria-label="FlyTally Training home">
+            <span className="brand-mark" aria-hidden="true">FT</span>
             <span>
               <strong>FlyTally</strong>
               <small>Training</small>
@@ -18,14 +20,14 @@ export function ProductShell({ children }: Readonly<{ children: ReactNode }>) {
             <Link href="/">Aircraft</Link>
           </nav>
 
-          <span className="product-tag">Simulator training</span>
+          <AccountActions />
         </div>
       </header>
       {children}
       <footer className="app-footer">
         <div className="app-footer-inner">
           <span>FlyTally Training</span>
-          <span>Learn the aircraft. Fly the aircraft.</span>
+          <span>Simulator familiarization · approved aircraft documents remain controlling.</span>
         </div>
       </footer>
     </>

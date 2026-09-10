@@ -1,0 +1,30 @@
+name: No-code aircraft acceptance
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: training-no-code-aircraft-acceptance
+  cancel-in-progress: false
+
+jobs:
+  postgres-second-aircraft:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      TRAINING_ACCEPTANCE_DATABASE_URL: ${{ secrets.TRAINING_ACCEPTANCE_DATABASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Require disposable acceptance database
+        run: |
+          if [ -z "$TRAINING_ACCEPTANCE_DATABASE_URL" ]; then
+            echo "TRAINING_ACCEPTANCE_DATABASE_URL GitHub Actions secret is required and must point to a disposable Training database." >&2
+            exit 2
+          fi
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Execute second-aircraft PostgreSQL acceptance
+        run: npm run test:no-code-aircraft
