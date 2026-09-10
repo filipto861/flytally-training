@@ -40,7 +40,7 @@ npm run build
 
 `npm run verify` runs all three.
 
-The initial repository intentionally has no dependency lockfile because it was created remotely without a package installation. The first environment that performs a successful `npm install` must commit the generated `package-lock.json`; after that, CI should move from `npm install` to `npm ci`.
+`package-lock.json` is committed and is the canonical dependency graph for CI and deployment builds. GitHub verification installs with `npm ci`, which fails closed when `package.json` and the lockfile are out of sync; dependency changes must therefore update and commit both files together.
 
 ## Database bootstrap
 
