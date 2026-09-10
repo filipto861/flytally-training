@@ -10,6 +10,7 @@ import {
   type AdminSourceReference,
   type TrainingContentDomain,
 } from "./content-admin-types";
+import { parseSourceAuthorityRole } from "./source-authority";
 
 let contentSchemaReady: Promise<void> | undefined;
 
@@ -47,6 +48,7 @@ export async function ensureContentSchema(): Promise<void> {
         manual_id TEXT NOT NULL REFERENCES training_manuals(manual_id) ON DELETE CASCADE,
         revision_code TEXT NOT NULL,
         issue_date TEXT NOT NULL,
+        authority_role TEXT NOT NULL DEFAULT 'UNCLASSIFIED',
         authority_note TEXT NOT NULL DEFAULT '',
         source_metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
         chapters JSONB NOT NULL DEFAULT '[]'::jsonb,
@@ -54,8 +56,12 @@ export async function ensureContentSchema(): Promise<void> {
         checksum_sha256 TEXT NULL,
         registered_by TEXT NOT NULL,
         registered_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        UNIQUE(manual_id,revision_code)
+        UNIQUE(manual_id,revision_code),
+        CHECK(authority_role IN ('CONTROLLING','OPERATING_REFERENCE','TRAINING_REFERENCE','SIMULATOR_IMPLEMENTATION','SIMULATOR_WORKFLOW','UNCLASSIFIED'))
       )`;
+      // Existing Training databases predate M9 source authority. The explicit
+      // bootstrap path upgrades them without moving DDL into runtime reads.
+      await sql`ALTER TABLE training_manual_revisions ADD COLUMN IF NOT EXISTS authority_role TEXT NOT NULL DEFAULT 'UNCLASSIFIED'`;
       await sql`CREATE TABLE IF NOT EXISTS training_source_references (
         reference_id TEXT PRIMARY KEY,
         revision_id TEXT NOT NULL REFERENCES training_manual_revisions(revision_id) ON DELETE CASCADE,
@@ -165,12 +171,12 @@ export async function listAdminAircraft(){return adminSummaries();}
 
 export async function getAdminAircraft(aircraftId:string):Promise<AdminAircraftDetail|undefined>{
   const summary=(await adminSummaries()).find(item=>item.id===aircraftId); if(!summary)return undefined;
-  const manuals=await sql`SELECT m.manual_id,r.revision_id,m.title,m.publisher,r.revision_code,r.issue_date,m.source_kind,r.source_uri,r.checksum_sha256 FROM training_manuals m JOIN training_manual_revisions r ON r.manual_id=m.manual_id WHERE m.aircraft_id=${aircraftId} ORDER BY r.registered_at DESC` as Array<{manual_id:string;revision_id:string;title:string;publisher:string;revision_code:string;issue_date:string;source_kind:string;source_uri:string|null;checksum_sha256:string|null}>;
+  const manuals=await sql`SELECT m.manual_id,r.revision_id,m.title,m.publisher,r.revision_code,r.issue_date,m.source_kind,r.authority_role,r.source_uri,r.checksum_sha256 FROM training_manuals m JOIN training_manual_revisions r ON r.manual_id=m.manual_id WHERE m.aircraft_id=${aircraftId} ORDER BY r.registered_at DESC` as Array<{manual_id:string;revision_id:string;title:string;publisher:string;revision_code:string;issue_date:string;source_kind:string;authority_role:string;source_uri:string|null;checksum_sha256:string|null}>;
   const refs=await sql`SELECT sr.reference_id,sr.revision_id,sr.chapter,sr.section,sr.page_label,sr.note FROM training_source_references sr JOIN training_manual_revisions r ON r.revision_id=sr.revision_id JOIN training_manuals m ON m.manual_id=r.manual_id WHERE m.aircraft_id=${aircraftId} ORDER BY sr.created_at DESC` as Array<{reference_id:string;revision_id:string;chapter:string|null;section:string|null;page_label:string;note:string|null}>;
   const versions=await sql`SELECT v.version_id,i.domain,i.content_key,v.version_no,v.state,v.origin,v.created_by,v.created_at,a.reviewed_by,p.published_at FROM training_content_items i JOIN training_content_versions v ON v.item_id=i.item_id LEFT JOIN LATERAL(SELECT reviewed_by FROM training_content_approvals aa WHERE aa.version_id=v.version_id AND aa.decision='approved' ORDER BY reviewed_at DESC LIMIT 1)a ON TRUE LEFT JOIN training_content_publications p ON p.version_id=v.version_id WHERE i.aircraft_id=${aircraftId} ORDER BY v.created_at DESC` as Array<{version_id:string;domain:TrainingContentDomain;content_key:string;version_no:number|string;state:AdminContentVersion["state"];origin:AdminContentVersion["origin"];created_by:string;created_at:string|Date;reviewed_by:string|null;published_at:string|Date|null}>;
   return {
     ...summary,
-    manuals:manuals.map((r):AdminManualRevision=>({manualId:r.manual_id,revisionId:r.revision_id,title:r.title,publisher:r.publisher,revision:r.revision_code,issueDate:r.issue_date,sourceKind:r.source_kind,sourceUri:r.source_uri??undefined,checksumSha256:r.checksum_sha256??undefined})),
+    manuals:manuals.map((r):AdminManualRevision=>({manualId:r.manual_id,revisionId:r.revision_id,title:r.title,publisher:r.publisher,revision:r.revision_code,issueDate:r.issue_date,sourceKind:r.source_kind,authorityRole:parseSourceAuthorityRole(r.authority_role||"UNCLASSIFIED"),sourceUri:r.source_uri??undefined,checksumSha256:r.checksum_sha256??undefined})),
     sourceReferences:refs.map((r):AdminSourceReference=>({id:r.reference_id,revisionId:r.revision_id,chapter:r.chapter??undefined,section:r.section??undefined,pageLabel:r.page_label,note:r.note??undefined})),
     contentVersions:versions.map((v):AdminContentVersion=>({id:v.version_id,domain:v.domain,contentKey:v.content_key,versionNo:Number(v.version_no),state:v.state,origin:v.origin,createdBy:v.created_by,createdAt:new Date(v.created_at).toISOString(),approvedBy:v.reviewed_by??undefined,publishedAt:v.published_at?new Date(v.published_at).toISOString():undefined})),
   };
