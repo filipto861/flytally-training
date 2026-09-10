@@ -27,7 +27,9 @@ test("new seed aircraft remains hidden until the shared catalogue policy accepts
   assert.doesNotMatch(bootstrap, /SET status='published'/);
   assert.doesNotMatch(bootstrap, /COUNT\(DISTINCT i\.domain\)::int AS published_domains/);
   assert.match(aircraftPublication, /e\.has_manual/);
-  assert.match(aircraftPublication, /e\.published_domains=\$\{trainingContentDomains\.length\}/);
+  assert.match(aircraftPublication, /e\.has_training_content/);
+  assert.match(aircraftPublication, /i\.domain<>'orientation'/);
+  assert.doesNotMatch(aircraftPublication, /trainingContentDomains\.length/);
 });
 
 test("admin bootstrap action cannot fall back to the legacy multi-step lifecycle", () => {

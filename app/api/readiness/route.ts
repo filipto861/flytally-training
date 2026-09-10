@@ -4,7 +4,7 @@ import { getAircraftContentBundle } from "@/lib/content-repository";
 import { getTrainingContentRepository } from "@/lib/content-store";
 import { sql } from "@/lib/db";
 import { inspectReleaseConfiguration } from "@/lib/release-readiness";
-import { hasCompleteV1AircraftCapabilities } from "@/lib/v1-aircraft-readiness";
+import { hasUsableAircraftTrainingContent } from "@/lib/v1-aircraft-readiness";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -20,7 +20,7 @@ export async function GET() {
   let aiDraftAuditPersistence = false;
   let identityReplayProtection = false;
   let publishedAircraft = false;
-  let completeV1Aircraft = false;
+  let modularAircraftContent = false;
 
   if (configuration.ready) {
     try {
@@ -63,15 +63,15 @@ export async function GET() {
         const aircraft = await repository.listAircraft();
         publishedAircraft = aircraft.length > 0;
 
-        // One and the same aircraft must satisfy functional completeness,
-        // complete live controlled-source coverage and current-content review.
-        // Separate aircraft may not combine partial readiness checks into a
-        // false-positive release result.
+        // A modular aircraft is valid when it has at least one real training
+        // capability. No specific module (and especially no cockpit map) is a
+        // global requirement. Source coverage and freshness remain independent
+        // release gates for the same aircraft.
         for (const item of aircraft) {
           try {
             const bundle = await getAircraftContentBundle(repository, item.id);
-            if (!bundle || !hasCompleteV1AircraftCapabilities(bundle.capabilities)) continue;
-            completeV1Aircraft = true;
+            if (!bundle || !hasUsableAircraftTrainingContent(bundle.capabilities)) continue;
+            modularAircraftContent = true;
 
             const [controlledCoverage, freshContent] = await Promise.all([
               hasCompletePublishedControlledManualCoverage(item.id),
@@ -106,7 +106,7 @@ export async function GET() {
     && aiDraftAuditPersistence
     && identityReplayProtection
     && publishedAircraft
-    && completeV1Aircraft;
+    && modularAircraftContent;
 
   return Response.json({
     status: ready ? "ready" : "not-ready",
@@ -121,7 +121,7 @@ export async function GET() {
       aiDraftAuditPersistence,
       identityReplayProtection,
       publishedAircraft,
-      completeV1Aircraft,
+      modularAircraftContent,
     },
   }, {
     status: ready ? 200 : 503,

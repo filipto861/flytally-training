@@ -3,12 +3,12 @@ import "server-only";
 import type { AircraftAbnormalTraining } from "./abnormal-scenarios";
 import type { TrainingAircraft, TrainingManualRevision } from "./aircraft-catalog";
 import type { CockpitOrientation } from "./cockpit-orientation";
+import type { TrainingContentDomain } from "./content-admin-types";
 import type { TrainingContentRepository } from "./content-repository";
 import { sql } from "./db";
 import type { AircraftLearningContent } from "./learning-content";
 import type { AircraftReferenceKnowledge } from "./reference-knowledge";
 import type { SimulatorFlightFlow } from "./simulator-checklists";
-import type { TrainingContentDomain } from "./content-admin-types";
 
 function asArray(value:unknown):unknown[]{if(Array.isArray(value))return value;if(typeof value==="string"){try{const parsed=JSON.parse(value);return Array.isArray(parsed)?parsed:[];}catch{return[];}}return[];}
 function asObject(value:unknown):Record<string,unknown>{if(value&&typeof value==="object"&&!Array.isArray(value))return value as Record<string,unknown>;if(typeof value==="string"){try{const parsed=JSON.parse(value);return parsed&&typeof parsed==="object"&&!Array.isArray(parsed)?parsed:{};}catch{return{};}}return{};}
@@ -16,6 +16,7 @@ function asObject(value:unknown):Record<string,unknown>{if(value&&typeof value==
 type AircraftRow={aircraft_id:string;manufacturer:string;model:string;display_name:string};
 type VariantRow={aircraft_id:string;variant_key:string};
 type ManualRow={aircraft_id:string;revision_id:string;title:string;publisher:string;revision_code:string;issue_date:string;source_kind:TrainingManualRevision["sourceKind"];authority_note:string;source_metadata:unknown;chapters:unknown};
+type DomainRow={domain:TrainingContentDomain};
 
 function mapManual(row:ManualRow):TrainingManualRevision{
   const metadata=asObject(row.source_metadata);
@@ -40,14 +41,19 @@ function mapManual(row:ManualRow):TrainingManualRevision{
 function addGrouped<T>(map:Map<string,T[]>,key:string,value:T){const values=map.get(key);if(values)values.push(value);else map.set(key,[value]);}
 
 export class PostgresTrainingContentRepository implements TrainingContentRepository {
-  /**
-   * Learner reads intentionally perform SELECTs only. Schema creation/migration
-   * belongs to the admin/write path and deployment bootstrap, never to a pilot's
-   * cold-start request.
-   */
-  private async publishedPayload<T>(aircraftId:string,domain:TrainingContentDomain):Promise<T|undefined>{
-    const rows=await sql`SELECT v.payload FROM training_content_items i JOIN training_content_publications p ON p.item_id=i.item_id JOIN training_content_versions v ON v.version_id=p.version_id JOIN training_aircraft_types a ON a.aircraft_id=i.aircraft_id WHERE i.aircraft_id=${aircraftId} AND i.domain=${domain} AND i.content_key='bundle' AND a.status='published' LIMIT 1` as Array<{payload:unknown}>;
+  /** Learner reads intentionally perform SELECTs only. */
+  private async publishedPayload<T>(aircraftId:string,domain:TrainingContentDomain,contentKey="bundle"):Promise<T|undefined>{
+    const rows=await sql`SELECT v.payload FROM training_content_items i JOIN training_content_publications p ON p.item_id=i.item_id JOIN training_content_versions v ON v.version_id=p.version_id JOIN training_aircraft_types a ON a.aircraft_id=i.aircraft_id WHERE i.aircraft_id=${aircraftId} AND i.domain=${domain} AND i.content_key=${contentKey} AND a.status='published' LIMIT 1` as Array<{payload:unknown}>;
     return rows[0]?.payload as T|undefined;
+  }
+
+  async listPublishedModuleDomains(aircraftId:string):Promise<readonly TrainingContentDomain[]>{
+    const rows=await sql`SELECT DISTINCT i.domain FROM training_content_items i JOIN training_content_publications p ON p.item_id=i.item_id JOIN training_aircraft_types a ON a.aircraft_id=i.aircraft_id WHERE i.aircraft_id=${aircraftId} AND a.status='published' ORDER BY i.domain` as DomainRow[];
+    return rows.map(row=>row.domain);
+  }
+
+  getPublishedModule<T>(aircraftId:string,domain:TrainingContentDomain,contentKey="bundle"):Promise<T|undefined>{
+    return this.publishedPayload<T>(aircraftId,domain,contentKey);
   }
 
   async listAircraft():Promise<readonly TrainingAircraft[]>{

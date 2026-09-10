@@ -5,23 +5,25 @@ import test from "node:test";
 const publication = fs.readFileSync(new URL("../lib/aircraft-publication.ts", import.meta.url), "utf8");
 const actions = fs.readFileSync(new URL("../app/admin/actions.ts", import.meta.url), "utf8");
 
-test("learner catalogue publication requires a manual and every canonical bundle", () => {
+test("learner catalogue publication requires source governance and at least one actual training module", () => {
   assert.match(publication, /EXISTS\([\s\S]*training_manual_revisions/);
-  assert.match(publication, /COUNT\(DISTINCT i\.domain\)::int/);
+  assert.match(publication, /AS has_training_content/);
   assert.match(publication, /i\.content_key='bundle'/);
-  assert.match(publication, /'learning','normal-flight','orientation','abnormal','reference-knowledge'/);
-  assert.match(publication, /e\.published_domains=\$\{trainingContentDomains\.length\}/);
+  assert.match(publication, /i\.domain<>'orientation'/);
+  assert.match(publication, /AND e\.has_training_content/);
   assert.match(publication, /SET status='published',updated_at=NOW\(\)/);
+  assert.doesNotMatch(publication, /published_domains=\$\{trainingContentDomains\.length\}/);
+  assert.doesNotMatch(publication, /'learning','normal-flight','orientation','abnormal','reference-knowledge'/);
 });
 
-test("catalogue publication refuses unresolved stale flags on the effective canonical versions", () => {
+test("catalogue publication refuses unresolved stale flags on effective published training modules", () => {
   assert.match(publication,/JOIN training_content_stale_flags sf ON sf\.version_id=p\.version_id/);
   assert.match(publication,/sf\.resolved_at IS NULL/);
   assert.match(publication,/AS current_content_fresh/);
   assert.match(publication,/AND e\.current_content_fresh/);
 });
 
-test("interactive aircraft publication uses the governed completeness gate", () => {
+test("interactive aircraft publication uses the governed publication gate", () => {
   assert.match(actions, /publishGovernedAircraft/);
   assert.match(actions, /await publishGovernedAircraft\(aircraftId\)/);
   assert.doesNotMatch(actions, /\bawait publishAircraft\(aircraftId\)/);

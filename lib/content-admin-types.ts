@@ -1,9 +1,16 @@
-export const trainingContentDomains = [
+import { universalTrainingContentDomains } from "./universal-aircraft-content.ts";
+
+export const legacyTrainingContentDomains = [
   "learning",
   "normal-flight",
   "orientation",
-  "abnormal",
   "reference-knowledge",
+] as const;
+
+export const trainingContentDomains = [
+  ...universalTrainingContentDomains,
+  "abnormal",
+  ...legacyTrainingContentDomains,
 ] as const;
 
 export const contentVersionOrigins = ["human", "ai-assisted", "import", "bootstrap-migration"] as const;
@@ -11,6 +18,10 @@ export const contentVersionOrigins = ["human", "ai-assisted", "import", "bootstr
 export type TrainingContentDomain = typeof trainingContentDomains[number];
 export type ContentVersionOrigin = typeof contentVersionOrigins[number];
 export type ContentVersionState = "draft" | "approved" | "published" | "stale" | "archived";
+
+export function isTrainingContentDomain(value: string): value is TrainingContentDomain {
+  return (trainingContentDomains as readonly string[]).includes(value);
+}
 
 export function parseContentVersionOrigin(value: string): ContentVersionOrigin {
   if (!(contentVersionOrigins as readonly string[]).includes(value)) throw new Error("Unsupported content version origin.");

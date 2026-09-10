@@ -17,12 +17,13 @@ test("readiness includes all Training-owned persistence boundaries without creat
   assert.doesNotMatch(readiness, /CREATE\s+TABLE|CREATE\s+INDEX/i);
 });
 
-test("readiness distinguishes a published catalog from a complete v1 learner aircraft", () => {
+test("production readiness accepts modular aircraft content rather than a fixed Learjet curriculum", () => {
   assert.match(readiness, /publishedAircraft/);
-  assert.match(readiness, /completeV1Aircraft/);
+  assert.match(readiness, /modularAircraftContent/);
   assert.match(readiness, /getAircraftContentBundle/);
-  assert.match(readiness, /hasCompleteV1AircraftCapabilities/);
-  assert.match(readiness, /&& completeV1Aircraft/);
+  assert.match(readiness, /hasUsableAircraftTrainingContent/);
+  assert.match(readiness, /&& modularAircraftContent/);
+  assert.doesNotMatch(readiness, /hasCompleteV1AircraftCapabilities/);
   assert.doesNotMatch(readiness, /learjet-35-36/i);
 });
 

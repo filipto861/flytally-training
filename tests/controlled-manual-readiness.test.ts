@@ -3,7 +3,6 @@ import fs from "node:fs";
 import test from "node:test";
 
 import { controlledManualMetadataMatches } from "../lib/controlled-manual-metadata.ts";
-import { trainingContentDomains } from "../lib/content-admin-types.ts";
 
 const helper = fs.readFileSync(new URL("../lib/controlled-manual-readiness.ts", import.meta.url), "utf8");
 const readiness = fs.readFileSync(new URL("../app/api/readiness/route.ts", import.meta.url), "utf8");
@@ -25,13 +24,17 @@ test("live manual readiness is scoped to attached sources used by current publis
   assert.match(helper,/await head\(candidate\.pathname\)/);
 });
 
-test("all five canonical domains require live controlled provenance", () => {
-  assert.deepEqual(trainingContentDomains,["learning","normal-flight","orientation","abnormal","reference-knowledge"]);
-  assert.match(helper,/trainingContentDomains\.every\(domain => covered\.has\(domain\)\)/);
-  for (const domain of trainingContentDomains) assert.match(helper,new RegExp(domain.replace("-","\\-")));
+test("M9 requires controlled provenance only for modules the aircraft actually publishes", () => {
+  assert.match(helper,/SELECT DISTINCT ci\.domain/);
+  assert.match(helper,/requiredDomains = new Set/);
+  assert.match(helper,/requiredDomains\.size === 0/);
+  assert.match(helper,/\[\.\.\.requiredDomains\]\.every\(domain => covered\.has\(domain\)\)/);
+  assert.doesNotMatch(helper,/trainingContentDomains\.every/);
+  assert.doesNotMatch(helper,/IN \('learning','normal-flight','orientation','abnormal','reference-knowledge'\)/);
+  assert.match(helper,/ci\.domain<>'orientation'/);
 });
 
-test("HTTP readiness requires complete controlled-source coverage for a complete aircraft", () => {
+test("HTTP readiness requires complete controlled-source coverage for a modular aircraft", () => {
   assert.match(readiness,/hasCompletePublishedControlledManualCoverage\(item\.id\)/);
   assert.match(readiness,/controlledManualStorage = true/);
   assert.match(readiness,/&& controlledManualStorage/);

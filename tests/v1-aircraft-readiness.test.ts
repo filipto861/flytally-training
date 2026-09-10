@@ -2,35 +2,40 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import type { AircraftContentCapabilities } from "../lib/content-repository.ts";
-import { hasCompleteV1AircraftCapabilities, v1RequiredAircraftCapabilities } from "../lib/v1-aircraft-readiness.ts";
+import {
+  hasUsableAircraftTrainingContent,
+  releaseEligibleTrainingCapabilities,
+  v1RequiredAircraftCapabilities,
+} from "../lib/v1-aircraft-readiness.ts";
 
-const complete: AircraftContentCapabilities = {
-  quickStart: true,
-  systems: true,
-  normalFlight: true,
-  cockpitOrientation: true,
-  abnormalEmergency: true,
-  quickReference: true,
-  knowledge: true,
-  manual: true,
+const empty: AircraftContentCapabilities = {
+  checklists: false,
+  procedures: false,
+  performance: false,
+  limitations: false,
+  systems: false,
+  abnormalEmergency: false,
+  flows: false,
+  avionics: false,
+  knowledge: false,
+  manual: false,
+  quickStart: false,
+  normalFlight: false,
+  cockpitOrientation: false,
+  quickReference: false,
 };
 
-test("v1 readiness requires every canonical learner capability", () => {
-  assert.deepEqual(v1RequiredAircraftCapabilities, [
-    "quickStart",
-    "systems",
-    "normalFlight",
-    "cockpitOrientation",
-    "abnormalEmergency",
-    "quickReference",
-    "knowledge",
-    "manual",
-  ]);
-  assert.equal(hasCompleteV1AircraftCapabilities(complete), true);
+test("M9 has no globally required aircraft module", () => {
+  assert.deepEqual(v1RequiredAircraftCapabilities, []);
 });
 
-test("one partial content domain keeps an aircraft below v1 readiness", () => {
-  for (const key of v1RequiredAircraftCapabilities) {
-    assert.equal(hasCompleteV1AircraftCapabilities({ ...complete, [key]: false }), false, key);
+test("any real published training module can make an aircraft usable", () => {
+  for (const key of releaseEligibleTrainingCapabilities) {
+    assert.equal(hasUsableAircraftTrainingContent({ ...empty, [key]: true }), true, key);
   }
+});
+
+test("manual metadata or cockpit orientation alone do not define usable training content", () => {
+  assert.equal(hasUsableAircraftTrainingContent({ ...empty, manual: true }), false);
+  assert.equal(hasUsableAircraftTrainingContent({ ...empty, cockpitOrientation: true }), false);
 });
