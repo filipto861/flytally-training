@@ -33,6 +33,7 @@ const moduleKey = (aircraftId: string, domain: TrainingContentDomain): string =>
 export class StaticTrainingContentRepository implements TrainingContentRepository {
   private readonly aircraftById: ReadonlyMap<string, TrainingAircraft>;
   private readonly universalByAircraftDomain: ReadonlyMap<string, { readonly aircraftId: string }>;
+  private readonly universalDomainsByAircraftId: ReadonlyMap<string, readonly TrainingContentDomain[]>;
   private readonly learningByAircraftId: ReadonlyMap<string, AircraftLearningContent>;
   private readonly normalFlightByAircraftId: ReadonlyMap<string, SimulatorFlightFlow>;
   private readonly orientationByAircraftId: ReadonlyMap<string, CockpitOrientation>;
@@ -41,7 +42,15 @@ export class StaticTrainingContentRepository implements TrainingContentRepositor
 
   constructor(seed: StaticTrainingContentSeed = staticTrainingContentSeed) {
     this.aircraftById = new Map(seed.aircraft.map((item) => [item.id, item] as const));
-    this.universalByAircraftDomain = new Map((seed.universalModules ?? []).map((item) => [moduleKey(item.aircraftId, item.domain), item.payload] as const));
+    const universalModules = seed.universalModules ?? [];
+    this.universalByAircraftDomain = new Map(universalModules.map((item) => [moduleKey(item.aircraftId, item.domain), item.payload] as const));
+    const universalDomains = new Map<string, TrainingContentDomain[]>();
+    for (const item of universalModules) {
+      const domains = universalDomains.get(item.aircraftId) ?? [];
+      if (!domains.includes(item.domain)) domains.push(item.domain);
+      universalDomains.set(item.aircraftId, domains);
+    }
+    this.universalDomainsByAircraftId = universalDomains;
     this.learningByAircraftId = new Map(seed.learningContent.map((item) => [item.aircraftId, item] as const));
     this.normalFlightByAircraftId = new Map(seed.normalFlights.map((item) => [item.aircraftId, item] as const));
     this.orientationByAircraftId = new Map(seed.cockpitOrientations.map((item) => [item.aircraftId, item] as const));
@@ -58,8 +67,7 @@ export class StaticTrainingContentRepository implements TrainingContentRepositor
   async getReferenceKnowledge(aircraftId: string): Promise<AircraftReferenceKnowledge | undefined> { return this.referenceKnowledgeByAircraftId.get(aircraftId); }
 
   async listPublishedModuleDomains(aircraftId: string): Promise<readonly TrainingContentDomain[]> {
-    const domains = new Set<TrainingContentDomain>();
-    for (const item of staticTrainingContentSeed.universalModules ?? []) if (item.aircraftId === aircraftId) domains.add(item.domain);
+    const domains = new Set<TrainingContentDomain>(this.universalDomainsByAircraftId.get(aircraftId) ?? []);
     if (this.learningByAircraftId.has(aircraftId)) domains.add("learning");
     if (this.normalFlightByAircraftId.has(aircraftId)) domains.add("normal-flight");
     if (this.orientationByAircraftId.has(aircraftId)) domains.add("orientation");
