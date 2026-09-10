@@ -6,6 +6,7 @@ const callback = fs.readFileSync(new URL("../app/api/auth/flytally/callback/rout
 const start = fs.readFileSync(new URL("../app/api/auth/flytally/start/route.ts", import.meta.url), "utf8");
 const replay = fs.readFileSync(new URL("../lib/identity-replay.ts", import.meta.url), "utf8");
 const schema = fs.readFileSync(new URL("../lib/identity-schema.ts", import.meta.url), "utf8");
+const bootstrap = fs.readFileSync(new URL("../lib/database-bootstrap.ts", import.meta.url), "utf8");
 const admin = fs.readFileSync(new URL("../app/admin/actions.ts", import.meta.url), "utf8");
 
 test("FlyTally identity assertions are consumed once before a Training session cookie is issued", () => {
@@ -21,7 +22,8 @@ test("replay protection is DML-only at runtime and schema provisioning stays exp
   assert.doesNotMatch(replay, /CREATE\s+TABLE|CREATE\s+INDEX/i);
   assert.doesNotMatch(callback, /CREATE\s+TABLE|CREATE\s+INDEX|ensureTrainingIdentitySchema/i);
   assert.match(schema, /CREATE TABLE IF NOT EXISTS training_identity_assertions/);
-  assert.match(admin, /ensureTrainingIdentitySchema/);
+  assert.match(bootstrap, /ensureTrainingIdentitySchema/);
+  assert.match(admin, /initializeTrainingDatabase/);
 });
 
 test("both Training SSO entry and callback use strict local target parsing and suppress referrers", () => {

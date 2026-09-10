@@ -5,5 +5,5 @@ if (!process.env.TRAINING_ACCEPTANCE_DATABASE_URL?.trim()) {
   process.exit(2);
 }
 
-const result = spawnSync(process.execPath,["--disable-warning=MODULE_TYPELESS_PACKAGE_JSON","--test","--experimental-strip-types","tests/no-code-postgres-acceptance.test.ts"],{stdio:"inherit",env:process.env});
+const result = spawnSync(process.execPath,["--conditions=react-server","--import","tsx","--test","tests/no-code-postgres-acceptance.test.ts"],{stdio:"inherit",env:process.env});
 process.exit(result.status ?? 1);

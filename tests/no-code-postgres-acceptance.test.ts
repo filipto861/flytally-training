@@ -5,7 +5,8 @@ const acceptanceUrl = process.env.TRAINING_ACCEPTANCE_DATABASE_URL?.trim();
 
 test("a second aircraft can be created, published and rendered through the generic PostgreSQL path without aircraft-specific application code", { skip: !acceptanceUrl }, async () => {
   process.env.TRAINING_DATABASE_URL = acceptanceUrl;
-  const [{createAircraft,addAircraftVariant,registerManualRevision,createSourceReference,publishAircraft},{createGovernedDraftVersion,approveGovernedContentVersion,publishGovernedContentVersion},{PostgresTrainingContentRepository},{getAircraftContentBundle},{validateContentPayload},{sql}] = await Promise.all([
+  const [{initializeTrainingDatabase},{createAircraft,addAircraftVariant,registerManualRevision,createSourceReference,publishAircraft},{createGovernedDraftVersion,approveGovernedContentVersion,publishGovernedContentVersion},{PostgresTrainingContentRepository},{getAircraftContentBundle},{validateContentPayload},{sql}] = await Promise.all([
+    import("../lib/database-bootstrap.ts"),
     import("../lib/content-admin-repository.ts"),
     import("../lib/content-governed-lifecycle.ts"),
     import("../lib/postgres-content-repository.ts"),
@@ -13,6 +14,7 @@ test("a second aircraft can be created, published and rendered through the gener
     import("../lib/content-contracts.ts"),
     import("../lib/db.ts"),
   ]);
+  await initializeTrainingDatabase();
 
   const aircraftId = `acceptance-${Date.now()}-${Math.random().toString(16).slice(2,8)}`;
   const subject = "acceptance-harness";

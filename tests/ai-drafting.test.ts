@@ -7,6 +7,7 @@ const provider=fs.readFileSync(new URL("../lib/openai-content-drafting.ts",impor
 const workflow=fs.readFileSync(new URL("../lib/ai-draft-workflow.ts",import.meta.url),"utf8");
 const lifecycle=fs.readFileSync(new URL("../lib/content-governed-lifecycle.ts",import.meta.url),"utf8");
 const schema=fs.readFileSync(new URL("../lib/ai-draft-schema.ts",import.meta.url),"utf8");
+const bootstrap=fs.readFileSync(new URL("../lib/database-bootstrap.ts",import.meta.url),"utf8");
 const actions=fs.readFileSync(new URL("../app/admin/actions.ts",import.meta.url),"utf8");
 const env=fs.readFileSync(new URL("../.env.example",import.meta.url),"utf8");
 
@@ -38,5 +39,6 @@ test("AI drafting performs no runtime schema DDL and schema initialization is ex
   assert.doesNotMatch(workflow,/CREATE TABLE|CREATE INDEX|ALTER TABLE/);
   assert.match(schema,/CREATE TABLE IF NOT EXISTS training_ai_draft_runs/);
   assert.match(schema,/CREATE UNIQUE INDEX IF NOT EXISTS idx_training_ai_draft_runs_version/);
-  assert.match(actions,/ensureTrainingAiDraftSchema/);
+  assert.match(bootstrap,/ensureTrainingAiDraftSchema/);
+  assert.match(actions,/initializeTrainingDatabase/);
 });

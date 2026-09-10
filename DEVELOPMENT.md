@@ -42,6 +42,18 @@ npm run build
 
 The initial repository intentionally has no dependency lockfile because it was created remotely without a package installation. The first environment that performs a successful `npm install` must commit the generated `package-lock.json`; after that, CI should move from `npm install` to `npm ci`.
 
+## Database bootstrap
+
+Training owns its PostgreSQL schema. A new target database must be initialized before the first identity callback:
+
+```bash
+TRAINING_DATABASE_URL='postgresql://...' npm run db:init
+```
+
+The command is idempotent, provisions every required Training-owned persistence boundary and verifies the expected relations. It does not seed aircraft content. Do not move schema creation back into ordinary learner, authentication or authoring requests.
+
+The standalone database and no-code acceptance runners load TypeScript through `tsx` with Node's `react-server` condition so `server-only` module boundaries are preserved outside Next.js.
+
 ## Architecture rules
 
 - Keep Logbook and Training as separate repositories and deployments.
