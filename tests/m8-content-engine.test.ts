@@ -4,7 +4,8 @@ import test from "node:test";
 
 import { parseContentVersionOrigin, trainingContentDomains } from "../lib/content-admin-types.ts";
 
-const adminRepo=fs.readFileSync(new URL("../lib/content-admin-repository.ts",import.meta.url),"utf8");
+const governedLifecycle=fs.readFileSync(new URL("../lib/content-governed-lifecycle.ts",import.meta.url),"utf8");
+const governedManuals=fs.readFileSync(new URL("../lib/governed-manual-registration.ts",import.meta.url),"utf8");
 const pgRepo=fs.readFileSync(new URL("../lib/postgres-content-repository.ts",import.meta.url),"utf8");
 const store=fs.readFileSync(new URL("../lib/content-store.ts",import.meta.url),"utf8");
 
@@ -26,16 +27,19 @@ test("aircraft-library read avoids per-aircraft N+1 hydration",()=>{
   assert.match(pgRepo,/manualsByAircraft/);
 });
 
-test("publication is structurally gated by explicit approval",()=>{
-  assert.match(adminRepo,/Explicit human approval is required before publication/);
-  assert.match(adminRepo,/training_content_approvals/);
-  assert.match(adminRepo,/decision='approved'/);
+test("publication is structurally gated by explicit approval and provenance",()=>{
+  assert.match(governedLifecycle,/training_content_approvals/);
+  assert.match(governedLifecycle,/decision='approved'/);
+  assert.match(governedLifecycle,/Explicit human approval and required provenance audit are required before publication/);
+  assert.match(governedLifecycle,/sql\.transaction/);
 });
 
-test("manual revisions are immutable and revision changes create stale review flags",()=>{
-  assert.match(adminRepo,/Manual revision already exists\. Revisions are immutable/);
-  assert.match(adminRepo,/training_content_stale_flags/);
-  assert.match(adminRepo,/newer_revision_id/);
+test("manual revisions are immutable inserts and revision changes create stale review flags transactionally",()=>{
+  assert.match(governedManuals,/INSERT INTO training_manual_revisions/);
+  assert.match(governedManuals,/training_content_stale_flags/);
+  assert.match(governedManuals,/newer_revision_id/);
+  assert.match(governedManuals,/sql\.transaction/);
+  assert.doesNotMatch(governedManuals,/UPDATE training_manual_revisions/);
 });
 
 test("content-version origin is an explicit allow-list",()=>{
