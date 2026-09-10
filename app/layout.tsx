@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     default: "FlyTally Training",
     template: "%s · FlyTally Training",
   },
-  description: "Simulator-first aircraft training from cold and dark to shutdown.",
+  description: "Source-backed aircraft training with checklists, procedures, performance, limitations and systems.",
   applicationName: "FlyTally Training",
 };
 
