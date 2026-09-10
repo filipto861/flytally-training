@@ -33,7 +33,7 @@ The learner PostgreSQL content adapter is deliberately **read-only at runtime**:
 
 Persistent progress follows the same boundary. Runtime progress requests perform only SELECT/INSERT/UPSERT operations; they never create tables or indexes. A sync batch is ingested in one PostgreSQL statement, and per-aircraft continuation state is derived from canonical persisted events so idempotent replay cannot move state using conflicting client data. Excessive future device-clock skew is normalized to server time without discarding otherwise valid offline progress.
 
-Controlled manuals are also part of readiness rather than an optional admin extra. The release check requires the Blob credential and the `training_manual_assets` persistence table so `/api/readiness` cannot report ready while PDF upload/download is structurally unavailable.
+Controlled manuals are also part of readiness rather than an optional admin extra. The release check requires the Blob credential and the `training_manual_assets` persistence table so `/api/readiness` cannot report ready while PDF upload/download is structurally unavailable. A browser-computed SHA-256 is only the expected digest: before an asset becomes `ready`, Training streams the stored private Blob, recomputes SHA-256 and byte count server-side, and compares both to the signed upload metadata. Upload URLs are non-overwriting. Proven byte/digest mismatches fail closed; transient readback failures remain retryable.
 
 FlyTally identity handoff is short-lived **and one-time**. After cryptographic verification, Training atomically consumes the assertion `jti` in its own PostgreSQL replay ledger before issuing the Training session cookie. Replaying the same signed assertion is rejected, and the authentication callback does not create schema at runtime. SSO return targets are normalized as same-origin local paths before either application redirects through the handoff.
 
@@ -48,7 +48,7 @@ Before declaring v1.0 complete on `training.fly-tally.com`, verify on desktop an
 3. Learn / Practice / Flow / Challenge & Response modes remain usable on touch and desktop.
 4. abnormal scenarios, Quick Reference / FLY mode and knowledge review work end-to-end.
 5. sign-in returns from FlyTally Logbook, progress survives a second browser/device, sign-out clears only the Training session, a previously consumed identity callback cannot be replayed, and an admin session expires/re-authenticates on the shorter privilege TTL.
-6. admin can initialize Training-owned runtime tables, upload a controlled PDF, register an immutable revision, create source references, draft/review/approve/publish content and observe stale-content review after a newer revision.
+6. admin can initialize Training-owned runtime tables, upload a controlled PDF whose stored bytes pass server-side SHA-256 verification, register an immutable revision, create source references, draft/review/approve/publish content and observe stale-content review after a newer revision.
 7. current approved AFM/QRH/operator material remains explicitly controlling over Training content.
 8. `/api/readiness` returns HTTP 200, including persistent-progress, controlled-manual, identity replay-protection and complete-v1-aircraft checks.
 
