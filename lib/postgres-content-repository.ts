@@ -51,11 +51,14 @@ export class PostgresTrainingContentRepository implements TrainingContentReposit
   }
 
   async listAircraft():Promise<readonly TrainingAircraft[]>{
-    const [aircraftRows,variantRows,manualRows]=await Promise.all([
-      sql`SELECT aircraft_id,manufacturer,model,display_name FROM training_aircraft_types WHERE status='published' ORDER BY display_name` as Promise<AircraftRow[]>,
-      sql`SELECT v.aircraft_id,v.variant_key FROM training_aircraft_variants v JOIN training_aircraft_types a ON a.aircraft_id=v.aircraft_id WHERE a.status='published' ORDER BY v.aircraft_id,v.variant_key` as Promise<VariantRow[]>,
-      sql`SELECT m.aircraft_id,r.revision_id,m.title,m.publisher,r.revision_code,r.issue_date,m.source_kind,r.authority_note,r.source_metadata,r.chapters FROM training_manuals m JOIN training_manual_revisions r ON r.manual_id=m.manual_id JOIN training_aircraft_types a ON a.aircraft_id=m.aircraft_id WHERE a.status='published' ORDER BY m.aircraft_id,r.registered_at DESC` as Promise<ManualRow[]>,
+    const [aircraftRaw,variantRaw,manualRaw]=await Promise.all([
+      sql`SELECT aircraft_id,manufacturer,model,display_name FROM training_aircraft_types WHERE status='published' ORDER BY display_name`,
+      sql`SELECT v.aircraft_id,v.variant_key FROM training_aircraft_variants v JOIN training_aircraft_types a ON a.aircraft_id=v.aircraft_id WHERE a.status='published' ORDER BY v.aircraft_id,v.variant_key`,
+      sql`SELECT m.aircraft_id,r.revision_id,m.title,m.publisher,r.revision_code,r.issue_date,m.source_kind,r.authority_note,r.source_metadata,r.chapters FROM training_manuals m JOIN training_manual_revisions r ON r.manual_id=m.manual_id JOIN training_aircraft_types a ON a.aircraft_id=m.aircraft_id WHERE a.status='published' ORDER BY m.aircraft_id,r.registered_at DESC`,
     ]);
+    const aircraftRows=aircraftRaw as AircraftRow[];
+    const variantRows=variantRaw as VariantRow[];
+    const manualRows=manualRaw as ManualRow[];
 
     const variantsByAircraft=new Map<string,string[]>();
     const manualsByAircraft=new Map<string,TrainingManualRevision[]>();
@@ -75,10 +78,12 @@ export class PostgresTrainingContentRepository implements TrainingContentReposit
   async getAircraft(aircraftId:string):Promise<TrainingAircraft|undefined>{
     const rows=await sql`SELECT aircraft_id,manufacturer,model,display_name FROM training_aircraft_types WHERE aircraft_id=${aircraftId} AND status='published' LIMIT 1` as AircraftRow[];
     const row=rows[0];if(!row)return undefined;
-    const [variants,manuals]=await Promise.all([
-      sql`SELECT aircraft_id,variant_key FROM training_aircraft_variants WHERE aircraft_id=${aircraftId} ORDER BY variant_key` as Promise<VariantRow[]>,
-      sql`SELECT m.aircraft_id,r.revision_id,m.title,m.publisher,r.revision_code,r.issue_date,m.source_kind,r.authority_note,r.source_metadata,r.chapters FROM training_manuals m JOIN training_manual_revisions r ON r.manual_id=m.manual_id WHERE m.aircraft_id=${aircraftId} ORDER BY r.registered_at DESC` as Promise<ManualRow[]>,
+    const [variantRaw,manualRaw]=await Promise.all([
+      sql`SELECT aircraft_id,variant_key FROM training_aircraft_variants WHERE aircraft_id=${aircraftId} ORDER BY variant_key`,
+      sql`SELECT m.aircraft_id,r.revision_id,m.title,m.publisher,r.revision_code,r.issue_date,m.source_kind,r.authority_note,r.source_metadata,r.chapters FROM training_manuals m JOIN training_manual_revisions r ON r.manual_id=m.manual_id WHERE m.aircraft_id=${aircraftId} ORDER BY r.registered_at DESC`,
     ]);
+    const variants=variantRaw as VariantRow[];
+    const manuals=manualRaw as ManualRow[];
     return{id:row.aircraft_id,manufacturer:row.manufacturer,model:row.model,displayName:row.display_name,variants:variants.map(v=>v.variant_key),manuals:manuals.map(mapManual)};
   }
 
