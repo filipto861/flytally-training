@@ -4,6 +4,7 @@ import test from "node:test";
 
 const repository = fs.readFileSync(new URL("../lib/progress-repository.ts", import.meta.url), "utf8");
 const schema = fs.readFileSync(new URL("../lib/progress-schema.ts", import.meta.url), "utf8");
+const bootstrap = fs.readFileSync(new URL("../lib/database-bootstrap.ts", import.meta.url), "utf8");
 const adminActions = fs.readFileSync(new URL("../app/admin/actions.ts", import.meta.url), "utf8");
 const readiness = fs.readFileSync(new URL("../app/api/readiness/route.ts", import.meta.url), "utf8");
 
@@ -27,9 +28,10 @@ test("a multi-aircraft sync derives state from canonical persisted rows for ever
   assert.match(repository, /ON CONFLICT\(account_subject,aircraft_id\) DO UPDATE/);
 });
 
-test("progress schema initialization is explicit admin/bootstrap work and part of readiness", () => {
+test("progress schema initialization is explicit deployment/admin bootstrap work and part of readiness", () => {
   assert.match(adminActions, /initializeTrainingDatabaseAction/);
-  assert.match(adminActions, /ensureTrainingProgressSchema/);
+  assert.match(adminActions, /initializeTrainingDatabase/);
+  assert.match(bootstrap, /ensureTrainingProgressSchema/);
   assert.match(readiness, /progressPersistence/);
   assert.match(readiness, /training_progress_events/);
   assert.match(readiness, /training_aircraft_state/);

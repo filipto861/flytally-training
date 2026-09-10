@@ -25,15 +25,29 @@ A production-ready Training deployment requires:
 - HTTPS `FLYTALLY_LOGBOOK_URL`
 - a private Vercel Blob store authenticated by the deployment-scoped `VERCEL_OIDC_TOKEN` (preferred on Vercel) or `BLOB_READ_WRITE_TOKEN` as an explicit/local fallback
 - governed Learjet content bootstrapped/reviewed/published into PostgreSQL
-- Training progress, aircraft-state, controlled-manual asset, AI-draft audit and identity-assertion tables initialized through the explicit admin/deployment bootstrap path
+- Training progress, aircraft-state, controlled-manual asset, AI-draft audit and identity-assertion tables initialized through the explicit deployment/admin bootstrap path
 
 Static TypeScript content remains a development/bootstrap adapter and is not an acceptable v1.0 production backend.
+
+## First-deploy database bootstrap
+
+A completely empty Training database must be initialized **before the first FlyTally SSO callback**. The callback already consumes the Training-owned one-time identity assertion ledger, so relying only on an authenticated `/admin` button creates a first-login bootstrap paradox.
+
+Run the idempotent deployment command with the target Training database configured:
+
+```bash
+TRAINING_DATABASE_URL='postgresql://...' npm run db:init
+```
+
+`db:init` provisions the governed content schema plus progress, controlled-manual, identity-replay and AI-draft-audit persistence, then verifies every required relation through PostgreSQL. It does not seed or publish aircraft content. The authenticated admin initialization action uses the same bootstrap function and remains a safe rerunnable maintenance path after sign-in is available.
+
+The standalone bootstrap and no-code acceptance runners execute TypeScript server modules with the React Server condition enabled. `server-only` is therefore enforced explicitly rather than bypassed merely because the code runs outside the Next.js process.
 
 The learner PostgreSQL content adapter is deliberately **read-only at runtime**: ordinary aircraft/library/lesson requests do not execute schema DDL. Schema creation and governance changes belong to the admin/write/bootstrap path. Aircraft-library hydration is batched rather than issuing one aircraft/variant/manual query set per published aircraft.
 
 Persistent progress follows the same boundary. Runtime progress requests perform only SELECT/INSERT/UPSERT operations; they never create tables or indexes. A sync batch is ingested in one PostgreSQL statement, and per-aircraft continuation state is derived from canonical persisted events so idempotent replay cannot move state using conflicting client data. Excessive future device-clock skew is normalized to server time without discarding otherwise valid offline progress.
 
-Controlled manuals are also part of readiness rather than an optional admin extra. A browser-computed SHA-256 is only the expected digest: before an asset becomes `ready`, Training streams the stored private Blob, recomputes SHA-256 and byte count server-side, and compares both to the signed upload metadata. Upload URLs are non-overwriting. Proven byte/digest mismatches fail closed; transient readback failures remain retryable.
+Controlled manuals are also part of readiness rather than an optional admin extra. A browser-computed SHA-256 is only the expected digest: before an asset becomes `ready`, Training streams the stored private Blob once, verifies its actual `%PDF-` file signature, recomputes SHA-256 and byte count server-side, and compares them to the signed upload metadata. Upload URLs are non-overwriting. Proven format/byte/digest mismatches fail closed; transient readback failures remain retryable.
 
 Production readiness goes one step further than table/config checks. For at least one complete v1 aircraft, a controlled PDF must be `attached` to a manual revision that is actually referenced by the **currently published** learner content. `/api/readiness` performs a lightweight private-Blob `HEAD` on up to three such candidates and requires stored size and `application/pdf` metadata to still match the verified database record. SHA-256 is not recomputed on every health probe because attachment is possible only after the server-side byte-integrity gate has already passed.
 
@@ -51,13 +65,14 @@ Training session privilege lifetime is role-sensitive. Standard learner sessions
 
 Before declaring v1.0 complete on `training.fly-tally.com`, verify on desktop and mobile:
 
-1. Learjet appears from PostgreSQL and opens without aircraft-specific application branches.
-2. Quick Start, cockpit orientation and Cold & Dark → Shutdown First Flight work end-to-end.
-3. Learn / Practice / Flow / Challenge & Response modes remain usable on touch and desktop.
-4. abnormal scenarios, Quick Reference / FLY mode and knowledge review work end-to-end.
-5. sign-in returns from FlyTally Logbook, progress survives a second browser/device, sign-out clears only the Training session, a previously consumed identity callback cannot be replayed, and an admin session expires/re-authenticates on the shorter privilege TTL.
-6. admin can initialize Training-owned runtime tables, upload a controlled PDF whose stored bytes pass server-side SHA-256 verification, register and atomically attach an immutable revision, create source references, generate an AI-assisted draft whose audit is atomically retained, draft/review/approve/publish content and observe stale-content review after a newer revision.
-7. current approved AFM/QRH/operator material remains explicitly controlling over Training content.
-8. `/api/readiness` returns HTTP 200, including persistent-progress, live controlled-manual storage, AI-draft audit persistence, identity replay-protection and complete-v1-aircraft checks.
+1. `npm run db:init` succeeds against the target Training database before the first SSO login, and a first identity callback succeeds without runtime schema creation.
+2. Learjet appears from PostgreSQL and opens without aircraft-specific application branches.
+3. Quick Start, cockpit orientation and Cold & Dark → Shutdown First Flight work end-to-end.
+4. Learn / Practice / Flow / Challenge & Response modes remain usable on touch and desktop.
+5. abnormal scenarios, Quick Reference / FLY mode and knowledge review work end-to-end.
+6. sign-in returns from FlyTally Logbook, progress survives a second browser/device, sign-out clears only the Training session, a previously consumed identity callback cannot be replayed, and an admin session expires/re-authenticates on the shorter privilege TTL.
+7. admin can rerun Training database initialization, upload a controlled PDF whose stored bytes and actual PDF signature pass server-side verification, register and atomically attach an immutable revision, create source references, generate an AI-assisted draft whose audit is atomically retained, draft/review/approve/publish content and observe stale-content review after a newer revision.
+8. current approved AFM/QRH/operator material remains explicitly controlling over Training content.
+9. `/api/readiness` returns HTTP 200, including persistent-progress, live controlled-manual storage, AI-draft audit persistence, identity replay-protection and complete-v1-aircraft checks.
 
 Only after these checks and the no-code PostgreSQL acceptance run should the release be called FlyTally Training v1.0.

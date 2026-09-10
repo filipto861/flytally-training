@@ -10,6 +10,7 @@
     "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test --experimental-strip-types tests/*.test.ts",
     "test:v1-content": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test --experimental-strip-types tests/v1-learjet-acceptance.test.ts",
     "test:no-code-aircraft": "node tooling/run-no-code-aircraft-acceptance.mjs",
+    "db:init": "node --conditions=react-server --import tsx tooling/init-training-database.ts",
     "verify": "npm run typecheck && npm test && npm run build"
   },
   "dependencies": {
@@ -17,12 +18,14 @@
     "@vercel/blob": "^2.8.0",
     "next": "^16.0.0",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "server-only": "0.0.1"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
+    "tsx": "^4.20.0",
     "typescript": "^5.9.0"
   }
 }
