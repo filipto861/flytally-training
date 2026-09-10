@@ -29,6 +29,8 @@ export type AircraftAbnormalEmergencyScenario = {
   readonly stages: readonly AircraftAbnormalEmergencyStage[];
   readonly debrief: readonly string[];
   readonly notices?: readonly TrainingNotice[];
+  /** Explicit source/authority boundary retained with this scenario. */
+  readonly boundaryNote?: string;
   readonly applicability?: AircraftApplicability;
   readonly sources?: readonly TrainingSourceReference[];
 };
@@ -93,6 +95,7 @@ export function validateUniversalAbnormalEmergencyPayload(payload: unknown): str
       !strings(scenario.objectives) ||
       !strings(scenario.debrief) ||
       !notices(scenario.notices) ||
+      (scenario.boundaryNote !== undefined && !text(scenario.boundaryNote)) ||
       !optionalSources(scenario.sources)
     ) {
       errors.push(`scenarios[${scenarioIndex}] does not match the universal abnormal scenario contract`);
@@ -101,7 +104,7 @@ export function validateUniversalAbnormalEmergencyPayload(payload: unknown): str
 
     if (!objects(scenario.stages) || scenario.stages.length === 0) {
       errors.push(`scenarios[${scenarioIndex}].stages must contain at least one stage`);
-      return;
+      return errors;
     }
 
     scenario.stages.forEach((stage, stageIndex) => {
