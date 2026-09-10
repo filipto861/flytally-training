@@ -5,9 +5,11 @@ const acceptanceUrl = process.env.TRAINING_ACCEPTANCE_DATABASE_URL?.trim();
 
 test("a second aircraft can be created, published and rendered through the generic PostgreSQL path without aircraft-specific application code", { skip: !acceptanceUrl }, async () => {
   process.env.TRAINING_DATABASE_URL = acceptanceUrl;
-  const [{initializeTrainingDatabase},{createAircraft,addAircraftVariant,registerManualRevision,createSourceReference,publishAircraft},{createGovernedDraftVersion,approveGovernedContentVersion,publishGovernedContentVersion},{PostgresTrainingContentRepository},{getAircraftContentBundle},{validateContentPayload},{sql}] = await Promise.all([
+  const [{initializeTrainingDatabase},{createAircraft,addAircraftVariant,createSourceReference},{registerGovernedManualRevision},{publishGovernedAircraft},{createGovernedDraftVersion,approveGovernedContentVersion,publishGovernedContentVersion},{PostgresTrainingContentRepository},{getAircraftContentBundle},{validateContentPayload},{sql}] = await Promise.all([
     import("../lib/database-bootstrap.ts"),
     import("../lib/content-admin-repository.ts"),
+    import("../lib/governed-manual-registration.ts"),
+    import("../lib/aircraft-publication.ts"),
     import("../lib/content-governed-lifecycle.ts"),
     import("../lib/postgres-content-repository.ts"),
     import("../lib/content-repository.ts"),
@@ -36,7 +38,7 @@ test("a second aircraft can be created, published and rendered through the gener
   try {
     await createAircraft({id:aircraftId,manufacturer:"Acceptance",model:"Second Aircraft",displayName:"Acceptance Second Aircraft"},subject);
     await addAircraftVariant(aircraftId,"A");
-    await registerManualRevision({aircraftId,manualId:`${aircraftId}-manual`,revisionId:`${aircraftId}-r1`,title:"Acceptance Manual",publisher:"FlyTally Acceptance",sourceKind:"TRAINING_MANUAL",revision:"1",issueDate:"2026-09",authorityNote:"Synthetic disposable acceptance source.",sourceUri:"acceptance://manual.pdf",checksumSha256:"a".repeat(64)},subject);
+    await registerGovernedManualRevision({aircraftId,manualId:`${aircraftId}-manual`,revisionId:`${aircraftId}-r1`,title:"Acceptance Manual",publisher:"FlyTally Acceptance",sourceKind:"TRAINING_MANUAL",revision:"1",issueDate:"2026-09",authorityNote:"Synthetic disposable acceptance source.",sourceUri:"acceptance://manual.pdf",checksumSha256:"a".repeat(64)},subject);
     const referenceId = await createSourceReference({revisionId:`${aircraftId}-r1`,chapter:"1",section:"Acceptance",pageLabel:"1"},subject);
 
     for (const [domain,payload] of Object.entries(domains)) {
@@ -45,7 +47,7 @@ test("a second aircraft can be created, published and rendered through the gener
       await approveGovernedContentVersion(versionId,subject,"Disposable no-code acceptance fixture.");
       await publishGovernedContentVersion(versionId,subject);
     }
-    await publishAircraft(aircraftId);
+    await publishGovernedAircraft(aircraftId);
 
     const repository = new PostgresTrainingContentRepository();
     const bundle = await getAircraftContentBundle(repository,aircraftId);
