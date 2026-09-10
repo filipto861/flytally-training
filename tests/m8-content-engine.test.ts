@@ -6,7 +6,6 @@ import { parseContentVersionOrigin, trainingContentDomains } from "../lib/conten
 
 const adminRepo=fs.readFileSync(new URL("../lib/content-admin-repository.ts",import.meta.url),"utf8");
 const pgRepo=fs.readFileSync(new URL("../lib/postgres-content-repository.ts",import.meta.url),"utf8");
-const readSchema=fs.readFileSync(new URL("../lib/content-read-schema.ts",import.meta.url),"utf8");
 const store=fs.readFileSync(new URL("../lib/content-store.ts",import.meta.url),"utf8");
 
 test("M8 content domains are aircraft-agnostic product domains",()=>{
@@ -14,10 +13,17 @@ test("M8 content domains are aircraft-agnostic product domains",()=>{
   assert.doesNotMatch(pgRepo,/learjet-35-36/i);
 });
 
-test("learner PostgreSQL reads are isolated from admin/bootstrap/static seed imports",()=>{
-  assert.doesNotMatch(pgRepo,/content-admin-repository|static-content-repository/);
-  assert.doesNotMatch(readSchema,/content-admin-repository|static-content-repository|learjet-35-36/);
-  assert.match(pgRepo,/content-read-schema/);
+test("learner PostgreSQL reads are isolated from admin/bootstrap/static seed and perform no DDL",()=>{
+  assert.doesNotMatch(pgRepo,/content-admin-repository|static-content-repository|content-read-schema/);
+  assert.doesNotMatch(pgRepo,/CREATE\s+(TABLE|INDEX)|ALTER\s+TABLE/i);
+  assert.match(pgRepo,/Learner reads intentionally perform SELECTs only/);
+});
+
+test("aircraft-library read avoids per-aircraft N+1 hydration",()=>{
+  assert.doesNotMatch(pgRepo,/rows\.map\(.*this\.getAircraft/s);
+  assert.match(pgRepo,/Promise\.all\(\[/);
+  assert.match(pgRepo,/variantsByAircraft/);
+  assert.match(pgRepo,/manualsByAircraft/);
 });
 
 test("publication is structurally gated by explicit approval",()=>{
