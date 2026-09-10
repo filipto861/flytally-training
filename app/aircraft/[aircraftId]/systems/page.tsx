@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 
 import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
 import { LearningCompletionButton } from "@/components/learning-completion-button";
+import { configurationForVariant, filterSystemsForConfiguration, resolveSelectedVariant, withVariantQuery } from "@/lib/aircraft-applicability";
 import { getPublishedAircraftModule } from "@/lib/content-repository";
 import { getTrainingContentRepository } from "@/lib/content-store";
 import type { AircraftSystemLesson, AircraftSystemsContent, TrainingSourceReference } from "@/lib/universal-aircraft-content";
@@ -16,8 +17,14 @@ type RuntimeSystem = AircraftSystemLesson & {
 const formatSources = (sources: readonly TrainingSourceReference[] | undefined): string | undefined =>
   sources?.map((item) => [item.chapter ? `Ch ${item.chapter}` : undefined, item.section, `p. ${item.pageLabel}`].filter(Boolean).join(" · ")).join(" · ");
 
-export default async function SystemsPage({ params }: Readonly<{ params: Promise<{ aircraftId: string }> }>) {
-  const { aircraftId } = await params;
+export default async function SystemsPage({
+  params,
+  searchParams,
+}: Readonly<{
+  params: Promise<{ aircraftId: string }>;
+  searchParams: Promise<{ variant?: string }>;
+}>) {
+  const [{ aircraftId }, { variant }] = await Promise.all([params, searchParams]);
   const repository = getTrainingContentRepository();
   const [aircraft, universal, legacy] = await Promise.all([
     repository.getAircraft(aircraftId),
@@ -26,7 +33,11 @@ export default async function SystemsPage({ params }: Readonly<{ params: Promise
   ]);
   if (!aircraft) notFound();
 
-  const systems: readonly RuntimeSystem[] = universal ? universal.systems.map((system) => ({
+  const selectedVariant = resolveSelectedVariant(variant, aircraft.variants);
+  const configuredUniversal = universal
+    ? filterSystemsForConfiguration(universal, configurationForVariant(selectedVariant))
+    : undefined;
+  const systems: readonly RuntimeSystem[] = configuredUniversal ? configuredUniversal.systems.map((system) => ({
     ...system,
     sourceLabel: formatSources(system.sources),
   })) : legacy?.systems.map((system) => ({
@@ -45,14 +56,14 @@ export default async function SystemsPage({ params }: Readonly<{ params: Promise
 
   return (
     <main className="shell aircraft-detail">
-      <Link className="back-link" href={`/aircraft/${aircraft.id}`}>← {aircraft.displayName}</Link>
-      <AircraftWorkspaceNav aircraftId={aircraft.id} active="systems" />
+      <Link className="back-link" href={withVariantQuery(`/aircraft/${aircraft.id}`, selectedVariant)}>← {aircraft.displayName}</Link>
+      <AircraftWorkspaceNav aircraftId={aircraft.id} active="systems" variants={aircraft.variants} selectedVariant={selectedVariant} />
       <section className="workspace-section-hero">
-        <p className="eyebrow">Systems · {aircraft.displayName}</p>
-        <h1>{universal?.title ?? `${systems.length} aircraft systems`}</h1>
+        <p className="eyebrow">Systems · {aircraft.displayName}{selectedVariant ? ` · ${selectedVariant}` : ""}</p>
+        <h1>{configuredUniversal?.title ?? `${systems.length} aircraft systems`}</h1>
         <p className="lede">Each lesson focuses on the system model, what the pilot controls, what is indicated, normal operation, limitations and abnormal cues where applicable.</p>
-        {universal?.disclaimer ? <p><strong>Training boundary:</strong> {universal.disclaimer}</p> : null}
-        {universal?.sourceNote ? <p><small>Source note · {universal.sourceNote}</small></p> : null}
+        {configuredUniversal?.disclaimer ? <p><strong>Training boundary:</strong> {configuredUniversal.disclaimer}</p> : null}
+        {configuredUniversal?.sourceNote ? <p><small>Source note · {configuredUniversal.sourceNote}</small></p> : null}
       </section>
 
       <section className={styles.systemsGrid} aria-label={`${aircraft.displayName} systems`}>
