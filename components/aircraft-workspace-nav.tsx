@@ -1,7 +1,9 @@
 import Link from "next/link";
 
-import { getTrainingContentRepository } from "@/lib/content-store";
+import { AircraftVariantSelector } from "@/components/aircraft-variant-selector";
+import { withVariantQuery } from "@/lib/aircraft-applicability";
 import type { TrainingContentDomain } from "@/lib/content-admin-types";
+import { getTrainingContentRepository } from "@/lib/content-store";
 
 export type AircraftModuleNavKey = "overview" | "checklists" | "procedures" | "performance" | "limitations" | "systems" | "flows" | "avionics" | "abnormal" | "knowledge" | "progress";
 
@@ -35,7 +37,14 @@ function moduleNavigation(aircraftId: string): readonly ModuleNavDefinition[] {
 export async function AircraftWorkspaceNav({
   aircraftId,
   active,
-}: Readonly<{ aircraftId: string; active: AircraftModuleNavKey | string }>) {
+  variants = [],
+  selectedVariant,
+}: Readonly<{
+  aircraftId: string;
+  active: AircraftModuleNavKey | string;
+  variants?: readonly string[];
+  selectedVariant?: string;
+}>) {
   const repository = getTrainingContentRepository();
   const publishedDomains = repository.listPublishedModuleDomains
     ? await repository.listPublishedModuleDomains(aircraftId)
@@ -44,17 +53,20 @@ export async function AircraftWorkspaceNav({
   const sections = moduleNavigation(aircraftId).filter((section) => section.available(domains));
 
   return (
-    <nav className="workspace-nav" aria-label="Aircraft training navigation">
-      {sections.map((section) => (
-        <Link
-          aria-current={section.key === active ? "page" : undefined}
-          className={section.key === active ? "active" : undefined}
-          href={section.href}
-          key={section.key}
-        >
-          {section.label}
-        </Link>
-      ))}
-    </nav>
+    <>
+      <nav className="workspace-nav" aria-label="Aircraft training navigation">
+        {sections.map((section) => (
+          <Link
+            aria-current={section.key === active ? "page" : undefined}
+            className={section.key === active ? "active" : undefined}
+            href={withVariantQuery(section.href, selectedVariant)}
+            key={section.key}
+          >
+            {section.label}
+          </Link>
+        ))}
+      </nav>
+      <AircraftVariantSelector variants={variants} selectedVariant={selectedVariant} />
+    </>
   );
 }
