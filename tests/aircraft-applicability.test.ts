@@ -2,11 +2,13 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  configurationForAircraftVariant,
   configurationForVariant,
   filterChecklistForConfiguration,
   filterPerformanceForConfiguration,
   matchesAircraftApplicability,
   resolveSelectedVariant,
+  resolveVariantProfile,
   withVariantQuery,
 } from "../lib/aircraft-applicability.ts";
 import { validateContentPayload } from "../lib/content-contracts.ts";
@@ -16,6 +18,25 @@ test("variant selection is validated against aircraft data", () => {
   assert.equal(resolveSelectedVariant("B737", ["35", "35A"]), undefined);
   assert.equal(resolveSelectedVariant(undefined, ["B23"]), "B23");
   assert.equal(resolveSelectedVariant(undefined, ["35", "35A"]), undefined);
+});
+
+test("persisted variant profiles resolve explicit equipment without inferring from model names", () => {
+  const aircraft = {
+    variants: ["A", "B"],
+    variantProfiles: [
+      { key: "A", displayName: "Variant A", equipmentTags: [] },
+      { key: "B", displayName: "Variant B / configured", equipmentTags: ["option-x", "autopilot"], note: "Verified installation profile." },
+    ],
+  } as const;
+
+  assert.equal(resolveVariantProfile(aircraft, "B")?.displayName, "Variant B / configured");
+  assert.deepEqual([...configurationForAircraftVariant(aircraft, "B").equipment], ["option-x", "autopilot"]);
+  assert.equal(matchesAircraftApplicability({ equipmentAllOf: ["option-x"] }, configurationForAircraftVariant(aircraft, "B")), true);
+  assert.equal(matchesAircraftApplicability({ equipmentAllOf: ["option-x"] }, configurationForAircraftVariant(aircraft, "A")), false);
+
+  const legacyOnly = { variants: ["35A"] } as const;
+  assert.deepEqual([...configurationForAircraftVariant(legacyOnly, "35A").equipment], []);
+  assert.equal(matchesAircraftApplicability({ equipmentAllOf: ["aak-80-2"] }, configurationForAircraftVariant(legacyOnly, "35A")), false);
 });
 
 test("applicability fails closed when a required variant or equipment tag is unknown", () => {
