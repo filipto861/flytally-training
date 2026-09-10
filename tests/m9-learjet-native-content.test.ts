@@ -11,11 +11,13 @@ import {
   learjet3536NativeProcedures,
   learjet3536NativeSystems,
 } from "../lib/learjet-native-content.ts";
+import { learjet3536NativeKnowledge } from "../lib/learjet-native-knowledge.ts";
 import { StaticTrainingContentRepository } from "../lib/static-content-repository.ts";
-import type { AircraftChecklistContent } from "../lib/universal-aircraft-content.ts";
+import type { AircraftChecklistContent, AircraftKnowledgeContent } from "../lib/universal-aircraft-content.ts";
 
 const aircraftId = "learjet-35-36";
 const bootstrap = fs.readFileSync(new URL("../lib/governed-static-bootstrap.ts", import.meta.url), "utf8");
+const knowledgePage = fs.readFileSync(new URL("../app/aircraft/[aircraftId]/knowledge/page.tsx", import.meta.url), "utf8");
 
 test("Learjet native M9 modules satisfy the universal governed contracts", () => {
   const modules = [
@@ -24,6 +26,7 @@ test("Learjet native M9 modules satisfy the universal governed contracts", () =>
     ["performance", learjet3536NativePerformance],
     ["limitations", learjet3536NativeLimitations],
     ["systems", learjet3536NativeSystems],
+    ["knowledge", learjet3536NativeKnowledge],
   ] as const;
 
   for (const [domain, payload] of modules) {
@@ -63,13 +66,27 @@ test("native performance and limitations preserve configuration differences rath
   assert.ok(landing?.items.some(item => item.notices?.some(notice => notice.kind === "warning")));
 });
 
+test("native Learjet knowledge preserves the source-backed question bank", () => {
+  assert.equal(learjet3536NativeKnowledge.questions.length, 10);
+  assert.ok(learjet3536NativeKnowledge.questions.every(question => question.sources?.length));
+  assert.ok(learjet3536NativeKnowledge.questions.every(question => question.sources?.every(source => source.manualId === "fsi-learjet-35-36-ptm-r1-1")));
+  assert.ok(learjet3536NativeKnowledge.questions.some(question => question.id === "q-vspeeds" && /performance-derived/i.test(question.explanation)));
+});
+
 test("static repository serves native universal modules before legacy migration adapters", async () => {
   const repository = new StaticTrainingContentRepository();
   const domains = await repository.listPublishedModuleDomains(aircraftId);
-  for (const domain of ["checklists", "procedures", "performance", "limitations", "systems"] as const) assert.ok(domains.includes(domain));
+  for (const domain of ["checklists", "procedures", "performance", "limitations", "systems", "knowledge"] as const) assert.ok(domains.includes(domain));
   const checklist = await repository.getPublishedModule<AircraftChecklistContent>(aircraftId, "checklists");
   assert.equal(checklist?.title, learjet3536NativeChecklists.title);
   assert.match(checklist?.sourceNote ?? "", /Native M9/i);
+  const knowledge = await repository.getPublishedModule<AircraftKnowledgeContent>(aircraftId, "knowledge");
+  assert.equal(knowledge?.title, learjet3536NativeKnowledge.title);
+});
+
+test("knowledge learner route prefers universal M9 content with legacy fallback only for migration", () => {
+  assert.match(knowledgePage, /getPublishedAircraftModule<AircraftKnowledgeContent>\(repository, aircraftId, "knowledge"\)/);
+  assert.match(knowledgePage, /universal \? normalizeUniversalKnowledge\(universal\) : legacy \? normalizeLegacyKnowledge\(legacy\)/);
 });
 
 test("governed static bootstrap publishes universal modules through one generic loop", () => {
