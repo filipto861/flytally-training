@@ -81,7 +81,6 @@ function integrity(condition: boolean, message: string): asserts condition {
 
 export async function issueManualAssetUpload(input: ManualUploadMetadata, subject: string): Promise<{assetId:string;pathname:string;presignedUrl:string;validUntil:number}> {
   const metadata = validateManualUploadMetadata(input);
-  await ensureManualAssetSchema();
   const aircraft = await sql`SELECT 1 FROM training_aircraft_types WHERE aircraft_id=${metadata.aircraftId} LIMIT 1` as unknown[];
   if (!aircraft[0]) throw new Error("Aircraft does not exist.");
 
@@ -115,7 +114,6 @@ export async function issueManualAssetUpload(input: ManualUploadMetadata, subjec
 
 export async function finalizeManualAsset(assetId: string, subject: string): Promise<ManualAsset> {
   void subject;
-  await ensureManualAssetSchema();
   const rows = await sql`SELECT asset_id,aircraft_id,pathname,blob_url,original_filename,content_type,size_bytes,checksum_sha256,status,attached_revision_id,created_at FROM training_manual_assets WHERE asset_id=${assetId} LIMIT 1` as Array<{
     asset_id:string;aircraft_id:string;pathname:string;blob_url:string|null;original_filename:string;content_type:string;size_bytes:number|string;checksum_sha256:string;status:ManualAssetStatus;attached_revision_id:string|null;created_at:string|Date;
   }>;
@@ -153,7 +151,6 @@ export async function finalizeManualAsset(assetId: string, subject: string): Pro
 }
 
 export async function listManualAssets(aircraftId: string): Promise<readonly ManualAsset[]> {
-  await ensureManualAssetSchema();
   const rows = await sql`SELECT asset_id,aircraft_id,pathname,blob_url,original_filename,content_type,size_bytes,checksum_sha256,status,attached_revision_id,created_at FROM training_manual_assets WHERE aircraft_id=${aircraftId} ORDER BY created_at DESC` as Array<{
     asset_id:string;aircraft_id:string;pathname:string;blob_url:string|null;original_filename:string;content_type:string;size_bytes:number|string;checksum_sha256:string;status:ManualAssetStatus;attached_revision_id:string|null;created_at:string|Date;
   }>;
@@ -161,7 +158,6 @@ export async function listManualAssets(aircraftId: string): Promise<readonly Man
 }
 
 export async function claimManualAsset(aircraftId: string, assetId: string, subject: string): Promise<ManualAsset> {
-  await ensureManualAssetSchema();
   const rows = await sql`UPDATE training_manual_assets
     SET status='claimed',claimed_by=${subject},claimed_at=NOW()
     WHERE asset_id=${assetId} AND aircraft_id=${aircraftId}
@@ -174,12 +170,10 @@ export async function claimManualAsset(aircraftId: string, assetId: string, subj
 }
 
 export async function releaseManualAssetClaim(assetId: string, subject: string): Promise<void> {
-  await ensureManualAssetSchema();
   await sql`UPDATE training_manual_assets SET status='ready',claimed_by=NULL,claimed_at=NULL WHERE asset_id=${assetId} AND status='claimed' AND claimed_by=${subject}`;
 }
 
 export async function attachClaimedManualAsset(assetId: string, revisionId: string, subject: string): Promise<void> {
-  await ensureManualAssetSchema();
   const rows = await sql`UPDATE training_manual_assets SET status='attached',attached_revision_id=${revisionId},claimed_by=NULL,claimed_at=NULL
     WHERE asset_id=${assetId} AND status='claimed' AND claimed_by=${subject}
     RETURNING asset_id` as Array<{asset_id:string}>;
@@ -187,7 +181,6 @@ export async function attachClaimedManualAsset(assetId: string, revisionId: stri
 }
 
 export async function issueManualAssetDownload(assetId: string): Promise<string> {
-  await ensureManualAssetSchema();
   const rows = await sql`SELECT pathname,status FROM training_manual_assets WHERE asset_id=${assetId} LIMIT 1` as Array<{pathname:string;status:ManualAssetStatus}>;
   const row = rows[0];
   if (!row || !["ready","claimed","attached"].includes(row.status)) throw new Error("Manual asset is not available for download.");

@@ -1,0 +1,46 @@
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import test from "node:test";
+
+const adminRepo = fs.readFileSync(new URL("../lib/content-admin-repository.ts", import.meta.url), "utf8");
+const lifecycle = fs.readFileSync(new URL("../lib/content-governed-lifecycle.ts", import.meta.url), "utf8");
+const manualAssets = fs.readFileSync(new URL("../lib/manual-assets.ts", import.meta.url), "utf8");
+const manualRegistration = fs.readFileSync(new URL("../lib/governed-manual-registration.ts", import.meta.url), "utf8");
+const bootstrap = fs.readFileSync(new URL("../lib/database-bootstrap.ts", import.meta.url), "utf8");
+const progress = fs.readFileSync(new URL("../lib/progress-repository.ts", import.meta.url), "utf8");
+const identity = fs.readFileSync(new URL("../lib/identity-replay.ts", import.meta.url), "utf8");
+const learner = fs.readFileSync(new URL("../lib/postgres-content-repository.ts", import.meta.url), "utf8");
+
+function ddl(text: string): boolean {
+  return /CREATE\s+(TABLE|INDEX)|ALTER\s+TABLE/i.test(text);
+}
+
+test("ordinary content administration never invokes content schema provisioning", () => {
+  assert.equal((adminRepo.match(/await\s+ensureContentSchema\s*\(/g) ?? []).length, 0);
+  assert.match(adminRepo, /export async function ensureContentSchema/);
+  assert.ok(ddl(adminRepo), "content schema DDL remains available to the explicit bootstrap");
+});
+
+test("governed authoring and manual registration are DML-only at runtime", () => {
+  assert.doesNotMatch(lifecycle, /ensureContentSchema|CREATE\s+(TABLE|INDEX)|ALTER\s+TABLE/i);
+  assert.doesNotMatch(manualRegistration, /ensureContentSchema|ensureManualAssetSchema|CREATE\s+(TABLE|INDEX)|ALTER\s+TABLE/i);
+});
+
+test("controlled manual runtime operations do not self-provision storage tables", () => {
+  assert.equal((manualAssets.match(/await\s+ensureManualAssetSchema\s*\(/g) ?? []).length, 0);
+  assert.match(manualAssets, /export async function ensureManualAssetSchema/);
+  assert.ok(ddl(manualAssets), "manual asset DDL remains available to explicit bootstrap");
+});
+
+test("deployment bootstrap remains the explicit schema orchestration boundary", () => {
+  for (const fn of ["ensureContentSchema","ensureTrainingProgressSchema","ensureManualAssetSchema","ensureTrainingIdentitySchema","ensureTrainingAiDraftSchema"]) {
+    assert.match(bootstrap, new RegExp(`\\b${fn}\\s*\\(`));
+  }
+});
+
+test("learner, progress and identity runtime repositories remain schema-DDL free", () => {
+  for (const source of [learner, progress, identity]) {
+    assert.equal(ddl(source), false);
+    assert.doesNotMatch(source, /ensure(?:Content|TrainingProgress|TrainingIdentity|ManualAsset|TrainingAiDraft)Schema/);
+  }
+});

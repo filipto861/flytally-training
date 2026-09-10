@@ -140,26 +140,22 @@ function assertDomain(domain: string): TrainingContentDomain {
 
 export async function createAircraft(input: {id:string;manufacturer:string;model:string;displayName:string}, subject: string) {
   void subject;
-  await ensureContentSchema();
   const id = validId(input.id, "aircraft id");
   await sql`INSERT INTO training_aircraft_types(aircraft_id,manufacturer,model,display_name) VALUES(${id},${input.manufacturer.trim()},${input.model.trim()},${input.displayName.trim()})`;
 }
 
 export async function addAircraftVariant(aircraftId: string, variant: string) {
-  await ensureContentSchema();
   const key = validId(variant, "variant");
   await sql`INSERT INTO training_aircraft_variants(aircraft_id,variant_key,display_name) VALUES(${aircraftId},${key},${variant.trim()}) ON CONFLICT(aircraft_id,variant_key) DO NOTHING`;
 }
 
 export async function publishAircraft(aircraftId: string) {
-  await ensureContentSchema();
   await sql`UPDATE training_aircraft_types SET status='published',updated_at=NOW() WHERE aircraft_id=${aircraftId}`;
 }
 
 export async function registerManualRevision(input: {
   aircraftId:string;manualId:string;revisionId:string;title:string;publisher:string;sourceKind:string;revision:string;issueDate:string;authorityNote?:string;sourceUri?:string;checksumSha256?:string;sourceMetadata?:object;chapters?:unknown[];
 }, subject:string): Promise<void> {
-  await ensureContentSchema();
   const manualId = validId(input.manualId, "manual id");
   const revisionId = validId(input.revisionId, "revision id");
   await sql`INSERT INTO training_manuals(manual_id,aircraft_id,title,publisher,source_kind) VALUES(${manualId},${input.aircraftId},${input.title.trim()},${input.publisher.trim()},${input.sourceKind.trim()}) ON CONFLICT(manual_id) DO NOTHING`;
@@ -178,14 +174,12 @@ export async function registerManualRevision(input: {
 }
 
 export async function createSourceReference(input:{revisionId:string;chapter?:string;section?:string;pageLabel:string;note?:string},subject:string):Promise<string>{
-  await ensureContentSchema();
   const id=randomUUID();
   await sql`INSERT INTO training_source_references(reference_id,revision_id,chapter,section,page_label,note,created_by) VALUES(${id},${input.revisionId},${input.chapter?.trim()||null},${input.section?.trim()||null},${input.pageLabel.trim()},${input.note?.trim()||null},${subject})`;
   return id;
 }
 
 export async function createDraftVersion(input:{aircraftId:string;domain:string;contentKey?:string;payload:unknown;origin:ContentVersionOrigin;sourceReferenceIds:readonly string[]},subject:string):Promise<string>{
-  await ensureContentSchema();
   const domain=assertDomain(input.domain);
   if (!input.payload || typeof input.payload!=="object") throw new Error("Draft payload must be a JSON object or array.");
   if (!input.sourceReferenceIds.length) throw new Error("At least one source reference is required before a technical draft can be reviewed.");
@@ -202,7 +196,6 @@ export async function createDraftVersion(input:{aircraftId:string;domain:string;
 }
 
 export async function approveContentVersion(versionId:string,subject:string,note?:string){
-  await ensureContentSchema();
   const rows=await sql`SELECT v.state,COUNT(cvs.reference_id)::int source_count FROM training_content_versions v LEFT JOIN training_content_version_sources cvs ON cvs.version_id=v.version_id WHERE v.version_id=${versionId} GROUP BY v.state` as Array<{state:string;source_count:number|string}>;
   const row=rows[0]; if(!row)throw new Error("Content version not found.");
   if(row.state!=="draft")throw new Error("Only draft content can be approved.");
@@ -212,7 +205,6 @@ export async function approveContentVersion(versionId:string,subject:string,note
 }
 
 export async function publishContentVersion(versionId:string,subject:string){
-  await ensureContentSchema();
   const rows=await sql`SELECT v.item_id,v.state,EXISTS(SELECT 1 FROM training_content_approvals a WHERE a.version_id=v.version_id AND a.decision='approved') approved FROM training_content_versions v WHERE v.version_id=${versionId} LIMIT 1` as Array<{item_id:number|string;state:string;approved:boolean}>;
   const row=rows[0]; if(!row)throw new Error("Content version not found.");
   if(row.state!=="approved"||!row.approved)throw new Error("Explicit human approval is required before publication.");
@@ -223,12 +215,10 @@ export async function publishContentVersion(versionId:string,subject:string){
 }
 
 export async function resolveStaleFlag(staleId:number,subject:string,note?:string){
-  await ensureContentSchema();
   await sql`UPDATE training_content_stale_flags SET resolved_at=NOW(),resolved_by=${subject},resolution_note=${note?.trim()||null} WHERE stale_id=${staleId} AND resolved_at IS NULL`;
 }
 
 async function adminSummaries():Promise<AdminAircraftSummary[]>{
-  await ensureContentSchema();
   const rows=await sql`SELECT a.aircraft_id,a.manufacturer,a.model,a.display_name,a.status,
     COALESCE((SELECT json_agg(v.variant_key ORDER BY v.variant_key) FROM training_aircraft_variants v WHERE v.aircraft_id=a.aircraft_id),'[]'::json) variants,
     (SELECT COUNT(*) FROM training_manual_revisions r JOIN training_manuals m ON m.manual_id=r.manual_id WHERE m.aircraft_id=a.aircraft_id)::int manual_count,
@@ -249,7 +239,6 @@ export async function getAdminAircraft(aircraftId:string):Promise<AdminAircraftD
 }
 
 export async function getOpenStaleFlags(aircraftId:string){
-  await ensureContentSchema();
   return await sql`SELECT sf.stale_id,sf.version_id,sf.newer_revision_id,sf.reason,sf.detected_at,i.domain,i.content_key FROM training_content_stale_flags sf JOIN training_content_versions v ON v.version_id=sf.version_id JOIN training_content_items i ON i.item_id=v.item_id WHERE i.aircraft_id=${aircraftId} AND sf.resolved_at IS NULL ORDER BY sf.detected_at DESC` as Array<{stale_id:number|string;version_id:string;newer_revision_id:string;reason:string;detected_at:string|Date;domain:string;content_key:string}>;
 }
 
@@ -262,7 +251,6 @@ async function ensureBootstrapReference(aircraftId:string,manualId:string,revisi
 }
 
 export async function bootstrapStaticContent(subject:string){
-  await ensureContentSchema();
   const refsByAircraft=new Map<string,string[]>();
   for(const aircraft of staticTrainingContentSeed.aircraft){
     await sql`INSERT INTO training_aircraft_types(aircraft_id,manufacturer,model,display_name,status) VALUES(${aircraft.id},${aircraft.manufacturer},${aircraft.model},${aircraft.displayName},'published') ON CONFLICT(aircraft_id) DO UPDATE SET manufacturer=EXCLUDED.manufacturer,model=EXCLUDED.model,display_name=EXCLUDED.display_name`;
