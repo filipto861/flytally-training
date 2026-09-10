@@ -3,26 +3,23 @@
 import { useState } from "react";
 
 import type {
-  AbnormalScenario,
-  AircraftAbnormalTraining,
-  ScenarioSourceReference,
-  ScenarioStageId,
-} from "@/lib/abnormal-scenarios";
+  RuntimeAbnormalScenario,
+  RuntimeAbnormalTraining,
+  RuntimeScenarioSource,
+} from "@/lib/abnormal-runtime";
 import { appendBrowserProgress } from "@/lib/browser-progress";
 import styles from "./scenario-trainer.module.css";
 
-const stageLabels: Record<ScenarioStageId, string> = {
-  recognition: "Recognize",
-  control: "Fly the aircraft",
-  immediate: "Immediate action",
-  continue: "Continue",
-};
-
-function sourceLabel(reference: ScenarioSourceReference): string {
-  return `Ch ${reference.chapter} · ${reference.section} · p. ${reference.manualPage}`;
+function sourceLabel(reference: RuntimeScenarioSource): string {
+  return [
+    reference.manualId,
+    reference.chapter ? `Ch ${reference.chapter}` : undefined,
+    reference.section,
+    `p. ${reference.pageLabel}`,
+  ].filter(Boolean).join(" · ");
 }
 
-export function ScenarioTrainer({ training }: Readonly<{ training: AircraftAbnormalTraining }>) {
+export function ScenarioTrainer({ training }: Readonly<{ training: RuntimeAbnormalTraining }>) {
   const [selectedId, setSelectedId] = useState(training.scenarios[0]?.id ?? "");
   const [stageIndex, setStageIndex] = useState(0);
   const [revealed, setRevealed] = useState(false);
@@ -37,7 +34,7 @@ export function ScenarioTrainer({ training }: Readonly<{ training: AircraftAbnor
   const completed = completedIds.includes(scenario.id);
   const queuedForRepeat = repeatIds.includes(scenario.id);
 
-  function openScenario(nextScenario: AbnormalScenario) {
+  function openScenario(nextScenario: RuntimeAbnormalScenario) {
     setSelectedId(nextScenario.id);
     setStageIndex(0);
     setRevealed(false);
@@ -130,22 +127,26 @@ export function ScenarioTrainer({ training }: Readonly<{ training: AircraftAbnor
         </header>
 
         <div className={styles.setupCard}>
-          <span>Simulator setup</span>
+          <span>Scenario setup</span>
           <p>{scenario.setup}</p>
           <div className={styles.objectives}>{scenario.objectives.map((objective) => <small key={objective}>{objective}</small>)}</div>
         </div>
 
+        {scenario.notices?.map((notice, index) => (
+          <aside className={styles.boundaryNote} key={`${scenario.id}-notice-${index}`}><strong>{notice.kind.toUpperCase()}:</strong> {notice.text}</aside>
+        ))}
+
         <ol className={styles.stageRail} aria-label="Scenario stages">
           {scenario.stages.map((item, index) => (
             <li className={index < stageIndex || finished ? styles.stageDone : index === stageIndex ? styles.stageActive : ""} key={item.id}>
-              <span>{index + 1}</span><strong>{stageLabels[item.id]}</strong>
+              <span>{index + 1}</span><strong>{item.label}</strong>
             </li>
           ))}
         </ol>
 
         {!finished && stage ? (
           <div className={styles.stageCard}>
-            <div className={styles.stageTopline}><span>Stage {stageIndex + 1} of {scenario.stages.length}</span><strong>{stageLabels[stage.id]}</strong></div>
+            <div className={styles.stageTopline}><span>Stage {stageIndex + 1} of {scenario.stages.length}</span><strong>{stage.label}</strong></div>
             <h3>{stage.prompt}</h3>
             {!revealed ? (
               <div className={styles.revealGate}>
@@ -155,8 +156,9 @@ export function ScenarioTrainer({ training }: Readonly<{ training: AircraftAbnor
             ) : (
               <div className={styles.revealedAnswer}>
                 <div className={styles.answerBlock}><span>Expected response</span><ul>{stage.expectedResponse.map((item) => <li key={item}>{item}</li>)}</ul></div>
-                <div className={styles.whyBlock}><span>Why it matters</span><p>{stage.why}</p></div>
-                <p className={styles.sourceLine}>Source · {stage.source.map(sourceLabel).join(" · ")}</p>
+                <div className={styles.whyBlock}><span>Why it matters</span><p>{stage.explanation}</p></div>
+                {stage.notices?.map((notice, index) => <p className={styles.sourceLine} key={`${stage.id}-notice-${index}`}><strong>{notice.kind.toUpperCase()}:</strong> {notice.text}</p>)}
+                <p className={styles.sourceLine}>Source · {stage.sources.map(sourceLabel).join(" · ")}</p>
                 <button className={styles.primaryButton} onClick={advance} type="button">{stageIndex === scenario.stages.length - 1 ? "Finish scenario" : "Next stage"} →</button>
               </div>
             )}
@@ -173,13 +175,13 @@ export function ScenarioTrainer({ training }: Readonly<{ training: AircraftAbnor
           </div>
         )}
 
-        {scenario.variantNote ? <aside className={styles.variantNote}><strong>Configuration note:</strong> {scenario.variantNote}</aside> : null}
-        {scenario.trainingBoundary ? <aside className={styles.boundaryNote}><strong>Training boundary:</strong> {scenario.trainingBoundary}</aside> : null}
+        {scenario.configurationNote ? <aside className={styles.variantNote}><strong>Configuration note:</strong> {scenario.configurationNote}</aside> : null}
+        {scenario.boundaryNote ? <aside className={styles.boundaryNote}><strong>Training boundary:</strong> {scenario.boundaryNote}</aside> : null}
 
         <footer className={styles.sessionFooter}>
-          <p>{training.disclaimer}</p>
-          <small>{training.sourceNote}</small>
-          <small>Completed scenarios are saved on this device; M7 will add account-backed cross-device persistence.</small>
+          {training.disclaimer ? <p>{training.disclaimer}</p> : null}
+          {training.sourceNote ? <small>{training.sourceNote}</small> : null}
+          <small>Completed scenarios use the shared FlyTally aircraft progress stream.</small>
         </footer>
       </div>
     </section>
