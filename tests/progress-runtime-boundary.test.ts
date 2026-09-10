@@ -16,12 +16,14 @@ test("learner progress repository performs no schema DDL", () => {
 
 test("progress sync batches event ingestion instead of sequential INSERT loops", () => {
   assert.match(repository, /jsonb_to_recordset/);
+  assert.match(repository, /WITH incoming AS/);
   assert.doesNotMatch(repository, /for\s*\(const event of events\)[\s\S]{0,500}await sql`INSERT INTO training_progress_events/);
 });
 
-test("a multi-aircraft sync updates learning state for every aircraft in the batch", () => {
-  assert.match(repository, /latestEventsByAircraft/);
-  assert.match(repository, /FROM jsonb_to_recordset\(\$\{stateRows\}/);
+test("a multi-aircraft sync derives state from canonical persisted rows for every affected aircraft", () => {
+  assert.match(repository, /SELECT DISTINCT aircraft_id FROM incoming/);
+  assert.match(repository, /SELECT DISTINCT ON \(e\.aircraft_id\)/);
+  assert.match(repository, /JOIN affected a ON a\.aircraft_id=e\.aircraft_id/);
   assert.match(repository, /ON CONFLICT\(account_subject,aircraft_id\) DO UPDATE/);
 });
 
