@@ -9,7 +9,7 @@ import { addAircraftVariant,createAircraft,createSourceReference,resolveStaleFla
 import { parseContentVersionOrigin,trainingContentDomains,type TrainingContentDomain } from "@/lib/content-admin-types";
 import { approveGovernedContentVersion,createGovernedDraftVersion,publishGovernedContentVersion } from "@/lib/content-governed-lifecycle";
 import { initializeTrainingDatabase } from "@/lib/database-bootstrap";
-import { bootstrapStaticContentGoverned } from "@/lib/governed-static-bootstrap";
+import { bootstrapStaticContentGoverned,publishStaticNativeModuleUpgrade } from "@/lib/governed-static-bootstrap";
 import { registerGovernedManualRevision } from "@/lib/governed-manual-registration";
 import { reSourceContentVersion,reviseContentVersion } from "@/lib/content-review-repository";
 import { parseSourceAuthorityRole } from "@/lib/source-authority";
@@ -49,4 +49,16 @@ export async function bootstrapStaticAction(form:FormData){
   await bootstrapStaticContentGoverned(session.subject);
   revalidatePath("/");
   revalidatePath("/admin");
+}
+export async function publishNativeModuleUpgradeAction(form:FormData){
+  const session=await requireTrainingAdmin();
+  if(text(form,"confirmReviewedNativeUpgrade")!=="yes")throw new Error("Explicit administrator confirmation is required before a reviewed native module upgrade can be approved and published.");
+  const aircraftId=text(form,"aircraftId");
+  const selectedDomain=domain(form);
+  const versionId=await publishStaticNativeModuleUpgrade(aircraftId,selectedDomain,session.subject);
+  revalidatePath("/");
+  revalidatePath(`/aircraft/${aircraftId}`);
+  revalidatePath(`/aircraft/${aircraftId}/${selectedDomain}`);
+  revalidatePath(`/admin/aircraft/${aircraftId}`);
+  redirect(`/admin/aircraft/${encodeURIComponent(aircraftId)}/content/${encodeURIComponent(versionId)}`);
 }
