@@ -15,13 +15,16 @@ test("content freshness considers unresolved flags on whatever training modules 
   assert.doesNotMatch(freshness,/state='stale'/);
 });
 
-test("readiness requires one usable aircraft to be controlled and fresh", () => {
+test("operational readiness requires usable fresh modular content without depending on controlled PDF coverage", () => {
   assert.match(readiness,/hasUsableAircraftTrainingContent/);
   assert.match(readiness,/hasFreshCurrentPublishedContent\(item\.id\)/);
+  assert.match(readiness,/if \(freshContent\) currentContentFreshness = true/);
+  assert.match(readiness,/configuration\.controlledManualStorageReady && controlledManualPersistence/);
   assert.match(readiness,/controlledCoverage && freshContent/);
   assert.match(readiness,/releaseReadyAircraft = true/);
+  assert.match(readiness,/const controlledDocumentRelease/);
   assert.match(readiness,/&& currentContentFreshness/);
-  assert.match(readiness,/&& releaseReadyAircraft/);
   assert.match(readiness,/&& modularAircraftContent/);
+  assert.doesNotMatch(readiness,/const ready[\s\S]*&& releaseReadyAircraft[\s\S]*const controlledDocumentRelease/);
   assert.doesNotMatch(readiness,/learjet-35-36/i);
 });
