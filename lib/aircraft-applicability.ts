@@ -1,3 +1,4 @@
+import type { TrainingAircraft, TrainingAircraftVariantProfile } from "./aircraft-catalog.ts";
 import type {
   AircraftApplicability,
   AircraftChecklistContent,
@@ -17,6 +18,30 @@ export type AircraftConfiguration = {
 export function resolveSelectedVariant(requestedVariant: string | undefined, variants: readonly string[]): string | undefined {
   if (requestedVariant && variants.includes(requestedVariant)) return requestedVariant;
   return variants.length === 1 ? variants[0] : undefined;
+}
+
+export function resolveVariantProfile(
+  aircraft: Pick<TrainingAircraft, "variants" | "variantProfiles">,
+  variant: string | undefined,
+): TrainingAircraftVariantProfile | undefined {
+  if (!variant) return undefined;
+  const explicit = aircraft.variantProfiles?.find((profile) => profile.key === variant);
+  if (explicit) return explicit;
+  // Legacy/static aircraft can expose only variant keys. Falling back to an
+  // empty equipment set is intentionally safer than inferring installations.
+  if (aircraft.variants.includes(variant)) return { key: variant, displayName: variant, equipmentTags: [] };
+  return undefined;
+}
+
+export function configurationForAircraftVariant(
+  aircraft: Pick<TrainingAircraft, "variants" | "variantProfiles">,
+  variant: string | undefined,
+): AircraftConfiguration {
+  const profile = resolveVariantProfile(aircraft, variant);
+  return {
+    variant: profile?.key,
+    equipment: new Set(profile?.equipmentTags ?? []),
+  };
 }
 
 export function matchesAircraftApplicability(
