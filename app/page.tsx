@@ -2,6 +2,8 @@ import Link from "next/link";
 
 import { getTrainingContentRepository } from "@/lib/content-store";
 
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
   const repository = getTrainingContentRepository();
   const aircraft = await repository.listAircraft();
