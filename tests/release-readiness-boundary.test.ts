@@ -17,19 +17,25 @@ test("readiness includes all Training-owned persistence boundaries without creat
   assert.doesNotMatch(readiness, /CREATE\s+TABLE|CREATE\s+INDEX/i);
 });
 
-test("production readiness accepts modular aircraft content rather than a fixed Learjet curriculum", () => {
+test("operational production readiness accepts modular aircraft content rather than a fixed Learjet curriculum", () => {
   assert.match(readiness, /publishedAircraft/);
   assert.match(readiness, /modularAircraftContent/);
   assert.match(readiness, /getAircraftContentBundle/);
   assert.match(readiness, /hasUsableAircraftTrainingContent/);
+  assert.match(readiness, /profiles:/);
+  assert.match(readiness, /operational: ready/);
+  assert.match(readiness, /controlledDocumentRelease/);
   assert.match(readiness, /&& modularAircraftContent/);
   assert.doesNotMatch(readiness, /hasCompleteV1AircraftCapabilities/);
   assert.doesNotMatch(readiness, /learjet-35-36/i);
 });
 
-test("production configuration accepts either rotated Vercel OIDC or explicit Blob credentials", () => {
+test("controlled-document configuration accepts either rotated Vercel OIDC or explicit Blob credentials without blocking core operation", () => {
   assert.match(releaseConfiguration, /VERCEL_OIDC_TOKEN/);
   assert.match(releaseConfiguration, /BLOB_READ_WRITE_TOKEN/);
   assert.match(releaseConfiguration, /controlled-manual-storage/);
+  assert.match(releaseConfiguration, /requiredForOperationalReadiness: false/);
+  assert.match(releaseConfiguration, /controlledManualStorageReady/);
+  assert.match(releaseConfiguration, /\.filter\(check => check\.requiredForOperationalReadiness\)/);
   assert.match(releaseConfiguration, /\|\| configured\(env\.BLOB_READ_WRITE_TOKEN/);
 });

@@ -27,7 +27,7 @@ export function ProductShell({ children }: Readonly<{ children: ReactNode }>) {
       <footer className="app-footer">
         <div className="app-footer-inner">
           <span>FlyTally Training</span>
-          <span>Simulator familiarization · approved aircraft documents remain controlling.</span>
+          <span>Training aid · current approved aircraft, operator and regulatory documents remain authoritative.</span>
         </div>
       </footer>
     </>

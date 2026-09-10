@@ -12,20 +12,22 @@ const valid = {
   BLOB_READ_WRITE_TOKEN: "vercel_blob_rw_" + "b".repeat(48),
 };
 
-test("release readiness accepts the complete production architecture contract", () => {
+test("operational readiness accepts the complete production architecture contract", () => {
   const report = inspectReleaseConfiguration(valid);
   assert.equal(report.ready, true);
+  assert.equal(report.controlledManualStorageReady, true);
   assert.ok(report.checks.every(check => check.ok));
-  assert.equal(report.checks.find(check=>check.id==="controlled-manual-storage")?.ok, true);
+  assert.equal(report.checks.find(check=>check.id==="controlled-manual-storage")?.requiredForOperationalReadiness, false);
 });
 
-test("release readiness accepts Vercel OIDC as the preferred private Blob credential", () => {
+test("controlled document storage accepts Vercel OIDC as the preferred private Blob credential", () => {
   const report = inspectReleaseConfiguration({
     ...valid,
     BLOB_READ_WRITE_TOKEN: "",
     VERCEL_OIDC_TOKEN: "eyJhbGciOiJSUzI1NiJ9." + "o".repeat(96),
   });
   assert.equal(report.ready, true);
+  assert.equal(report.controlledManualStorageReady, true);
   assert.equal(report.checks.find(check=>check.id==="controlled-manual-storage")?.ok, true);
 });
 
@@ -34,7 +36,7 @@ test("explicit Blob token remains a valid local or non-Vercel fallback", () => {
   assert.equal(hasControlledManualStorageCredential({ BLOB_READ_WRITE_TOKEN:"vercel_blob_rw_"+"x".repeat(32) }), true);
 });
 
-test("release readiness rejects static content, weak secrets and non-HTTPS identity providers", () => {
+test("operational readiness rejects static content, weak secrets and non-HTTPS identity providers", () => {
   const report = inspectReleaseConfiguration({
     ...valid,
     TRAINING_CONTENT_BACKEND: "static",
@@ -47,8 +49,9 @@ test("release readiness rejects static content, weak secrets and non-HTTPS ident
   assert.equal(report.checks.find(check=>check.id==="identity-provider")?.ok, false);
 });
 
-test("release readiness rejects a deployment without any controlled manual Blob credential", () => {
+test("missing controlled-document Blob credentials do not make the learner application operationally unavailable", () => {
   const report = inspectReleaseConfiguration({ ...valid, BLOB_READ_WRITE_TOKEN: "", VERCEL_OIDC_TOKEN:"" });
-  assert.equal(report.ready, false);
+  assert.equal(report.ready, true);
+  assert.equal(report.controlledManualStorageReady, false);
   assert.equal(report.checks.find(check=>check.id==="controlled-manual-storage")?.ok, false);
 });

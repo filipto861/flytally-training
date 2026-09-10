@@ -14,7 +14,7 @@ export async function GET() {
   let database = false;
   let progressPersistence = false;
   let controlledManualPersistence = false;
-  let controlledManualStorage = false;
+  let controlledManualCoverage = false;
   let currentContentFreshness = false;
   let releaseReadyAircraft = false;
   let aiDraftAuditPersistence = false;
@@ -63,25 +63,32 @@ export async function GET() {
         const aircraft = await repository.listAircraft();
         publishedAircraft = aircraft.length > 0;
 
-        // A modular aircraft is valid when it has at least one real training
-        // capability. No specific module (and especially no cockpit map) is a
-        // global requirement. Source coverage and freshness remain independent
-        // release gates for the same aircraft.
+        // Operational learner readiness is deliberately independent from the
+        // optional controlled-PDF release layer. Freshness can therefore be
+        // evaluated even when no Blob credential or controlled PDF exists yet.
         for (const item of aircraft) {
           try {
             const bundle = await getAircraftContentBundle(repository, item.id);
             if (!bundle || !hasUsableAircraftTrainingContent(bundle.capabilities)) continue;
             modularAircraftContent = true;
 
-            const [controlledCoverage, freshContent] = await Promise.all([
-              hasCompletePublishedControlledManualCoverage(item.id),
-              hasFreshCurrentPublishedContent(item.id),
-            ]);
-            if (controlledCoverage) controlledManualStorage = true;
+            let freshContent = false;
+            try {
+              freshContent = await hasFreshCurrentPublishedContent(item.id);
+            } catch {
+              freshContent = false;
+            }
             if (freshContent) currentContentFreshness = true;
-            if (controlledCoverage && freshContent) {
-              releaseReadyAircraft = true;
-              break;
+
+            if (configuration.controlledManualStorageReady && controlledManualPersistence) {
+              let controlledCoverage = false;
+              try {
+                controlledCoverage = await hasCompletePublishedControlledManualCoverage(item.id);
+              } catch {
+                controlledCoverage = false;
+              }
+              if (controlledCoverage) controlledManualCoverage = true;
+              if (controlledCoverage && freshContent) releaseReadyAircraft = true;
             }
           } catch {
             // Keep the specific readiness checks false while preserving the fact
@@ -99,29 +106,36 @@ export async function GET() {
   const ready = configuration.ready
     && database
     && progressPersistence
-    && controlledManualPersistence
-    && controlledManualStorage
     && currentContentFreshness
-    && releaseReadyAircraft
     && aiDraftAuditPersistence
     && identityReplayProtection
     && publishedAircraft
     && modularAircraftContent;
 
+  const controlledDocumentRelease = configuration.controlledManualStorageReady
+    && controlledManualPersistence
+    && controlledManualCoverage
+    && releaseReadyAircraft;
+
   return Response.json({
     status: ready ? "ready" : "not-ready",
+    profiles: {
+      operational: ready,
+      controlledDocumentRelease,
+    },
     checks: {
       configuration: configuration.ready,
       database,
       progressPersistence,
-      controlledManualPersistence,
-      controlledManualStorage,
       currentContentFreshness,
-      releaseReadyAircraft,
       aiDraftAuditPersistence,
       identityReplayProtection,
       publishedAircraft,
       modularAircraftContent,
+      controlledManualPersistence,
+      controlledManualCredential: configuration.controlledManualStorageReady,
+      controlledManualCoverage,
+      releaseReadyAircraft,
     },
   }, {
     status: ready ? 200 : 503,

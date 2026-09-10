@@ -1,10 +1,17 @@
 export type ReleaseConfigurationCheck = {
   readonly id: string;
   readonly ok: boolean;
+  readonly requiredForOperationalReadiness: boolean;
 };
 
 export type ReleaseConfigurationReport = {
+  /**
+   * Core application configuration readiness. Controlled-document storage is
+   * reported separately because the learner product can operate before the
+   * optional controlled-PDF release layer is enabled.
+   */
   readonly ready: boolean;
+  readonly controlledManualStorageReady: boolean;
   readonly checks: readonly ReleaseConfigurationCheck[];
 };
 
@@ -43,13 +50,18 @@ export function hasControlledManualStorageCredential(env: Environment): boolean 
 
 export function inspectReleaseConfiguration(env: Environment): ReleaseConfigurationReport {
   const checks: ReleaseConfigurationCheck[] = [
-    { id: "postgres-content-backend", ok: env.TRAINING_CONTENT_BACKEND?.trim() === "postgres" },
-    { id: "training-database", ok: validPostgresUrl(env.TRAINING_DATABASE_URL) },
-    { id: "training-session-secret", ok: configured(env.TRAINING_SESSION_SECRET, 32) },
-    { id: "identity-secret", ok: configured(env.FLYTALLY_IDENTITY_SECRET, 32) },
-    { id: "identity-provider", ok: validHttpsUrl(env.FLYTALLY_LOGBOOK_URL) },
-    { id: "controlled-manual-storage", ok: hasControlledManualStorageCredential(env) },
+    { id: "postgres-content-backend", ok: env.TRAINING_CONTENT_BACKEND?.trim() === "postgres", requiredForOperationalReadiness: true },
+    { id: "training-database", ok: validPostgresUrl(env.TRAINING_DATABASE_URL), requiredForOperationalReadiness: true },
+    { id: "training-session-secret", ok: configured(env.TRAINING_SESSION_SECRET, 32), requiredForOperationalReadiness: true },
+    { id: "identity-secret", ok: configured(env.FLYTALLY_IDENTITY_SECRET, 32), requiredForOperationalReadiness: true },
+    { id: "identity-provider", ok: validHttpsUrl(env.FLYTALLY_LOGBOOK_URL), requiredForOperationalReadiness: true },
+    { id: "controlled-manual-storage", ok: hasControlledManualStorageCredential(env), requiredForOperationalReadiness: false },
   ];
 
-  return { ready: checks.every(check => check.ok), checks };
+  const controlledManualStorageReady = checks.find(check => check.id === "controlled-manual-storage")?.ok === true;
+  const ready = checks
+    .filter(check => check.requiredForOperationalReadiness)
+    .every(check => check.ok);
+
+  return { ready, controlledManualStorageReady, checks };
 }
