@@ -50,7 +50,9 @@ Training owns its PostgreSQL schema. A new target database must be initialized b
 TRAINING_DATABASE_URL='postgresql://...' npm run db:init
 ```
 
-The command is idempotent, provisions every required Training-owned persistence boundary and verifies the expected relations. It does not seed aircraft content. Do not move schema creation back into ordinary learner, authentication or authoring requests.
+The command is idempotent, provisions every required Training-owned persistence boundary and verifies the expected relations. It does not seed aircraft content.
+
+Schema DDL has a strict boundary: it may live in the dedicated schema-provisioning functions and be invoked by explicit deployment/admin bootstrap only. Ordinary learner reads, progress sync, identity callbacks, admin catalogue reads/writes, content drafting/review/approval/publication, manual upload/finalization/download and manual-revision registration perform only the SELECT/DML required by their product operation. If deployment bootstrap was skipped, those requests must fail visibly rather than silently mutating database structure during a runtime request.
 
 The standalone database and no-code acceptance runners load TypeScript through `tsx` with Node's `react-server` condition so `server-only` module boundaries are preserved outside Next.js.
 

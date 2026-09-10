@@ -1,8 +1,6 @@
 import "server-only";
 
-import { ensureContentSchema } from "./content-admin-repository";
 import { sql } from "./db";
-import { ensureManualAssetSchema } from "./manual-assets";
 
 export type GovernedManualRevisionInput = {
   readonly aircraftId: string;
@@ -51,8 +49,6 @@ function optionalChecksum(value: string | undefined): string | null {
  * flags and attaching the asset all share the same transaction boundary.
  */
 export async function registerGovernedManualRevision(input: GovernedManualRevisionInput, subject: string): Promise<void> {
-  await ensureContentSchema();
-
   const aircraftId = id(input.aircraftId, "aircraft id");
   const manualId = id(input.manualId, "manual id");
   const revisionId = id(input.revisionId, "revision id");
@@ -70,7 +66,6 @@ export async function registerGovernedManualRevision(input: GovernedManualRevisi
 
   if (assetId) {
     if (!assetIdPattern.test(assetId)) throw new Error("Invalid controlled manual asset id.");
-    await ensureManualAssetSchema();
 
     const results = await sql.transaction((txn) => [
       txn`UPDATE training_manual_assets

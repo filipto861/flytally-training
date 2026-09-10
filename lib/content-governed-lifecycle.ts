@@ -1,7 +1,6 @@
 import "server-only";
 
 import { randomUUID } from "node:crypto";
-import { ensureContentSchema } from "./content-admin-repository";
 import {
   contentVersionOrigins,
   trainingContentDomains,
@@ -68,7 +67,6 @@ export async function createGovernedDraftVersion(input: {
   readonly sourceReferenceIds: readonly string[];
   readonly aiAudit?: GovernedAiDraftAudit;
 }, subject: string): Promise<string> {
-  await ensureContentSchema();
   const aircraftId = validId(input.aircraftId, "aircraft id");
   const domain = validDomain(input.domain);
   const contentKey = validId(input.contentKey?.trim() || "bundle", "content key");
@@ -157,7 +155,6 @@ export async function createGovernedDraftVersion(input: {
 }
 
 export async function approveGovernedContentVersion(versionId: string, subject: string, note?: string): Promise<void> {
-  await ensureContentSchema();
   const approvalId = randomUUID();
 
   const results = await sql.transaction((txn) => [
@@ -204,8 +201,6 @@ export async function approveGovernedContentVersion(versionId: string, subject: 
 }
 
 export async function publishGovernedContentVersion(versionId: string, subject: string): Promise<void> {
-  await ensureContentSchema();
-
   const results = await sql.transaction((txn) => [
     txn`SELECT pg_advisory_xact_lock(COALESCE((SELECT item_id FROM training_content_versions WHERE version_id=${versionId}),-1)::bigint)`,
     txn`WITH target AS (
