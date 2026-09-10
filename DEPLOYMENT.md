@@ -43,11 +43,13 @@ TRAINING_DATABASE_URL='postgresql://...' npm run db:init
 
 The command creates/verifies Training-owned persistence only. It does not publish aircraft content. Ordinary runtime requests intentionally do not self-provision schema.
 
-## 5. Publish controlled Learjet content
+## 5. Migrate and govern the Learjet seed
 
-Sign in with an admin account after SSO is configured. The admin bootstrap/import path can migrate the existing source-backed Learjet seed into governed PostgreSQL content. Review source provenance and controlled manual revision state, then explicitly approve/publish the required learner domains.
+After SSO is configured, sign in with an admin account. The static-seed transition action is a privileged migration, not a passive import: after an explicit confirmation it records the acting administrator as the migration approver and immediately publishes seed bundles that are not already published. Review the current source-backed Learjet v1 seed before confirming the action.
 
-A production aircraft is not complete merely because its catalogue row is published. The current learner content must resolve all v1 capabilities and reference an attached controlled manual whose private Blob remains reachable.
+The migration bootstrap reference preserves the existing source metadata but does **not by itself satisfy controlled-manual production readiness**. Before release, the currently published learner versions must reference a source reference belonging to an attached controlled manual revision whose private Blob has passed byte/signature/hash verification. If the seed was migrated first, register the controlled revision and source reference, create replacement governed versions using that controlled source, explicitly approve/publish them, and resolve the resulting stale-source review state as appropriate.
+
+A production aircraft is not complete merely because its catalogue row or bootstrap bundles are published. The current learner content must resolve all v1 capabilities and the controlled source must remain reachable.
 
 ## 6. Verify production readiness
 

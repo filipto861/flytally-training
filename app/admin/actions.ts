@@ -33,4 +33,11 @@ export async function approveVersionAction(form:FormData){const session=await re
 export async function publishVersionAction(form:FormData){const session=await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");const versionId=text(form,"versionId");await assertContentVersionValidForApprovalOrPublication(versionId);await publishGovernedContentVersion(versionId,session.subject);revalidatePath("/");revalidatePath(`/admin/aircraft/${aircraftId}`);revalidatePath(`/admin/aircraft/${aircraftId}/content/${versionId}`);}
 export async function resolveStaleAction(form:FormData){const session=await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");await resolveStaleFlag(Number(text(form,"staleId")),session.subject,text(form,"note"));revalidatePath(`/admin/aircraft/${aircraftId}`);}
 export async function initializeTrainingDatabaseAction(){await requireTrainingAdmin();await initializeTrainingDatabase();revalidatePath("/admin");}
-export async function bootstrapStaticAction(){const session=await requireTrainingAdmin();await initializeTrainingDatabase();await bootstrapStaticContent(session.subject);revalidatePath("/");revalidatePath("/admin");}
+export async function bootstrapStaticAction(form:FormData){
+  const session=await requireTrainingAdmin();
+  if(text(form,"confirmApprovedSeed")!=="yes")throw new Error("Explicit administrator confirmation is required before the static v1 seed can be approved and published.");
+  await initializeTrainingDatabase();
+  await bootstrapStaticContent(session.subject);
+  revalidatePath("/");
+  revalidatePath("/admin");
+}
