@@ -8,6 +8,7 @@ import { addAircraftVariant,approveContentVersion,bootstrapStaticContent,createA
 import { parseContentVersionOrigin,trainingContentDomains,type TrainingContentDomain } from "@/lib/content-admin-types";
 import { assertContentVersionValidForApprovalOrPublication,assertSourceReferencesBelongToAircraft } from "@/lib/content-governance";
 import { reviseContentVersion } from "@/lib/content-review-repository";
+import { attachClaimedManualAsset,claimManualAsset,releaseManualAssetClaim } from "@/lib/manual-assets";
 
 const text=(form:FormData,key:string)=>String(form.get(key)??"").trim();
 const refs=(form:FormData)=>text(form,"sourceReferenceIds").split(",").map(v=>v.trim()).filter(Boolean);
@@ -17,7 +18,15 @@ const domain=(form:FormData):TrainingContentDomain=>{const value=text(form,"doma
 export async function createAircraftAction(form:FormData){const session=await requireTrainingAdmin();await createAircraft({id:text(form,"id"),manufacturer:text(form,"manufacturer"),model:text(form,"model"),displayName:text(form,"displayName")},session.subject);revalidatePath("/admin");redirect(`/admin/aircraft/${encodeURIComponent(text(form,"id"))}`);}
 export async function addVariantAction(form:FormData){await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");await addAircraftVariant(aircraftId,text(form,"variant"));revalidatePath(`/admin/aircraft/${aircraftId}`);}
 export async function publishAircraftAction(form:FormData){await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");await publishAircraft(aircraftId);revalidatePath("/");revalidatePath(`/admin/aircraft/${aircraftId}`);}
-export async function registerRevisionAction(form:FormData){const session=await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");await registerManualRevision({aircraftId,manualId:text(form,"manualId"),revisionId:text(form,"revisionId"),title:text(form,"title"),publisher:text(form,"publisher"),sourceKind:text(form,"sourceKind"),revision:text(form,"revision"),issueDate:text(form,"issueDate"),authorityNote:text(form,"authorityNote"),sourceUri:text(form,"sourceUri"),checksumSha256:text(form,"checksum")},session.subject);revalidatePath(`/admin/aircraft/${aircraftId}`);}
+export async function registerRevisionAction(form:FormData){
+  const session=await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");const revisionId=text(form,"revisionId");const assetId=text(form,"assetId");let claimed:Awaited<ReturnType<typeof claimManualAsset>>|undefined;
+  try{
+    if(assetId)claimed=await claimManualAsset(aircraftId,assetId,session.subject);
+    await registerManualRevision({aircraftId,manualId:text(form,"manualId"),revisionId,title:text(form,"title"),publisher:text(form,"publisher"),sourceKind:text(form,"sourceKind"),revision:text(form,"revision"),issueDate:text(form,"issueDate"),authorityNote:text(form,"authorityNote"),sourceUri:claimed?.blobUrl??text(form,"sourceUri"),checksumSha256:claimed?.checksumSha256??text(form,"checksum")},session.subject);
+    if(claimed)await attachClaimedManualAsset(claimed.id,revisionId,session.subject);
+  }catch(error){if(claimed)await releaseManualAssetClaim(claimed.id,session.subject).catch(()=>undefined);throw error;}
+  revalidatePath(`/admin/aircraft/${aircraftId}`);
+}
 export async function createReferenceAction(form:FormData){const session=await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");await createSourceReference({revisionId:text(form,"revisionId"),chapter:text(form,"chapter"),section:text(form,"section"),pageLabel:text(form,"pageLabel"),note:text(form,"note")},session.subject);revalidatePath(`/admin/aircraft/${aircraftId}`);}
 export async function createDraftAction(form:FormData){const session=await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");const sourceReferenceIds=refs(form);await assertSourceReferencesBelongToAircraft(aircraftId,sourceReferenceIds);const origin=parseContentVersionOrigin(text(form,"origin"));await createDraftVersion({aircraftId,domain:domain(form),contentKey:text(form,"contentKey")||"bundle",payload:payload(form),origin,sourceReferenceIds},session.subject);revalidatePath(`/admin/aircraft/${aircraftId}`);}
 export async function createAiDraftAction(form:FormData){const session=await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");const versionId=await createAiAssistedDraft({aircraftId,domain:domain(form),contentKey:text(form,"contentKey")||"bundle",sourceReferenceIds:refs(form),sourceText:text(form,"sourceText"),goal:text(form,"goal")},session.subject);revalidatePath(`/admin/aircraft/${aircraftId}`);redirect(`/admin/aircraft/${encodeURIComponent(aircraftId)}/content/${encodeURIComponent(versionId)}`);}
