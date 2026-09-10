@@ -4,11 +4,12 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createAiAssistedDraft } from "@/lib/ai-draft-workflow";
 import { requireTrainingAdmin } from "@/lib/admin-auth";
-import { addAircraftVariant,bootstrapStaticContent,createAircraft,createSourceReference,publishAircraft,resolveStaleFlag } from "@/lib/content-admin-repository";
+import { addAircraftVariant,createAircraft,createSourceReference,publishAircraft,resolveStaleFlag } from "@/lib/content-admin-repository";
 import { parseContentVersionOrigin,trainingContentDomains,type TrainingContentDomain } from "@/lib/content-admin-types";
 import { assertContentVersionValidForApprovalOrPublication } from "@/lib/content-governance";
 import { approveGovernedContentVersion,createGovernedDraftVersion,publishGovernedContentVersion } from "@/lib/content-governed-lifecycle";
 import { initializeTrainingDatabase } from "@/lib/database-bootstrap";
+import { bootstrapStaticContentGoverned } from "@/lib/governed-static-bootstrap";
 import { registerGovernedManualRevision } from "@/lib/governed-manual-registration";
 import { reSourceContentVersion,reviseContentVersion } from "@/lib/content-review-repository";
 
@@ -44,7 +45,7 @@ export async function bootstrapStaticAction(form:FormData){
   const session=await requireTrainingAdmin();
   if(text(form,"confirmApprovedSeed")!=="yes")throw new Error("Explicit administrator confirmation is required before the static v1 seed can be approved and published.");
   await initializeTrainingDatabase();
-  await bootstrapStaticContent(session.subject);
+  await bootstrapStaticContentGoverned(session.subject);
   revalidatePath("/");
   revalidatePath("/admin");
 }
