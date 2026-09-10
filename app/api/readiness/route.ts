@@ -1,4 +1,4 @@
-import { hasAvailablePublishedControlledManual } from "@/lib/controlled-manual-readiness";
+import { hasCompletePublishedControlledManualCoverage } from "@/lib/controlled-manual-readiness";
 import { getAircraftContentBundle } from "@/lib/content-repository";
 import { getTrainingContentRepository } from "@/lib/content-store";
 import { sql } from "@/lib/db";
@@ -60,12 +60,16 @@ export async function GET() {
         const aircraft = await repository.listAircraft();
         publishedAircraft = aircraft.length > 0;
 
+        // Readiness resolves the same generic learner bundle used by the app.
+        // A production-ready aircraft must be functionally complete and every
+        // canonical published domain must be backed by a live, attached,
+        // server-verified controlled PDF source.
         for (const item of aircraft) {
           try {
             const bundle = await getAircraftContentBundle(repository, item.id);
             if (!bundle || !hasCompleteV1AircraftCapabilities(bundle.capabilities)) continue;
             completeV1Aircraft = true;
-            if (await hasAvailablePublishedControlledManual(item.id)) {
+            if (await hasCompletePublishedControlledManualCoverage(item.id)) {
               controlledManualStorage = true;
               break;
             }
