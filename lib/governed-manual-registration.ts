@@ -1,6 +1,7 @@
 import "server-only";
 
 import { sql } from "./db";
+import { parseSourceAuthorityRole, type SourceAuthorityRole } from "./source-authority";
 
 export type GovernedManualRevisionInput = {
   readonly aircraftId: string;
@@ -11,6 +12,7 @@ export type GovernedManualRevisionInput = {
   readonly sourceKind: string;
   readonly revision: string;
   readonly issueDate: string;
+  readonly authorityRole: SourceAuthorityRole;
   readonly authorityNote?: string;
   readonly sourceUri?: string;
   readonly checksumSha256?: string;
@@ -43,10 +45,9 @@ function optionalChecksum(value: string | undefined): string | null {
 }
 
 /**
- * Register an immutable manual revision as one non-interactive PostgreSQL
- * transaction. When a controlled asset is selected, claiming the verified
- * object, deriving its URI/checksum, inserting the revision, creating stale
- * flags and attaching the asset all share the same transaction boundary.
+ * Register an immutable source revision as one non-interactive PostgreSQL
+ * transaction. Source authority is immutable revision metadata: simulator-only
+ * documentation can therefore never silently acquire aircraft authority later.
  */
 export async function registerGovernedManualRevision(input: GovernedManualRevisionInput, subject: string): Promise<void> {
   const aircraftId = id(input.aircraftId, "aircraft id");
@@ -57,6 +58,7 @@ export async function registerGovernedManualRevision(input: GovernedManualRevisi
   const sourceKind = required(input.sourceKind, "source kind", 128);
   const revision = required(input.revision, "revision code", 128);
   const issueDate = required(input.issueDate, "issue date", 128);
+  const authorityRole = parseSourceAuthorityRole(input.authorityRole);
   const authorityNote = input.authorityNote?.trim() ?? "";
   const sourceMetadata = JSON.stringify(input.sourceMetadata ?? {});
   const chapters = JSON.stringify(input.chapters ?? []);
@@ -81,8 +83,8 @@ export async function registerGovernedManualRevision(input: GovernedManualRevisi
         WHERE EXISTS(SELECT 1 FROM training_manual_assets WHERE asset_id=${assetId} AND status='claimed' AND claimed_by=${subject})
         ON CONFLICT(manual_id) DO NOTHING
         RETURNING manual_id`,
-      txn`INSERT INTO training_manual_revisions(revision_id,manual_id,revision_code,issue_date,authority_note,source_metadata,chapters,source_uri,checksum_sha256,registered_by)
-        SELECT ${revisionId},${manualId},${revision},${issueDate},${authorityNote},${sourceMetadata}::jsonb,${chapters}::jsonb,a.blob_url,a.checksum_sha256,${subject}
+      txn`INSERT INTO training_manual_revisions(revision_id,manual_id,revision_code,issue_date,authority_role,authority_note,source_metadata,chapters,source_uri,checksum_sha256,registered_by)
+        SELECT ${revisionId},${manualId},${revision},${issueDate},${authorityRole},${authorityNote},${sourceMetadata}::jsonb,${chapters}::jsonb,a.blob_url,a.checksum_sha256,${subject}
         FROM training_manual_assets a
         JOIN training_manuals m ON m.manual_id=${manualId} AND m.aircraft_id=${aircraftId}
         WHERE a.asset_id=${assetId} AND a.aircraft_id=${aircraftId} AND a.status='claimed' AND a.claimed_by=${subject} AND a.blob_url IS NOT NULL
@@ -119,8 +121,8 @@ export async function registerGovernedManualRevision(input: GovernedManualRevisi
       VALUES(${manualId},${aircraftId},${title},${publisher},${sourceKind})
       ON CONFLICT(manual_id) DO NOTHING
       RETURNING manual_id`,
-    txn`INSERT INTO training_manual_revisions(revision_id,manual_id,revision_code,issue_date,authority_note,source_metadata,chapters,source_uri,checksum_sha256,registered_by)
-      SELECT ${revisionId},${manualId},${revision},${issueDate},${authorityNote},${sourceMetadata}::jsonb,${chapters}::jsonb,${sourceUri},${checksumSha256},${subject}
+    txn`INSERT INTO training_manual_revisions(revision_id,manual_id,revision_code,issue_date,authority_role,authority_note,source_metadata,chapters,source_uri,checksum_sha256,registered_by)
+      SELECT ${revisionId},${manualId},${revision},${issueDate},${authorityRole},${authorityNote},${sourceMetadata}::jsonb,${chapters}::jsonb,${sourceUri},${checksumSha256},${subject}
       FROM training_manuals m
       WHERE m.manual_id=${manualId} AND m.aircraft_id=${aircraftId}
       RETURNING revision_id`,
