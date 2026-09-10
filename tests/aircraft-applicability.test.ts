@@ -9,6 +9,7 @@ import {
   resolveSelectedVariant,
   withVariantQuery,
 } from "../lib/aircraft-applicability.ts";
+import { validateContentPayload } from "../lib/content-contracts.ts";
 
 test("variant selection is validated against aircraft data", () => {
   assert.equal(resolveSelectedVariant("35A", ["35", "35A", "36", "36A"]), "35A");
@@ -63,6 +64,20 @@ test("performance dataset applicability is independent of aircraft-specific code
 
   assert.deepEqual(filterPerformanceForConfiguration(content, configurationForVariant("A")).datasets.map((item) => item.id), ["common"]);
   assert.deepEqual(filterPerformanceForConfiguration(content, configurationForVariant("B")).datasets.map((item) => item.id), ["common", "variant-b"]);
+});
+
+test("publication validation rejects malformed applicability metadata", () => {
+  const malformed = {
+    aircraftId: "generic-aircraft",
+    title: "Normal checklists",
+    phases: [{
+      id: "before-start",
+      title: "Before Start",
+      sequence: 10,
+      items: [{ id: "battery", challenge: "Battery", applicability: { variants: [] } }],
+    }],
+  };
+  assert.match(validateContentPayload("checklists", malformed, "generic-aircraft").join("\n"), /applicability\.variants/);
 });
 
 test("variant context can be carried across module links", () => {
