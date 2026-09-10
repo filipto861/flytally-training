@@ -1,3 +1,4 @@
+import { hasFreshCurrentPublishedContent } from "@/lib/content-freshness";
 import { hasCompletePublishedControlledManualCoverage } from "@/lib/controlled-manual-readiness";
 import { getAircraftContentBundle } from "@/lib/content-repository";
 import { getTrainingContentRepository } from "@/lib/content-store";
@@ -14,6 +15,8 @@ export async function GET() {
   let progressPersistence = false;
   let controlledManualPersistence = false;
   let controlledManualStorage = false;
+  let currentContentFreshness = false;
+  let releaseReadyAircraft = false;
   let aiDraftAuditPersistence = false;
   let identityReplayProtection = false;
   let publishedAircraft = false;
@@ -60,21 +63,28 @@ export async function GET() {
         const aircraft = await repository.listAircraft();
         publishedAircraft = aircraft.length > 0;
 
-        // Readiness resolves the same generic learner bundle used by the app.
-        // A production-ready aircraft must be functionally complete and every
-        // canonical published domain must be backed by a live, attached,
-        // server-verified controlled PDF source.
+        // One and the same aircraft must satisfy functional completeness,
+        // complete live controlled-source coverage and current-content review.
+        // Separate aircraft may not combine partial readiness checks into a
+        // false-positive release result.
         for (const item of aircraft) {
           try {
             const bundle = await getAircraftContentBundle(repository, item.id);
             if (!bundle || !hasCompleteV1AircraftCapabilities(bundle.capabilities)) continue;
             completeV1Aircraft = true;
-            if (await hasCompletePublishedControlledManualCoverage(item.id)) {
-              controlledManualStorage = true;
+
+            const [controlledCoverage, freshContent] = await Promise.all([
+              hasCompletePublishedControlledManualCoverage(item.id),
+              hasFreshCurrentPublishedContent(item.id),
+            ]);
+            if (controlledCoverage) controlledManualStorage = true;
+            if (freshContent) currentContentFreshness = true;
+            if (controlledCoverage && freshContent) {
+              releaseReadyAircraft = true;
               break;
             }
           } catch {
-            // Keep the specific readiness check false while preserving the fact
+            // Keep the specific readiness checks false while preserving the fact
             // that the published-aircraft catalog itself was readable.
           }
         }
@@ -91,6 +101,8 @@ export async function GET() {
     && progressPersistence
     && controlledManualPersistence
     && controlledManualStorage
+    && currentContentFreshness
+    && releaseReadyAircraft
     && aiDraftAuditPersistence
     && identityReplayProtection
     && publishedAircraft
@@ -104,6 +116,8 @@ export async function GET() {
       progressPersistence,
       controlledManualPersistence,
       controlledManualStorage,
+      currentContentFreshness,
+      releaseReadyAircraft,
       aiDraftAuditPersistence,
       identityReplayProtection,
       publishedAircraft,
