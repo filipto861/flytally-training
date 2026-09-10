@@ -10,6 +10,7 @@ export async function GET() {
   let database = false;
   let progressPersistence = false;
   let controlledManualPersistence = false;
+  let identityReplayProtection = false;
   let publishedAircraft = false;
 
   if (configuration.ready) {
@@ -35,6 +36,13 @@ export async function GET() {
       }
 
       try {
+        await sql`SELECT 1 FROM training_identity_assertions LIMIT 0`;
+        identityReplayProtection = true;
+      } catch {
+        identityReplayProtection = false;
+      }
+
+      try {
         const aircraft = await getTrainingContentRepository().listAircraft();
         publishedAircraft = aircraft.length > 0;
       } catch {
@@ -45,7 +53,7 @@ export async function GET() {
     }
   }
 
-  const ready = configuration.ready && database && progressPersistence && controlledManualPersistence && publishedAircraft;
+  const ready = configuration.ready && database && progressPersistence && controlledManualPersistence && identityReplayProtection && publishedAircraft;
   return Response.json({
     status: ready ? "ready" : "not-ready",
     checks: {
@@ -53,6 +61,7 @@ export async function GET() {
       database,
       progressPersistence,
       controlledManualPersistence,
+      identityReplayProtection,
       publishedAircraft,
     },
   }, {
