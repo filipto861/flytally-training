@@ -5,6 +5,7 @@ import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
 import { getAircraftContentBundle, type AircraftContentCapabilities } from "@/lib/content-repository";
 import { getTrainingContentRepository } from "@/lib/content-store";
 import { isAircraftWorkspaceSection, type AircraftWorkspaceSection } from "@/lib/product-navigation";
+import { sourceAuthorityLabel } from "@/lib/source-authority";
 
 type WorkspaceCard = { title: string; description: string; status: string; href?: string; capability?: keyof AircraftContentCapabilities; };
 type WorkspaceDefinition = { eyebrow: string; title: string; description: string; cards: readonly WorkspaceCard[]; };
@@ -23,7 +24,7 @@ const definitions: Record<Exclude<AircraftWorkspaceSection, "overview">, Workspa
     cards: [
       { title: "Flight Checklists", description: "Published flight-phase checklist content for this aircraft.", status: "Optional", href: "checklists", capability: "checklists" },
       { title: "Procedures", description: "Detailed operating procedures behind checklist actions.", status: "Optional", href: "procedures", capability: "procedures" },
-      { title: "Flows", description: "Memory flows are independent content and only appear when published.", status: "Optional", capability: "flows" },
+      { title: "Flows", description: "Memory flows are independent content and only appear when published.", status: "Optional", href: "flows", capability: "flows" },
     ],
   },
   practice: {
@@ -39,7 +40,7 @@ const definitions: Record<Exclude<AircraftWorkspaceSection, "overview">, Workspa
       { title: "Performance", description: "Generic lookup and reference tables driven by aircraft data rather than aircraft-specific UI code.", status: "Optional", href: "performance", capability: "performance" },
       { title: "Limitations", description: "Speeds, weights, operating limits and conditional restrictions.", status: "Optional", href: "limitations", capability: "limitations" },
       { title: "Quick Reference", description: "Legacy compact reference remains available during migration to universal domains.", status: "Migration", href: "quick-reference", capability: "quickReference" },
-      { title: "Source Library", description: "Registered source material with revision and provenance retained when available.", status: "Optional", capability: "manual" },
+      { title: "Source Library", description: "Registered source material with revision, authority class and provenance retained.", status: "Optional", capability: "manual" },
     ],
   },
   progress: {
@@ -58,8 +59,8 @@ export default async function AircraftWorkspaceSectionPage({ params }: Readonly<
   const bundle = await getAircraftContentBundle(getTrainingContentRepository(), aircraftId);
   if (!bundle) notFound();
   const { aircraft, capabilities } = bundle;
+
   const definition = definitions[section];
-  const manual = aircraft.manuals[0];
 
   return <main className="shell aircraft-detail">
     <Link className="back-link" href={`/aircraft/${aircraft.id}`}>← {aircraft.displayName}</Link>
@@ -71,6 +72,6 @@ export default async function AircraftWorkspaceSectionPage({ params }: Readonly<
       const content = <><div className="workspace-card-topline"><span>{card.title}</span><small>{available ? "Available" : card.status}</small></div><p>{card.description}</p><strong>{href ? "Open →" : available ? "Available in this section" : "Not used for this aircraft"}</strong></>;
       return href ? <Link className="workspace-card" href={href} key={card.title}>{content}</Link> : <article className="workspace-card workspace-card-static" key={card.title}>{content}</article>;
     })}</section>
-    {section === "reference" && manual ? <section className="reference-library" aria-labelledby="manual-library-title"><div className="section-heading"><div><p className="eyebrow">Source library</p><h2 id="manual-library-title">{manual.title}</h2></div><p>{manual.publisher} · Revision {manual.revision} · {manual.issueDate}</p></div><ol className="chapter-list">{manual.chapters.map((chapter) => <li key={chapter.number}><span className="chapter-number">{String(chapter.number).padStart(2, "0")}</span><div><strong>{chapter.title}</strong><span>Source chapter</span></div></li>)}</ol></section> : null}
+    {section === "reference" && aircraft.manuals.length ? <section className="reference-library" aria-labelledby="manual-library-title"><div className="section-heading"><div><p className="eyebrow">Source library</p><h2 id="manual-library-title">Registered source revisions</h2></div><p>{aircraft.manuals.length} source{aircraft.manuals.length === 1 ? "" : "s"}</p></div><ol className="chapter-list">{aircraft.manuals.map((manual) => <li key={manual.id}><span className="chapter-number">SRC</span><div><strong>{manual.title}</strong><span>{manual.publisher} · Revision {manual.revision} · {manual.issueDate}</span><span>{sourceAuthorityLabel(manual.authorityRole)} · {manual.sourceKind}</span><span>{manual.authorityNote}</span>{manual.chapters.length ? <span>{manual.chapters.length} indexed chapters</span> : <span>No chapter index registered for this source.</span>}</div></li>)}</ol></section> : null}
   </main>;
 }
