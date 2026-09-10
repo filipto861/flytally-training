@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 
 import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
 import { KnowledgeTrainer } from "@/components/knowledge-trainer";
-import { configurationForVariant, filterKnowledgeForConfiguration, resolveSelectedVariant, withVariantQuery } from "@/lib/aircraft-applicability";
+import { configurationForAircraftVariant, filterKnowledgeForConfiguration, resolveSelectedVariant, withVariantQuery } from "@/lib/aircraft-applicability";
 import { getPublishedAircraftModule } from "@/lib/content-repository";
 import { getTrainingContentRepository } from "@/lib/content-store";
 import { normalizeLegacyKnowledge, normalizeUniversalKnowledge } from "@/lib/knowledge-runtime";
@@ -27,7 +27,7 @@ export default async function KnowledgePage({
   if (!aircraft) notFound();
   const selectedVariant = resolveSelectedVariant(variant, aircraft.variants);
   const configuredUniversal = universal
-    ? filterKnowledgeForConfiguration(universal, configurationForVariant(selectedVariant))
+    ? filterKnowledgeForConfiguration(universal, configurationForAircraftVariant(aircraft, selectedVariant))
     : undefined;
   const content = configuredUniversal ? normalizeUniversalKnowledge(configuredUniversal) : legacy ? normalizeLegacyKnowledge(legacy) : undefined;
   if (!content || !content.questions.length) notFound();
@@ -35,7 +35,7 @@ export default async function KnowledgePage({
   return (
     <main className="shell aircraft-detail">
       <Link className="back-link" href={withVariantQuery(`/aircraft/${aircraft.id}`, selectedVariant)}>← {aircraft.displayName}</Link>
-      <AircraftWorkspaceNav aircraftId={aircraft.id} active="knowledge" variants={aircraft.variants} selectedVariant={selectedVariant} />
+      <AircraftWorkspaceNav aircraftId={aircraft.id} active="knowledge" variants={aircraft.variants} variantProfiles={aircraft.variantProfiles} selectedVariant={selectedVariant} />
       <section className="workspace-section-hero">
         <p className="eyebrow">Knowledge · {aircraft.displayName}{selectedVariant ? ` · ${selectedVariant}` : ""}</p>
         <h1>{content.title}</h1>
