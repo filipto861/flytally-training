@@ -26,6 +26,8 @@ A production-ready Training deployment requires:
 
 Static TypeScript content remains a development/bootstrap adapter and is not an acceptable v1.0 production backend.
 
+The learner PostgreSQL adapter is deliberately **read-only at runtime**: ordinary aircraft/library/lesson requests do not execute schema DDL. Schema creation and governance changes belong to the admin/write/bootstrap path. Aircraft-library hydration is batched rather than issuing one aircraft/variant/manual query set per published aircraft.
+
 ## Human acceptance gate
 
 Before declaring v1.0 complete on `training.fly-tally.com`, verify on desktop and mobile:
