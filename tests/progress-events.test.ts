@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { MAX_PROGRESS_FUTURE_SKEW_MS, isServerAcceptableProgressEvent, progressStorageKey, summarizeProgress, trainingActivityKinds, type TrainingProgressEvent } from "../lib/progress-events.ts";
+import { MAX_PROGRESS_FUTURE_SKEW_MS, normalizeServerProgressEvent, progressStorageKey, summarizeProgress, trainingActivityKinds, type TrainingProgressEvent } from "../lib/progress-events.ts";
 
 const events: TrainingProgressEvent[] = [
   { aircraftId: "a", kind: "knowledge", contentId: "bank", occurredAt: "2026-09-09T10:00:00Z", completed: true, scorePercent: 80, weakAreas: ["Fuel"] },
@@ -29,7 +29,7 @@ test("v1 progress activity contract includes the complete learner path", () => {
   ]);
 });
 
-test("server ingestion accepts offline history and bounded clock skew but rejects future state poisoning", () => {
+test("server canonicalization preserves offline history and bounded clock skew", () => {
   const nowMs = Date.parse("2026-09-10T06:10:00Z");
   const event = (occurredAt: string) => ({
     eventId: "event-123456",
@@ -40,9 +40,23 @@ test("server ingestion accepts offline history and bounded clock skew but reject
     completed: true,
   });
 
-  assert.equal(isServerAcceptableProgressEvent(event("2025-01-01T00:00:00Z"), nowMs), true);
-  assert.equal(isServerAcceptableProgressEvent(event(new Date(nowMs + MAX_PROGRESS_FUTURE_SKEW_MS).toISOString()), nowMs), true);
-  assert.equal(isServerAcceptableProgressEvent(event(new Date(nowMs + MAX_PROGRESS_FUTURE_SKEW_MS + 1).toISOString()), nowMs), false);
+  assert.equal(normalizeServerProgressEvent(event("2025-01-01T00:00:00Z"), nowMs)?.occurredAt, "2025-01-01T00:00:00.000Z");
+  const atBoundary = new Date(nowMs + MAX_PROGRESS_FUTURE_SKEW_MS).toISOString();
+  assert.equal(normalizeServerProgressEvent(event(atBoundary), nowMs)?.occurredAt, atBoundary);
+});
+
+test("server canonicalization clamps excessive future clock skew instead of blocking the event", () => {
+  const nowMs = Date.parse("2026-09-10T06:10:00Z");
+  const normalized = normalizeServerProgressEvent({
+    eventId: "event-123456",
+    aircraftId: "a",
+    kind: "scenario",
+    contentId: "engine-fire",
+    occurredAt: "2099-01-01T00:00:00Z",
+    completed: true,
+  }, nowMs);
+  assert.equal(normalized?.occurredAt, "2026-09-10T06:10:00.000Z");
+  assert.equal(normalized?.eventId, "event-123456");
 });
 
 test("progress storage keys are aircraft-specific", () => {
