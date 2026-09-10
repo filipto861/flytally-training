@@ -28,11 +28,13 @@ test("privileged state transitions live only behind the governed modules", () =>
   assert.match(actions, /approveGovernedContentVersion/);
   assert.match(actions, /publishGovernedContentVersion/);
   assert.match(actions, /registerGovernedManualRevision/);
-  assert.match(actions, /publishAircraftWhenComplete/);
+  assert.match(actions, /publishGovernedAircraft/);
   assert.match(actions, /bootstrapStaticContentGoverned/);
 
   assert.match(governedLifecycle, /sql\.transaction/);
   assert.match(governedManuals, /sql\.transaction/);
-  assert.match(aircraftPublication, /sql\.transaction/);
+  assert.match(aircraftPublication, /export async function publishGovernedAircraft/);
+  assert.match(aircraftPublication, /WITH eligibility AS/);
+  assert.match(aircraftPublication, /UPDATE training_aircraft_types/);
   assert.match(governedBootstrap, /createGovernedDraftVersion/);
 });
