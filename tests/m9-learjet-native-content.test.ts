@@ -90,8 +90,9 @@ test("knowledge learner route prefers applicability-filtered universal content w
   assert.match(knowledgePage, /configuredUniversal \? normalizeUniversalKnowledge\(configuredUniversal\) : legacy \? normalizeLegacyKnowledge\(legacy\)/);
 });
 
-test("governed static bootstrap publishes universal modules through one generic loop", () => {
-  assert.match(bootstrap, /staticTrainingContentSeed\.universalModules/);
+test("governed static bootstrap publishes native modules through one generic loop", () => {
+  assert.match(bootstrap, /nativeSeedModules\(\)/);
+  assert.match(bootstrap, /staticTrainingContentSeed\.nativeModules/);
   assert.match(bootstrap, /bootstrapContentRecords\(\)/);
   assert.match(bootstrap, /domain: module\.domain/);
   assert.match(bootstrap, /payload: module\.payload/);
