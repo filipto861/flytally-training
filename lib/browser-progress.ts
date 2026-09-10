@@ -3,7 +3,7 @@ import {
   progressStorageKey,
   type PersistedTrainingProgressEvent,
   type TrainingProgressEvent,
-} from "./progress-events";
+} from "./progress-events.ts";
 
 export type ProgressLoadResult = {
   readonly events: readonly PersistedTrainingProgressEvent[];
