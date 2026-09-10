@@ -14,6 +14,7 @@ export async function GET() {
   let progressPersistence = false;
   let controlledManualPersistence = false;
   let controlledManualStorage = false;
+  let aiDraftAuditPersistence = false;
   let identityReplayProtection = false;
   let publishedAircraft = false;
   let completeV1Aircraft = false;
@@ -41,6 +42,13 @@ export async function GET() {
       }
 
       try {
+        await sql`SELECT 1 FROM training_ai_draft_runs LIMIT 0`;
+        aiDraftAuditPersistence = true;
+      } catch {
+        aiDraftAuditPersistence = false;
+      }
+
+      try {
         await sql`SELECT 1 FROM training_identity_assertions LIMIT 0`;
         identityReplayProtection = true;
       } catch {
@@ -52,10 +60,6 @@ export async function GET() {
         const aircraft = await repository.listAircraft();
         publishedAircraft = aircraft.length > 0;
 
-        // Readiness deliberately resolves the same generic learner bundles used
-        // by the application. A complete bundle alone is not enough: at least
-        // one complete aircraft must also have a currently published source
-        // reference backed by an attached, reachable controlled PDF.
         for (const item of aircraft) {
           try {
             const bundle = await getAircraftContentBundle(repository, item.id);
@@ -83,6 +87,7 @@ export async function GET() {
     && progressPersistence
     && controlledManualPersistence
     && controlledManualStorage
+    && aiDraftAuditPersistence
     && identityReplayProtection
     && publishedAircraft
     && completeV1Aircraft;
@@ -95,6 +100,7 @@ export async function GET() {
       progressPersistence,
       controlledManualPersistence,
       controlledManualStorage,
+      aiDraftAuditPersistence,
       identityReplayProtection,
       publishedAircraft,
       completeV1Aircraft,
