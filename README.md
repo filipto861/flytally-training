@@ -22,12 +22,14 @@ AI may assist with extraction, structuring and drafting. It is never the source 
 - `flytally-training` — learning content, procedures, checklists, quizzes and progress.
 - a future school/organization product is not part of this repository unless the real product boundary later proves otherwise.
 
-The products may share a FlyTally account in the future, but they must not share source trees or directly depend on each other's internal database schemas.
+The products may share a FlyTally account, but they do not share source trees or directly depend on each other's internal database schemas. Identity handoff uses an explicit signed contract.
 
 ## Development
 
+FlyTally Training targets Node.js 24. Install the committed dependency graph exactly:
+
 ```bash
-npm install
+npm ci
 npm run dev
 ```
 
@@ -37,4 +39,6 @@ Verification:
 npm run verify
 ```
 
-See `ARCHITECTURE.md`, `DEVELOPMENT.md` and `ROADMAP.md` before adding product scope.
+Before using a new PostgreSQL database, initialize the Training-owned schema with `npm run db:init`. Production deployment order and environment contracts are documented in `DEPLOYMENT.md`.
+
+See `ARCHITECTURE.md`, `DEVELOPMENT.md`, `ROADMAP.md`, `V1_RELEASE.md` and `NO_CODE_ACCEPTANCE.md` before changing product or release boundaries.
