@@ -10,7 +10,7 @@ import {
 import { selectContentSourceReferenceIds } from "./content-source-binding";
 import { sql } from "./db";
 import { isSimulatorOnlyAuthority, type SourceAuthorityRole } from "./source-authority";
-import { staticTrainingContentSeed } from "./static-content-repository";
+import { staticTrainingContentSeed, type StaticTrainingModule } from "./static-content-repository";
 
 async function ensureBootstrapReference(
   aircraftId: string,
@@ -56,8 +56,12 @@ type BootstrapContentRecord = {
   readonly payload: { readonly aircraftId: string };
 };
 
+function nativeSeedModules(): readonly StaticTrainingModule[] {
+  return staticTrainingContentSeed.nativeModules ?? staticTrainingContentSeed.universalModules ?? [];
+}
+
 function bootstrapContentRecords(): BootstrapContentRecord[] {
-  const records: BootstrapContentRecord[] = (staticTrainingContentSeed.universalModules ?? []).map((module) => ({
+  const records: BootstrapContentRecord[] = nativeSeedModules().map((module) => ({
     aircraftId: module.aircraftId,
     domain: module.domain,
     payload: module.payload,
@@ -76,11 +80,67 @@ function bootstrapContentRecords(): BootstrapContentRecord[] {
   return records;
 }
 
+async function registeredReferencesForAircraft(aircraftId: string): Promise<{
+  referenceByManualId: ReadonlyMap<string, string>;
+  legacyFallback: readonly string[];
+}> {
+  const rows = await sql`SELECT m.manual_id,r.authority_role,sr.reference_id
+    FROM training_manuals m
+    JOIN training_manual_revisions r ON r.manual_id=m.manual_id
+    JOIN training_source_references sr ON sr.revision_id=r.revision_id
+    WHERE m.aircraft_id=${aircraftId}
+    ORDER BY r.registered_at DESC,sr.created_at DESC` as Array<{manual_id:string;authority_role:SourceAuthorityRole;reference_id:string}>;
+  const referenceByManualId = new Map<string, string>();
+  const legacyFallback: string[] = [];
+  for (const row of rows) {
+    if (!referenceByManualId.has(row.manual_id)) referenceByManualId.set(row.manual_id, row.reference_id);
+    if (!isSimulatorOnlyAuthority(row.authority_role) && !legacyFallback.includes(row.reference_id)) legacyFallback.push(row.reference_id);
+  }
+  return { referenceByManualId, legacyFallback };
+}
+
+/**
+ * Explicitly replace an already-published static/native seed module by creating
+ * a new immutable governed version. This is intentionally separate from normal
+ * bootstrap: ordinary deploys never rewrite published content.
+ */
+export async function publishStaticNativeModuleUpgrade(
+  aircraftId: string,
+  domain: TrainingContentDomain,
+  subject: string,
+): Promise<string> {
+  const module = nativeSeedModules().find((candidate) => candidate.aircraftId === aircraftId && candidate.domain === domain);
+  if (!module) throw new Error(`No native static ${domain} module is registered for ${aircraftId}.`);
+
+  const aircraft = staticTrainingContentSeed.aircraft.find((candidate) => candidate.id === aircraftId);
+  if (!aircraft) throw new Error(`Static aircraft ${aircraftId} is not registered.`);
+
+  const { referenceByManualId, legacyFallback } = await registeredReferencesForAircraft(aircraftId);
+  const sourceReferenceIds = selectContentSourceReferenceIds(module.payload, referenceByManualId, legacyFallback);
+  if (sourceReferenceIds.length === 0) throw new Error("Native module upgrade has no registered source provenance.");
+
+  const versionId = await createGovernedDraftVersion({
+    aircraftId,
+    domain,
+    contentKey: "bundle",
+    payload: module.payload,
+    origin: "bootstrap-migration",
+    sourceReferenceIds,
+  }, subject);
+  await approveGovernedContentVersion(
+    versionId,
+    subject,
+    "Explicit administrator approval of the reviewed native source-backed module upgrade.",
+  );
+  await publishGovernedContentVersion(versionId, subject);
+  return versionId;
+}
+
 /**
  * Import the source-backed static seed through the same governed lifecycle used
- * by ordinary authoring. Native universal modules and legacy migration bundles
- * share one data-driven publication loop; adding an aircraft does not require a
- * new aircraft-specific branch in the bootstrap code.
+ * by ordinary authoring. Native modules and legacy migration bundles share one
+ * data-driven publication loop; adding an aircraft does not require a new
+ * aircraft-specific branch in the bootstrap code.
  */
 export async function bootstrapStaticContentGoverned(subject: string): Promise<void> {
   const referencesByAircraft = new Map<string, Map<string, string>>();
