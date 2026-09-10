@@ -26,11 +26,26 @@ export type TrainingManualRevision = {
   readonly chapters: readonly ManualChapter[];
 };
 
+/**
+ * A variant profile is aircraft data, not application logic. `equipmentTags`
+ * contain only explicitly governed installation/configuration facts; the
+ * learner runtime must never infer optional equipment from the model name.
+ */
+export type TrainingAircraftVariantProfile = {
+  readonly key: string;
+  readonly displayName: string;
+  readonly equipmentTags: readonly string[];
+  readonly note?: string;
+};
+
 export type TrainingAircraft = {
   readonly id: string;
   readonly manufacturer: string;
   readonly model: string;
+  /** Compatibility index used by existing URLs and simple selectors. */
   readonly variants: readonly string[];
+  /** First-class configuration records loaded from variant repository data. */
+  readonly variantProfiles: readonly TrainingAircraftVariantProfile[];
   readonly displayName: string;
   readonly manuals: readonly TrainingManualRevision[];
 };
@@ -40,6 +55,15 @@ export const learjet3536: TrainingAircraft = {
   manufacturer: "Learjet",
   model: "35/36",
   variants: ["35", "35A", "36", "36A"],
+  // Deliberately do not infer AAK/ECR installations from a Learjet model name.
+  // Governed database metadata can add equipment tags when the installation is
+  // actually known for a published configuration profile.
+  variantProfiles: [
+    { key: "35", displayName: "35", equipmentTags: [] },
+    { key: "35A", displayName: "35A", equipmentTags: [] },
+    { key: "36", displayName: "36", equipmentTags: [] },
+    { key: "36A", displayName: "36A", equipmentTags: [] },
+  ],
   displayName: "Learjet 35/36",
   manuals: [
     {
