@@ -4,7 +4,10 @@ import { notFound } from "next/navigation";
 import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
 import { getPublishedAircraftModule } from "@/lib/content-repository";
 import { getTrainingContentRepository } from "@/lib/content-store";
-import type { AircraftLimitationsContent } from "@/lib/universal-aircraft-content";
+import type { AircraftLimitationsContent, TrainingSourceReference } from "@/lib/universal-aircraft-content";
+
+const formatSources = (sources: readonly TrainingSourceReference[] | undefined): string | undefined =>
+  sources?.map((item) => [item.chapter ? `Ch ${item.chapter}` : undefined, item.section, `p. ${item.pageLabel}`].filter(Boolean).join(" · ")).join(" · ");
 
 export default async function LimitationsPage({ params }: Readonly<{ params: Promise<{ aircraftId: string }> }>) {
   const { aircraftId } = await params;
@@ -23,6 +26,8 @@ export default async function LimitationsPage({ params }: Readonly<{ params: Pro
         <p className="eyebrow">Limitations · {aircraft.displayName}</p>
         <h1>{content.title}</h1>
         <p className="lede">Only limitations published for this aircraft and configuration are shown.</p>
+        {content.disclaimer ? <p><strong>Training boundary:</strong> {content.disclaimer}</p> : null}
+        {content.sourceNote ? <p><small>Source note · {content.sourceNote}</small></p> : null}
       </section>
       {content.groups.map((group) => (
         <section className="reference-library" key={group.id}>
@@ -35,10 +40,12 @@ export default async function LimitationsPage({ params }: Readonly<{ params: Pro
                   <strong>{item.label} — {item.value}{item.unit ? ` ${item.unit}` : ""}</strong>
                   {item.condition ? <span>{item.condition}</span> : null}
                   {item.notices?.map((notice, index) => <span key={`${item.id}-${index}`}><strong>{notice.kind.toUpperCase()}:</strong> {notice.text}</span>)}
+                  {formatSources(item.sources) ? <span><small>Source · {formatSources(item.sources)}</small></span> : null}
                 </div>
               </li>
             ))}
           </ol>
+          {formatSources(group.sources) ? <p><small>Group source · {formatSources(group.sources)}</small></p> : null}
         </section>
       ))}
     </main>
