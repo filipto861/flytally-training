@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 
 import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
 import { LearningCompletionButton } from "@/components/learning-completion-button";
-import { configurationForVariant, filterFlowsForConfiguration, resolveSelectedVariant, withVariantQuery } from "@/lib/aircraft-applicability";
+import { configurationForAircraftVariant, filterFlowsForConfiguration, resolveSelectedVariant, withVariantQuery } from "@/lib/aircraft-applicability";
 import { getPublishedAircraftModule } from "@/lib/content-repository";
 import { getTrainingContentRepository } from "@/lib/content-store";
 import { sourceAuthorityLabel } from "@/lib/source-authority";
@@ -34,13 +34,13 @@ export default async function FlowsPage({
   if (!aircraft || !content) notFound();
 
   const selectedVariant = resolveSelectedVariant(variant, aircraft.variants);
-  const configuredContent = filterFlowsForConfiguration(content, configurationForVariant(selectedVariant));
+  const configuredContent = filterFlowsForConfiguration(content, configurationForAircraftVariant(aircraft, selectedVariant));
   if (!configuredContent.flows.length) notFound();
 
   return (
     <main className="shell aircraft-detail">
       <Link className="back-link" href={withVariantQuery(`/aircraft/${aircraft.id}`, selectedVariant)}>← {aircraft.displayName}</Link>
-      <AircraftWorkspaceNav aircraftId={aircraft.id} active="flows" variants={aircraft.variants} selectedVariant={selectedVariant} />
+      <AircraftWorkspaceNav aircraftId={aircraft.id} active="flows" variants={aircraft.variants} variantProfiles={aircraft.variantProfiles} selectedVariant={selectedVariant} />
       <section className="workspace-section-hero">
         <p className="eyebrow">Flows · {aircraft.displayName}{selectedVariant ? ` · ${selectedVariant}` : ""}</p>
         <h1>{configuredContent.title}</h1>
