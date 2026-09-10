@@ -3,9 +3,9 @@ import { notFound } from "next/navigation";
 import { requireTrainingAdmin } from "@/lib/admin-auth";
 import { getAdminAircraft,getOpenStaleFlags } from "@/lib/content-admin-repository";
 import { trainingContentDomains } from "@/lib/content-admin-types";
+import { listStaticNativeUpgradeDomains } from "@/lib/governed-static-bootstrap";
 import { listManualAssets } from "@/lib/manual-assets";
 import { sourceAuthorityLabel,sourceAuthorityRoles } from "@/lib/source-authority";
-import { staticTrainingContentSeed } from "@/lib/static-content-repository";
 import { ManualAssetUploader } from "@/components/manual-asset-uploader";
 import { addVariantAction,createAiDraftAction,createDraftAction,createReferenceAction,publishAircraftAction,publishNativeModuleUpgradeAction,registerRevisionAction,resolveStaleAction } from "../../actions";
 
@@ -15,7 +15,7 @@ const mb=(bytes:number)=>(bytes/1024/1024).toFixed(1);
 
 export default async function AdminAircraftPage({params}:Readonly<{params:Promise<{aircraftId:string}>}>){
   await requireTrainingAdmin();const {aircraftId}=await params;const [aircraft,stale,assets]=await Promise.all([getAdminAircraft(aircraftId),getOpenStaleFlags(aircraftId),listManualAssets(aircraftId)]);if(!aircraft)notFound();const readyAssets=assets.filter(asset=>asset.status==="ready");
-  const nativeUpgradeDomains=[...new Set((staticTrainingContentSeed.nativeModules??[]).filter(module=>module.aircraftId===aircraftId).map(module=>module.domain))];
+  const nativeUpgradeDomains=listStaticNativeUpgradeDomains(aircraftId);
   return <main className="shell aircraft-detail"><Link className="back-link" href="/admin">← Content administration</Link>
     <section className="workspace-section-hero"><p className="eyebrow">{aircraft.status} · {aircraft.manufacturer}</p><h1>{aircraft.displayName}</h1><p className="lede">{aircraft.variants.join(" · ")||"No variants"} · {aircraft.manualRevisionCount} source revisions · {stale.length} open stale reviews</p>{aircraft.status!=="published"?<form action={publishAircraftAction}><Hidden aircraftId={aircraftId}/><button type="submit">Publish aircraft catalogue entry</button></form>:null}</section>
     <section className="reference-library"><h2>Variants</h2><form action={addVariantAction}><Hidden aircraftId={aircraftId}/><input name="variant" placeholder="Variant" required/> <button type="submit">Add variant</button></form></section>
