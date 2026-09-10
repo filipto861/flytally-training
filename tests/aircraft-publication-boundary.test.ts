@@ -14,6 +14,13 @@ test("learner catalogue publication requires a manual and every canonical bundle
   assert.match(publication, /SET status='published',updated_at=NOW\(\)/);
 });
 
+test("catalogue publication refuses unresolved stale flags on the effective canonical versions", () => {
+  assert.match(publication,/JOIN training_content_stale_flags sf ON sf\.version_id=p\.version_id/);
+  assert.match(publication,/sf\.resolved_at IS NULL/);
+  assert.match(publication,/AS current_content_fresh/);
+  assert.match(publication,/AND e\.current_content_fresh/);
+});
+
 test("interactive aircraft publication uses the governed completeness gate", () => {
   assert.match(actions, /publishGovernedAircraft/);
   assert.match(actions, /await publishGovernedAircraft\(aircraftId\)/);

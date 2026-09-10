@@ -13,8 +13,9 @@ function aircraftId(value: string): string {
 
 /**
  * Expose an aircraft in the learner catalogue only after every canonical v1
- * content domain has a current published bundle and at least one immutable
- * manual revision exists. Controlled-Blob availability remains the stricter
+ * content domain has a current published bundle, at least one immutable manual
+ * revision exists and no current published canonical bundle has an unresolved
+ * stale-source review. Controlled-Blob availability remains the stricter
  * production-readiness gate and is intentionally checked separately.
  */
 export async function publishGovernedAircraft(value: string): Promise<void> {
@@ -34,7 +35,17 @@ export async function publishGovernedAircraft(value: string): Promise<void> {
           WHERE i.aircraft_id=a.aircraft_id
             AND i.content_key='bundle'
             AND i.domain IN ('learning','normal-flight','orientation','abnormal','reference-knowledge')
-        ) AS published_domains
+        ) AS published_domains,
+        NOT EXISTS(
+          SELECT 1
+          FROM training_content_publications p
+          JOIN training_content_items i ON i.item_id=p.item_id
+          JOIN training_content_stale_flags sf ON sf.version_id=p.version_id
+          WHERE i.aircraft_id=a.aircraft_id
+            AND i.content_key='bundle'
+            AND i.domain IN ('learning','normal-flight','orientation','abnormal','reference-knowledge')
+            AND sf.resolved_at IS NULL
+        ) AS current_content_fresh
       FROM training_aircraft_types a
       WHERE a.aircraft_id=${id}
     )
@@ -44,9 +55,10 @@ export async function publishGovernedAircraft(value: string): Promise<void> {
     WHERE a.aircraft_id=e.aircraft_id
       AND e.has_manual
       AND e.published_domains=${trainingContentDomains.length}
+      AND e.current_content_fresh
     RETURNING a.aircraft_id` as Array<{aircraft_id:string}>;
 
   if (!rows[0]) {
-    throw new Error("Aircraft cannot be published until it has a manual revision and all canonical learner bundles are published.");
+    throw new Error("Aircraft cannot be published until it has a manual revision, all canonical learner bundles are published and current published content has no unresolved stale-source review.");
   }
 }
