@@ -2,25 +2,18 @@
 
 import { useMemo, useState } from "react";
 
+import { filterPerformanceRows, getExactPerformanceRow, performanceScalarKey } from "@/lib/performance-runtime";
 import type { PerformanceDataset, PerformanceScalar, TrainingSourceReference } from "@/lib/universal-aircraft-content";
 import styles from "./performance-explorer.module.css";
 
-const scalarKey = (value: PerformanceScalar): string => `${typeof value}:${String(value)}`;
 const formatValue = (value: PerformanceScalar, unit?: string): string => `${String(value)}${unit ? ` ${unit}` : ""}`;
 const formatSources = (sources: readonly TrainingSourceReference[] | undefined): string | undefined =>
   sources?.map((item) => [item.chapter ? `Ch ${item.chapter}` : undefined, item.section, `p. ${item.pageLabel}`].filter(Boolean).join(" · ")).join(" · ");
 
 function DatasetExplorer({ dataset }: Readonly<{ dataset: PerformanceDataset }>) {
   const [filters, setFilters] = useState<Record<string, string>>({});
-  const visibleRows = useMemo(
-    () => dataset.rows.filter((row) => dataset.axes.every((axis) => {
-      const filter = filters[axis.key];
-      return !filter || scalarKey(row.inputs[axis.key]) === filter;
-    })),
-    [dataset, filters],
-  );
-  const allAxesSelected = dataset.axes.every((axis) => Boolean(filters[axis.key]));
-  const exactRow = allAxesSelected && visibleRows.length === 1 ? visibleRows[0] : undefined;
+  const visibleRows = useMemo(() => filterPerformanceRows(dataset, filters), [dataset, filters]);
+  const exactRow = useMemo(() => getExactPerformanceRow(dataset, filters), [dataset, filters]);
 
   function setAxis(axisKey: string, value: string) {
     setFilters((current) => ({ ...current, [axisKey]: value }));
@@ -46,7 +39,7 @@ function DatasetExplorer({ dataset }: Readonly<{ dataset: PerformanceDataset }>)
             <span>{axis.label}{axis.unit ? ` (${axis.unit})` : ""}</span>
             <select value={filters[axis.key] ?? ""} onChange={(event) => setAxis(axis.key, event.target.value)}>
               <option value="">All</option>
-              {axis.values.map((value) => <option key={scalarKey(value)} value={scalarKey(value)}>{String(value)}</option>)}
+              {axis.values.map((value) => <option key={performanceScalarKey(value)} value={performanceScalarKey(value)}>{String(value)}</option>)}
             </select>
           </label>
         ))}
