@@ -43,7 +43,7 @@ test("Learjet legacy reference content remains internally complete while native 
     limitations: true,
     systems: true,
     abnormalEmergency: true,
-    flows: true,
+    flows: false,
     avionics: false,
     knowledge: true,
     manual: true,
@@ -66,11 +66,11 @@ test("Learjet legacy practical path remains available while native M9 checklists
   }
 });
 
-test("Learjet legacy content includes all nine baseline systems and all four checklist learning modes", async () => {
+test("Learjet legacy content includes all nine baseline systems plus operational and training checklist modes", async () => {
   const bundle = await getAircraftContentBundle(new StaticTrainingContentRepository(), aircraftId);
   assert.ok(bundle?.learningContent);
   assert.deepEqual(bundle.learningContent.systems.map(system => system.id), expectedSystems);
-  assert.deepEqual(checklistTrainingModes.map(mode => mode.key), ["learn", "practice", "flow", "challenge"]);
+  assert.deepEqual(checklistTrainingModes.map(mode => mode.key), ["run", "learn", "practice", "flow", "challenge"]);
 });
 
 test("Learjet legacy source boundaries remain explicit during migration", async () => {
