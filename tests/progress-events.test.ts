@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { progressStorageKey, summarizeProgress, type TrainingProgressEvent } from "../lib/progress-events.ts";
+import { progressStorageKey, summarizeProgress, trainingActivityKinds, type TrainingProgressEvent } from "../lib/progress-events.ts";
 
 const events: TrainingProgressEvent[] = [
   { aircraftId: "a", kind: "knowledge", contentId: "bank", occurredAt: "2026-09-09T10:00:00Z", completed: true, scorePercent: 80, weakAreas: ["Fuel"] },
@@ -15,6 +15,18 @@ test("progress summary stays scoped to one aircraft", () => {
   assert.equal(summary.completedActivities, 2);
   assert.equal(summary.latestActivityAt, "2026-09-09T11:00:00Z");
   assert.deepEqual([...summary.weakAreas].sort(), ["Fire", "Fuel"]);
+});
+
+test("v1 progress activity contract includes the complete learner path", () => {
+  assert.deepEqual(trainingActivityKinds, [
+    "quick-start",
+    "systems",
+    "orientation",
+    "normal-flight",
+    "checklist-phase",
+    "scenario",
+    "knowledge",
+  ]);
 });
 
 test("progress storage keys are aircraft-specific", () => {
