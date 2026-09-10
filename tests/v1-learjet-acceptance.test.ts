@@ -30,7 +30,7 @@ const expectedFlightPhases = [
   "shutdown",
 ];
 
-test("Learjet legacy reference content remains internally complete during the M9 migration", async () => {
+test("Learjet legacy reference content remains internally complete while native M9 modules take over learner capability", async () => {
   const bundle = await getAircraftContentBundle(new StaticTrainingContentRepository(), aircraftId);
   assert.ok(bundle);
   const report = evaluateV1AircraftContent(bundle);
@@ -39,8 +39,8 @@ test("Learjet legacy reference content remains internally complete during the M9
   assert.deepEqual(bundle.capabilities, {
     checklists: true,
     procedures: true,
-    performance: false,
-    limitations: false,
+    performance: true,
+    limitations: true,
     systems: true,
     abnormalEmergency: true,
     flows: true,
