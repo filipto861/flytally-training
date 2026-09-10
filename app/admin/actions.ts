@@ -10,10 +10,11 @@ import { assertContentVersionValidForApprovalOrPublication } from "@/lib/content
 import { approveGovernedContentVersion,createGovernedDraftVersion,publishGovernedContentVersion } from "@/lib/content-governed-lifecycle";
 import { initializeTrainingDatabase } from "@/lib/database-bootstrap";
 import { registerGovernedManualRevision } from "@/lib/governed-manual-registration";
-import { reviseContentVersion } from "@/lib/content-review-repository";
+import { reSourceContentVersion,reviseContentVersion } from "@/lib/content-review-repository";
 
 const text=(form:FormData,key:string)=>String(form.get(key)??"").trim();
 const refs=(form:FormData)=>text(form,"sourceReferenceIds").split(",").map(v=>v.trim()).filter(Boolean);
+const controlledRefs=(form:FormData)=>form.getAll("controlledSourceReferenceId").map(value=>String(value).trim()).filter(Boolean);
 const payload=(form:FormData)=>{try{return JSON.parse(text(form,"payload"));}catch{throw new Error("Draft payload is not valid JSON.");}};
 const domain=(form:FormData):TrainingContentDomain=>{const value=text(form,"domain");if(!(trainingContentDomains as readonly string[]).includes(value))throw new Error("Unsupported content domain.");return value as TrainingContentDomain;};
 
@@ -29,6 +30,12 @@ export async function createReferenceAction(form:FormData){const session=await r
 export async function createDraftAction(form:FormData){const session=await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");const origin=parseContentVersionOrigin(text(form,"origin"));await createGovernedDraftVersion({aircraftId,domain:domain(form),contentKey:text(form,"contentKey")||"bundle",payload:payload(form),origin,sourceReferenceIds:refs(form)},session.subject);revalidatePath(`/admin/aircraft/${aircraftId}`);}
 export async function createAiDraftAction(form:FormData){const session=await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");const versionId=await createAiAssistedDraft({aircraftId,domain:domain(form),contentKey:text(form,"contentKey")||"bundle",sourceReferenceIds:refs(form),sourceText:text(form,"sourceText"),goal:text(form,"goal")},session.subject);revalidatePath(`/admin/aircraft/${aircraftId}`);redirect(`/admin/aircraft/${encodeURIComponent(aircraftId)}/content/${encodeURIComponent(versionId)}`);}
 export async function reviseVersionAction(form:FormData){const session=await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");const versionId=await reviseContentVersion({versionId:text(form,"versionId"),payload:payload(form),sourceReferenceIds:refs(form)},session.subject);revalidatePath(`/admin/aircraft/${aircraftId}`);redirect(`/admin/aircraft/${encodeURIComponent(aircraftId)}/content/${encodeURIComponent(versionId)}`);}
+export async function reSourceVersionAction(form:FormData){
+  const session=await requireTrainingAdmin();
+  const result=await reSourceContentVersion({versionId:text(form,"versionId"),sourceReferenceIds:controlledRefs(form)},session.subject);
+  revalidatePath(`/admin/aircraft/${result.aircraftId}`);
+  redirect(`/admin/aircraft/${encodeURIComponent(result.aircraftId)}/content/${encodeURIComponent(result.versionId)}`);
+}
 export async function approveVersionAction(form:FormData){const session=await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");const versionId=text(form,"versionId");await assertContentVersionValidForApprovalOrPublication(versionId);await approveGovernedContentVersion(versionId,session.subject,text(form,"note"));revalidatePath(`/admin/aircraft/${aircraftId}`);revalidatePath(`/admin/aircraft/${aircraftId}/content/${versionId}`);}
 export async function publishVersionAction(form:FormData){const session=await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");const versionId=text(form,"versionId");await assertContentVersionValidForApprovalOrPublication(versionId);await publishGovernedContentVersion(versionId,session.subject);revalidatePath("/");revalidatePath(`/admin/aircraft/${aircraftId}`);revalidatePath(`/admin/aircraft/${aircraftId}/content/${versionId}`);}
 export async function resolveStaleAction(form:FormData){const session=await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");await resolveStaleFlag(Number(text(form,"staleId")),session.subject,text(form,"note"));revalidatePath(`/admin/aircraft/${aircraftId}`);}

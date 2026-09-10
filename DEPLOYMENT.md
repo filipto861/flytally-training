@@ -47,7 +47,20 @@ The command creates/verifies Training-owned persistence only. It does not publis
 
 After SSO is configured, sign in with an admin account. The static-seed transition action is a privileged migration, not a passive import: after an explicit confirmation it records the acting administrator as the migration approver and immediately publishes seed bundles that are not already published. Review the current source-backed Learjet v1 seed before confirming the action.
 
-The migration bootstrap reference preserves the existing source metadata but does **not by itself satisfy controlled-manual production readiness**. Before release, the currently published learner versions must reference a source reference belonging to an attached controlled manual revision whose private Blob has passed byte/signature/hash verification. If the seed was migrated first, register the controlled revision and source reference, create replacement governed versions using that controlled source, explicitly approve/publish them, and resolve the resulting stale-source review state as appropriate.
+The migration bootstrap reference preserves the existing source metadata but does **not by itself satisfy controlled-manual production readiness**. Before release, the currently published learner versions must reference a source reference belonging to an attached controlled manual revision whose private Blob has passed byte/signature/hash verification.
+
+Use the admin review flow rather than copying bundle JSON by hand:
+
+1. upload and server-verify the controlled PDF;
+2. register its immutable manual revision and attach the verified asset;
+3. create the relevant page/chapter source reference(s);
+4. open each currently published Learjet bundle and use **Re-source this payload without rewriting it**;
+5. select only the controlled source reference(s) that support that bundle;
+6. Training creates a new immutable `human` draft with the exact existing payload and the selected controlled provenance;
+7. review the unchanged payload against the cited source, then explicitly approve and publish the new version;
+8. resolve any stale-source review state only after the replacement has been checked.
+
+The re-source action accepts only references whose manual revision has an `attached` controlled PDF asset. It never mutates the published version and does not auto-approve or auto-publish the replacement.
 
 A production aircraft is not complete merely because its catalogue row or bootstrap bundles are published. The current learner content must resolve all v1 capabilities and the controlled source must remain reachable.
 
