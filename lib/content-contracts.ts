@@ -1,4 +1,8 @@
 import type { TrainingContentDomain } from "./content-admin-types.ts";
+import {
+  isUniversalTrainingContentDomain,
+  validateUniversalTrainingContentPayload,
+} from "./universal-aircraft-content.ts";
 
 type RecordValue = Record<string, unknown>;
 const object=(value:unknown):value is RecordValue=>Boolean(value)&&typeof value==="object"&&!Array.isArray(value);
@@ -60,7 +64,9 @@ export function validateContentPayload(domain:TrainingContentDomain,payload:unkn
   if(!object(payload))return ["Published content payload must be a JSON object"];
   if(!text(payload.aircraftId))errors.push("aircraftId is required");
   else if(expectedAircraftId&&payload.aircraftId!==expectedAircraftId)errors.push(`aircraftId must equal ${expectedAircraftId}`);
-  if(domain==="learning")validateLearning(payload,errors);
+
+  if(isUniversalTrainingContentDomain(domain)) errors.push(...validateUniversalTrainingContentPayload(domain,payload));
+  else if(domain==="learning")validateLearning(payload,errors);
   else if(domain==="normal-flight")validateNormalFlight(payload,errors);
   else if(domain==="orientation")validateOrientation(payload,errors);
   else if(domain==="abnormal")validateAbnormal(payload,errors);
