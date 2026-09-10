@@ -6,7 +6,7 @@ import { appendBrowserProgress, loadTrainingProgress, readBrowserProgress } from
 import type { TrainingActivityKind } from "@/lib/progress-events";
 import styles from "./learning-completion-button.module.css";
 
-type CompletionKind = Extract<TrainingActivityKind, "quick-start" | "systems" | "orientation">;
+type CompletionKind = Extract<TrainingActivityKind, "quick-start" | "systems" | "orientation" | "flow">;
 
 const initialLoads = new Map<string, Promise<Awaited<ReturnType<typeof loadTrainingProgress>>>>();
 
