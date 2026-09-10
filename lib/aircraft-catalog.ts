@@ -44,8 +44,12 @@ export type TrainingAircraft = {
   readonly model: string;
   /** Compatibility index used by existing URLs and simple selectors. */
   readonly variants: readonly string[];
-  /** First-class configuration records loaded from variant repository data. */
-  readonly variantProfiles: readonly TrainingAircraftVariantProfile[];
+  /**
+   * First-class configuration records loaded from variant repository data.
+   * Optional only so legacy fixtures/adapters can migrate without pretending
+   * they know installed equipment; production PostgreSQL always supplies it.
+   */
+  readonly variantProfiles?: readonly TrainingAircraftVariantProfile[];
   readonly displayName: string;
   readonly manuals: readonly TrainingManualRevision[];
 };
