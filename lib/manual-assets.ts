@@ -1,10 +1,11 @@
 import "server-only";
 
 import { randomUUID } from "node:crypto";
-import { head, issueSignedToken, presignUrl } from "@vercel/blob";
+import { get, head, issueSignedToken, presignUrl } from "@vercel/blob";
 import { ensureContentSchema } from "./content-admin-repository";
 import { sql } from "./db";
 import { MAX_MANUAL_ASSET_BYTES, manualAssetPathname, validateManualUploadMetadata, type ManualUploadMetadata } from "./manual-asset-input";
+import { sha256ReadableStream } from "./stream-sha256";
 
 export type ManualAssetStatus = "pending" | "ready" | "claimed" | "attached" | "failed";
 export type ManualAsset = {
@@ -20,6 +21,8 @@ export type ManualAsset = {
   readonly attachedRevisionId?: string;
   readonly createdAt: string;
 };
+
+class ManualAssetIntegrityError extends Error {}
 
 let manualAssetSchemaReady: Promise<void> | undefined;
 
@@ -72,6 +75,10 @@ function mapAsset(row: {
   };
 }
 
+function integrity(condition: boolean, message: string): asserts condition {
+  if (!condition) throw new ManualAssetIntegrityError(message);
+}
+
 export async function issueManualAssetUpload(input: ManualUploadMetadata, subject: string): Promise<{assetId:string;pathname:string;presignedUrl:string;validUntil:number}> {
   const metadata = validateManualUploadMetadata(input);
   await ensureManualAssetSchema();
@@ -92,7 +99,13 @@ export async function issueManualAssetUpload(input: ManualUploadMetadata, subjec
       maximumSizeInBytes: MAX_MANUAL_ASSET_BYTES,
       validUntil,
     });
-    const signed = await presignUrl(token, { pathname, operation: "put", validUntil, access: "private" });
+    const signed = await presignUrl(token, {
+      pathname,
+      operation: "put",
+      validUntil,
+      access: "private",
+      allowOverwrite: false,
+    });
     return { assetId, pathname, presignedUrl: signed.presignedUrl, validUntil };
   } catch (error) {
     await sql`UPDATE training_manual_assets SET status='failed' WHERE asset_id=${assetId}`;
@@ -113,11 +126,23 @@ export async function finalizeManualAsset(assetId: string, subject: string): Pro
 
   try {
     const blob = await head(row.pathname);
-    if (Number(blob.size) !== Number(row.size_bytes)) throw new Error("Uploaded PDF size does not match the signed upload request.");
-    if (blob.contentType !== "application/pdf") throw new Error("Uploaded object is not application/pdf.");
+    integrity(Number(blob.size) === Number(row.size_bytes), "Uploaded PDF size does not match the signed upload request.");
+    integrity(blob.contentType === "application/pdf", "Uploaded object is not application/pdf.");
+
+    const stored = await get(blob.url, { access: "private" });
+    if (!stored?.stream) throw new Error("Uploaded PDF could not be read back from private storage for verification.");
+    const verified = await sha256ReadableStream(stored.stream);
+    integrity(verified.bytes === Number(row.size_bytes), "Uploaded PDF byte count changed while verifying the stored object.");
+    integrity(verified.sha256 === row.checksum_sha256.toLowerCase(), "Uploaded PDF SHA-256 does not match the checksum computed before upload.");
+
     await sql`UPDATE training_manual_assets SET status='ready',blob_url=${blob.url},finalized_at=NOW() WHERE asset_id=${assetId} AND status='pending'`;
   } catch (error) {
-    await sql`UPDATE training_manual_assets SET status='failed' WHERE asset_id=${assetId} AND status='pending'`;
+    // A proven content mismatch is terminal for this controlled asset. Transient
+    // storage/network failures remain pending so the admin can safely retry
+    // finalization without re-uploading an otherwise valid large PDF.
+    if (error instanceof ManualAssetIntegrityError) {
+      await sql`UPDATE training_manual_assets SET status='failed' WHERE asset_id=${assetId} AND status='pending'`;
+    }
     throw error;
   }
 
