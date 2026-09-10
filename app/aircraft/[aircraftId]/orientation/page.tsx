@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 
 import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
 import { CockpitOrientationExplorer } from "@/components/cockpit-orientation-explorer";
+import { LearningCompletionButton } from "@/components/learning-completion-button";
 import { getTrainingContentRepository } from "@/lib/content-store";
 
 export default async function CockpitOrientationPage({
@@ -54,6 +55,8 @@ export default async function CockpitOrientationPage({
         initialControlId={selectedLocation?.id}
         orientation={orientation}
       />
+
+      <LearningCompletionButton aircraftId={aircraft.id} kind="orientation" contentId="cockpit-orientation" label="Mark orientation complete" />
 
       <section className="principle">
         <div>
