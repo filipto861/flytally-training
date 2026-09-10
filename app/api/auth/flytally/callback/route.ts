@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 
 import { verifyFlyTallyIdentityAssertion } from "@/lib/identity-contract";
+import { consumeFlyTallyIdentityAssertion } from "@/lib/identity-replay";
+import { safeLocalPath } from "@/lib/local-path";
 import { createTrainingSessionToken, TRAINING_SESSION_COOKIE, TRAINING_SESSION_SECONDS } from "@/lib/training-session";
 
 function identitySecret(): string {
@@ -9,8 +11,11 @@ function identitySecret(): string {
   return value;
 }
 
-function localPath(value: string | null): string {
-  return value?.startsWith("/") && !value.startsWith("//") ? value : "/";
+function errorResponse(error: string, status: number) {
+  return NextResponse.json({ error }, {
+    status,
+    headers: { "cache-control": "no-store", "referrer-policy": "no-referrer" },
+  });
 }
 
 export async function GET(request: Request) {
@@ -18,10 +23,21 @@ export async function GET(request: Request) {
   const assertion = url.searchParams.get("assertion") ?? "";
   let claims;
   try { claims = verifyFlyTallyIdentityAssertion(assertion, identitySecret()); } catch { claims = null; }
-  if (!claims) return NextResponse.json({ error: "invalid_identity_assertion" }, { status: 401 });
+  if (!claims) return errorResponse("invalid_identity_assertion", 401);
 
-  const response = NextResponse.redirect(new URL(localPath(url.searchParams.get("next")), url.origin));
-  response.cookies.set(TRAINING_SESSION_COOKIE, createTrainingSessionToken(claims.sub, claims.role), {
+  let sessionToken: string;
+  try { sessionToken = createTrainingSessionToken(claims.sub, claims.role); }
+  catch { return errorResponse("training_session_not_configured", 503); }
+
+  let consumed = false;
+  try { consumed = await consumeFlyTallyIdentityAssertion(claims.jti, claims.exp); }
+  catch { return errorResponse("identity_replay_guard_unavailable", 503); }
+  if (!consumed) return errorResponse("identity_assertion_replayed", 401);
+
+  const response = NextResponse.redirect(new URL(safeLocalPath(url.searchParams.get("next")), url.origin));
+  response.headers.set("cache-control", "no-store");
+  response.headers.set("referrer-policy", "no-referrer");
+  response.cookies.set(TRAINING_SESSION_COOKIE, sessionToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
