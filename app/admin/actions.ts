@@ -43,7 +43,7 @@ export async function resolveStaleAction(form:FormData){const session=await requ
 export async function initializeTrainingDatabaseAction(){await requireTrainingAdmin();await initializeTrainingDatabase();revalidatePath("/admin");}
 export async function bootstrapStaticAction(form:FormData){
   const session=await requireTrainingAdmin();
-  if(text(form,"confirmApprovedSeed")!=="yes")throw new Error("Explicit administrator confirmation is required before the static v1 seed can be approved and published.");
+  if(text(form,"confirmApprovedSeed")!=="yes")throw new Error("Explicit administrator confirmation is required before the current source-backed training seed can be approved and published.");
   await initializeTrainingDatabase();
   await bootstrapStaticContentGoverned(session.subject);
   revalidatePath("/");

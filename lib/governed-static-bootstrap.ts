@@ -47,11 +47,37 @@ async function ensureBootstrapReference(
   return referenceId;
 }
 
+type BootstrapContentRecord = {
+  readonly aircraftId: string;
+  readonly domain: TrainingContentDomain;
+  readonly payload: { readonly aircraftId: string };
+};
+
+function bootstrapContentRecords(): BootstrapContentRecord[] {
+  const records: BootstrapContentRecord[] = (staticTrainingContentSeed.universalModules ?? []).map((module) => ({
+    aircraftId: module.aircraftId,
+    domain: module.domain,
+    payload: module.payload,
+  }));
+
+  const legacy: Array<[TrainingContentDomain, readonly {aircraftId:string}[]]> = [
+    ["learning", staticTrainingContentSeed.learningContent],
+    ["normal-flight", staticTrainingContentSeed.normalFlights],
+    ["orientation", staticTrainingContentSeed.cockpitOrientations],
+    ["abnormal", staticTrainingContentSeed.abnormalTrainings],
+    ["reference-knowledge", staticTrainingContentSeed.referenceKnowledge],
+  ];
+  for (const [domain, payloads] of legacy) {
+    for (const payload of payloads) records.push({ aircraftId: payload.aircraftId, domain, payload });
+  }
+  return records;
+}
+
 /**
- * Import the source-backed static v1 seed through the same governed lifecycle
- * used by ordinary authoring. A newly seeded aircraft remains hidden as draft
- * until the shared aircraft-publication policy confirms its learner catalogue
- * is complete.
+ * Import the source-backed static seed through the same governed lifecycle used
+ * by ordinary authoring. Native universal modules and legacy migration bundles
+ * share one data-driven publication loop; adding an aircraft does not require a
+ * new aircraft-specific branch in the bootstrap code.
  */
 export async function bootstrapStaticContentGoverned(subject: string): Promise<void> {
   const referencesByAircraft = new Map<string, string[]>();
@@ -80,38 +106,28 @@ export async function bootstrapStaticContentGoverned(subject: string): Promise<v
     referencesByAircraft.set(aircraft.id, references);
   }
 
-  const domains: Array<[TrainingContentDomain, readonly {aircraftId:string}[]]> = [
-    ["learning", staticTrainingContentSeed.learningContent],
-    ["normal-flight", staticTrainingContentSeed.normalFlights],
-    ["orientation", staticTrainingContentSeed.cockpitOrientations],
-    ["abnormal", staticTrainingContentSeed.abnormalTrainings],
-    ["reference-knowledge", staticTrainingContentSeed.referenceKnowledge],
-  ];
+  for (const record of bootstrapContentRecords()) {
+    const published = await sql`SELECT 1
+      FROM training_content_items i
+      JOIN training_content_publications p ON p.item_id=i.item_id
+      WHERE i.aircraft_id=${record.aircraftId} AND i.domain=${record.domain} AND i.content_key='bundle'
+      LIMIT 1` as unknown[];
+    if (published[0]) continue;
 
-  for (const [domain, records] of domains) {
-    for (const record of records) {
-      const published = await sql`SELECT 1
-        FROM training_content_items i
-        JOIN training_content_publications p ON p.item_id=i.item_id
-        WHERE i.aircraft_id=${record.aircraftId} AND i.domain=${domain} AND i.content_key='bundle'
-        LIMIT 1` as unknown[];
-      if (published[0]) continue;
-
-      const versionId = await createGovernedDraftVersion({
-        aircraftId: record.aircraftId,
-        domain,
-        contentKey: "bundle",
-        payload: record,
-        origin: "bootstrap-migration",
-        sourceReferenceIds: referencesByAircraft.get(record.aircraftId) ?? [],
-      }, subject);
-      await approveGovernedContentVersion(
-        versionId,
-        subject,
-        "Explicit migration approval of the existing source-backed v1 content.",
-      );
-      await publishGovernedContentVersion(versionId, subject);
-    }
+    const versionId = await createGovernedDraftVersion({
+      aircraftId: record.aircraftId,
+      domain: record.domain,
+      contentKey: "bundle",
+      payload: record.payload,
+      origin: "bootstrap-migration",
+      sourceReferenceIds: referencesByAircraft.get(record.aircraftId) ?? [],
+    }, subject);
+    await approveGovernedContentVersion(
+      versionId,
+      subject,
+      "Explicit migration approval of source-backed training content.",
+    );
+    await publishGovernedContentVersion(versionId, subject);
   }
 
   for (const aircraft of staticTrainingContentSeed.aircraft) {

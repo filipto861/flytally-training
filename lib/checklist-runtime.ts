@@ -1,6 +1,6 @@
 import { splitChecklistChallenge } from "./checklist-training.ts";
 import type { SimulatorFlightFlow } from "./simulator-checklists.ts";
-import type { AircraftChecklistContent } from "./universal-aircraft-content.ts";
+import type { AircraftChecklistContent, TrainingSourceReference } from "./universal-aircraft-content.ts";
 
 export type RuntimeChecklistItem = {
   readonly id: string;
@@ -29,10 +29,16 @@ export function formatChecklistAction(item: RuntimeChecklistItem): string {
   return item.response ? `${item.challenge} — ${item.response}` : item.challenge;
 }
 
+function formatSource(source: TrainingSourceReference): string {
+  const location = [source.chapter ? `Ch ${source.chapter}` : undefined, source.section, `p. ${source.pageLabel}`].filter(Boolean).join(" · ");
+  return location;
+}
+
 export function normalizeUniversalChecklist(content: AircraftChecklistContent): RuntimeChecklist {
   return {
     aircraftId: content.aircraftId,
     title: content.title,
+    estimatedMinutes: content.estimatedMinutes,
     phases: [...content.phases]
       .sort((a, b) => a.sequence - b.sequence)
       .map((phase) => ({
@@ -45,6 +51,7 @@ export function normalizeUniversalChecklist(content: AircraftChecklistContent): 
           explanation: item.explanation,
           verification: item.verification,
           procedureId: item.procedureId,
+          sourceLabel: item.sources?.map(formatSource).join(" · "),
         })),
       })),
   };

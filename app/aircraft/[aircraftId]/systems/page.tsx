@@ -5,13 +5,16 @@ import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
 import { LearningCompletionButton } from "@/components/learning-completion-button";
 import { getPublishedAircraftModule } from "@/lib/content-repository";
 import { getTrainingContentRepository } from "@/lib/content-store";
-import type { AircraftSystemLesson, AircraftSystemsContent } from "@/lib/universal-aircraft-content";
+import type { AircraftSystemLesson, AircraftSystemsContent, TrainingSourceReference } from "@/lib/universal-aircraft-content";
 import styles from "../learning.module.css";
 
 type RuntimeSystem = AircraftSystemLesson & {
   readonly minutes?: number;
   readonly sourceLabel?: string;
 };
+
+const formatSources = (sources: readonly TrainingSourceReference[] | undefined): string | undefined =>
+  sources?.map((item) => [item.chapter ? `Ch ${item.chapter}` : undefined, item.section, `p. ${item.pageLabel}`].filter(Boolean).join(" · ")).join(" · ");
 
 export default async function SystemsPage({ params }: Readonly<{ params: Promise<{ aircraftId: string }> }>) {
   const { aircraftId } = await params;
@@ -23,7 +26,10 @@ export default async function SystemsPage({ params }: Readonly<{ params: Promise
   ]);
   if (!aircraft) notFound();
 
-  const systems: readonly RuntimeSystem[] = universal?.systems ?? legacy?.systems.map((system) => ({
+  const systems: readonly RuntimeSystem[] = universal ? universal.systems.map((system) => ({
+    ...system,
+    sourceLabel: formatSources(system.sources),
+  })) : legacy?.systems.map((system) => ({
     id: system.id,
     title: system.title,
     summary: system.mentalModel,
@@ -45,6 +51,8 @@ export default async function SystemsPage({ params }: Readonly<{ params: Promise
         <p className="eyebrow">Systems · {aircraft.displayName}</p>
         <h1>{universal?.title ?? `${systems.length} aircraft systems`}</h1>
         <p className="lede">Each lesson focuses on the system model, what the pilot controls, what is indicated, normal operation, limitations and abnormal cues where applicable.</p>
+        {universal?.disclaimer ? <p><strong>Training boundary:</strong> {universal.disclaimer}</p> : null}
+        {universal?.sourceNote ? <p><small>Source note · {universal.sourceNote}</small></p> : null}
       </section>
 
       <section className={styles.systemsGrid} aria-label={`${aircraft.displayName} systems`}>

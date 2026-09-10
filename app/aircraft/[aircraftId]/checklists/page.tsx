@@ -28,7 +28,9 @@ export default async function ChecklistsPage({ params }: Readonly<{ params: Prom
       <section className="workspace-section-hero">
         <p className="eyebrow">Checklists · {aircraft.displayName}</p>
         <h1>{checklist.title}</h1>
-        <p className="lede">Run the operational checklist directly, or switch to Learn, Flow or Challenge & Response without changing the underlying aircraft data.</p>
+        <p className="lede">Run the checklist directly, or switch to Learn, Flow or Challenge & Response without changing the underlying aircraft data.</p>
+        {universal?.disclaimer ? <p><strong>Training boundary:</strong> {universal.disclaimer}</p> : null}
+        {universal?.sourceNote ? <p><small>Source note · {universal.sourceNote}</small></p> : null}
         {checklist.estimatedMinutes ? <p>Approximate first training pass: {checklist.estimatedMinutes} min.</p> : null}
       </section>
       <ChecklistRunner checklist={checklist} />

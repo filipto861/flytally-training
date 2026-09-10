@@ -28,6 +28,24 @@ export type TrainingNotice = {
   readonly text: string;
 };
 
+/**
+ * Human-readable provenance carried inside the governed payload. Database
+ * version/source links remain the release-control boundary; these references
+ * preserve the exact chapter/page context for learner UI and review.
+ */
+export type TrainingSourceReference = {
+  readonly manualId: string;
+  readonly chapter?: string;
+  readonly section?: string;
+  readonly pageLabel: string;
+  readonly note?: string;
+};
+
+export type UniversalModuleMetadata = {
+  readonly sourceNote?: string;
+  readonly disclaimer?: string;
+};
+
 export type AircraftChecklistItem = {
   readonly id: string;
   readonly challenge: string;
@@ -38,6 +56,7 @@ export type AircraftChecklistItem = {
   readonly condition?: string;
   readonly notices?: readonly TrainingNotice[];
   readonly applicability?: AircraftApplicability;
+  readonly sources?: readonly TrainingSourceReference[];
 };
 
 export type AircraftChecklistPhase = {
@@ -45,11 +64,14 @@ export type AircraftChecklistPhase = {
   readonly title: string;
   readonly sequence: number;
   readonly items: readonly AircraftChecklistItem[];
+  readonly applicability?: AircraftApplicability;
+  readonly sources?: readonly TrainingSourceReference[];
 };
 
-export type AircraftChecklistContent = {
+export type AircraftChecklistContent = UniversalModuleMetadata & {
   readonly aircraftId: string;
   readonly title: string;
+  readonly estimatedMinutes?: number;
   readonly phases: readonly AircraftChecklistPhase[];
 };
 
@@ -60,6 +82,7 @@ export type AircraftProcedureStep = {
   readonly verification?: string;
   readonly rationale?: string;
   readonly notices?: readonly TrainingNotice[];
+  readonly sources?: readonly TrainingSourceReference[];
 };
 
 export type AircraftProcedure = {
@@ -71,9 +94,10 @@ export type AircraftProcedure = {
   readonly steps: readonly AircraftProcedureStep[];
   readonly completionCriteria?: readonly string[];
   readonly applicability?: AircraftApplicability;
+  readonly sources?: readonly TrainingSourceReference[];
 };
 
-export type AircraftProcedureContent = {
+export type AircraftProcedureContent = UniversalModuleMetadata & {
   readonly aircraftId: string;
   readonly title: string;
   readonly procedures: readonly AircraftProcedure[];
@@ -110,9 +134,10 @@ export type PerformanceDataset = {
   readonly interpolation: "none" | "linear-explicit";
   readonly notes?: readonly string[];
   readonly applicability?: AircraftApplicability;
+  readonly sources?: readonly TrainingSourceReference[];
 };
 
-export type AircraftPerformanceContent = {
+export type AircraftPerformanceContent = UniversalModuleMetadata & {
   readonly aircraftId: string;
   readonly title: string;
   readonly datasets: readonly PerformanceDataset[];
@@ -126,15 +151,17 @@ export type LimitationItem = {
   readonly condition?: string;
   readonly notices?: readonly TrainingNotice[];
   readonly applicability?: AircraftApplicability;
+  readonly sources?: readonly TrainingSourceReference[];
 };
 
 export type LimitationGroup = {
   readonly id: string;
   readonly title: string;
   readonly items: readonly LimitationItem[];
+  readonly sources?: readonly TrainingSourceReference[];
 };
 
-export type AircraftLimitationsContent = {
+export type AircraftLimitationsContent = UniversalModuleMetadata & {
   readonly aircraftId: string;
   readonly title: string;
   readonly groups: readonly LimitationGroup[];
@@ -153,9 +180,10 @@ export type AircraftSystemLesson = {
   readonly abnormalCues?: readonly string[];
   readonly remember?: readonly string[];
   readonly applicability?: AircraftApplicability;
+  readonly sources?: readonly TrainingSourceReference[];
 };
 
-export type AircraftSystemsContent = {
+export type AircraftSystemsContent = UniversalModuleMetadata & {
   readonly aircraftId: string;
   readonly title: string;
   readonly systems: readonly AircraftSystemLesson[];
@@ -169,11 +197,13 @@ export type AircraftFlow = {
     readonly id: string;
     readonly action: string;
     readonly verification?: string;
+    readonly sources?: readonly TrainingSourceReference[];
   }[];
   readonly applicability?: AircraftApplicability;
+  readonly sources?: readonly TrainingSourceReference[];
 };
 
-export type AircraftFlowsContent = {
+export type AircraftFlowsContent = UniversalModuleMetadata & {
   readonly aircraftId: string;
   readonly title: string;
   readonly flows: readonly AircraftFlow[];
@@ -187,9 +217,10 @@ export type AircraftAvionicsTopic = {
   readonly procedures?: readonly string[];
   readonly remember?: readonly string[];
   readonly applicability?: AircraftApplicability;
+  readonly sources?: readonly TrainingSourceReference[];
 };
 
-export type AircraftAvionicsContent = {
+export type AircraftAvionicsContent = UniversalModuleMetadata & {
   readonly aircraftId: string;
   readonly title: string;
   readonly topics: readonly AircraftAvionicsTopic[];
@@ -203,9 +234,10 @@ export type AircraftKnowledgeQuestion = {
   readonly correctIndex: number;
   readonly explanation: string;
   readonly applicability?: AircraftApplicability;
+  readonly sources?: readonly TrainingSourceReference[];
 };
 
-export type AircraftKnowledgeContent = {
+export type AircraftKnowledgeContent = UniversalModuleMetadata & {
   readonly aircraftId: string;
   readonly title: string;
   readonly questions: readonly AircraftKnowledgeQuestion[];
@@ -228,19 +260,30 @@ function validateNotices(value: unknown): boolean {
   return objects(value) && value.every(item => (item.kind === "note" || item.kind === "caution" || item.kind === "warning") && text(item.text));
 }
 
+function validateSources(value: unknown): boolean {
+  if (value === undefined) return true;
+  return objects(value) && value.length > 0 && value.every(item => text(item.manualId) && text(item.pageLabel) && (item.chapter === undefined || text(item.chapter)) && (item.section === undefined || text(item.section)) && (item.note === undefined || text(item.note)));
+}
+
+function validateMetadata(payload: RecordValue, errors: string[]): void {
+  if (payload.sourceNote !== undefined && !text(payload.sourceNote)) errors.push("sourceNote must be non-empty text when supplied");
+  if (payload.disclaimer !== undefined && !text(payload.disclaimer)) errors.push("disclaimer must be non-empty text when supplied");
+}
+
 function validateChecklists(payload: RecordValue, errors: string[]): void {
   if (!text(payload.title)) errors.push("checklists title is required");
+  if (payload.estimatedMinutes !== undefined && !finiteNumber(payload.estimatedMinutes)) errors.push("checklists estimatedMinutes must be a number when supplied");
   if (!objects(payload.phases) || payload.phases.length === 0) {
     errors.push("checklists phases are required");
     return;
   }
   payload.phases.forEach((phase, phaseIndex) => {
-    if (!idTitle(phase) || !finiteNumber(phase.sequence) || !objects(phase.items) || phase.items.length === 0) {
+    if (!idTitle(phase) || !finiteNumber(phase.sequence) || !objects(phase.items) || phase.items.length === 0 || !validateSources(phase.sources)) {
       errors.push(`phases[${phaseIndex}] does not match the checklist phase contract`);
       return;
     }
     phase.items.forEach((item, itemIndex) => {
-      if (!text(item.id) || !text(item.challenge) || (item.response !== undefined && !text(item.response)) || !validateNotices(item.notices)) {
+      if (!text(item.id) || !text(item.challenge) || (item.response !== undefined && !text(item.response)) || !validateNotices(item.notices) || !validateSources(item.sources)) {
         errors.push(`phases[${phaseIndex}].items[${itemIndex}] does not match the checklist item contract`);
       }
     });
@@ -254,12 +297,12 @@ function validateProcedures(payload: RecordValue, errors: string[]): void {
     return;
   }
   payload.procedures.forEach((procedure, procedureIndex) => {
-    if (!idTitle(procedure) || !objects(procedure.steps) || procedure.steps.length === 0) {
+    if (!idTitle(procedure) || !objects(procedure.steps) || procedure.steps.length === 0 || !validateSources(procedure.sources)) {
       errors.push(`procedures[${procedureIndex}] does not match the procedure contract`);
       return;
     }
     procedure.steps.forEach((step, stepIndex) => {
-      if (!text(step.id) || !text(step.action) || !validateNotices(step.notices)) {
+      if (!text(step.id) || !text(step.action) || !validateNotices(step.notices) || !validateSources(step.sources)) {
         errors.push(`procedures[${procedureIndex}].steps[${stepIndex}] does not match the procedure step contract`);
       }
     });
@@ -273,7 +316,7 @@ function validatePerformance(payload: RecordValue, errors: string[]): void {
     return;
   }
   payload.datasets.forEach((dataset, datasetIndex) => {
-    if (!idTitle(dataset) || (dataset.kind !== "lookup-table" && dataset.kind !== "reference-table") || (dataset.interpolation !== "none" && dataset.interpolation !== "linear-explicit") || !objects(dataset.axes) || dataset.axes.length === 0 || !objects(dataset.outputs) || dataset.outputs.length === 0 || !objects(dataset.rows) || dataset.rows.length === 0) {
+    if (!idTitle(dataset) || (dataset.kind !== "lookup-table" && dataset.kind !== "reference-table") || (dataset.interpolation !== "none" && dataset.interpolation !== "linear-explicit") || !objects(dataset.axes) || dataset.axes.length === 0 || !objects(dataset.outputs) || dataset.outputs.length === 0 || !objects(dataset.rows) || dataset.rows.length === 0 || !validateSources(dataset.sources)) {
       errors.push(`datasets[${datasetIndex}] does not match the performance dataset contract`);
       return;
     }
@@ -304,12 +347,12 @@ function validateLimitations(payload: RecordValue, errors: string[]): void {
     return;
   }
   payload.groups.forEach((group, groupIndex) => {
-    if (!idTitle(group) || !objects(group.items) || group.items.length === 0) {
+    if (!idTitle(group) || !objects(group.items) || group.items.length === 0 || !validateSources(group.sources)) {
       errors.push(`groups[${groupIndex}] does not match the limitation group contract`);
       return;
     }
     group.items.forEach((item, itemIndex) => {
-      if (!text(item.id) || !text(item.label) || !(text(item.value) || finiteNumber(item.value)) || !validateNotices(item.notices)) {
+      if (!text(item.id) || !text(item.label) || !(text(item.value) || finiteNumber(item.value)) || !validateNotices(item.notices) || !validateSources(item.sources)) {
         errors.push(`groups[${groupIndex}].items[${itemIndex}] does not match the limitation item contract`);
       }
     });
@@ -323,7 +366,7 @@ function validateSystems(payload: RecordValue, errors: string[]): void {
     return;
   }
   payload.systems.forEach((system, index) => {
-    if (!idTitle(system) || !text(system.summary)) errors.push(`systems[${index}] does not match the system lesson contract`);
+    if (!idTitle(system) || !text(system.summary) || !validateSources(system.sources)) errors.push(`systems[${index}] does not match the system lesson contract`);
     for (const key of ["components", "controls", "indications", "normalOperation", "limitations", "abnormalCues", "remember"] as const) {
       if (system[key] !== undefined && !strings(system[key])) errors.push(`systems[${index}].${key} must be an array of text`);
     }
@@ -337,12 +380,12 @@ function validateFlows(payload: RecordValue, errors: string[]): void {
     return;
   }
   payload.flows.forEach((flow, flowIndex) => {
-    if (!idTitle(flow) || !objects(flow.steps) || flow.steps.length === 0) {
+    if (!idTitle(flow) || !objects(flow.steps) || flow.steps.length === 0 || !validateSources(flow.sources)) {
       errors.push(`flows[${flowIndex}] does not match the flow contract`);
       return;
     }
     flow.steps.forEach((step, stepIndex) => {
-      if (!text(step.id) || !text(step.action)) errors.push(`flows[${flowIndex}].steps[${stepIndex}] does not match the flow step contract`);
+      if (!text(step.id) || !text(step.action) || !validateSources(step.sources)) errors.push(`flows[${flowIndex}].steps[${stepIndex}] does not match the flow step contract`);
     });
   });
 }
@@ -354,7 +397,7 @@ function validateAvionics(payload: RecordValue, errors: string[]): void {
     return;
   }
   payload.topics.forEach((topic, index) => {
-    if (!idTitle(topic) || !text(topic.summary)) errors.push(`topics[${index}] does not match the avionics topic contract`);
+    if (!idTitle(topic) || !text(topic.summary) || !validateSources(topic.sources)) errors.push(`topics[${index}] does not match the avionics topic contract`);
   });
 }
 
@@ -366,7 +409,7 @@ function validateKnowledge(payload: RecordValue, errors: string[]): void {
   }
   payload.questions.forEach((question, index) => {
     const choices = question.choices;
-    if (!text(question.id) || !text(question.area) || !text(question.prompt) || !strings(choices) || choices.length < 2 || !Number.isInteger(question.correctIndex) || Number(question.correctIndex) < 0 || Number(question.correctIndex) >= choices.length || !text(question.explanation)) {
+    if (!text(question.id) || !text(question.area) || !text(question.prompt) || !strings(choices) || choices.length < 2 || !Number.isInteger(question.correctIndex) || Number(question.correctIndex) < 0 || Number(question.correctIndex) >= choices.length || !text(question.explanation) || !validateSources(question.sources)) {
       errors.push(`questions[${index}] does not match the knowledge question contract`);
     }
   });
@@ -375,6 +418,7 @@ function validateKnowledge(payload: RecordValue, errors: string[]): void {
 export function validateUniversalTrainingContentPayload(domain: UniversalTrainingContentDomain, payload: unknown): string[] {
   if (!object(payload)) return ["Published content payload must be a JSON object"];
   const errors: string[] = [];
+  validateMetadata(payload, errors);
   if (domain === "checklists") validateChecklists(payload, errors);
   else if (domain === "procedures") validateProcedures(payload, errors);
   else if (domain === "performance") validatePerformance(payload, errors);

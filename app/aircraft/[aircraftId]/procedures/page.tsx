@@ -4,7 +4,10 @@ import { notFound } from "next/navigation";
 import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
 import { getPublishedAircraftModule } from "@/lib/content-repository";
 import { getTrainingContentRepository } from "@/lib/content-store";
-import type { AircraftProcedureContent, AircraftProcedure } from "@/lib/universal-aircraft-content";
+import type { AircraftProcedureContent, AircraftProcedure, TrainingSourceReference } from "@/lib/universal-aircraft-content";
+
+const formatSources = (sources: readonly TrainingSourceReference[] | undefined): string | undefined =>
+  sources?.map((item) => [item.chapter ? `Ch ${item.chapter}` : undefined, item.section, `p. ${item.pageLabel}`].filter(Boolean).join(" · ")).join(" · ");
 
 export default async function ProceduresPage({ params }: Readonly<{ params: Promise<{ aircraftId: string }> }>) {
   const { aircraftId } = await params;
@@ -32,6 +35,8 @@ export default async function ProceduresPage({ params }: Readonly<{ params: Prom
         <p className="eyebrow">Procedures · {aircraft.displayName}</p>
         <h1>{universal?.title ?? "Operating procedures"}</h1>
         <p className="lede">Procedures provide the detail behind concise checklist items: what to do, what to expect, what to verify and why the step matters.</p>
+        {universal?.disclaimer ? <p><strong>Training boundary:</strong> {universal.disclaimer}</p> : null}
+        {universal?.sourceNote ? <p><small>Source note · {universal.sourceNote}</small></p> : null}
       </section>
       {procedures.map((procedure) => (
         <section className="reference-library" id={procedure.id} key={procedure.id}>
@@ -39,20 +44,25 @@ export default async function ProceduresPage({ params }: Readonly<{ params: Prom
           {procedure.summary ? <p>{procedure.summary}</p> : null}
           {procedure.prerequisites?.length ? <p><strong>Prerequisites:</strong> {procedure.prerequisites.join(" · ")}</p> : null}
           <ol className="chapter-list">
-            {procedure.steps.map((step, index) => (
-              <li key={step.id}>
-                <span className="chapter-number">{String(index + 1).padStart(2, "0")}</span>
-                <div>
-                  <strong>{step.action}</strong>
-                  {step.expectedResult ? <span>Expected: {step.expectedResult}</span> : null}
-                  {step.verification ? <span>Verify: {step.verification}</span> : null}
-                  {step.rationale ? <span>Why: {step.rationale}</span> : null}
-                  {step.notices?.map((notice, noticeIndex) => <span key={`${step.id}-notice-${noticeIndex}`}><strong>{notice.kind.toUpperCase()}:</strong> {notice.text}</span>)}
-                </div>
-              </li>
-            ))}
+            {procedure.steps.map((step, index) => {
+              const sourceLabel = formatSources(step.sources);
+              return (
+                <li key={step.id}>
+                  <span className="chapter-number">{String(index + 1).padStart(2, "0")}</span>
+                  <div>
+                    <strong>{step.action}</strong>
+                    {step.expectedResult ? <span>Expected: {step.expectedResult}</span> : null}
+                    {step.verification ? <span>Verify: {step.verification}</span> : null}
+                    {step.rationale ? <span>Why: {step.rationale}</span> : null}
+                    {step.notices?.map((notice, noticeIndex) => <span key={`${step.id}-notice-${noticeIndex}`}><strong>{notice.kind.toUpperCase()}:</strong> {notice.text}</span>)}
+                    {sourceLabel ? <span><small>Source · {sourceLabel}</small></span> : null}
+                  </div>
+                </li>
+              );
+            })}
           </ol>
           {procedure.completionCriteria?.length ? <p><strong>Complete when:</strong> {procedure.completionCriteria.join(" · ")}</p> : null}
+          {formatSources(procedure.sources) ? <p><small>Procedure source · {formatSources(procedure.sources)}</small></p> : null}
         </section>
       ))}
     </main>
