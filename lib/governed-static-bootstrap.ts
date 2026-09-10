@@ -60,6 +60,10 @@ function nativeSeedModules(): readonly StaticTrainingModule[] {
   return staticTrainingContentSeed.nativeModules ?? staticTrainingContentSeed.universalModules ?? [];
 }
 
+export function listStaticNativeUpgradeDomains(aircraftId: string): readonly TrainingContentDomain[] {
+  return [...new Set(nativeSeedModules().filter((module) => module.aircraftId === aircraftId).map((module) => module.domain))];
+}
+
 function bootstrapContentRecords(): BootstrapContentRecord[] {
   const records: BootstrapContentRecord[] = nativeSeedModules().map((module) => ({
     aircraftId: module.aircraftId,
@@ -114,6 +118,15 @@ export async function publishStaticNativeModuleUpgrade(
 
   const aircraft = staticTrainingContentSeed.aircraft.find((candidate) => candidate.id === aircraftId);
   if (!aircraft) throw new Error(`Static aircraft ${aircraftId} is not registered.`);
+
+  const identical = await sql`SELECT v.version_id
+    FROM training_content_items i
+    JOIN training_content_publications p ON p.item_id=i.item_id
+    JOIN training_content_versions v ON v.version_id=p.version_id
+    WHERE i.aircraft_id=${aircraftId} AND i.domain=${domain} AND i.content_key='bundle'
+      AND v.payload=${JSON.stringify(module.payload)}::jsonb
+    LIMIT 1` as Array<{version_id:string}>;
+  if (identical[0]) throw new Error(`The published ${domain} module already matches the reviewed native seed.`);
 
   const { referenceByManualId, legacyFallback } = await registeredReferencesForAircraft(aircraftId);
   const sourceReferenceIds = selectContentSourceReferenceIds(module.payload, referenceByManualId, legacyFallback);
