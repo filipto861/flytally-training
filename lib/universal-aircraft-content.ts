@@ -288,7 +288,9 @@ function validatePerformance(payload: RecordValue, errors: string[]): void {
       if (!text(output.key) || !text(output.label)) errors.push(`datasets[${datasetIndex}].outputs[${outputIndex}] does not match the performance output contract`);
     });
     dataset.rows.forEach((row, rowIndex) => {
-      if (!object(row.inputs) || !object(row.outputs) || axisKeys.some(key => !key || !scalar(row.inputs[key])) || outputKeys.some(key => !key || !scalar(row.outputs[key]))) {
+      const inputs = object(row.inputs) ? row.inputs : undefined;
+      const outputs = object(row.outputs) ? row.outputs : undefined;
+      if (!inputs || !outputs || axisKeys.some(key => !key || !scalar(inputs[key])) || outputKeys.some(key => !key || !scalar(outputs[key]))) {
         errors.push(`datasets[${datasetIndex}].rows[${rowIndex}] does not cover every axis and output`);
       }
     });
