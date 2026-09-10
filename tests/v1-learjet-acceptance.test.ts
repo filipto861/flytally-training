@@ -30,25 +30,31 @@ const expectedFlightPhases = [
   "shutdown",
 ];
 
-test("Learjet reference implementation passes the aggregate v1 content gate", async () => {
+test("Learjet legacy reference content remains internally complete during the M9 migration", async () => {
   const bundle = await getAircraftContentBundle(new StaticTrainingContentRepository(), aircraftId);
   assert.ok(bundle);
   const report = evaluateV1AircraftContent(bundle);
   assert.equal(report.ready, true, report.checks.filter(check => !check.ok).map(check => `${check.id}: ${check.detail}`).join("\n"));
   assert.ok(report.focusedMinutes <= 240);
   assert.deepEqual(bundle.capabilities, {
-    quickStart: true,
+    checklists: true,
+    procedures: true,
+    performance: false,
+    limitations: false,
     systems: true,
-    normalFlight: true,
-    cockpitOrientation: true,
     abnormalEmergency: true,
-    quickReference: true,
+    flows: true,
+    avionics: false,
     knowledge: true,
     manual: true,
+    quickStart: true,
+    normalFlight: true,
+    cockpitOrientation: true,
+    quickReference: true,
   });
 });
 
-test("Learjet v1 practical path is complete from Cold & Dark back to Shutdown", async () => {
+test("Learjet legacy practical path remains available while native M9 checklists replace it", async () => {
   const bundle = await getAircraftContentBundle(new StaticTrainingContentRepository(), aircraftId);
   assert.ok(bundle?.normalFlight);
   assert.deepEqual(bundle.normalFlight.phases.map(phase => phase.id), expectedFlightPhases);
@@ -60,14 +66,14 @@ test("Learjet v1 practical path is complete from Cold & Dark back to Shutdown", 
   }
 });
 
-test("Learjet v1 includes all nine baseline systems and all four checklist learning modes", async () => {
+test("Learjet legacy content includes all nine baseline systems and all four checklist learning modes", async () => {
   const bundle = await getAircraftContentBundle(new StaticTrainingContentRepository(), aircraftId);
   assert.ok(bundle?.learningContent);
   assert.deepEqual(bundle.learningContent.systems.map(system => system.id), expectedSystems);
   assert.deepEqual(checklistTrainingModes.map(mode => mode.key), ["learn", "practice", "flow", "challenge"]);
 });
 
-test("Learjet v1 keeps the authority boundary explicit across the core learner domains", async () => {
+test("Learjet legacy source boundaries remain explicit during migration", async () => {
   const bundle = await getAircraftContentBundle(new StaticTrainingContentRepository(), aircraftId);
   assert.ok(bundle?.normalFlight && bundle.abnormalTraining && bundle.referenceKnowledge);
   assert.ok(bundle.aircraft.manuals.some(manual => /take precedence/i.test(manual.authorityNote)));
