@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { getTrainingProgressRepository } from "@/lib/progress-repository";
-import { isServerAcceptableProgressEvent } from "@/lib/progress-events";
+import { normalizeServerProgressEvent, type PersistedTrainingProgressEvent } from "@/lib/progress-events";
 import { getTrainingSession } from "@/lib/training-session";
 
 function cleanAircraftId(value: string | null): string | null {
@@ -28,10 +28,17 @@ export async function POST(request: Request) {
   let body: unknown;
   try { body = await request.json(); } catch { return NextResponse.json({ error: "invalid_json" }, { status: 400 }); }
   const events = body && typeof body === "object" && !Array.isArray(body) ? (body as {events?:unknown}).events : undefined;
-  const nowMs = Date.now();
-  if (!Array.isArray(events) || events.length < 1 || events.length > 250 || !events.every(event => isServerAcceptableProgressEvent(event, nowMs))) {
+  if (!Array.isArray(events) || events.length < 1 || events.length > 250) {
     return NextResponse.json({ error: "invalid_events" }, { status: 400 });
   }
-  await getTrainingProgressRepository().appendEvents(session.subject, events);
-  return NextResponse.json({ accepted: events.length });
+
+  const nowMs = Date.now();
+  const normalized = events.map(event => normalizeServerProgressEvent(event, nowMs));
+  if (normalized.some(event => event === null)) {
+    return NextResponse.json({ error: "invalid_events" }, { status: 400 });
+  }
+
+  const accepted = normalized as PersistedTrainingProgressEvent[];
+  await getTrainingProgressRepository().appendEvents(session.subject, accepted);
+  return NextResponse.json({ accepted: accepted.length });
 }
