@@ -1,3 +1,4 @@
+import { hasAvailablePublishedControlledManual } from "@/lib/controlled-manual-readiness";
 import { getAircraftContentBundle } from "@/lib/content-repository";
 import { getTrainingContentRepository } from "@/lib/content-store";
 import { sql } from "@/lib/db";
@@ -12,6 +13,7 @@ export async function GET() {
   let database = false;
   let progressPersistence = false;
   let controlledManualPersistence = false;
+  let controlledManualStorage = false;
   let identityReplayProtection = false;
   let publishedAircraft = false;
   let completeV1Aircraft = false;
@@ -51,18 +53,21 @@ export async function GET() {
         publishedAircraft = aircraft.length > 0;
 
         // Readiness deliberately resolves the same generic learner bundles used
-        // by the application. It stops after the first complete aircraft, so the
-        // gate proves usable v1 content without hard-coding a Learjet identifier.
+        // by the application. A complete bundle alone is not enough: at least
+        // one complete aircraft must also have a currently published source
+        // reference backed by an attached, reachable controlled PDF.
         for (const item of aircraft) {
           try {
             const bundle = await getAircraftContentBundle(repository, item.id);
-            if (bundle && hasCompleteV1AircraftCapabilities(bundle.capabilities)) {
-              completeV1Aircraft = true;
+            if (!bundle || !hasCompleteV1AircraftCapabilities(bundle.capabilities)) continue;
+            completeV1Aircraft = true;
+            if (await hasAvailablePublishedControlledManual(item.id)) {
+              controlledManualStorage = true;
               break;
             }
           } catch {
-            // Keep the more specific completeness check false while preserving
-            // the fact that the published-aircraft catalog itself was readable.
+            // Keep the specific readiness check false while preserving the fact
+            // that the published-aircraft catalog itself was readable.
           }
         }
       } catch {
@@ -77,6 +82,7 @@ export async function GET() {
     && database
     && progressPersistence
     && controlledManualPersistence
+    && controlledManualStorage
     && identityReplayProtection
     && publishedAircraft
     && completeV1Aircraft;
@@ -88,6 +94,7 @@ export async function GET() {
       database,
       progressPersistence,
       controlledManualPersistence,
+      controlledManualStorage,
       identityReplayProtection,
       publishedAircraft,
       completeV1Aircraft,
