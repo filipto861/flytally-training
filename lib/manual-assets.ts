@@ -130,7 +130,7 @@ export async function finalizeManualAsset(assetId: string, subject: string): Pro
     integrity(blob.contentType === "application/pdf", "Uploaded object is not application/pdf.");
 
     const stored = await get(blob.url, { access: "private" });
-    if (!stored) throw new Error("Uploaded PDF could not be read back from private storage for verification.");
+    if (!stored?.stream) throw new Error("Uploaded PDF could not be read back from private storage for verification.");
     const verified = await sha256ReadableStream(stored.stream);
     integrity(verified.bytes === Number(row.size_bytes), "Uploaded PDF byte count changed while verifying the stored object.");
     integrity(verified.sha256 === row.checksum_sha256.toLowerCase(), "Uploaded PDF SHA-256 does not match the checksum computed before upload.");
