@@ -1,11 +1,28 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import type {
+  AircraftChecklistContent,
+  AircraftPerformanceContent,
+  AircraftProcedureContent,
+} from "../lib/universal-aircraft-content.ts";
+
 const acceptanceUrl = process.env.TRAINING_ACCEPTANCE_DATABASE_URL?.trim();
 
-test("a second aircraft can be created, published and rendered through the generic PostgreSQL path without aircraft-specific application code", { skip: !acceptanceUrl }, async () => {
+test("a sparse second aircraft can be created, published and read through the generic PostgreSQL path without aircraft-specific application code", { skip: !acceptanceUrl }, async () => {
   process.env.TRAINING_DATABASE_URL = acceptanceUrl;
-  const [{initializeTrainingDatabase},{createAircraft,addAircraftVariant,createSourceReference},{registerGovernedManualRevision},{publishGovernedAircraft},{createGovernedDraftVersion,approveGovernedContentVersion,publishGovernedContentVersion},{PostgresTrainingContentRepository},{getAircraftContentBundle},{validateContentPayload},{sql}] = await Promise.all([
+  const [
+    { initializeTrainingDatabase },
+    { createAircraft, addAircraftVariant, createSourceReference },
+    { registerGovernedManualRevision },
+    { publishGovernedAircraft },
+    { createGovernedDraftVersion, approveGovernedContentVersion, publishGovernedContentVersion },
+    { PostgresTrainingContentRepository },
+    { getAircraftContentBundle },
+    { validateContentPayload },
+    { configurationForAircraftVariant, filterChecklistForConfiguration, filterProceduresForConfiguration, filterPerformanceForConfiguration },
+    { sql },
+  ] = await Promise.all([
     import("../lib/database-bootstrap.ts"),
     import("../lib/content-admin-repository.ts"),
     import("../lib/governed-manual-registration.ts"),
@@ -14,47 +31,176 @@ test("a second aircraft can be created, published and rendered through the gener
     import("../lib/postgres-content-repository.ts"),
     import("../lib/content-repository.ts"),
     import("../lib/content-contracts.ts"),
+    import("../lib/aircraft-applicability.ts"),
     import("../lib/db.ts"),
   ]);
   await initializeTrainingDatabase();
 
-  const aircraftId = `acceptance-${Date.now()}-${Math.random().toString(16).slice(2,8)}`;
+  const aircraftId = `acceptance-light-sep-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
+  const revisionId = `${aircraftId}-r1`;
+  const manualId = `${aircraftId}-manual`;
   const subject = "acceptance-harness";
-  const source = { chapter:1, section:"Acceptance source", manualPage:"1" };
-  const sourceArray = [source];
-  const domains = {
-    learning: { aircraftId, quickStartTitle:"Acceptance Quick Start", quickStartDescription:"Synthetic contract fixture.", quickStart:[{id:"intro",title:"Introduction",minutes:1,summary:"Synthetic acceptance content.",remember:["Runtime data, not aircraft-specific UI code."],source:sourceArray}], systems:[{id:"system",title:"System",minutes:1,mentalModel:"Synthetic mental model.",pilotControls:["Control"],pilotMonitors:["Monitor"],normalPicture:["Normal"],remember:["Remember"],source:sourceArray}] },
-    "normal-flight": { aircraftId, title:"Acceptance flight", estimatedMinutes:1, sourceNote:"Synthetic acceptance content.", phases:[{id:"phase",title:"Phase",items:[{id:"item",action:"ACTION — CHECK",source}]}] },
-    orientation: { aircraftId, title:"Acceptance orientation", sourceNote:"Synthetic acceptance content.", regions:[{id:"panel",label:"Panel",description:"Synthetic region."}], controls:[{id:"control",label:"Control",regionId:"panel",description:"Synthetic control.",checklistItemIds:["item"],source}] },
-    abnormal: { aircraftId, sourceNote:"Synthetic acceptance content.", disclaimer:"Acceptance fixture only.", scenarios:[{id:"scenario",title:"Scenario",category:"Electrical",phase:"Any",difficulty:"core",minutes:1,summary:"Synthetic.",setup:"Synthetic setup.",objectives:["Recognize"],debrief:["Review"],stages:[
-      {id:"recognition",prompt:"Recognize?",expectedResponse:["Recognize"],why:"Synthetic",source:sourceArray},
-      {id:"control",prompt:"Fly?",expectedResponse:["Control"],why:"Synthetic",source:sourceArray},
-      {id:"immediate",prompt:"Immediate?",expectedResponse:["Act"],why:"Synthetic",source:sourceArray},
-      {id:"continue",prompt:"Continue?",expectedResponse:["Checklist"],why:"Synthetic",source:sourceArray},
-    ]}] },
-    "reference-knowledge": { aircraftId, referenceNote:"Synthetic acceptance reference.", groups:[{id:"group",title:"Reference",flyPriority:1,items:[{id:"value",label:"Value",value:"SET",source:sourceArray}]}], questions:[{id:"question",area:"General",prompt:"Which answer is correct?",choices:["A","B"],correctIndex:0,explanation:"A is the synthetic correct answer.",source:sourceArray}] },
-  } as const;
+  const embeddedSource = { manualId: revisionId, chapter: "1", section: "Synthetic acceptance", pageLabel: "1" } as const;
+
+  const checklists: AircraftChecklistContent = {
+    aircraftId,
+    title: "Acceptance Light SEP Checklists",
+    sourceNote: "Synthetic sparse-aircraft acceptance content.",
+    phases: [{
+      id: "before-start",
+      title: "Before start",
+      sequence: 10,
+      items: [
+        {
+          id: "fuel-selector",
+          challenge: "Fuel selector",
+          response: "ON",
+          procedureId: "fuel-system-preparation",
+          explanation: "Synthetic acceptance item used to prove checklist-to-procedure linking.",
+          sources: [embeddedSource],
+        },
+        {
+          id: "fixed-gear-check",
+          challenge: "Fixed landing gear",
+          response: "CHECK",
+          applicability: { equipmentAllOf: ["fixed-gear"] },
+          sources: [embeddedSource],
+        },
+        {
+          id: "retractable-gear-check",
+          challenge: "Retractable landing gear",
+          response: "DOWN",
+          applicability: { equipmentAllOf: ["retractable-gear"] },
+          sources: [embeddedSource],
+        },
+      ],
+      sources: [embeddedSource],
+    }],
+  };
+
+  const procedures: AircraftProcedureContent = {
+    aircraftId,
+    title: "Acceptance Light SEP Procedures",
+    sourceNote: "Synthetic sparse-aircraft acceptance content.",
+    procedures: [{
+      id: "fuel-system-preparation",
+      title: "Fuel system preparation",
+      phase: "Before start",
+      summary: "A deliberately small source-backed procedure for the acceptance harness.",
+      steps: [{
+        id: "fuel-selector-on",
+        action: "Set the fuel selector to ON.",
+        expectedResult: "Fuel supply is selected for engine operation.",
+        verification: "Selected fuel position agrees with the intended configuration.",
+        sources: [embeddedSource],
+      }],
+      completionCriteria: ["Fuel source selected"],
+      sources: [embeddedSource],
+    }],
+  };
+
+  const performance: AircraftPerformanceContent = {
+    aircraftId,
+    title: "Acceptance Light SEP Performance",
+    sourceNote: "Synthetic exact-row acceptance data; interpolation is intentionally disabled.",
+    datasets: [{
+      id: "takeoff-reference-speed",
+      title: "Takeoff reference speed",
+      description: "Synthetic lookup table used only to verify generic performance rendering and exact-row lookup.",
+      kind: "lookup-table",
+      axes: [{ key: "mass", label: "Mass", unit: "kg", values: [500, 550] }],
+      outputs: [{ key: "vr", label: "VR", unit: "kt" }],
+      rows: [
+        { inputs: { mass: 500 }, outputs: { vr: 55 } },
+        { inputs: { mass: 550 }, outputs: { vr: 58 } },
+      ],
+      interpolation: "none",
+      applicability: { equipmentAllOf: ["fixed-gear"] },
+      notes: ["Synthetic acceptance values. Not operational aircraft data."],
+      sources: [embeddedSource],
+    }],
+  };
+
+  const domains = { checklists, procedures, performance } as const;
 
   try {
-    await createAircraft({id:aircraftId,manufacturer:"Acceptance",model:"Second Aircraft",displayName:"Acceptance Second Aircraft"},subject);
-    await addAircraftVariant(aircraftId,"A");
-    await registerGovernedManualRevision({aircraftId,manualId:`${aircraftId}-manual`,revisionId:`${aircraftId}-r1`,title:"Acceptance Manual",publisher:"FlyTally Acceptance",sourceKind:"TRAINING_MANUAL",revision:"1",issueDate:"2026-09",authorityRole:"TRAINING_REFERENCE",authorityNote:"Synthetic disposable acceptance source.",sourceUri:"acceptance://manual.pdf",checksumSha256:"a".repeat(64)},subject);
-    const referenceId = await createSourceReference({revisionId:`${aircraftId}-r1`,chapter:"1",section:"Acceptance",pageLabel:"1"},subject);
+    await createAircraft({
+      id: aircraftId,
+      manufacturer: "Acceptance",
+      model: "Light SEP",
+      displayName: "Acceptance Light SEP",
+    }, subject);
+    await addAircraftVariant(aircraftId, "A", "A", { equipmentTags: ["fixed-gear"], note: "Synthetic disposable acceptance configuration." });
+    await registerGovernedManualRevision({
+      aircraftId,
+      manualId,
+      revisionId,
+      title: "Acceptance Light SEP Manual",
+      publisher: "FlyTally Acceptance",
+      sourceKind: "POH",
+      revision: "1",
+      issueDate: "2026-09",
+      authorityRole: "TRAINING_REFERENCE",
+      authorityNote: "Synthetic disposable acceptance source.",
+      sourceUri: "acceptance://light-sep-manual.pdf",
+      checksumSha256: "a".repeat(64),
+    }, subject);
+    const referenceId = await createSourceReference({ revisionId, chapter: "1", section: "Synthetic acceptance", pageLabel: "1" }, subject);
 
-    for (const [domain,payload] of Object.entries(domains)) {
-      assert.deepEqual(validateContentPayload(domain as keyof typeof domains,payload,aircraftId),[]);
-      const versionId = await createGovernedDraftVersion({aircraftId,domain,contentKey:"bundle",payload,origin:"human",sourceReferenceIds:[referenceId]},subject);
-      await approveGovernedContentVersion(versionId,subject,"Disposable no-code acceptance fixture.");
-      await publishGovernedContentVersion(versionId,subject);
+    for (const [domain, payload] of Object.entries(domains)) {
+      assert.deepEqual(validateContentPayload(domain as keyof typeof domains, payload, aircraftId), []);
+      const versionId = await createGovernedDraftVersion({
+        aircraftId,
+        domain,
+        contentKey: "bundle",
+        payload,
+        origin: "human",
+        sourceReferenceIds: [referenceId],
+      }, subject);
+      await approveGovernedContentVersion(versionId, subject, "Disposable sparse-aircraft acceptance fixture.");
+      await publishGovernedContentVersion(versionId, subject);
     }
     await publishGovernedAircraft(aircraftId);
 
     const repository = new PostgresTrainingContentRepository();
-    const bundle = await getAircraftContentBundle(repository,aircraftId);
+    const bundle = await getAircraftContentBundle(repository, aircraftId);
     assert.ok(bundle);
-    assert.equal(bundle.aircraft.id,aircraftId);
-    assert.deepEqual(bundle.capabilities,{checklists:true,procedures:true,performance:false,limitations:false,systems:true,abnormalEmergency:true,flows:true,avionics:false,knowledge:true,manual:true,quickStart:true,normalFlight:true,cockpitOrientation:true,quickReference:true});
-    assert.ok((await repository.listAircraft()).some(aircraft=>aircraft.id===aircraftId));
+    assert.equal(bundle.aircraft.id, aircraftId);
+    assert.deepEqual(bundle.publishedModuleDomains, ["checklists", "performance", "procedures"]);
+    assert.deepEqual(bundle.capabilities, {
+      checklists: true,
+      procedures: true,
+      performance: true,
+      limitations: false,
+      systems: false,
+      abnormalEmergency: false,
+      flows: false,
+      avionics: false,
+      knowledge: false,
+      manual: true,
+      quickStart: false,
+      normalFlight: false,
+      cockpitOrientation: false,
+      quickReference: false,
+    });
+    assert.ok((await repository.listAircraft()).some((aircraft) => aircraft.id === aircraftId));
+
+    const storedChecklists = await repository.getPublishedModule<AircraftChecklistContent>(aircraftId, "checklists");
+    const storedProcedures = await repository.getPublishedModule<AircraftProcedureContent>(aircraftId, "procedures");
+    const storedPerformance = await repository.getPublishedModule<AircraftPerformanceContent>(aircraftId, "performance");
+    assert.ok(storedChecklists && storedProcedures && storedPerformance);
+
+    const configuration = configurationForAircraftVariant(bundle.aircraft, "A");
+    const configuredChecklists = filterChecklistForConfiguration(storedChecklists, configuration);
+    const configuredProcedures = filterProceduresForConfiguration(storedProcedures, configuration);
+    const configuredPerformance = filterPerformanceForConfiguration(storedPerformance, configuration);
+    assert.deepEqual(configuredChecklists.phases[0]?.items.map((item) => item.id), ["fuel-selector", "fixed-gear-check"]);
+    assert.deepEqual(configuredProcedures.procedures.map((procedure) => procedure.id), ["fuel-system-preparation"]);
+    assert.deepEqual(configuredPerformance.datasets.map((dataset) => dataset.id), ["takeoff-reference-speed"]);
+
+    for (const absentDomain of ["limitations", "systems", "flows", "avionics", "knowledge", "abnormal", "learning", "normal-flight", "orientation", "reference-knowledge"] as const) {
+      assert.equal(await repository.getPublishedModule(aircraftId, absentDomain), undefined, `${absentDomain} must stay absent for the sparse aircraft`);
+    }
   } finally {
     await sql`DELETE FROM training_aircraft_types WHERE aircraft_id=${aircraftId}`;
   }
