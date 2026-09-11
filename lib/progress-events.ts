@@ -1,6 +1,7 @@
 export const trainingActivityKinds = [
   "quick-start",
   "systems",
+  "avionics",
   "orientation",
   "normal-flight",
   "checklist-phase",
@@ -54,12 +55,6 @@ export function isPersistedTrainingProgressEvent(value: unknown): value is Persi
   return true;
 }
 
-/**
- * Canonicalize timestamps before persistence. Old/offline history is preserved.
- * Ordinary positive device-clock skew is preserved too, but a timestamp farther
- * than the allowed skew is clamped to server time instead of poisoning the
- * continuation pointer or causing one bad local event to block the whole batch.
- */
 export function normalizeServerProgressEvent(
   value: unknown,
   nowMs = Date.now(),

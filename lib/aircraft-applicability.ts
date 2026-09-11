@@ -2,6 +2,7 @@ import type { TrainingAircraft, TrainingAircraftVariantProfile } from "./aircraf
 import type { AircraftAbnormalEmergencyContent } from "./universal-abnormal-emergency.ts";
 import type {
   AircraftApplicability,
+  AircraftAvionicsContent,
   AircraftChecklistContent,
   AircraftFlowsContent,
   AircraftKnowledgeContent,
@@ -28,8 +29,8 @@ export function resolveVariantProfile(
   if (!variant) return undefined;
   const explicit = aircraft.variantProfiles?.find((profile) => profile.key === variant);
   if (explicit) return explicit;
-  // Legacy/static aircraft can expose only variant keys. Falling back to an
-  // empty equipment set is intentionally safer than inferring installations.
+  // Falling back to an unregistered legacy variant is intentionally limited to
+  // an empty equipment set. Never infer optional equipment from the variant key.
   if (aircraft.variants.includes(variant)) return { key: variant, displayName: variant, equipmentTags: [] };
   return undefined;
 }
@@ -135,6 +136,16 @@ export function filterFlowsForConfiguration(
   return {
     ...content,
     flows: content.flows.filter((flow) => matchesAircraftApplicability(flow.applicability, configuration)),
+  };
+}
+
+export function filterAvionicsForConfiguration(
+  content: AircraftAvionicsContent,
+  configuration: AircraftConfiguration,
+): AircraftAvionicsContent {
+  return {
+    ...content,
+    topics: content.topics.filter((topic) => matchesAircraftApplicability(topic.applicability, configuration)),
   };
 }
 

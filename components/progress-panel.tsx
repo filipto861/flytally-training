@@ -10,6 +10,7 @@ import styles from "./m6-training.module.css";
 const kindLabels: Record<PersistedTrainingProgressEvent["kind"], string> = {
   "quick-start": "Quick Start",
   systems: "Systems",
+  avionics: "Avionics",
   orientation: "Cockpit orientation",
   "normal-flight": "Complete flight",
   "checklist-phase": "Checklist phase",
@@ -86,7 +87,7 @@ export function ProgressPanel({ aircraftId }: Readonly<{ aircraftId: string }>) 
               </article>
             ))}
           </div>
-        ) : <div className={styles.emptyProgress}>Complete Quick Start, a system lesson, checklist, procedure, flow, scenario or knowledge question and it will appear here.</div>}
+        ) : <div className={styles.emptyProgress}>Complete Quick Start, a system lesson, avionics topic, checklist, procedure, flow, scenario or knowledge question and it will appear here.</div>}
       </section>
     </section>
   );

@@ -44,7 +44,7 @@ test("Learjet legacy reference content remains internally complete while native 
     systems: true,
     abnormalEmergency: true,
     flows: true,
-    avionics: false,
+    avionics: true,
     knowledge: true,
     manual: true,
     quickStart: true,

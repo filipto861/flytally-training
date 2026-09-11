@@ -42,13 +42,7 @@ export type TrainingAircraft = {
   readonly id: string;
   readonly manufacturer: string;
   readonly model: string;
-  /** Compatibility index used by existing URLs and simple selectors. */
   readonly variants: readonly string[];
-  /**
-   * First-class configuration records loaded from variant repository data.
-   * Optional only so legacy fixtures/adapters can migrate without pretending
-   * they know installed equipment; production PostgreSQL always supplies it.
-   */
   readonly variantProfiles?: readonly TrainingAircraftVariantProfile[];
   readonly displayName: string;
   readonly manuals: readonly TrainingManualRevision[];
@@ -60,8 +54,8 @@ export const learjet3536: TrainingAircraft = {
   model: "35/36",
   variants: ["35", "35A", "36", "36A"],
   // Deliberately do not infer AAK/ECR installations from a Learjet model name.
-  // Governed database metadata can add equipment tags when the installation is
-  // actually known for a published configuration profile.
+  // Governed database metadata can add equipment tags only when the actual
+  // aircraft/configuration is known.
   variantProfiles: [
     { key: "35", displayName: "35", equipmentTags: [] },
     { key: "35A", displayName: "35A", equipmentTags: [] },
@@ -80,35 +74,56 @@ export const learjet3536: TrainingAircraft = {
       authorityRole: "TRAINING_REFERENCE",
       authorityNote:
         "Training and familiarization source. Manufacturer and regulatory publications take precedence if information conflicts.",
-      sourceReferences: {
-        identityPage: 1,
-        authorityNoticePage: 2,
-        revisionPage: 4,
-        contentsPage: 5,
-      },
+      sourceReferences: { identityPage: 1, authorityNoticePage: 2, revisionPage: 4, contentsPage: 5 },
       chapters: [
         { number: 1, title: "Aircraft General", status: "READY_TO_DRAFT" },
-        { number: 2, title: "Electrical Power Systems", status: "PLANNED" },
-        { number: 3, title: "Lighting", status: "PLANNED" },
-        { number: 4, title: "Master Warning System", status: "PLANNED" },
-        { number: 5, title: "Fuel System", status: "PLANNED" },
+        { number: 2, title: "Electrical Power Systems", status: "READY_TO_DRAFT" },
+        { number: 3, title: "Lighting", status: "READY_TO_DRAFT" },
+        { number: 4, title: "Master Warning System", status: "READY_TO_DRAFT" },
+        { number: 5, title: "Fuel System", status: "READY_TO_DRAFT" },
         { number: 6, title: "Auxiliary Power Unit", status: "PLANNED" },
-        { number: 7, title: "Powerplant", status: "PLANNED" },
-        { number: 8, title: "Fire Protection", status: "PLANNED" },
-        { number: 9, title: "Pneumatics", status: "PLANNED" },
-        { number: 10, title: "Ice and Rain Protection", status: "PLANNED" },
-        { number: 11, title: "Air Conditioning", status: "PLANNED" },
-        { number: 12, title: "Pressurization", status: "PLANNED" },
-        { number: 13, title: "Hydraulic Power System", status: "PLANNED" },
-        { number: 14, title: "Landing Gear and Brakes", status: "PLANNED" },
-        { number: 15, title: "Flight Controls", status: "PLANNED" },
-        { number: 16, title: "Avionics", status: "PLANNED" },
-        { number: 17, title: "Miscellaneous Systems", status: "PLANNED" },
-        { number: 18, title: "Maneuvers and Procedures", status: "PLANNED" },
-        { number: 19, title: "Weight and Balance", status: "PLANNED" },
-        { number: 20, title: "Performance", status: "PLANNED" },
-        { number: 21, title: "Crew Resource Management", status: "PLANNED" },
+        { number: 7, title: "Powerplant", status: "READY_TO_DRAFT" },
+        { number: 8, title: "Fire Protection", status: "READY_TO_DRAFT" },
+        { number: 9, title: "Pneumatics", status: "READY_TO_DRAFT" },
+        { number: 10, title: "Ice and Rain Protection", status: "READY_TO_DRAFT" },
+        { number: 11, title: "Air Conditioning", status: "READY_TO_DRAFT" },
+        { number: 12, title: "Pressurization", status: "READY_TO_DRAFT" },
+        { number: 13, title: "Hydraulic Power System", status: "READY_TO_DRAFT" },
+        { number: 14, title: "Landing Gear and Brakes", status: "READY_TO_DRAFT" },
+        { number: 15, title: "Flight Controls", status: "READY_TO_DRAFT" },
+        { number: 16, title: "Avionics", status: "READY_TO_DRAFT" },
+        { number: 17, title: "Miscellaneous Systems", status: "READY_TO_DRAFT" },
+        { number: 18, title: "Maneuvers and Procedures", status: "READY_TO_DRAFT" },
+        { number: 19, title: "Weight and Balance", status: "READY_TO_DRAFT" },
+        { number: 20, title: "Performance", status: "READY_TO_DRAFT" },
+        { number: 21, title: "Crew Resource Management", status: "READY_TO_DRAFT" },
       ],
+    },
+    {
+      id: "flysimware-learjet-35a-msfs-v1-2",
+      title: "Learjet 35A Version 1.2",
+      publisher: "Flysimware",
+      revision: "1.2",
+      issueDate: "2024",
+      sourceKind: "SIMULATOR_MANUAL",
+      authorityRole: "SIMULATOR_IMPLEMENTATION",
+      authorityNote:
+        "Simulator-model implementation reference. Use for Flysimware control locations, modeled behavior and product-specific operation; it does not override real-aircraft training or approved aircraft documentation.",
+      sourceReferences: { identityPage: 1, authorityNoticePage: 2, revisionPage: 1, contentsPage: 5 },
+      chapters: [],
+    },
+    {
+      id: "jaydee-learjet-35a-checklist-v1-35-wip1",
+      title: "Learjet 35A Guide – Checklist & Procedures for MS Flight Simulator",
+      publisher: "JayDee",
+      revision: "1.35.WIP1",
+      issueDate: "2024",
+      sourceKind: "SIMULATOR_GUIDE",
+      authorityRole: "SIMULATOR_WORKFLOW",
+      authorityNote:
+        "Simulator workflow reference. The guide explicitly states that some procedures are intentionally altered from real-world procedures; use only as a clearly identified workflow/implementation aid.",
+      sourceReferences: { identityPage: 1, authorityNoticePage: 1, revisionPage: 1, contentsPage: 1 },
+      chapters: [],
     },
   ],
 };
