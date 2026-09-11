@@ -25,6 +25,14 @@ jobs:
           cache-dependency-path: package-lock.json
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
+      - name: Export reviewed M27 payloads
+        run: node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types tooling/export-m27-payloads.ts
+      - name: Upload reviewed M27 payloads
+        uses: actions/upload-artifact@v4
+        with:
+          name: m27-content-payloads
+          path: m27-payloads.json
+          retention-days: 1
       - name: TypeScript
         run: npm run typecheck
       - name: Unit tests
