@@ -93,9 +93,20 @@ const landingDatasets: readonly PerformanceDataset[] = [
   },
 ];
 
+const linearSourceFormulaDatasetIds = new Set([
+  "jaydee-tod-derived-table",
+  "jaydee-three-degree-descent-vs",
+]);
+
+const flightReadyBaseDatasets: readonly PerformanceDataset[] = learjet3536PracticalPerformance.datasets.map((dataset) =>
+  linearSourceFormulaDatasetIds.has(dataset.id)
+    ? { ...dataset, interpolation: "linear-explicit" as const }
+    : dataset,
+);
+
 export const learjet3536FlightReadyPerformance: AircraftPerformanceContent = {
   ...learjet3536PracticalPerformance,
-  datasets: [...learjet3536PracticalPerformance.datasets, ...landingDatasets],
+  datasets: [...flightReadyBaseDatasets, ...landingDatasets],
 };
 
 export const learjet3536FlightReadyLimitations: AircraftLimitationsContent = {
