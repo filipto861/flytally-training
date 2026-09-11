@@ -3,6 +3,7 @@ import { trainingAircraft, type TrainingAircraft } from "./aircraft-catalog.ts";
 import { learjet3536CockpitOrientation, type CockpitOrientation } from "./cockpit-orientation.ts";
 import type { TrainingContentDomain } from "./content-admin-types.ts";
 import type { TrainingContentRepository } from "./content-repository.ts";
+import { learjet3536CaeNormalChecklist } from "./learjet-cae-pilot-content.ts";
 import { learjet3536CompleteCoreModules } from "./learjet-complete-elearning.ts";
 import { learjet3536NativeAbnormal } from "./learjet-native-abnormal.ts";
 import type { StaticUniversalTrainingModule } from "./learjet-native-content.ts";
@@ -19,7 +20,6 @@ export type StaticTrainingModule = {
 
 export type StaticTrainingContentSeed = {
   readonly aircraft: readonly TrainingAircraft[];
-  /** Current generic source-backed modules, including abnormal/emergency. */
   readonly nativeModules?: readonly StaticTrainingModule[];
   /** @deprecated M9 compatibility for fixtures created before nativeModules. */
   readonly universalModules?: readonly StaticUniversalTrainingModule[];
@@ -30,10 +30,13 @@ export type StaticTrainingContentSeed = {
   readonly referenceKnowledge: readonly AircraftReferenceKnowledge[];
 };
 
+const learjetCoreWithoutLegacyChecklist = learjet3536CompleteCoreModules.filter((module) => module.domain !== "checklists");
+
 export const staticTrainingContentSeed: StaticTrainingContentSeed = {
   aircraft: trainingAircraft,
   nativeModules: [
-    ...learjet3536CompleteCoreModules,
+    { aircraftId: learjet3536CaeNormalChecklist.aircraftId, domain: "checklists", payload: learjet3536CaeNormalChecklist },
+    ...learjetCoreWithoutLegacyChecklist,
     { aircraftId: learjet3536NativeKnowledge.aircraftId, domain: "knowledge", payload: learjet3536NativeKnowledge },
     { aircraftId: learjet3536NativeAbnormal.aircraftId, domain: "abnormal", payload: learjet3536NativeAbnormal },
   ],
