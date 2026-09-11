@@ -3,8 +3,9 @@ import { trainingAircraft, type TrainingAircraft } from "./aircraft-catalog.ts";
 import { learjet3536CockpitOrientation, type CockpitOrientation } from "./cockpit-orientation.ts";
 import type { TrainingContentDomain } from "./content-admin-types.ts";
 import type { TrainingContentRepository } from "./content-repository.ts";
+import { learjet3536CompleteCoreModules } from "./learjet-complete-elearning.ts";
 import { learjet3536NativeAbnormal } from "./learjet-native-abnormal.ts";
-import { learjet3536NativeModules, type StaticUniversalTrainingModule } from "./learjet-native-content.ts";
+import type { StaticUniversalTrainingModule } from "./learjet-native-content.ts";
 import { learjet3536NativeKnowledge } from "./learjet-native-knowledge.ts";
 import { learjet3536LearningContent, type AircraftLearningContent } from "./learning-content.ts";
 import { learjet3536ReferenceKnowledge, type AircraftReferenceKnowledge } from "./reference-knowledge.ts";
@@ -32,7 +33,7 @@ export type StaticTrainingContentSeed = {
 export const staticTrainingContentSeed: StaticTrainingContentSeed = {
   aircraft: trainingAircraft,
   nativeModules: [
-    ...learjet3536NativeModules,
+    ...learjet3536CompleteCoreModules,
     { aircraftId: learjet3536NativeKnowledge.aircraftId, domain: "knowledge", payload: learjet3536NativeKnowledge },
     { aircraftId: learjet3536NativeAbnormal.aircraftId, domain: "abnormal", payload: learjet3536NativeAbnormal },
   ],
