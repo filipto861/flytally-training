@@ -20,7 +20,7 @@ const secondAircraft = {
   displayName: "Repository Test Aircraft",
 };
 
-test("repository lookup is aircraft-agnostic and legacy data maps into universal capabilities during migration", async () => {
+test("repository lookup is aircraft-agnostic and only route-backed legacy data maps into universal capabilities", async () => {
   const repository = new StaticTrainingContentRepository({
     aircraft: [learjet3536, secondAircraft],
     learningContent: [learjet3536LearningContent, { ...learjet3536LearningContent, aircraftId: secondAircraftId }],
@@ -37,12 +37,12 @@ test("repository lookup is aircraft-agnostic and legacy data maps into universal
   assert.equal(bundle.normalFlight?.aircraftId, secondAircraftId);
   assert.deepEqual(bundle.capabilities, {
     checklists: true,
-    procedures: true,
+    procedures: false,
     performance: false,
     limitations: false,
     systems: true,
     abnormalEmergency: true,
-    flows: true,
+    flows: false,
     avionics: false,
     knowledge: true,
     manual: true,
