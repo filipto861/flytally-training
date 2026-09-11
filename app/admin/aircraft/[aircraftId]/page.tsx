@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { SourceFingerprintInput } from "@/components/source-fingerprint-input";
 import { requireTrainingAdmin } from "@/lib/admin-auth";
 import { deriveContentStudio } from "@/lib/admin-content-studio";
+import { structuredAuthoringDomainLabel,structuredAuthoringDomains } from "@/lib/content-authoring-templates";
 import { getAdminAircraft,getOpenStaleFlags } from "@/lib/content-admin-repository";
 import { trainingContentDomains } from "@/lib/content-admin-types";
 import { listStaticNativeUpgradeDomains } from "@/lib/governed-static-bootstrap";
@@ -25,9 +26,9 @@ export default async function AdminAircraftPage({params}:Readonly<{params:Promis
   return <main className="shell aircraft-detail">
     <Link className="back-link" href="/admin">← Content administration</Link>
     <section className="workspace-section-hero">
-      <p className="eyebrow">M31 Source-governed Content Studio · {aircraft.status}</p>
+      <p className="eyebrow">M33 Governed Content Studio · {aircraft.status}</p>
       <h1>{aircraft.displayName}</h1>
-      <p className="lede">Manage immutable source records, exact references, governed drafts, review and release without turning FlyTally into a document library.</p>
+      <p className="lede">Manage immutable source records, exact references, structured human authoring, governed review and release without aircraft-specific source code or hosted manuals.</p>
       <div className={styles.inlineActions}>
         <Link href={`/admin/aircraft/${aircraftId}/onboarding`}>Open onboarding →</Link>
         {aircraft.status!=="published"?<form action={publishAircraftAction}><Hidden aircraftId={aircraftId}/><button type="submit">Publish aircraft catalogue entry</button></form>:null}
@@ -88,12 +89,15 @@ export default async function AdminAircraftPage({params}:Readonly<{params:Promis
     </section>
 
     <section className={`reference-library ${styles.anchor}`} id="authoring">
-      <div className={styles.sectionHeader}><div><p className="eyebrow">3 · Authoring</p><h2>Create a governed draft</h2></div><p>Select source references by name, state the drafting goal and provide only the excerpt required for the task. FlyTally retains the governed content and provenance, not the source document.</p></div>
-      {studio.references.length?<form action={createAiDraftAction}><Hidden aircraftId={aircraftId}/><div className={styles.formGrid}><label>Module<select name="domain">{trainingContentDomains.map(domain=><option key={domain} value={domain}>{domainLabel(domain)}</option>)}</select></label><label>Content key<input name="contentKey" defaultValue="bundle"/></label><label className={styles.full}>Drafting goal<input name="goal" placeholder="Build the electrical system lesson from the selected source material" required/></label></div>
-        <div className={styles.sourceChoices}>{studio.references.map(reference=><label className={styles.sourceChoice} key={reference.id}><input type="checkbox" name="sourceReferenceId" value={reference.id}/><span><strong>{reference.label}</strong>{reference.note?<small>{reference.note}</small>:null}</span></label>)}</div>
-        <label className={styles.field}>Relevant source excerpt<textarea className={styles.textarea} name="sourceText" placeholder="Paste only the relevant source excerpt for this drafting task." required/></label>
-        <p><button type="submit">Generate governed draft</button></p>
-      </form>:<p className={styles.empty}>Create at least one exact source reference before authoring content.</p>}
+      <div className={styles.sectionHeader}><div><p className="eyebrow">3 · Authoring</p><h2>Start a structured module</h2></div><p>Create technical content from a domain template with no invented aircraft data. The template defines structure only; source-backed content is entered in the M32 builder and saved as a governed human draft.</p></div>
+      {studio.references.length?<>
+        <div className={styles.moduleGrid}>{structuredAuthoringDomains.map(domain=><article className={styles.moduleCard} key={domain}><div className={styles.moduleTop}><strong>{structuredAuthoringDomainLabel(domain)}</strong><span className={styles.badge}>new</span></div><div className={styles.moduleMeta}><span>Universal structured template</span><span>Human draft · source linked</span></div><div className={styles.moduleActions}><Link href={`/admin/aircraft/${encodeURIComponent(aircraftId)}/content/new?domain=${encodeURIComponent(domain)}`}>Start module →</Link></div></article>)}</div>
+        <details className={styles.advanced}><summary>AI-assisted draft from a controlled excerpt</summary><p className={styles.subtle}>Use AI as an optional drafting assistant after selecting exact governed source references. The generated version still requires human review and explicit approval.</p><form action={createAiDraftAction}><Hidden aircraftId={aircraftId}/><div className={styles.formGrid}><label>Module<select name="domain">{trainingContentDomains.map(domain=><option key={domain} value={domain}>{domainLabel(domain)}</option>)}</select></label><label>Content key<input name="contentKey" defaultValue="bundle"/></label><label className={styles.full}>Drafting goal<input name="goal" placeholder="Build the electrical system lesson from the selected source material" required/></label></div>
+          <div className={styles.sourceChoices}>{studio.references.map(reference=><label className={styles.sourceChoice} key={reference.id}><input type="checkbox" name="sourceReferenceId" value={reference.id}/><span><strong>{reference.label}</strong>{reference.note?<small>{reference.note}</small>:null}</span></label>)}</div>
+          <label className={styles.field}>Relevant source excerpt<textarea className={styles.textarea} name="sourceText" placeholder="Paste only the relevant source excerpt for this drafting task." required/></label>
+          <p><button type="submit">Generate governed draft</button></p>
+        </form></details>
+      </>:<p className={styles.empty}>Create at least one exact source reference before authoring content.</p>}
     </section>
 
     <section className={`reference-library ${styles.anchor}`} id="modules">
