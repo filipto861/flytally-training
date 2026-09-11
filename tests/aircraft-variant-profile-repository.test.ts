@@ -36,9 +36,11 @@ test("all native learner modules resolve applicability through the aircraft prof
   }
 });
 
-test("variant selector uses profile display data without exposing an aircraft-specific option list", () => {
+test("compact variant selector uses profile display data without exposing an aircraft-specific option list", () => {
   assert.match(selector, /variantProfiles/);
   assert.match(selector, /profile\.displayName/);
-  assert.match(selector, /equipmentTags\.length/);
+  assert.match(selector, /profiles\.map/);
+  assert.match(selector, />Configuration<\/span>/);
+  assert.doesNotMatch(selector, /equipment\/modification tag|Variant-specific content is active/);
   assert.doesNotMatch(selector, /35A|36A|Bristell|Boeing|Learjet/i);
 });

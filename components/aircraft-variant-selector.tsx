@@ -22,7 +22,6 @@ export function AircraftVariantSelector({
     displayName: variant,
     equipmentTags: [] as readonly string[],
   });
-  const activeProfile = profiles.find((profile) => profile.key === selectedVariant);
 
   if (profiles.length <= 1) return null;
 
@@ -35,25 +34,12 @@ export function AircraftVariantSelector({
   }
 
   return (
-    <section className={styles.selector} aria-label="Aircraft configuration">
-      <div>
-        <p className="eyebrow">Aircraft configuration</p>
-        <strong>{activeProfile ? activeProfile.displayName : "Select the aircraft variant"}</strong>
-        <span>
-          {activeProfile
-            ? activeProfile.note ?? (activeProfile.equipmentTags.length
-              ? `This configuration includes ${activeProfile.equipmentTags.length} explicitly registered equipment/modification tag${activeProfile.equipmentTags.length === 1 ? "" : "s"}.`
-              : "Variant-specific content is active. No optional equipment is inferred unless it is explicitly registered in the aircraft profile.")
-            : "Until a variant is selected, FlyTally hides content that is explicitly restricted to a specific variant or required equipment."}
-        </span>
-      </div>
-      <label>
-        <span>Variant</span>
-        <select value={selectedVariant ?? ""} onChange={(event) => selectVariant(event.target.value)}>
-          <option value="">Common content only</option>
-          {profiles.map((profile) => <option key={profile.key} value={profile.key}>{profile.displayName}</option>)}
-        </select>
-      </label>
-    </section>
+    <label className={styles.selector} aria-label="Aircraft configuration">
+      <span>Configuration</span>
+      <select value={selectedVariant ?? ""} onChange={(event) => selectVariant(event.target.value)}>
+        <option value="">Common</option>
+        {profiles.map((profile) => <option key={profile.key} value={profile.key}>{profile.displayName}</option>)}
+      </select>
+    </label>
   );
 }

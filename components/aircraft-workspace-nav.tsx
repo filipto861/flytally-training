@@ -5,6 +5,7 @@ import { withVariantQuery } from "@/lib/aircraft-applicability";
 import type { TrainingAircraftVariantProfile } from "@/lib/aircraft-catalog";
 import { aircraftWorkspaceSections, type AircraftModuleNavKey } from "@/lib/aircraft-workspace-navigation";
 import { getTrainingContentRepository } from "@/lib/content-store";
+import styles from "./aircraft-workspace-nav.module.css";
 
 export type { AircraftModuleNavKey } from "@/lib/aircraft-workspace-navigation";
 
@@ -14,7 +15,7 @@ const learnKeys = new Set(["procedures", "systems", "flows", "avionics", "knowle
 const pilotLabel = (key: string, fallback: string): string => {
   if (key === "checklists") return "Normal";
   if (key === "abnormal") return "QRH";
-  if (key === "flows") return "Workflow drills";
+  if (key === "flows") return "Workflow";
   if (key === "knowledge") return "Knowledge";
   return fallback;
 };
@@ -41,49 +42,63 @@ export async function AircraftWorkspaceNav({
   const progress = sections.find((section) => section.key === "progress");
   const fly = sections.filter((section) => flyKeys.has(section.key));
   const learn = sections.filter((section) => learnKeys.has(section.key));
+  const hasQuickReference = fly.some(section => section.key === "performance") && fly.some(section => section.key === "limitations");
+  const flyLinks = hasQuickReference
+    ? [
+        ...fly.flatMap(section => section.key === "limitations"
+          ? [{ key: "quick-reference", label: "Quick Reference", href: `/aircraft/${aircraftId}/quick-reference` }, section]
+          : [section]),
+      ]
+    : fly;
   const activeGroup = flyKeys.has(active) || active === "reference" || active === "quick-reference"
     ? "fly"
     : learnKeys.has(active)
       ? "learn"
       : undefined;
-  const contextualSections = activeGroup === "fly" ? fly : activeGroup === "learn" ? learn : [];
 
-  const topLinks = [
-    overview ? { key: "overview", label: "Aircraft", href: overview.href, active: active === "overview" } : undefined,
-    fly[0] ? { key: "fly", label: "FLY", href: fly[0].href, active: activeGroup === "fly" } : undefined,
-    learn[0] ? { key: "learn", label: "LEARN", href: learn[0].href, active: activeGroup === "learn" } : undefined,
-    progress ? { key: "progress", label: "Progress", href: progress.href, active: active === "progress" } : undefined,
-  ].filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
-
-  return (
-    <>
-      <nav className="workspace-nav workspace-nav-primary" aria-label="Aircraft pilot workspace navigation">
-        {topLinks.map((entry) => (
+  const renderGroup = (
+    group: "fly" | "learn",
+    label: string,
+    description: string,
+    entries: readonly { key: string; label: string; href: string }[],
+  ) => entries.length ? (
+    <section className={`${styles.group} ${styles[group]} ${activeGroup === group ? styles.groupActive : ""}`}>
+      <div className={styles.groupHeader}><strong>{label}</strong><span>{description}</span></div>
+      <nav className={styles.links} aria-label={`${label} tools`}>
+        {entries.map((entry) => (
           <Link
-            aria-current={entry.active ? "page" : undefined}
-            className={entry.active ? "active" : undefined}
+            aria-current={entry.key === active ? "page" : undefined}
+            className={entry.key === active ? "active" : undefined}
             href={withVariantQuery(entry.href, selectedVariant)}
             key={entry.key}
           >
-            {entry.label}
+            {pilotLabel(entry.key, entry.label)}
           </Link>
         ))}
       </nav>
-      {contextualSections.length ? (
-        <nav className="workspace-nav workspace-nav-secondary" aria-label={`${activeGroup === "fly" ? "FLY" : "LEARN"} tools`}>
-          {contextualSections.map((section) => (
-            <Link
-              aria-current={section.key === active ? "page" : undefined}
-              className={section.key === active ? "active" : undefined}
-              href={withVariantQuery(section.href, selectedVariant)}
-              key={section.key}
-            >
-              {pilotLabel(section.key, section.label)}
-            </Link>
-          ))}
-        </nav>
-      ) : null}
-      <AircraftVariantSelector variants={variants} variantProfiles={variantProfiles} selectedVariant={selectedVariant} />
-    </>
+    </section>
+  ) : null;
+
+  return (
+    <section className={styles.navigator} aria-label="Aircraft training navigation">
+      <div className={styles.utilityRow}>
+        {overview ? <Link
+          aria-current={active === "overview" ? "page" : undefined}
+          className={`${styles.utilityLink} ${active === "overview" ? styles.utilityActive : ""}`}
+          href={withVariantQuery(overview.href, selectedVariant)}
+        >Overview</Link> : null}
+        {progress ? <Link
+          aria-current={active === "progress" ? "page" : undefined}
+          className={`${styles.utilityLink} ${active === "progress" ? styles.utilityActive : ""}`}
+          href={withVariantQuery(progress.href, selectedVariant)}
+        >Progress</Link> : null}
+        <span className={styles.spacer}/>
+        <AircraftVariantSelector variants={variants} variantProfiles={variantProfiles} selectedVariant={selectedVariant} />
+      </div>
+      <div className={styles.groups}>
+        {renderGroup("fly", "FLY", "Cockpit tools", flyLinks)}
+        {renderGroup("learn", "LEARN", "Study & practice", learn)}
+      </div>
+    </section>
   );
 }

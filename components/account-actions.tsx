@@ -25,9 +25,7 @@ export function AccountActions() {
     return () => controller.abort();
   }, []);
 
-  if (session === null) {
-    return <div className="account-actions" aria-label="Account"><span className="account-state">FlyTally</span></div>;
-  }
+  if (session === null) return <div className="account-actions account-actions-loading" aria-label="Account"/>;
 
   if (!session.authenticated) {
     return <div className="account-actions" aria-label="Account">
@@ -37,7 +35,6 @@ export function AccountActions() {
 
   return <div className="account-actions" aria-label="Account">
     {session.role === "admin" ? <Link className="header-action header-action-secondary" href="/admin">Admin</Link> : null}
-    <span className="account-state">FlyTally account</span>
     <form action="/api/auth/logout" method="post">
       <button className="header-action header-action-secondary" type="submit">Sign out</button>
     </form>
