@@ -2,7 +2,12 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-import { getPerformanceSelectionState, performanceScalarKey } from "@/lib/performance-runtime";
+import {
+  getPerformanceSelectionState,
+  isLinearPerformanceAxis,
+  performanceScalarFromKey,
+  performanceScalarKey,
+} from "@/lib/performance-runtime";
 import type { PerformanceAxis, PerformanceDataset, PerformanceScalar, TrainingSourceReference } from "@/lib/universal-aircraft-content";
 import styles from "./performance-explorer.module.css";
 
@@ -24,10 +29,19 @@ function inferPerformancePhase(dataset: PerformanceDataset): Exclude<Performance
   return "Reference";
 }
 
-function selectedAxisLabel(axis: PerformanceAxis, selectedKey: string | undefined): string | undefined {
+function selectedAxisLabel(dataset: PerformanceDataset, axis: PerformanceAxis, selectedKey: string | undefined): string | undefined {
   if (!selectedKey) return undefined;
-  const value = axis.values.find((candidate) => performanceScalarKey(candidate) === selectedKey);
-  return value === undefined ? undefined : formatValue(value, axis.unit);
+  const exactValue = axis.values.find((candidate) => performanceScalarKey(candidate) === selectedKey);
+  if (exactValue !== undefined) return formatValue(exactValue, axis.unit);
+  const selectedValue = performanceScalarFromKey(selectedKey);
+  if (selectedValue === undefined || !isLinearPerformanceAxis(dataset, axis)) return undefined;
+  return formatValue(selectedValue, axis.unit);
+}
+
+function numericAxisBounds(axis: PerformanceAxis): { readonly min: number; readonly max: number } | undefined {
+  const values = axis.values.filter((value): value is number => typeof value === "number" && Number.isFinite(value));
+  if (!values.length) return undefined;
+  return { min: Math.min(...values), max: Math.max(...values) };
 }
 
 function DatasetWorkspace({
@@ -44,18 +58,21 @@ function DatasetWorkspace({
   const selection = useMemo(() => getPerformanceSelectionState(dataset, filters), [dataset, filters]);
   const hasFilters = selection.selectedAxisCount > 0;
   const sourceLabel = formatSources(dataset.sources);
+  const referenceRows = selection.status === "interpolated" ? selection.supportingRows : selection.matchingRows;
 
   const statusCopy = selection.status === "empty"
     ? dataset.axes.length
-      ? `Select all ${dataset.axes.length} source inputs to obtain an exact published or source-derived row.`
+      ? `Select or enter all ${dataset.axes.length} source inputs to obtain a source-backed result.`
       : "This reference dataset has no selectable input axes."
     : selection.status === "partial"
       ? `${selection.missingAxisKeys.length} input${selection.missingAxisKeys.length === 1 ? "" : "s"} remaining · ${selection.matchingRows.length} row${selection.matchingRows.length === 1 ? "" : "s"} currently match.`
       : selection.status === "exact"
         ? "Exact stored result found. Check the source/method note below for whether the row is direct source data or derived from an explicit source formula."
-        : selection.status === "no-match"
-          ? "No stored result exists for this combination. FlyTally does not extrapolate beyond the source-backed data."
-          : "More than one row matches this complete input set, so FlyTally will not choose a result automatically.";
+        : selection.status === "interpolated"
+          ? `Source-defined linear interpolation completed from ${selection.supportingRows.length} stored supporting row${selection.supportingRows.length === 1 ? "" : "s"}. No extrapolation was used.`
+          : selection.status === "no-match"
+            ? "No source-backed result exists for this combination. FlyTally does not extrapolate beyond the encoded source range or invent missing grid points."
+            : "More than one row matches this complete input set, so FlyTally will not choose a result automatically.";
 
   return (
     <article className={styles.dataset} id={dataset.id}>
@@ -67,43 +84,68 @@ function DatasetWorkspace({
         </div>
         <div className={styles.datasetBadges}>
           <span>{dataset.rows.length} stored rows</span>
-          <span>{dataset.interpolation === "none" ? "No implicit interpolation" : "Source-defined interpolation"}</span>
+          <span>{dataset.interpolation === "none" ? "Exact rows only" : "Source-defined linear interpolation"}</span>
         </div>
       </div>
 
-      <section className={styles.lookupPanel} aria-label={`${dataset.title} exact lookup`}>
+      <section className={styles.lookupPanel} aria-label={`${dataset.title} source-backed lookup`}>
         <div className={styles.controls}>
-          {dataset.axes.map((axis) => (
-            <label key={axis.key}>
-              <span>{axis.label}{axis.unit ? ` (${axis.unit})` : ""}</span>
-              <select value={filters[axis.key] ?? ""} onChange={(event) => onSetAxis(axis.key, event.target.value)}>
-                <option value="">Select…</option>
-                {axis.values.map((value) => <option key={performanceScalarKey(value)} value={performanceScalarKey(value)}>{String(value)}</option>)}
-              </select>
-            </label>
-          ))}
+          {dataset.axes.map((axis) => {
+            if (isLinearPerformanceAxis(dataset, axis)) {
+              const bounds = numericAxisBounds(axis);
+              const selected = performanceScalarFromKey(filters[axis.key]);
+              return (
+                <label key={axis.key}>
+                  <span>{axis.label}{axis.unit ? ` (${axis.unit})` : ""}</span>
+                  <input
+                    aria-label={`${axis.label} numeric input`}
+                    max={bounds?.max}
+                    min={bounds?.min}
+                    onChange={(event) => {
+                      const raw = event.target.value;
+                      onSetAxis(axis.key, raw === "" ? "" : performanceScalarKey(Number(raw)));
+                    }}
+                    placeholder={bounds ? `${bounds.min}–${bounds.max}` : "Enter value"}
+                    step="any"
+                    type="number"
+                    value={typeof selected === "number" ? String(selected) : ""}
+                  />
+                </label>
+              );
+            }
+
+            return (
+              <label key={axis.key}>
+                <span>{axis.label}{axis.unit ? ` (${axis.unit})` : ""}</span>
+                <select value={filters[axis.key] ?? ""} onChange={(event) => onSetAxis(axis.key, event.target.value)}>
+                  <option value="">Select…</option>
+                  {axis.values.map((value) => <option key={performanceScalarKey(value)} value={performanceScalarKey(value)}>{String(value)}</option>)}
+                </select>
+              </label>
+            );
+          })}
           {hasFilters ? <button type="button" onClick={onReset}>Reset inputs</button> : null}
         </div>
 
         {hasFilters ? (
           <div className={styles.selectedInputs} aria-label="Selected performance inputs">
             {dataset.axes.map((axis) => (
-              <span key={axis.key}><small>{axis.label}</small><strong>{selectedAxisLabel(axis, filters[axis.key]) ?? "—"}</strong></span>
+              <span key={axis.key}><small>{axis.label}</small><strong>{selectedAxisLabel(dataset, axis, filters[axis.key]) ?? "—"}</strong></span>
             ))}
           </div>
         ) : null}
 
         <div className={`${styles.lookupStatus} ${styles[`status_${selection.status}`]}`}>
-          <strong>{selection.status === "exact" ? "Result" : "Source-backed lookup"}</strong>
+          <strong>{selection.status === "exact" ? "Stored result" : selection.status === "interpolated" ? "Interpolated result" : "Source-backed lookup"}</strong>
           <span>{statusCopy}</span>
         </div>
 
-        {selection.exactRow ? (
+        {selection.resultRow ? (
           <div className={styles.result}>
-            <p className="eyebrow">Pilot result</p>
+            <p className="eyebrow">{selection.resultKind === "interpolated" ? "Source-interpolated pilot result" : "Pilot result"}</p>
             <div className={styles.resultGrid}>
               {dataset.outputs.map((output) => (
-                <div key={output.key}><span>{output.label}</span><strong>{formatValue(selection.exactRow?.outputs[output.key], output.unit)}</strong></div>
+                <div key={output.key}><span>{output.label}</span><strong>{formatValue(selection.resultRow?.outputs[output.key], output.unit)}</strong></div>
               ))}
             </div>
           </div>
@@ -112,7 +154,10 @@ function DatasetWorkspace({
 
       <section className={styles.referenceSection}>
         <div className={styles.tableHeading}>
-          <div><strong>Reference data</strong><span>{selection.matchingRows.length} of {dataset.rows.length} rows shown</span></div>
+          <div>
+            <strong>{selection.status === "interpolated" ? "Supporting reference rows" : "Reference data"}</strong>
+            <span>{referenceRows.length} of {dataset.rows.length} rows shown</span>
+          </div>
           {hasFilters ? <button type="button" onClick={onReset}>Show all rows</button> : null}
         </div>
         <div className={styles.tableWrap}>
@@ -124,7 +169,7 @@ function DatasetWorkspace({
               </tr>
             </thead>
             <tbody>
-              {selection.matchingRows.map((row, index) => (
+              {referenceRows.map((row, index) => (
                 <tr className={row === selection.exactRow ? styles.exactRow : undefined} key={index}>
                   {dataset.axes.map((axis) => <td key={axis.key}>{formatValue(row.inputs[axis.key], axis.unit)}</td>)}
                   {dataset.outputs.map((output) => <td key={output.key}>{formatValue(row.outputs[output.key], output.unit)}</td>)}
@@ -132,12 +177,12 @@ function DatasetWorkspace({
               ))}
             </tbody>
           </table>
-          {!selection.matchingRows.length ? <p className={styles.empty}>No stored source-backed row matches the selected values.</p> : null}
+          {!referenceRows.length ? <p className={styles.empty}>No stored source-backed row matches the selected values.</p> : null}
         </div>
       </section>
 
       {dataset.notes?.length ? <ul className={styles.notes}>{dataset.notes.map((note) => <li key={note}>{note}</li>)}</ul> : null}
-      {dataset.interpolation !== "none" ? <p className={styles.interpolationBoundary}>This dataset permits source-defined interpolation. Until the exact interpolation method for all axes is encoded and validated, the live workspace continues to return stored source-backed rows only.</p> : null}
+      {dataset.interpolation !== "none" ? <p className={styles.interpolationBoundary}>Linear interpolation is enabled only between encoded numeric source breakpoints for this dataset. Non-numeric axes remain exact selections, incomplete source grids are refused, and extrapolation outside the encoded range is never performed.</p> : null}
       {sourceLabel ? <p className={styles.source}><small>Source · {sourceLabel}</small></p> : null}
     </article>
   );
