@@ -8,6 +8,7 @@ const knowledge = fs.readFileSync(new URL("../components/knowledge-trainer.tsx",
 const learningCompletion = fs.readFileSync(new URL("../components/learning-completion-button.tsx", import.meta.url), "utf8");
 const quickStart = fs.readFileSync(new URL("../app/aircraft/[aircraftId]/quick-start/page.tsx", import.meta.url), "utf8");
 const systems = fs.readFileSync(new URL("../app/aircraft/[aircraftId]/systems/page.tsx", import.meta.url), "utf8");
+const systemsBrowser = fs.readFileSync(new URL("../components/systems-browser.tsx", import.meta.url), "utf8");
 const orientation = fs.readFileSync(new URL("../app/aircraft/[aircraftId]/orientation/page.tsx", import.meta.url), "utf8");
 const orientationExplorer = fs.readFileSync(new URL("../components/cockpit-orientation-explorer.tsx", import.meta.url), "utf8");
 const progressPanel = fs.readFileSync(new URL("../components/progress-panel.tsx", import.meta.url), "utf8");
@@ -19,8 +20,10 @@ test("interactive v1 learning surfaces emit the shared progress contract", () =>
   assert.match(learningCompletion, /appendBrowserProgress/);
   assert.match(quickStart, /kind="quick-start"/);
   assert.match(quickStart, /contentId="quick-start"/);
-  assert.match(systems, /kind="systems"/);
-  assert.match(systems, /contentId=\{system\.id\}/);
+  assert.match(systems, /SystemsBrowser/);
+  assert.match(systemsBrowser, /LearningCompletionButton/);
+  assert.match(systemsBrowser, /kind="systems"/);
+  assert.match(systemsBrowser, /contentId=\{selected\.id\}/);
   assert.match(orientation, /kind="orientation"/);
   assert.match(orientation, /contentId="cockpit-orientation"/);
 });
@@ -42,7 +45,7 @@ test("cockpit orientation rendering does not hard-code the Learjet source or reg
 });
 
 test("learner-facing progress components remain aircraft-agnostic", () => {
-  for (const source of [checklist, scenarios, knowledge, learningCompletion, orientation, orientationExplorer]) {
+  for (const source of [checklist, scenarios, knowledge, learningCompletion, systems, systemsBrowser, orientation, orientationExplorer]) {
     assert.doesNotMatch(source, /learjet-35-36/i);
   }
 });
