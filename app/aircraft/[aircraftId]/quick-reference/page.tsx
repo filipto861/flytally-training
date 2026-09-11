@@ -3,10 +3,17 @@ import { notFound } from "next/navigation";
 
 import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
 import { QuickReferencePanel } from "@/components/quick-reference-panel";
+import { resolveSelectedVariant, withVariantQuery } from "@/lib/aircraft-applicability";
 import { getTrainingContentRepository } from "@/lib/content-store";
 
-export default async function QuickReferencePage({ params }: Readonly<{ params: Promise<{ aircraftId: string }> }>) {
-  const { aircraftId } = await params;
+export default async function QuickReferencePage({
+  params,
+  searchParams,
+}: Readonly<{
+  params: Promise<{ aircraftId: string }>;
+  searchParams: Promise<{ variant?: string }>;
+}>) {
+  const [{ aircraftId }, { variant }] = await Promise.all([params, searchParams]);
   const repository = getTrainingContentRepository();
   const [aircraft, content] = await Promise.all([
     repository.getAircraft(aircraftId),
@@ -14,15 +21,16 @@ export default async function QuickReferencePage({ params }: Readonly<{ params: 
   ]);
 
   if (!aircraft || !content) notFound();
+  const selectedVariant = resolveSelectedVariant(variant, aircraft.variants);
 
   return (
     <main className="shell aircraft-detail">
-      <Link className="back-link" href={`/aircraft/${aircraft.id}/reference`}>← Reference</Link>
-      <AircraftWorkspaceNav aircraftId={aircraft.id} active="reference" />
+      <Link className="back-link" href={withVariantQuery(`/aircraft/${aircraft.id}`, selectedVariant)}>← {aircraft.displayName}</Link>
+      <AircraftWorkspaceNav aircraftId={aircraft.id} active="quick-reference" variants={aircraft.variants} variantProfiles={aircraft.variantProfiles} selectedVariant={selectedVariant} />
       <section className="workspace-section-hero">
-        <p className="eyebrow">Quick Reference · {aircraft.displayName}</p>
-        <h1>The numbers and cues you need without reopening a chapter.</h1>
-        <p className="lede">Use normal Quick Reference for context and source provenance, then switch to FLY mode for a compact simulator-side view.</p>
+        <p className="eyebrow">FLY · Quick Reference · {aircraft.displayName}{selectedVariant ? ` · ${selectedVariant}` : ""}</p>
+        <h1>High-frequency numbers and cues.</h1>
+        <p className="lede">A compact cockpit reference for frequently needed limits, speeds and operating cues. Every value retains its source provenance; approved aircraft and operator documentation remains controlling.</p>
       </section>
       <QuickReferencePanel content={content} />
     </main>

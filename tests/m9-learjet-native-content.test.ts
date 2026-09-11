@@ -3,6 +3,7 @@ import fs from "node:fs";
 import test from "node:test";
 
 import { validateContentPayload } from "../lib/content-contracts.ts";
+import { learjet3536CaeNormalChecklist } from "../lib/learjet-cae-pilot-content.ts";
 import {
   learjet3536NativeChecklists,
   learjet3536NativeLimitations,
@@ -73,13 +74,13 @@ test("native Learjet knowledge preserves the source-backed question bank", () =>
   assert.ok(learjet3536NativeKnowledge.questions.some(question => question.id === "q-vspeeds" && /performance-derived/i.test(question.explanation)));
 });
 
-test("static repository serves native universal modules before legacy migration adapters", async () => {
+test("static repository serves the reviewed CAE FLY checklist and native universal modules before legacy migration adapters", async () => {
   const repository = new StaticTrainingContentRepository();
   const domains = await repository.listPublishedModuleDomains(aircraftId);
   for (const domain of ["checklists", "procedures", "performance", "limitations", "systems", "knowledge"] as const) assert.ok(domains.includes(domain));
   const checklist = await repository.getPublishedModule<AircraftChecklistContent>(aircraftId, "checklists");
-  assert.equal(checklist?.title, learjet3536NativeChecklists.title);
-  assert.match(checklist?.sourceNote ?? "", /Native M9/i);
+  assert.equal(checklist, learjet3536CaeNormalChecklist);
+  assert.match(checklist?.sourceNote ?? "", /CAE SimuFlite/i);
   const knowledge = await repository.getPublishedModule<AircraftKnowledgeContent>(aircraftId, "knowledge");
   assert.equal(knowledge?.title, learjet3536NativeKnowledge.title);
 });

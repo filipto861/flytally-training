@@ -25,17 +25,21 @@ test("Learjet FlightSafety source preserves revision, provenance anchors and tra
   });
 });
 
-test("Learjet catalogue keeps real-standard and simulator supplements explicitly classified", () => {
+test("Learjet catalogue keeps CAE and FlightSafety training references above separately classified simulator supplements", () => {
   assert.deepEqual(learjet3536.manuals.map(source => source.id), [
+    "cae-simuflite-learjet-35-36-crh-feb-2007",
     "fsi-learjet-35-36-ptm-r1-1",
     "flysimware-learjet-35a-msfs-v1-2",
     "jaydee-learjet-35a-checklist-v1-35-wip1",
   ]);
   assert.deepEqual(learjet3536.manuals.map(source => source.authorityRole), [
     "TRAINING_REFERENCE",
+    "TRAINING_REFERENCE",
     "SIMULATOR_IMPLEMENTATION",
     "SIMULATOR_WORKFLOW",
   ]);
+  assert.equal(learjet3536.workspaceProfile?.flyManualId, "cae-simuflite-learjet-35-36-crh-feb-2007");
+  assert.equal(learjet3536.workspaceProfile?.learnManualId, "fsi-learjet-35-36-ptm-r1-1");
 });
 
 test("Learjet FlightSafety curriculum follows all 21 manual chapters", () => {
