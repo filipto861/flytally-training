@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { learjet3536CompleteLimitations, learjet3536CompletePerformance } from "../lib/learjet-pilot-data.ts";
+import { learjet3536OperationalLimitations, learjet3536OperationalPerformance } from "../lib/learjet-pilot-takeoff-data.ts";
 import { staticTrainingContentSeed } from "../lib/static-content-repository.ts";
 import { validateUniversalTrainingContentPayload } from "../lib/universal-aircraft-content.ts";
 
@@ -57,9 +58,9 @@ test("primary training performance remains source-bound instead of being merged 
   assert.ok(caeGroup?.sources?.every((source) => source.manualId === CAE));
 });
 
-test("static governed seed promotes the comprehensive performance and limitation modules", () => {
+test("static governed seed promotes the current operational performance and limitation modules", () => {
   const performance = staticTrainingContentSeed.nativeModules?.find((module) => module.domain === "performance");
   const limitations = staticTrainingContentSeed.nativeModules?.find((module) => module.domain === "limitations");
-  assert.equal(performance?.payload, learjet3536CompletePerformance);
-  assert.equal(limitations?.payload, learjet3536CompleteLimitations);
+  assert.equal(performance?.payload, learjet3536OperationalPerformance);
+  assert.equal(limitations?.payload, learjet3536OperationalLimitations);
 });
