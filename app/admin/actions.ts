@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { createAiAssistedDraft } from "@/lib/ai-draft-workflow";
 import { requireTrainingAdmin } from "@/lib/admin-auth";
 import { publishGovernedAircraft } from "@/lib/aircraft-publication";
+import { isModernStructuredDomain } from "@/lib/content-authoring-templates";
 import { addAircraftVariant,createAircraft,createSourceReference,getAdminAircraft,resolveStaleFlag } from "@/lib/content-admin-repository";
 import { parseContentVersionOrigin,trainingContentDomains,type TrainingContentDomain } from "@/lib/content-admin-types";
 import { approveGovernedContentVersion,createGovernedDraftVersion,publishGovernedContentVersion } from "@/lib/content-governed-lifecycle";
@@ -41,6 +42,15 @@ export async function registerRevisionAction(form:FormData){
 }
 export async function createReferenceAction(form:FormData){const session=await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");await createSourceReference({revisionId:text(form,"revisionId"),chapter:text(form,"chapter"),section:text(form,"section"),pageLabel:text(form,"pageLabel"),note:text(form,"note")},session.subject);refreshAircraftAdmin(aircraftId);}
 export async function createDraftAction(form:FormData){const session=await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");const origin=parseContentVersionOrigin(text(form,"origin"));await createGovernedDraftVersion({aircraftId,domain:domain(form),contentKey:text(form,"contentKey")||"bundle",payload:payload(form),origin,sourceReferenceIds:refs(form)},session.subject);refreshAircraftAdmin(aircraftId);}
+export async function createStructuredDraftAction(form:FormData){
+  const session=await requireTrainingAdmin();
+  const aircraftId=text(form,"aircraftId");
+  const selectedDomain=domain(form);
+  if(!isModernStructuredDomain(selectedDomain))throw new Error("Structured new-module authoring is available only for modern universal content domains.");
+  const versionId=await createGovernedDraftVersion({aircraftId,domain:selectedDomain,contentKey:text(form,"contentKey")||"bundle",payload:payload(form),origin:"human",sourceReferenceIds:refs(form)},session.subject);
+  refreshAircraftAdmin(aircraftId);
+  redirect(`/admin/aircraft/${encodeURIComponent(aircraftId)}/content/${encodeURIComponent(versionId)}`);
+}
 export async function createAiDraftAction(form:FormData){const session=await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");const versionId=await createAiAssistedDraft({aircraftId,domain:domain(form),contentKey:text(form,"contentKey")||"bundle",sourceReferenceIds:refs(form),sourceText:text(form,"sourceText"),goal:text(form,"goal")},session.subject);refreshAircraftAdmin(aircraftId);redirect(`/admin/aircraft/${encodeURIComponent(aircraftId)}/content/${encodeURIComponent(versionId)}`);}
 export async function reviseVersionAction(form:FormData){const session=await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");const versionId=await reviseContentVersion({versionId:text(form,"versionId"),payload:payload(form),sourceReferenceIds:refs(form)},session.subject);refreshAircraftAdmin(aircraftId);redirect(`/admin/aircraft/${encodeURIComponent(aircraftId)}/content/${encodeURIComponent(versionId)}`);}
 export async function reSourceVersionAction(form:FormData){
