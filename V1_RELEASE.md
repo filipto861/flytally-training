@@ -1,85 +1,98 @@
 # FlyTally Training v1.0 release gate
 
-The product is not v1.0-ready merely because the application build is green. The final release gate covers application behavior, infrastructure and controlled content.
+A green application build alone is not a production release. The final gate covers application behavior, infrastructure, source governance and human acceptance.
 
 ## Automated gates
 
 - Pull requests: TypeScript, unit/regression tests and production build.
-- `npm run test:v1-content`: the Learjet reference implementation must pass the aggregate source-backed content gate, including the complete Cold & Dark → Shutdown path, all nine baseline systems and the product authority boundary.
-- `GET /api/health`: process liveness only; it intentionally does not touch dependencies.
-- `GET /api/readiness`: production configuration, Training PostgreSQL connectivity, persistent-progress tables, controlled-manual persistence, complete live private controlled-manual coverage across every canonical learner domain, current-content freshness, AI-draft audit persistence, the identity assertion replay ledger, a readable published-aircraft catalog and **at least one release-ready complete v1 aircraft bundle** through the configured content repository. It returns HTTP 503 until all are true.
-- GitHub workflow `Production readiness probe`: runs automatically after pushes to `main` (and can be dispatched manually), polls `https://training.fly-tally.com/api/readiness` for up to roughly six minutes and succeeds only on HTTP 200 with `status: ready`. This gives release evidence against the actual production custom domain rather than only build/deployment status.
-- Manual GitHub workflow `No-code aircraft acceptance`: must pass against a disposable PostgreSQL database before the no-code multi-aircraft architecture is marked proven.
+- `npm run test:v1-content`: aggregate source-backed reference-content acceptance.
+- `GET /api/health`: process liveness only.
+- `GET /api/readiness`: production configuration, Training PostgreSQL connectivity, progress persistence, current-content freshness, AI-draft audit persistence, identity replay protection, published modular aircraft content and source-governance status.
+- GitHub `Production readiness probe`: verifies the real production custom domain after pushes to `main`.
+- `No-code aircraft acceptance`: proves a second aircraft can use the generic PostgreSQL/content path without aircraft-specific application code.
 
-The aggregate content gate is aircraft-agnostic. It evaluates a resolved `AircraftContentBundle`; the Learjet test adds the v1 reference-aircraft specifics such as the exact nine-system baseline and complete practical flight phase sequence.
+## Source-governance boundary
 
-The runtime completeness check is aircraft-agnostic too. A v1-ready aircraft must expose Quick Start, Systems, Normal Flight, Cockpit Orientation, Abnormal/Emergency, Quick Reference, Knowledge and a controlled manual. Readiness does not special-case the Learjet aircraft ID.
+FlyTally Training does **not** host source manuals. There is no release requirement for a manual Blob store, manual-upload table, source-document viewer or download endpoint.
+
+A governed source revision records only what the product needs for traceability:
+
+- source family/title and publisher,
+- immutable revision and issue date,
+- authority classification and applicability notes,
+- exact chapter / section / page references,
+- optional external citation URI,
+- optional SHA-256 fingerprint and local filename/byte-count metadata.
+
+When an administrator selects a local PDF for fingerprinting, SHA-256 is computed in the browser. The file input is not submitted and the PDF bytes do not leave the administrator's device. The original source material remains under the administrator's lawful access outside FlyTally.
+
+`profiles.sourceGovernedRelease` is satisfied by fresh published training content whose effective modules have classified immutable source provenance. It does not test document storage because document storage is intentionally not a Training capability.
 
 ## Production configuration gate
 
 A production-ready Training deployment requires:
 
-- `TRAINING_CONTENT_BACKEND=postgres`
-- a Training-owned `TRAINING_DATABASE_URL`
-- strong `TRAINING_SESSION_SECRET`
-- strong shared `FLYTALLY_IDENTITY_SECRET`
-- HTTPS `FLYTALLY_LOGBOOK_URL`
-- a private Vercel Blob store authenticated by the deployment-scoped `VERCEL_OIDC_TOKEN` (preferred on Vercel) or `BLOB_READ_WRITE_TOKEN` as an explicit/local fallback
-- governed Learjet content bootstrapped/reviewed/published into PostgreSQL
-- Training progress, aircraft-state, controlled-manual asset, AI-draft audit and identity-assertion tables initialized through the explicit deployment/admin bootstrap path
+- `TRAINING_CONTENT_BACKEND=postgres`,
+- a Training-owned `TRAINING_DATABASE_URL`,
+- strong `TRAINING_SESSION_SECRET`,
+- strong shared `FLYTALLY_IDENTITY_SECRET`,
+- HTTPS `FLYTALLY_LOGBOOK_URL`,
+- governed aircraft content reviewed and published into PostgreSQL,
+- progress, aircraft state, AI-draft audit and identity-assertion persistence initialized through the explicit bootstrap path.
 
-Static TypeScript content remains a development/bootstrap adapter and is not an acceptable v1.0 production backend.
+No Vercel Blob credential is part of the source-content contract.
 
 ## First-deploy database bootstrap
 
-A completely empty Training database must be initialized **before the first FlyTally SSO callback**. The callback already consumes the Training-owned one-time identity assertion ledger, so relying only on an authenticated `/admin` button creates a first-login bootstrap paradox.
-
-Run the idempotent deployment command with the target Training database configured:
+A new Training database must be initialized before the first SSO callback:
 
 ```bash
 TRAINING_DATABASE_URL='postgresql://...' npm run db:init
 ```
 
-`db:init` provisions the governed content schema plus progress, controlled-manual, identity-replay and AI-draft-audit persistence, then verifies every required relation through PostgreSQL. It does not seed or publish aircraft content. The authenticated admin initialization action uses the same bootstrap function and remains a safe rerunnable maintenance path after sign-in is available.
+`db:init` provisions and verifies the active Training persistence boundaries. Runtime learner requests do not self-provision schema. Historical databases may still contain legacy `training_manual_assets` data from earlier milestones; M31 does not provision or use that relation.
 
-The standalone bootstrap and no-code acceptance runners execute TypeScript server modules with the React Server condition enabled. `server-only` is therefore enforced explicitly rather than bypassed merely because the code runs outside the Next.js process.
+## Content and revision governance
 
-The learner PostgreSQL content adapter is deliberately **read-only at runtime**: ordinary aircraft/library/lesson requests do not execute schema DDL. Schema creation and governance changes belong to the admin/write/bootstrap path. Aircraft-library hydration is batched rather than issuing one aircraft/variant/manual query set per published aircraft.
+Source revisions are immutable. Registering a newer revision creates stale-review state for affected currently published content rather than silently rewriting approved material.
 
-Persistent progress follows the same boundary. Runtime progress requests perform only SELECT/INSERT/UPSERT operations; they never create tables or indexes. A sync batch is ingested in one PostgreSQL statement, and per-aircraft continuation state is derived from canonical persisted events so idempotent replay cannot move state using conflicting client data. Excessive future device-clock skew is normalized to server time without discarding otherwise valid offline progress.
+Content versions are immutable too. Draft creation, source links, approval and publication remain governed transitions. A newer draft can coexist with the current live release until review and publication are complete.
 
-Controlled manuals are also part of readiness rather than an optional admin extra. A browser-computed SHA-256 is only the expected digest: before an asset becomes `ready`, Training streams the stored private Blob once, verifies its actual `%PDF-` file signature, recomputes SHA-256 and byte count server-side, and compares them to the signed upload metadata. Upload URLs are non-overwriting. Proven format/byte/digest mismatches fail closed; transient readback failures remain retryable.
+**Re-source this payload without rewriting it** creates a new `human` draft with the exact existing payload and selected fingerprint-backed source references. It never mutates the live version and does not auto-approve or auto-publish.
 
-Production readiness goes further than proving one controlled source exists. For a complete v1 aircraft, **each of the five currently published canonical `bundle` domains** (`learning`, `normal-flight`, `orientation`, `abnormal`, `reference-knowledge`) must contain at least one source reference backed by an `attached`, server-verified controlled PDF for that aircraft. `/api/readiness` considers up to three controlled candidates per domain and performs lightweight private-Blob `HEAD` probes, requiring stored size and `application/pdf` metadata to match the verified database record. A single controlled source may cover multiple domains and is probed only once per readiness request. SHA-256 is not recomputed on every health probe because attachment is possible only after the server-side byte-integrity gate has already passed.
+AI-assisted authoring remains draft-only. Selected references, source-excerpt hash/length, provider/model, provider response identity and warnings are retained in the AI audit record. AI cannot become the technical authority or bypass human approval.
 
-A newer manual revision does not silently rewrite or automatically unpublish existing learner content. Instead it creates stale-review flags against affected versions. Production readiness now fails while any **currently effective canonical published bundle** has an unresolved stale flag. Historical flags on superseded versions do not block the release. Resolving the flag records the responsible admin and review note; alternatively a reviewed replacement version can be published. Initial learner-catalogue publication also refuses an aircraft whose effective canonical content already carries unresolved stale-source review.
+## Aircraft-agnostic readiness
 
-The readiness checks are bound to one aircraft: functional completeness, complete live controlled provenance and current-content freshness must all be satisfied by the same published aircraft. Separate aircraft cannot combine partial checks into a false-positive release result.
+Operational readiness is based on the modules an aircraft actually publishes. A sparse aircraft is valid; it is not required to reproduce the Learjet module set.
 
-Registering an immutable controlled manual revision uses one non-interactive PostgreSQL transaction: claim the verified asset, resolve its server-owned URI/checksum, insert the revision, create stale-content flags and attach the asset. A failed revision or uniqueness constraint rolls the whole transaction back, so the admin workflow cannot leave the PDF claimed while the revision or stale-governance state only partially exists. External controlled sources use the same transactional revision/stale-flag boundary.
+The generic release model requires:
 
-Interactive content governance is transactional as well. Draft version numbering is serialized per aircraft/domain/content key; the content item, immutable draft and all aircraft-owned source links are created together. Approval and publication serialize on content-item identity so a human approval cannot be separated from its state transition and competing publication attempts cannot leave multiple effective versions or a stale publication pointer.
+- at least one genuine published learner module,
+- usable modular content through `TrainingContentRepository`,
+- no unresolved stale-source review on effective published training content,
+- source provenance for a source-governed release,
+- no aircraft-ID special cases in the learner runtime.
 
-AI-assisted authoring has an additional provenance invariant. The source excerpt hash/length, selected references, provider/model, provider response id and warnings are inserted into `training_ai_draft_runs` in the **same PostgreSQL transaction** as the AI-assisted draft and its source links. An `ai-assisted` version without that audit row cannot be approved or published. AI authoring performs no runtime schema DDL; the audit table is provisioned only through explicit Training database initialization/bootstrap and is part of `/api/readiness`.
+## Identity and progress
 
-FlyTally identity handoff is short-lived **and one-time**. After cryptographic verification, Training atomically consumes the assertion `jti` in its own PostgreSQL replay ledger before issuing the Training session cookie. Replaying the same signed assertion is rejected, and the authentication callback does not create schema at runtime. SSO return targets are normalized as same-origin local paths before either application redirects through the handoff.
+FlyTally identity handoff is short-lived and one-time. Training consumes the assertion `jti` before issuing its own session cookie. Replay is rejected.
 
-Training session privilege lifetime is role-sensitive. Standard learner sessions may remain valid for up to seven days; admin sessions are capped at twelve hours. The reader enforces the current role-specific maximum too, so a legacy longer-lived admin cookie cannot keep stale administrative authority after this policy is deployed.
+Learner progress is Training-owned, synchronized independently from content governance and remains isolated by aircraft/configuration. Admin sessions retain the shorter privilege lifetime defined by the session policy.
 
 ## Human acceptance gate
 
 Before declaring v1.0 complete on `training.fly-tally.com`, verify on desktop and mobile:
 
-1. `npm run db:init` succeeds against the target Training database before the first SSO login, and a first identity callback succeeds without runtime schema creation.
-2. Learjet appears from PostgreSQL and opens without aircraft-specific application branches.
-3. Quick Start, cockpit orientation and Cold & Dark → Shutdown First Flight work end-to-end.
-4. Learn / Practice / Flow / Challenge & Response modes remain usable on touch and desktop.
-5. abnormal scenarios, Quick Reference / FLY mode and knowledge review work end-to-end.
-6. sign-in returns from FlyTally Logbook, progress survives a second browser/device, sign-out clears only the Training session, a previously consumed identity callback cannot be replayed, and an admin session expires/re-authenticates on the shorter privilege TTL.
-7. admin can rerun Training database initialization, upload a controlled PDF whose stored bytes and actual PDF signature pass server-side verification, register and atomically attach an immutable revision, create source references, generate an AI-assisted draft whose audit is atomically retained, draft/review/approve/publish content and observe stale-content review after a newer revision.
-8. every canonical published Learjet bundle is re-sourced to live attached controlled provenance, and `/api/readiness` fails if even one canonical domain lacks that coverage.
-9. registering a newer source revision creates stale review; `/api/readiness` stays 503 until every stale flag on the currently effective canonical bundles is explicitly resolved or replaced by reviewed current content.
-10. current approved AFM/QRH/operator material remains explicitly controlling over Training content.
-11. `/api/readiness` returns HTTP 200, including persistent-progress, complete controlled-manual coverage, current-content freshness, AI-draft audit persistence, identity replay-protection and the same-aircraft release-ready check. The `Production readiness probe` workflow should provide the matching production-domain evidence.
+1. `npm run db:init` succeeds against the target Training database before first SSO login.
+2. published aircraft load from PostgreSQL without aircraft-specific runtime branches.
+3. the available learner modules for each aircraft work end-to-end through generic routes/components.
+4. progress survives a second browser/device and sign-out affects only the Training session.
+5. a consumed SSO assertion cannot be replayed and admin session expiry follows the shorter privilege TTL.
+6. admin can register a source revision without uploading the source PDF, optionally compute a local SHA-256 fingerprint, create exact page references, draft/review/approve/publish content and observe stale review after a newer source revision.
+7. no source-document upload/download/viewer surface exists in the production application.
+8. AI-assisted drafts retain their audit record and still require explicit human approval/publication.
+9. `/api/readiness` returns HTTP 200 for the operational profile and reports source-governance state independently.
+10. the no-code second-aircraft PostgreSQL acceptance passes.
 
-Only after these checks and the no-code PostgreSQL acceptance run should the release be called FlyTally Training v1.0.
+Only after these checks should the release be called FlyTally Training v1.0.
