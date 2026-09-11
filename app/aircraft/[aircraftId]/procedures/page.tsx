@@ -43,11 +43,11 @@ export default async function ProceduresPage({
       <section className="workspace-section-hero">
         <p className="eyebrow">Procedures · {aircraft.displayName}{selectedVariant ? ` · ${selectedVariant}` : ""}</p>
         <h1>{configuredUniversal?.title ?? "Operating procedures"}</h1>
-        <p className="lede">Search by action, system or indication, filter by phase, and open the full procedure behind a concise checklist item.</p>
+        <p className="lede">Open a procedure behind the checklist, work through each step, verify expected indications and keep the source context visible while you learn.</p>
         {configuredUniversal?.disclaimer ? <p><strong>Training boundary:</strong> {configuredUniversal.disclaimer}</p> : null}
         {configuredUniversal?.sourceNote ? <p><small>Source note · {configuredUniversal.sourceNote}</small></p> : null}
       </section>
-      <ProcedureBrowser procedures={procedures} />
+      <ProcedureBrowser aircraftId={aircraft.id} procedures={procedures} selectedVariant={selectedVariant} />
     </main>
   );
 }
