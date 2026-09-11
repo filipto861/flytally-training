@@ -10,6 +10,20 @@ const formatValue = (value: PerformanceScalar | undefined, unit?: string): strin
 const formatSources = (sources: readonly TrainingSourceReference[] | undefined): string | undefined =>
   sources?.map((item) => [item.chapter ? `Ch ${item.chapter}` : undefined, item.section, `p. ${item.pageLabel}`].filter(Boolean).join(" · ")).join(" · ");
 
+type PerformancePhase = "All" | "Takeoff" | "Climb" | "Cruise" | "Descent" | "Holding" | "Landing" | "Reference";
+const phaseOrder: readonly PerformancePhase[] = ["All", "Takeoff", "Climb", "Cruise", "Descent", "Holding", "Landing", "Reference"];
+
+function inferPerformancePhase(dataset: PerformanceDataset): Exclude<PerformancePhase, "All"> {
+  const value = `${dataset.id} ${dataset.title}`.toLowerCase();
+  if (value.includes("takeoff") || value.includes("take-off")) return "Takeoff";
+  if (value.includes("holding") || value.includes("hold ")) return "Holding";
+  if (value.includes("descent") || value.includes("top-of-descent") || value.includes("tod")) return "Descent";
+  if (value.includes("landing") || value.includes("vref") || value.includes("approach speed")) return "Landing";
+  if (value.includes("cruise") || value.includes("fuel per 100")) return "Cruise";
+  if (value.includes("climb") || value.includes("continuous thrust")) return "Climb";
+  return "Reference";
+}
+
 function selectedAxisLabel(axis: PerformanceAxis, selectedKey: string | undefined): string | undefined {
   if (!selectedKey) return undefined;
   const value = axis.values.find((candidate) => performanceScalarKey(candidate) === selectedKey);
@@ -33,27 +47,27 @@ function DatasetWorkspace({
 
   const statusCopy = selection.status === "empty"
     ? dataset.axes.length
-      ? `Select all ${dataset.axes.length} source inputs to obtain an exact published row.`
+      ? `Select all ${dataset.axes.length} source inputs to obtain an exact published or source-derived row.`
       : "This reference dataset has no selectable input axes."
     : selection.status === "partial"
-      ? `${selection.missingAxisKeys.length} input${selection.missingAxisKeys.length === 1 ? "" : "s"} remaining · ${selection.matchingRows.length} source row${selection.matchingRows.length === 1 ? "" : "s"} currently match.`
+      ? `${selection.missingAxisKeys.length} input${selection.missingAxisKeys.length === 1 ? "" : "s"} remaining · ${selection.matchingRows.length} row${selection.matchingRows.length === 1 ? "" : "s"} currently match.`
       : selection.status === "exact"
-        ? "Exact published source row found."
+        ? "Exact stored result found. Check the source/method note below for whether the row is direct source data or derived from an explicit source formula."
         : selection.status === "no-match"
-          ? "No exact source row exists for this combination. No interpolation has been performed."
-          : "More than one source row matches this complete input set, so FlyTally will not choose a result automatically.";
+          ? "No stored result exists for this combination. FlyTally does not extrapolate beyond the source-backed data."
+          : "More than one row matches this complete input set, so FlyTally will not choose a result automatically.";
 
   return (
     <article className={styles.dataset} id={dataset.id}>
       <div className={styles.heading}>
         <div>
-          <p className="eyebrow">{dataset.kind === "lookup-table" ? "Lookup table" : "Reference table"}</p>
+          <p className="eyebrow">{inferPerformancePhase(dataset)} · {dataset.kind === "lookup-table" ? "Lookup" : "Reference"}</p>
           <h2>{dataset.title}</h2>
           {dataset.description ? <p className={styles.description}>{dataset.description}</p> : null}
         </div>
         <div className={styles.datasetBadges}>
-          <span>{dataset.rows.length} source rows</span>
-          <span>Interpolation · {dataset.interpolation === "none" ? "none" : "source-defined linear"}</span>
+          <span>{dataset.rows.length} stored rows</span>
+          <span>{dataset.interpolation === "none" ? "No implicit interpolation" : "Source-defined interpolation"}</span>
         </div>
       </div>
 
@@ -80,13 +94,13 @@ function DatasetWorkspace({
         ) : null}
 
         <div className={`${styles.lookupStatus} ${styles[`status_${selection.status}`]}`}>
-          <strong>{selection.status === "exact" ? "Exact result" : "Source-row lookup"}</strong>
+          <strong>{selection.status === "exact" ? "Result" : "Source-backed lookup"}</strong>
           <span>{statusCopy}</span>
         </div>
 
         {selection.exactRow ? (
           <div className={styles.result}>
-            <p className="eyebrow">Published result</p>
+            <p className="eyebrow">Pilot result</p>
             <div className={styles.resultGrid}>
               {dataset.outputs.map((output) => (
                 <div key={output.key}><span>{output.label}</span><strong>{formatValue(selection.exactRow?.outputs[output.key], output.unit)}</strong></div>
@@ -98,7 +112,7 @@ function DatasetWorkspace({
 
       <section className={styles.referenceSection}>
         <div className={styles.tableHeading}>
-          <div><strong>Source table</strong><span>{selection.matchingRows.length} of {dataset.rows.length} rows shown</span></div>
+          <div><strong>Reference data</strong><span>{selection.matchingRows.length} of {dataset.rows.length} rows shown</span></div>
           {hasFilters ? <button type="button" onClick={onReset}>Show all rows</button> : null}
         </div>
         <div className={styles.tableWrap}>
@@ -118,12 +132,12 @@ function DatasetWorkspace({
               ))}
             </tbody>
           </table>
-          {!selection.matchingRows.length ? <p className={styles.empty}>No stored source row matches the selected values.</p> : null}
+          {!selection.matchingRows.length ? <p className={styles.empty}>No stored source-backed row matches the selected values.</p> : null}
         </div>
       </section>
 
       {dataset.notes?.length ? <ul className={styles.notes}>{dataset.notes.map((note) => <li key={note}>{note}</li>)}</ul> : null}
-      {dataset.interpolation !== "none" ? <p className={styles.interpolationBoundary}>The source marks linear interpolation as applicable, but this explorer currently returns stored source rows only; it does not synthesize an interpolated value.</p> : null}
+      {dataset.interpolation !== "none" ? <p className={styles.interpolationBoundary}>This dataset permits source-defined interpolation. Until the exact interpolation method for all axes is encoded and validated, the live workspace continues to return stored source-backed rows only.</p> : null}
       {sourceLabel ? <p className={styles.source}><small>Source · {sourceLabel}</small></p> : null}
     </article>
   );
@@ -131,13 +145,29 @@ function DatasetWorkspace({
 
 export function PerformanceExplorer({ datasets }: Readonly<{ datasets: readonly PerformanceDataset[] }>) {
   const [selectedId, setSelectedId] = useState(datasets[0]?.id ?? "");
+  const [phase, setPhase] = useState<PerformancePhase>("All");
+  const [query, setQuery] = useState("");
   const [filtersByDataset, setFiltersByDataset] = useState<Record<string, Record<string, string>>>({});
-  const selected = datasets.find((dataset) => dataset.id === selectedId) ?? datasets[0];
+
+  const visibleDatasets = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+    return datasets.filter((dataset) => {
+      if (phase !== "All" && inferPerformancePhase(dataset) !== phase) return false;
+      if (!needle) return true;
+      return `${dataset.title} ${dataset.description ?? ""} ${dataset.id}`.toLowerCase().includes(needle);
+    });
+  }, [datasets, phase, query]);
+
+  const selected = visibleDatasets.find((dataset) => dataset.id === selectedId) ?? visibleDatasets[0] ?? datasets.find((dataset) => dataset.id === selectedId) ?? datasets[0];
 
   useEffect(() => {
     const selectFromHash = () => {
       const hash = decodeURIComponent(window.location.hash.slice(1));
-      if (hash && datasets.some((dataset) => dataset.id === hash)) setSelectedId(hash);
+      const matched = datasets.find((dataset) => dataset.id === hash);
+      if (matched) {
+        setSelectedId(hash);
+        setPhase(inferPerformancePhase(matched));
+      }
     };
     selectFromHash();
     window.addEventListener("hashchange", selectFromHash);
@@ -147,6 +177,12 @@ export function PerformanceExplorer({ datasets }: Readonly<{ datasets: readonly 
   function selectDataset(id: string) {
     setSelectedId(id);
     window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}#${encodeURIComponent(id)}`);
+  }
+
+  function selectPhase(nextPhase: PerformancePhase) {
+    setPhase(nextPhase);
+    const first = datasets.find((dataset) => nextPhase === "All" || inferPerformancePhase(dataset) === nextPhase);
+    if (first) setSelectedId(first.id);
   }
 
   function setAxis(datasetId: string, axisKey: string, value: string) {
@@ -164,21 +200,43 @@ export function PerformanceExplorer({ datasets }: Readonly<{ datasets: readonly 
 
   return (
     <section className={styles.explorer} aria-label="Performance workspace">
-      <nav className={styles.datasetIndex} aria-label="Performance datasets">
-        {datasets.map((dataset) => (
-          <button aria-current={dataset.id === selected.id ? "page" : undefined} className={dataset.id === selected.id ? styles.datasetActive : undefined} key={dataset.id} onClick={() => selectDataset(dataset.id)} type="button">
-            <span>{dataset.kind === "lookup-table" ? "Lookup" : "Reference"}</span>
-            <strong>{dataset.title}</strong>
-            <small>{dataset.rows.length} rows · {dataset.axes.length} inputs</small>
-          </button>
-        ))}
-      </nav>
-      <DatasetWorkspace
-        dataset={selected}
-        filters={filtersByDataset[selected.id] ?? {}}
-        onSetAxis={(axisKey, value) => setAxis(selected.id, axisKey, value)}
-        onReset={() => reset(selected.id)}
-      />
+      <div className={styles.toolBar}>
+        <div className={styles.phaseTabs} aria-label="Flight phase">
+          {phaseOrder.map((item) => (
+            <button aria-pressed={phase === item} className={phase === item ? styles.phaseActive : undefined} key={item} onClick={() => selectPhase(item)} type="button">{item}</button>
+          ))}
+        </div>
+        <label className={styles.searchBox}>
+          <span>Find performance data</span>
+          <input onChange={(event) => setQuery(event.target.value)} placeholder="VREF, holding, takeoff, N1…" type="search" value={query} />
+        </label>
+      </div>
+
+      <div className={styles.workspaceMeta}>
+        <strong>{phase === "All" ? "All flight phases" : phase}</strong>
+        <span>{visibleDatasets.length} tool{visibleDatasets.length === 1 ? "" : "s"}</span>
+      </div>
+
+      {visibleDatasets.length ? (
+        <nav className={styles.datasetIndex} aria-label="Performance datasets">
+          {visibleDatasets.map((dataset) => (
+            <button aria-current={dataset.id === selected.id ? "page" : undefined} className={dataset.id === selected.id ? styles.datasetActive : undefined} key={dataset.id} onClick={() => selectDataset(dataset.id)} type="button">
+              <span>{inferPerformancePhase(dataset)}</span>
+              <strong>{dataset.title}</strong>
+              <small>{dataset.rows.length} rows · {dataset.axes.length} input{dataset.axes.length === 1 ? "" : "s"}</small>
+            </button>
+          ))}
+        </nav>
+      ) : <p className={styles.noTools}>No performance tool matches this phase/search.</p>}
+
+      {visibleDatasets.length ? (
+        <DatasetWorkspace
+          dataset={selected}
+          filters={filtersByDataset[selected.id] ?? {}}
+          onSetAxis={(axisKey, value) => setAxis(selected.id, axisKey, value)}
+          onReset={() => reset(selected.id)}
+        />
+      ) : null}
     </section>
   );
 }
