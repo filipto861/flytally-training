@@ -73,10 +73,11 @@ test("pilot landing page separates FLY, LEARN and supplementary material", () =>
   assert.doesNotMatch(page, /learjet-35-36/);
 });
 
-test("workspace navigation collapses the long module bar into FLY and LEARN groups", () => {
+test("workspace navigation keeps FLY and LEARN separated without stacked submenus", () => {
   const nav = fs.readFileSync(new URL("../components/aircraft-workspace-nav.tsx", import.meta.url), "utf8");
-  assert.match(nav, /label: "FLY"/);
-  assert.match(nav, /label: "LEARN"/);
-  assert.match(nav, /workspace-nav-secondary/);
+  assert.match(nav, /renderGroup\("fly", "FLY", "Cockpit tools"/);
+  assert.match(nav, /renderGroup\("learn", "LEARN", "Study & practice"/);
+  assert.match(nav, /listPublishedModuleDomains/);
+  assert.doesNotMatch(nav, /workspace-nav-primary|workspace-nav-secondary|contextualSections/);
   assert.doesNotMatch(nav, /learjet-35-36/);
 });
