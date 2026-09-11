@@ -1,10 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { withVariantQuery } from "@/lib/aircraft-applicability";
 import { appendBrowserProgress } from "@/lib/browser-progress";
+import {
+  checklistPhaseProgress,
+  checklistProgressContentId,
+  checklistSessionStorageKey,
+  initialChecklistPhaseId,
+  nextChecklistPhaseId,
+  normalizeChecklistSessionSnapshot,
+} from "@/lib/checklist-session";
 import {
   checklistTrainingModes,
   type ChecklistTrainingMode,
@@ -16,8 +24,6 @@ import {
 } from "@/lib/checklist-runtime";
 import styles from "./checklist-runner.module.css";
 
-const ALL_PHASES = "all";
-
 export function ChecklistRunner({
   checklist,
   selectedVariant,
@@ -26,52 +32,99 @@ export function ChecklistRunner({
   selectedVariant?: string;
 }>) {
   const [mode, setMode] = useState<ChecklistTrainingMode>("run");
-  const [phaseFilter, setPhaseFilter] = useState<string>(ALL_PHASES);
+  const [selectedPhaseId, setSelectedPhaseId] = useState(() => initialChecklistPhaseId(checklist));
   const [completed, setCompleted] = useState<Set<string>>(() => new Set());
   const [revealedFlowPhases, setRevealedFlowPhases] = useState<Set<string>>(() => new Set());
   const [revealedResponses, setRevealedResponses] = useState<Set<string>>(() => new Set());
-  const [recordedCompletion, setRecordedCompletion] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
 
-  const visiblePhases = useMemo(
-    () => phaseFilter === ALL_PHASES ? checklist.phases : checklist.phases.filter((phase) => phase.id === phaseFilter),
-    [checklist, phaseFilter],
+  const storageKey = useMemo(
+    () => checklistSessionStorageKey(checklist, selectedVariant),
+    [checklist, selectedVariant],
   );
-  const visibleItemIds = useMemo(() => new Set(visiblePhases.flatMap((phase) => phase.items.map((item) => item.id))), [visiblePhases]);
-  const totalItems = visibleItemIds.size;
-  const completedCount = [...completed].filter((itemId) => visibleItemIds.has(itemId)).length;
+  const phaseProgress = useMemo(() => checklistPhaseProgress(checklist, completed), [checklist, completed]);
+  const currentPhase = checklist.phases.find((phase) => phase.id === selectedPhaseId) ?? checklist.phases[0];
+  const currentPhaseProgress = phaseProgress.find((phase) => phase.phaseId === currentPhase?.id);
+  const totalItems = checklist.phases.reduce((total, phase) => total + phase.items.length, 0);
+  const completedCount = phaseProgress.reduce((total, phase) => total + phase.completedItems, 0);
   const percent = totalItems === 0 ? 0 : Math.round((completedCount / totalItems) * 100);
   const activeMode = checklistTrainingModes.find((candidate) => candidate.key === mode) ?? checklistTrainingModes[0];
+  const nextPhaseId = currentPhase ? nextChecklistPhaseId(checklist, currentPhase.id) : undefined;
+  const nextPhase = nextPhaseId ? checklist.phases.find((phase) => phase.id === nextPhaseId) : undefined;
 
-  function resetSession() {
-    setCompleted(new Set());
-    setRevealedFlowPhases(new Set());
-    setRevealedResponses(new Set());
-    setRecordedCompletion(false);
+  useEffect(() => {
+    let restored: unknown;
+    try {
+      const raw = window.sessionStorage.getItem(storageKey);
+      restored = raw ? JSON.parse(raw) : undefined;
+    } catch {
+      restored = undefined;
+    }
+    const snapshot = normalizeChecklistSessionSnapshot(restored, checklist);
+    setMode(snapshot.mode);
+    setSelectedPhaseId(snapshot.selectedPhaseId);
+    setCompleted(new Set(snapshot.completedIds));
+    setRevealedFlowPhases(new Set(snapshot.revealedFlowPhaseIds));
+    setRevealedResponses(new Set(snapshot.revealedResponseIds));
+    setHydrated(true);
+  }, [checklist, storageKey]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    try {
+      window.sessionStorage.setItem(storageKey, JSON.stringify({
+        version: 1,
+        mode,
+        selectedPhaseId,
+        completedIds: [...completed],
+        revealedFlowPhaseIds: [...revealedFlowPhases],
+        revealedResponseIds: [...revealedResponses],
+      }));
+    } catch {
+      // The checklist remains fully usable when sessionStorage is unavailable.
+    }
+  }, [completed, hydrated, mode, revealedFlowPhases, revealedResponses, selectedPhaseId, storageKey]);
+
+  function recordCompletion(kind: "checklist-phase" | "normal-flight", phaseId?: string) {
+    appendBrowserProgress({
+      aircraftId: checklist.aircraftId,
+      kind,
+      contentId: checklistProgressContentId(
+        kind === "normal-flight" ? "complete" : "phase",
+        phaseId,
+        mode,
+        selectedVariant,
+      ),
+      occurredAt: new Date().toISOString(),
+      completed: true,
+    });
   }
-
-  function changeMode(nextMode: ChecklistTrainingMode) { setMode(nextMode); resetSession(); }
-  function changePhase(nextPhase: string) { setPhaseFilter(nextPhase); resetSession(); }
 
   function toggle(itemId: string) {
     setCompleted((current) => {
       const next = new Set(current);
       if (next.has(itemId)) next.delete(itemId); else next.add(itemId);
 
-      const completeNow = visibleItemIds.size > 0 && [...visibleItemIds].every((id) => next.has(id));
-      if (completeNow && !recordedCompletion) {
-        appendBrowserProgress({
-          aircraftId: checklist.aircraftId,
-          kind: phaseFilter === ALL_PHASES ? "normal-flight" : "checklist-phase",
-          contentId: phaseFilter === ALL_PHASES ? `complete-checklist:${mode}` : `${phaseFilter}:${mode}`,
-          occurredAt: new Date().toISOString(),
-          completed: true,
-        });
-        setRecordedCompletion(true);
-      } else if (!completeNow && recordedCompletion) {
-        setRecordedCompletion(false);
+      const affectedPhase = checklist.phases.find((phase) => phase.items.some((item) => item.id === itemId));
+      if (affectedPhase) {
+        const wasComplete = affectedPhase.items.length > 0 && affectedPhase.items.every((item) => current.has(item.id));
+        const isComplete = affectedPhase.items.length > 0 && affectedPhase.items.every((item) => next.has(item.id));
+        if (!wasComplete && isComplete) recordCompletion("checklist-phase", affectedPhase.id);
       }
+
+      const wasAllComplete = totalItems > 0 && checklist.phases.every((phase) => phase.items.every((item) => current.has(item.id)));
+      const isAllComplete = totalItems > 0 && checklist.phases.every((phase) => phase.items.every((item) => next.has(item.id)));
+      if (!wasAllComplete && isAllComplete) recordCompletion("normal-flight");
       return next;
     });
+  }
+
+  function resetCurrentPhase() {
+    if (!currentPhase) return;
+    const itemIds = new Set(currentPhase.items.map((item) => item.id));
+    setCompleted((current) => new Set([...current].filter((itemId) => !itemIds.has(itemId))));
+    setRevealedResponses((current) => new Set([...current].filter((itemId) => !itemIds.has(itemId))));
+    setRevealedFlowPhases((current) => new Set([...current].filter((phaseId) => phaseId !== currentPhase.id)));
   }
 
   function revealFlowPhase(phaseId: string) { setRevealedFlowPhases((current) => new Set(current).add(phaseId)); }
@@ -140,38 +193,50 @@ export function ChecklistRunner({
     );
   }
 
+  if (!currentPhase) return null;
+  const phaseIndex = checklist.phases.findIndex((phase) => phase.id === currentPhase.id);
+  const flowRevealed = revealedFlowPhases.has(currentPhase.id);
+
   return (
     <section className={styles.runner} aria-label="Aircraft checklist">
       <div className={styles.trainingControls}>
         <div className={styles.modeHeader}>
           <div><p className="eyebrow">Checklist mode</p><strong>{activeMode.label}</strong><span>{activeMode.description}</span></div>
-          <label className={styles.phaseSelect}><span>Scope</span><select value={phaseFilter} onChange={(event) => changePhase(event.target.value)}><option value={ALL_PHASES}>Complete checklist</option>{checklist.phases.map((phase) => <option value={phase.id} key={phase.id}>{phase.title}</option>)}</select></label>
+          <span className={styles.resumeState}>{hydrated ? "Session progress saved in this tab" : "Restoring session…"}</span>
         </div>
         <div className={styles.modeTabs} role="group" aria-label="Checklist mode">
-          {checklistTrainingModes.map((candidate) => <button aria-pressed={candidate.key === mode} className={candidate.key === mode ? styles.modeActive : undefined} key={candidate.key} onClick={() => changeMode(candidate.key)} type="button">{candidate.label}</button>)}
+          {checklistTrainingModes.map((candidate) => <button aria-pressed={candidate.key === mode} className={candidate.key === mode ? styles.modeActive : undefined} key={candidate.key} onClick={() => setMode(candidate.key)} type="button">{candidate.label}</button>)}
         </div>
       </div>
 
+      <nav className={styles.phaseNavigator} aria-label="Checklist phases">
+        {checklist.phases.map((phase, index) => {
+          const progress = phaseProgress.find((candidate) => candidate.phaseId === phase.id);
+          const active = phase.id === currentPhase.id;
+          return <button aria-current={active ? "step" : undefined} className={`${styles.phaseNavButton} ${active ? styles.phaseNavActive : ""} ${progress?.complete ? styles.phaseNavComplete : ""}`} key={phase.id} onClick={() => setSelectedPhaseId(phase.id)} type="button"><span>{String(index + 1).padStart(2, "0")}</span><strong>{phase.title}</strong><small>{progress?.completedItems ?? 0}/{progress?.totalItems ?? phase.items.length}</small></button>;
+        })}
+      </nav>
+
       <header className={styles.progress}>
-        <div><p className="eyebrow">Current session</p><strong>{completedCount} / {totalItems} items</strong></div>
+        <div><p className="eyebrow">Checklist progress</p><strong>{completedCount} / {totalItems} items</strong></div>
         <div className={styles.track} aria-label={`${percent}% complete`}><span style={{ width: `${percent}%` }} /></div>
-        <button className={styles.reset} type="button" onClick={resetSession}>Reset session</button>
+        <button className={styles.reset} type="button" onClick={resetCurrentPhase}>Reset this phase</button>
       </header>
 
-      <div className={styles.phases}>
-        {visiblePhases.map((phase, phaseIndex) => {
-          const phaseComplete = phase.items.every((item) => completed.has(item.id));
-          const flowRevealed = revealedFlowPhases.has(phase.id);
-          return (
-            <section className={`${styles.phase} ${phaseComplete ? styles.phaseComplete : ""}`} key={phase.id}>
-              <div className={styles.phaseHeading}><span>{String(phaseIndex + 1).padStart(2, "0")}</span><div><h2>{phase.title}</h2><small>{phase.items.length} items</small></div></div>
-              {mode === "flow" && !flowRevealed ? (
-                <div className={styles.flowPrompt}><div><strong>Perform this sequence from memory.</strong><p>When finished, reveal the checklist and verify every item.</p></div><button type="button" onClick={() => revealFlowPhase(phase.id)}>Reveal checklist</button></div>
-              ) : <div className={styles.items}>{phase.items.map((item) => mode === "challenge" ? renderChallengeItem(item) : renderStandardItem(item))}</div>}
-            </section>
-          );
-        })}
-      </div>
+      <section className={`${styles.phase} ${currentPhaseProgress?.complete ? styles.phaseComplete : ""}`}>
+        <div className={styles.phaseHeading}>
+          <span>{String(phaseIndex + 1).padStart(2, "0")}</span>
+          <div><h2>{currentPhase.title}</h2><small>{currentPhaseProgress?.completedItems ?? 0} of {currentPhase.items.length} items complete</small></div>
+        </div>
+        {mode === "flow" && !flowRevealed ? (
+          <div className={styles.flowPrompt}><div><strong>Perform this sequence from memory.</strong><p>When finished, reveal the checklist and verify every item.</p></div><button type="button" onClick={() => revealFlowPhase(currentPhase.id)}>Reveal checklist</button></div>
+        ) : <div className={styles.items}>{currentPhase.items.map((item) => mode === "challenge" ? renderChallengeItem(item) : renderStandardItem(item))}</div>}
+      </section>
+
+      <footer className={styles.phaseFooter}>
+        <div><strong>{currentPhaseProgress?.complete ? "Phase complete" : "Current phase"}</strong><span>{currentPhase.title}</span></div>
+        {nextPhase ? <button type="button" onClick={() => setSelectedPhaseId(nextPhase.id)}>Next phase · {nextPhase.title} →</button> : <span className={styles.finalPhase}>{percent === 100 ? "Checklist complete ✓" : "Final phase"}</span>}
+      </footer>
     </section>
   );
 }
