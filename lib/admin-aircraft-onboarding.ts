@@ -66,7 +66,7 @@ export function deriveAircraftOnboarding(aircraft: AdminAircraftDetail): Aircraf
   const hasSources=aircraft.manuals.length>0;
   const hasReferences=aircraft.sourceReferences.length>0;
   const hasContent=aircraft.contentVersions.some(version=>version.state!=="archived");
-  const publishedModuleCount=modules.filter(module=>module.state==="published").length;
+  const publishedModuleCount=modules.filter(module=>module.state==="published" || module.state==="stale").length;
   const hasPublishedContent=publishedModuleCount>0;
   const cataloguePublished=aircraft.status==="published";
   const fresh=aircraft.staleCount===0 && !modules.some(module=>module.state==="stale");
@@ -102,7 +102,7 @@ export function deriveAircraftOnboarding(aircraft: AdminAircraftDetail): Aircraf
       id:"publication",
       label:"Governed publication",
       complete:hasPublishedContent,
-      detail:hasPublishedContent?`${publishedModuleCount} learner module${publishedModuleCount===1?"":"s"} published`:"Review, approve and publish at least one module before releasing the aircraft to learners.",
+      detail:hasPublishedContent?`${publishedModuleCount} learner module${publishedModuleCount===1?"":"s"} released`:"Review, approve and publish at least one module before releasing the aircraft to learners.",
     },
     {
       id:"catalogue",
