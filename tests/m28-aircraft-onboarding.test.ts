@@ -56,8 +56,9 @@ test("sparse published aircraft can be ready with only one genuine learner domai
   assert.equal(onboarding.completionPercent,100);
 });
 
-test("a newer draft is visible even while an older module remains published",()=>{
+test("a live module can expose a newer draft without losing its released state",()=>{
   const onboarding=deriveAircraftOnboarding(aircraft({
+    status:"published",
     manuals:[{manualId:"manual",revisionId:"manual-r1",title:"Manual",publisher:"OEM",revision:"1",issueDate:"2026-01-01",sourceKind:"AFM",authorityRole:"CONTROLLING"}],
     sourceReferences:[{id:"ref-1",revisionId:"manual-r1",pageLabel:"1"}],
     contentVersions:[
@@ -65,7 +66,11 @@ test("a newer draft is visible even while an older module remains published",()=
       version({id:"v2",versionNo:2,state:"draft",createdAt:"2026-09-12T00:00:00.000Z"}),
     ],
   }));
-  assert.equal(onboarding.modules.find(module=>module.domain==="checklists")?.state,"draft");
+  const checklist=onboarding.modules.find(module=>module.domain==="checklists");
+  assert.equal(checklist?.state,"draft");
+  assert.equal(checklist?.released,true);
+  assert.equal(onboarding.publishedModuleCount,1);
+  assert.equal(onboarding.steps.find(step=>step.id==="publication")?.complete,true);
   assert.equal(onboarding.phase,"review");
 });
 
@@ -79,5 +84,6 @@ test("stale content moves an otherwise released aircraft into maintenance",()=>{
   }));
   assert.equal(onboarding.phase,"maintenance");
   assert.equal(onboarding.modules.find(module=>module.domain==="checklists")?.state,"stale");
+  assert.equal(onboarding.modules.find(module=>module.domain==="checklists")?.released,true);
   assert.equal(onboarding.steps.find(step=>step.id==="freshness")?.attention,true);
 });
