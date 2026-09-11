@@ -3,26 +3,44 @@
 .search, .phaseFilter { display: grid; gap: 6px; }
 .search > span, .phaseFilter > span { color: #6b7b8d; font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; }
 .search input, .phaseFilter select { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid #cbd7e2; border-radius: 10px; background: #fff; color: #172033; font: inherit; }
-.layout { display: grid; grid-template-columns: minmax(240px,320px) minmax(0,1fr); gap: 18px; align-items: start; }
-.index { position: sticky; top: 82px; overflow: hidden; border: 1px solid #d7e1ea; border-radius: 18px; background: rgba(255,255,255,.9); }
+.layout { display: grid; grid-template-columns: minmax(250px,330px) minmax(0,1fr); gap: 18px; align-items: start; }
+.index { position: sticky; top: 82px; overflow: hidden; border: 1px solid #d7e1ea; border-radius: 18px; background: rgba(255,255,255,.94); }
 .indexHeader { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid #e1e8ee; }
+.indexHeader > div { min-width: 0; }
+.indexHeader strong, .indexHeader small { display: block; }
 .indexHeader strong { font-size: .86rem; }
+.indexHeader small { margin-top: 3px; color: #8593a2; font-size: .68rem; }
 .indexHeader button { border: 0; background: transparent; color: #526579; font: inherit; font-size: .78rem; font-weight: 760; cursor: pointer; }
-.index > button { display: grid; gap: 4px; width: 100%; padding: 14px 16px; border: 0; border-bottom: 1px solid #e8edf2; background: transparent; color: #172033; text-align: left; font: inherit; cursor: pointer; }
-.index > button:last-of-type { border-bottom: 0; }
-.index > button:hover { background: #f6f9fb; }
-.index > button.active { background: #eef3f7; box-shadow: inset 3px 0 0 #172033; }
-.index > button span { color: #7a899a; font-size: .7rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; }
-.index > button strong { line-height: 1.35; font-size: .9rem; }
+.indexList { max-height: calc(100vh - 190px); overflow-y: auto; }
+.indexList > button { display: grid; gap: 4px; width: 100%; padding: 14px 16px; border: 0; border-bottom: 1px solid #e8edf2; background: transparent; color: #172033; text-align: left; font: inherit; cursor: pointer; }
+.indexList > button:last-of-type { border-bottom: 0; }
+.indexList > button:hover { background: #f6f9fb; }
+.indexList > button.active { background: #eef3f7; box-shadow: inset 3px 0 0 #172033; }
+.indexList > button.indexComplete:not(.active) { background: #f5f9f7; }
+.indexList > button > span { color: #7a899a; font-size: .7rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; }
+.indexList > button > strong { line-height: 1.35; font-size: .9rem; }
+.indexList > button > small { color: #8391a0; font-size: .72rem; }
+.indexList > button.indexComplete > small { color: #38604b; font-weight: 760; }
 .empty { margin: 0; padding: 18px 16px; color: #6b7b8d; line-height: 1.45; }
-.detail { scroll-margin-top: 96px; padding: 26px; border: 1px solid #d7e1ea; border-radius: 22px; background: rgba(255,255,255,.86); }
-.detail header h2 { margin: 4px 0 8px; font-size: 1.6rem; }
-.detail header > p:last-child { color: #5f7082; line-height: 1.55; }
+.detail { scroll-margin-top: 96px; padding: 26px; border: 1px solid #d7e1ea; border-radius: 22px; background: rgba(255,255,255,.88); }
+.detailHeader { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 24px; align-items: start; }
+.detailHeader h2 { margin: 4px 0 8px; font-size: 1.7rem; }
+.detailHeader > div:first-child > p:last-child { max-width: 760px; color: #5f7082; line-height: 1.55; }
+.detailProgress { display: grid; gap: 8px; justify-items: end; min-width: 150px; }
+.detailProgress span { color: #526579; font-size: .8rem; font-weight: 800; }
+.detailProgress button { padding: 8px 11px; border: 1px solid #ccd7e1; border-radius: 999px; background: #fff; color: #5b6d7f; font: inherit; font-size: .75rem; font-weight: 760; cursor: pointer; }
+.detailProgress button:hover { border-color: #aebdca; color: #172033; }
 .steps { display: grid; gap: 10px; margin: 22px 0; padding: 0; list-style: none; }
-.steps > li { display: grid; grid-template-columns: 42px minmax(0,1fr); gap: 14px; padding: 16px; border: 1px solid #e0e7ee; border-radius: 15px; background: #fff; }
+.steps > li { display: grid; grid-template-columns: 30px 42px minmax(0,1fr); gap: 12px; align-items: start; padding: 16px; border: 1px solid #e0e7ee; border-radius: 15px; background: #fff; transition: border-color 120ms ease, background 120ms ease; }
+.steps > li.stepComplete { border-color: #c3d5c9; background: #f7faf8; }
+.stepCheck { display: grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 0; background: transparent; cursor: pointer; }
+.stepCheck > span { width: 23px; height: 23px; border: 2px solid #b9c6d2; border-radius: 7px; background: #fff; }
+.stepCheck[aria-pressed="true"] > span { border-color: #274a38; background: #274a38; box-shadow: inset 0 0 0 5px #fff; }
 .stepNumber { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 10px; background: #eaf0f5; font-size: .78rem; font-weight: 800; }
+.stepComplete .stepNumber { background: #e5efe9; color: #355844; }
 .stepBody { min-width: 0; }
 .action { display: block; line-height: 1.45; }
+.stepComplete .action { color: #526c5d; }
 .stepBody p { display: grid; grid-template-columns: 86px minmax(0,1fr); gap: 9px; margin: 9px 0 0; color: #5e6f81; line-height: 1.45; font-size: .9rem; }
 .stepBody p > span { color: #718195; font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
 .stepBody small { display: block; margin-top: 10px; color: #8290a0; line-height: 1.4; }
@@ -34,17 +52,32 @@
 .metaBlock > strong { display: block; margin-bottom: 7px; }
 .metaBlock ul { margin: 0; padding-left: 20px; color: #5f7082; line-height: 1.5; }
 .procedureSource { margin: 16px 0 0; color: #8190a1; }
+.procedureNavigation { display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); gap: 12px; align-items: center; margin-top: 24px; padding-top: 18px; border-top: 1px solid #e1e8ee; }
+.procedureNavigation button { min-width: 0; padding: 10px 12px; border: 1px solid #cbd7e2; border-radius: 10px; background: #fff; color: #172033; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: inherit; font-size: .8rem; font-weight: 760; cursor: pointer; }
+.procedureNavigation button:first-child { justify-self: start; }
+.procedureNavigation button:last-child { justify-self: end; }
+.procedureNavigation > strong, .procedureNavigation > span { color: #637487; text-align: center; font-size: .78rem; }
+.procedureNavigation > strong { color: #355844; }
 .noSelection { padding: 30px; border: 1px dashed #ccd7e1; border-radius: 18px; color: #6b7b8d; text-align: center; }
 
-@media (max-width: 860px) {
+@media (max-width: 900px) {
   .layout { grid-template-columns: 1fr; }
-  .index { position: static; max-height: 320px; overflow-y: auto; }
+  .index { position: static; }
+  .indexList { display: flex; max-height: none; overflow-x: auto; overflow-y: hidden; }
+  .indexList > button { flex: 0 0 210px; border-right: 1px solid #e8edf2; border-bottom: 0; }
+  .indexList > button.active { box-shadow: inset 0 -3px 0 #172033; }
 }
 
 @media (max-width: 620px) {
   .toolbar { grid-template-columns: 1fr; }
   .detail { padding: 18px; }
-  .steps > li { grid-template-columns: 34px minmax(0,1fr); padding: 13px; }
+  .detailHeader { grid-template-columns: 1fr; gap: 12px; }
+  .detailProgress { display: flex; justify-content: space-between; align-items: center; min-width: 0; }
+  .steps > li { grid-template-columns: 28px 32px minmax(0,1fr); gap: 9px; padding: 13px; }
   .stepNumber { width: 30px; height: 30px; }
   .stepBody p { grid-template-columns: 1fr; gap: 2px; }
+  .procedureNavigation { grid-template-columns: 1fr 1fr; }
+  .procedureNavigation > strong, .procedureNavigation > span { grid-column: 1 / -1; grid-row: 1; }
+  .procedureNavigation button:first-of-type { grid-column: 1; }
+  .procedureNavigation button:last-of-type { grid-column: 2; }
 }

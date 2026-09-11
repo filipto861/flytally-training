@@ -24,6 +24,7 @@ test("v1 progress activity contract includes the complete learner path", () => {
     "orientation",
     "normal-flight",
     "checklist-phase",
+    "procedure",
     "flow",
     "scenario",
     "knowledge",
