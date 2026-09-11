@@ -6,7 +6,7 @@ import { appendBrowserProgress, loadTrainingProgress, readBrowserProgress } from
 import type { TrainingActivityKind } from "@/lib/progress-events";
 import styles from "./learning-completion-button.module.css";
 
-type CompletionKind = Extract<TrainingActivityKind, "quick-start" | "systems" | "orientation" | "flow">;
+type CompletionKind = Extract<TrainingActivityKind, "quick-start" | "systems" | "avionics" | "orientation" | "flow">;
 
 const initialLoads = new Map<string, Promise<Awaited<ReturnType<typeof loadTrainingProgress>>>>();
 
@@ -14,8 +14,6 @@ function loadOnce(aircraftId: string) {
   let pending = initialLoads.get(aircraftId);
   if (!pending) {
     pending = loadTrainingProgress(aircraftId).then((result) => {
-      // Share one account round-trip across sibling completion controls, but do
-      // not pin an offline/unauthenticated result for the rest of the session.
       if (result.persistence === "local") initialLoads.delete(aircraftId);
       return result;
     }).catch((error) => {
