@@ -27,7 +27,8 @@
 .controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; }
 .controls label { display: grid; gap: 6px; min-width: 190px; flex: 1 1 190px; }
 .controls label > span { color: #6c7c8e; font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; }
-.controls select { width: 100%; min-height: 42px; padding: 9px 11px; border: 1px solid #cbd7e2; border-radius: 10px; background: #fff; color: #172033; font: inherit; font-weight: 700; }
+.controls select, .controls input { width: 100%; min-height: 42px; padding: 9px 11px; border: 1px solid #cbd7e2; border-radius: 10px; background: #fff; color: #172033; font: inherit; font-weight: 700; }
+.controls input:focus, .controls select:focus { outline: 2px solid #b8cad8; outline-offset: 1px; }
 .controls button, .tableHeading button { min-height: 42px; padding: 9px 13px; border: 1px solid #c8d4df; border-radius: 10px; background: #fff; color: #526579; font: inherit; font-size: .8rem; font-weight: 760; cursor: pointer; }
 .selectedInputs { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 14px; }
 .selectedInputs > span { display: grid; gap: 2px; min-width: 110px; padding: 8px 10px; border-radius: 10px; background: #fff; border: 1px solid #e0e7ee; }
@@ -38,6 +39,8 @@
 .lookupStatus span { color: #627386; line-height: 1.42; font-size: .82rem; }
 .status_exact { border-color: #b9d0c1; background: #f4f9f6; }
 .status_exact strong { color: #315b43; }
+.status_interpolated { border-color: #b8cfe0; background: #f1f7fb; }
+.status_interpolated strong { color: #315b72; }
 .status_no-match, .status_ambiguous { border-color: #e5cf9c; background: #fff9e9; }
 .status_no-match strong, .status_ambiguous strong { color: #6b541d; }
 .result { margin-top: 14px; padding: 17px; border: 1px solid #aebfcd; border-radius: 15px; background: #eef4f8; }
@@ -59,7 +62,7 @@
 .tableWrap tbody tr.exactRow td { background: #f2f7f4; font-weight: 760; }
 .empty { margin: 0; padding: 18px; color: #6b7b8d; }
 .notes { margin: 16px 0 0; color: #5f7082; line-height: 1.5; }
-.interpolationBoundary { margin: 14px 0 0; padding: 10px 12px; border: 1px solid #e5cf9c; border-radius: 10px; background: #fff9e9; color: #6b541d; line-height: 1.45; font-size: .82rem; }
+.interpolationBoundary { margin: 14px 0 0; padding: 10px 12px; border: 1px solid #b8cfe0; border-radius: 10px; background: #f1f7fb; color: #365d74; line-height: 1.45; font-size: .82rem; }
 .source { margin: 14px 0 0; color: #8190a1; }
 
 @media (max-width: 760px) {
