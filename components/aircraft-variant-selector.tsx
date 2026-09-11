@@ -34,10 +34,10 @@ export function AircraftVariantSelector({
   }
 
   return (
-    <label className={styles.selector} aria-label="Aircraft configuration">
-      <span>Configuration</span>
+    <label className={styles.selector} aria-label="Aircraft variant">
+      <span>Variant</span>
       <select value={selectedVariant ?? ""} onChange={(event) => selectVariant(event.target.value)}>
-        <option value="">Common</option>
+        <option value="">Common / all</option>
         {profiles.map((profile) => <option key={profile.key} value={profile.key}>{profile.displayName}</option>)}
       </select>
     </label>

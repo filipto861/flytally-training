@@ -7,31 +7,35 @@ const variant=fs.readFileSync(new URL("../components/aircraft-variant-selector.t
 const productShell=fs.readFileSync(new URL("../components/product-shell.tsx",import.meta.url),"utf8");
 const navigationCss=fs.readFileSync(new URL("../app/navigation.css",import.meta.url),"utf8");
 
-test("M35 separation survives the focused contextual navigator",()=>{
+test("M35 learner navigation remains one publication-driven navigation surface",()=>{
   assert.match(nav,/Aircraft training navigation/);
-  assert.match(nav,/renderGroup\("fly", "FLY", flyLinks\)/);
-  assert.match(nav,/renderGroup\("learn", "LEARN", learn\)/);
+  assert.match(nav,/listPublishedModuleDomains/);
+  assert.match(nav,/aircraftWorkspaceSections\(aircraftId, publishedDomains\)/);
   assert.doesNotMatch(nav,/workspace-nav-primary|workspace-nav-secondary|contextualSections|topLinks/);
 });
 
-test("learner navigation exposes home progress and published direct module links",()=>{
+test("pilot navigation exposes home task areas and progress without exposing domain clutter globally",()=>{
   assert.match(nav,/>Home<\/Link>/);
-  assert.match(nav,/>Progress<\/Link>/);
-  assert.match(nav,/aria-current=\{entry\.key === active \? "page" : undefined\}/);
+  assert.match(nav,/label: "Training"/);
+  assert.match(nav,/label: "Checklists"/);
+  assert.match(nav,/label: "Reference"/);
+  assert.match(nav,/className=\{styles\.progressLink\}/);
   assert.match(nav,/quick-reference/);
-  assert.match(nav,/listPublishedModuleDomains/);
+  assert.doesNotMatch(nav,/"FLY"|"LEARN"/);
 });
 
-test("aircraft configuration remains a compact navigation control",()=>{
+test("aircraft variant remains a compact utility instead of a primary navigation choice",()=>{
   assert.match(variant,/<label className=\{styles\.selector\}/);
-  assert.match(variant,/>Configuration<\/span>/);
-  assert.doesNotMatch(variant,/Aircraft configuration<\/p>|equipment\/modification tag|Variant-specific content is active/);
+  assert.match(variant,/>Variant<\/span>/);
+  assert.match(variant,/Common \/ all/);
+  assert.doesNotMatch(variant,/equipment\/modification tag|Variant-specific content is active/);
 });
 
-test("global header is one compact row and keeps the aircraft entry point",()=>{
-  assert.match(productShell,/>Aircraft<\/Link>/);
-  assert.match(navigationCss,/grid-template-columns:auto minmax\(0,1fr\) auto/);
-  assert.match(navigationCss,/@media\(max-width:760px\)/);
+test("global header keeps only product identity and account actions",()=>{
+  assert.doesNotMatch(productShell,/global-nav/);
+  assert.match(productShell,/FlyTally/);
+  assert.match(navigationCss,/grid-template-columns:auto 1fr auto/);
+  assert.match(navigationCss,/\.account-actions\{grid-column:3\}/);
   const account=fs.readFileSync(new URL("../components/account-actions.tsx",import.meta.url),"utf8");
   assert.doesNotMatch(account,/FlyTally account/);
 });

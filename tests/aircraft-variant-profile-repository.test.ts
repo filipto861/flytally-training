@@ -40,7 +40,8 @@ test("compact variant selector uses profile display data without exposing an air
   assert.match(selector, /variantProfiles/);
   assert.match(selector, /profile\.displayName/);
   assert.match(selector, /profiles\.map/);
-  assert.match(selector, />Configuration<\/span>/);
+  assert.match(selector, />Variant<\/span>/);
+  assert.match(selector, /Common \/ all/);
   assert.doesNotMatch(selector, /equipment\/modification tag|Variant-specific content is active/);
   assert.doesNotMatch(selector, /35A|36A|Bristell|Boeing|Learjet/i);
 });

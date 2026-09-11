@@ -63,24 +63,22 @@ test("static seed publishes CAE checklist instead of the previous abbreviated ch
   assert.equal(checklist?.payload, learjet3536CaeNormalChecklist);
 });
 
-test("pilot landing page reduces the workspace to FLY and LEARN choices", () => {
+test("pilot landing page prioritizes an action and quick access instead of exposing content taxonomy", () => {
   const page = fs.readFileSync(new URL("../app/aircraft/[aircraftId]/page.tsx", import.meta.url), "utf8");
-  assert.match(page, /focused-choice-grid/);
-  assert.match(page, />FLY</);
-  assert.match(page, />LEARN</);
-  assert.match(page, /Cockpit tools/);
-  assert.match(page, /Study & practice/);
-  assert.match(page, /workspaceProfile\?\.flyManualId/);
-  assert.doesNotMatch(page, /Supplementary Workflow|workspace-overview|workspace-card/);
+  assert.match(page, /pilot-primary-card/);
+  assert.match(page, /Quick access/);
+  assert.match(page, /Normal checklist/);
+  assert.match(page, /Abnormal \/ Emergency/);
+  assert.doesNotMatch(page, />FLY<|>LEARN<|Cockpit tools|Study & practice|Training references/);
   assert.doesNotMatch(page, /learjet-35-36/);
 });
 
-test("workspace navigation keeps only the active FLY or LEARN group expanded", () => {
+test("workspace navigation uses pilot task areas rather than FLY and LEARN product buckets", () => {
   const nav = fs.readFileSync(new URL("../components/aircraft-workspace-nav.tsx", import.meta.url), "utf8");
-  assert.match(nav, /activeGroup !== group/);
-  assert.match(nav, /collapsedGroup/);
-  assert.match(nav, /expandedGroup/);
+  assert.match(nav, /label: "Training"/);
+  assert.match(nav, /label: "Checklists"/);
+  assert.match(nav, /label: "Reference"/);
   assert.match(nav, /listPublishedModuleDomains/);
-  assert.doesNotMatch(nav, /workspace-nav-primary|workspace-nav-secondary|contextualSections/);
+  assert.doesNotMatch(nav, /"FLY"|"LEARN"|learner-sidebar/);
   assert.doesNotMatch(nav, /learjet-35-36/);
 });

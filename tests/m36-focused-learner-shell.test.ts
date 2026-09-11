@@ -7,40 +7,37 @@ const navCss = fs.readFileSync(new URL("../components/aircraft-workspace-nav.mod
 const shellCss = fs.readFileSync(new URL("../app/learner-shell.css", import.meta.url), "utf8");
 const aircraftHome = fs.readFileSync(new URL("../app/aircraft/[aircraftId]/page.tsx", import.meta.url), "utf8");
 
-test("M36 exposes one contextual aircraft navigation surface", () => {
-  assert.match(nav, /<aside className=\{`\$\{styles\.navigator\} learner-sidebar`\}/);
-  assert.match(nav, /activeGroup !== group/);
-  assert.match(nav, /collapsedGroup/);
-  assert.match(nav, /expandedGroup/);
-  assert.doesNotMatch(nav, /workspace-nav-primary|workspace-nav-secondary|utilityRow|groups/);
+test("M36 simplification evolves into one compact aircraft task navigator", () => {
+  assert.match(nav, /learner-pilot-nav/);
+  assert.match(nav, /primaryNav/);
+  assert.match(nav, /areaNav/);
+  assert.doesNotMatch(nav, /learner-sidebar|collapsedGroup|expandedGroup|activeGroup/);
 });
 
-test("only the active FLY or LEARN group expands into module links", () => {
-  assert.match(nav, /renderGroup\("fly", "FLY", flyLinks\)/);
-  assert.match(nav, /renderGroup\("learn", "LEARN", learn\)/);
-  assert.match(nav, /activeGroup !== group/);
-  assert.match(nav, /entries\[0\]\.href/);
-  assert.match(nav, /aria-current=\{entry\.key === active \? "page" : undefined\}/);
+test("only the active pilot area exposes its module-level navigation", () => {
+  assert.match(nav, /const currentArea = visibleAreas\.find/);
+  assert.match(nav, /currentArea && currentArea\.entries\.length > 1/);
+  assert.match(nav, /currentArea\.entries\.map/);
+  assert.match(nav, /aria-label=\{`\$\{currentArea\.label\} sections`\}/);
 });
 
-test("desktop learner pages use a sticky sidebar and one content column", () => {
+test("learner pages return to a single content column with a compact sticky navigator", () => {
   assert.match(navCss, /position:sticky/);
-  assert.match(shellCss, /grid-template-columns:220px minmax\(0,1fr\)/);
-  assert.match(shellCss, />\.learner-sidebar\{grid-column:1/);
-  assert.match(shellCss, />:not\(\.learner-sidebar\)\{grid-column:2/);
-  assert.match(shellCss, /@media\(max-width:860px\)/);
+  assert.match(shellCss, /\.shell:has\(> \.learner-pilot-nav\)/);
+  assert.doesNotMatch(shellCss, /grid-template-columns:220px minmax\(0,1fr\)/);
+  assert.doesNotMatch(shellCss, /learner-sidebar/);
+  assert.match(shellCss, /workspace-section-hero/);
 });
 
-test("aircraft home no longer repeats the whole module catalogue", () => {
-  assert.match(aircraftHome, /focused-choice-grid/);
-  assert.match(aircraftHome, /Cockpit tools/);
-  assert.match(aircraftHome, /Study & practice/);
-  assert.match(aircraftHome, /<details className="focused-reference">/);
-  assert.doesNotMatch(aircraftHome, /workspace-overview|workspace-card|availableFly\.map|availableLearn\.map/);
+test("aircraft home is an action surface rather than a module catalogue", () => {
+  assert.match(aircraftHome, /pilot-home-layout/);
+  assert.match(aircraftHome, /pilot-primary-card/);
+  assert.match(aircraftHome, /Quick access/);
+  assert.doesNotMatch(aircraftHome, /workspace-overview|workspace-card|focused-choice-grid|Training references/);
 });
 
-test("focused shell remains aircraft-agnostic and publication-driven", () => {
+test("focused learner shell remains aircraft-agnostic and capability-driven", () => {
   assert.match(nav, /listPublishedModuleDomains/);
-  assert.match(nav, /aircraftWorkspaceSections\(aircraftId, publishedDomains\)/);
+  assert.match(aircraftHome, /capabilities\.systems/);
   assert.doesNotMatch(nav + aircraftHome, /learjet-35-36|Learjet|Boeing|Cessna|DA40/i);
 });

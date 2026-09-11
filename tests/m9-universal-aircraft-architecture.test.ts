@@ -32,9 +32,9 @@ test("generic learner UX contains no mandatory two-engine or cockpit-map path", 
   assert.doesNotMatch(checklistRunner, /orientation|Show me/i);
   assert.match(coldDarkPage, /\/checklists/);
   assert.match(aircraftPage, /capabilities\.checklists/);
-  assert.match(aircraftPage, /const flyStart/);
-  assert.match(aircraftPage, /const learnStart/);
-  assert.match(aircraftPage, /\{flyStart \?/);
-  assert.match(aircraftPage, /\{learnStart \?/);
+  assert.match(aircraftPage, /const trainingStart/);
+  assert.match(aircraftPage, /const checklistStart/);
+  assert.match(aircraftPage, /const referenceStart/);
+  assert.match(aircraftPage, /const primary = trainingStart/);
   assert.doesNotMatch(aircraftPage, /Not used for this aircraft/);
 });
