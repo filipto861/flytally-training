@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { filterPerformanceRows, getExactPerformanceRow, performanceScalarKey } from "../lib/performance-runtime.ts";
+import { filterPerformanceRows, getExactPerformanceRow, getPerformanceSelectionState, performanceScalarKey } from "../lib/performance-runtime.ts";
 import type { PerformanceDataset } from "../lib/universal-aircraft-content.ts";
 
 const dataset: PerformanceDataset = {
@@ -43,4 +43,25 @@ test("performance runtime performs no implicit interpolation", () => {
     flaps: performanceScalarKey("10"),
   });
   assert.deepEqual(rows, []);
+});
+
+test("performance selection state distinguishes partial, exact and unsupported combinations", () => {
+  const partial = getPerformanceSelectionState(dataset, { weight: performanceScalarKey(500) });
+  assert.equal(partial.status, "partial");
+  assert.deepEqual(partial.missingAxisKeys, ["flaps"]);
+  assert.equal(partial.matchingRows.length, 2);
+
+  const exact = getPerformanceSelectionState(dataset, {
+    weight: performanceScalarKey(600),
+    flaps: performanceScalarKey("0"),
+  });
+  assert.equal(exact.status, "exact");
+  assert.equal(exact.exactRow?.outputs.speed, 75);
+
+  const unsupported = getPerformanceSelectionState(dataset, {
+    weight: performanceScalarKey(550),
+    flaps: performanceScalarKey("10"),
+  });
+  assert.equal(unsupported.status, "no-match");
+  assert.equal(unsupported.exactRow, undefined);
 });
