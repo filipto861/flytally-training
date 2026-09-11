@@ -23,7 +23,10 @@ const refs=(form:FormData)=>[...new Set([...selected(form,"sourceReferenceId"),.
 const fingerprintRefs=(form:FormData)=>selected(form,"fingerprintSourceReferenceId");
 const payload=(form:FormData)=>{try{return JSON.parse(text(form,"payload"));}catch{throw new Error("Draft payload is not valid JSON.");}};
 const domain=(form:FormData):TrainingContentDomain=>{const value=text(form,"domain");if(!(trainingContentDomains as readonly string[]).includes(value))throw new Error("Unsupported content domain.");return value as TrainingContentDomain;};
-const refreshAircraftAdmin=(aircraftId:string)=>{revalidatePath(`/admin/aircraft/${aircraftId}`);revalidatePath(`/admin/aircraft/${aircraftId}/onboarding`);};
+const refreshAircraftAdmin=(aircraftId:string)=>{
+  for(const path of ["", "/content", "/sources", "/review", "/settings", "/onboarding"])revalidatePath(`/admin/aircraft/${aircraftId}${path}`);
+  revalidatePath("/admin");
+};
 
 export async function createAircraftAction(form:FormData){const session=await requireTrainingAdmin();const aircraftId=text(form,"id");await createAircraft({id:aircraftId,manufacturer:text(form,"manufacturer"),model:text(form,"model"),displayName:text(form,"displayName")},session.subject);revalidatePath("/admin");redirect(`/admin/aircraft/${encodeURIComponent(aircraftId)}/onboarding`);}
 export async function addVariantAction(form:FormData){await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");await addAircraftVariant(aircraftId,text(form,"variant"));refreshAircraftAdmin(aircraftId);}
