@@ -1,5 +1,5 @@
-import type { AdminAircraftDetail,AdminContentVersion,TrainingContentDomain } from "./content-admin-types";
-import { universalTrainingContentDomains } from "./universal-aircraft-content";
+import type { AdminAircraftDetail,AdminContentVersion,TrainingContentDomain } from "./content-admin-types.ts";
+import { universalTrainingContentDomains } from "./universal-aircraft-content.ts";
 
 export const onboardingModuleDomains = [...universalTrainingContentDomains,"abnormal"] as const;
 export type OnboardingModuleDomain = typeof onboardingModuleDomains[number];
