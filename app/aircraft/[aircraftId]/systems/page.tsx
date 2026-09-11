@@ -2,17 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
-import { LearningCompletionButton } from "@/components/learning-completion-button";
+import { SystemsBrowser, type RuntimeSystemLesson } from "@/components/systems-browser";
 import { configurationForAircraftVariant, filterSystemsForConfiguration, resolveSelectedVariant, withVariantQuery } from "@/lib/aircraft-applicability";
 import { getPublishedAircraftModule } from "@/lib/content-repository";
 import { getTrainingContentRepository } from "@/lib/content-store";
-import type { AircraftSystemLesson, AircraftSystemsContent, TrainingSourceReference } from "@/lib/universal-aircraft-content";
-import styles from "../learning.module.css";
-
-type RuntimeSystem = AircraftSystemLesson & {
-  readonly minutes?: number;
-  readonly sourceLabel?: string;
-};
+import type { AircraftSystemsContent, TrainingSourceReference } from "@/lib/universal-aircraft-content";
 
 const formatSources = (sources: readonly TrainingSourceReference[] | undefined): string | undefined =>
   sources?.map((item) => [item.chapter ? `Ch ${item.chapter}` : undefined, item.section, `p. ${item.pageLabel}`].filter(Boolean).join(" · ")).join(" · ");
@@ -37,7 +31,7 @@ export default async function SystemsPage({
   const configuredUniversal = universal
     ? filterSystemsForConfiguration(universal, configurationForAircraftVariant(aircraft, selectedVariant))
     : undefined;
-  const systems: readonly RuntimeSystem[] = configuredUniversal ? configuredUniversal.systems.map((system) => ({
+  const systems: readonly RuntimeSystemLesson[] = configuredUniversal ? configuredUniversal.systems.map((system) => ({
     ...system,
     sourceLabel: formatSources(system.sources),
   })) : legacy?.systems.map((system) => ({
@@ -61,32 +55,11 @@ export default async function SystemsPage({
       <section className="workspace-section-hero">
         <p className="eyebrow">Systems · {aircraft.displayName}{selectedVariant ? ` · ${selectedVariant}` : ""}</p>
         <h1>{configuredUniversal?.title ?? `${systems.length} aircraft systems`}</h1>
-        <p className="lede">Each lesson focuses on the system model, what the pilot controls, what is indicated, normal operation, limitations and abnormal cues where applicable.</p>
+        <p className="lede">Study one system at a time. Search by component, control, indication, limitation or abnormal cue and keep the source context visible while you build the aircraft mental model.</p>
         {configuredUniversal?.disclaimer ? <p><strong>Training boundary:</strong> {configuredUniversal.disclaimer}</p> : null}
         {configuredUniversal?.sourceNote ? <p><small>Source note · {configuredUniversal.sourceNote}</small></p> : null}
       </section>
-
-      <section className={styles.systemsGrid} aria-label={`${aircraft.displayName} systems`}>
-        {systems.map((system, index) => (
-          <details className={styles.systemCard} key={system.id} open={index === 0}>
-            <summary><strong>{system.title}</strong>{system.minutes ? <span>{system.minutes} min</span> : null}</summary>
-            <div className={styles.systemBody}>
-              <p className={styles.mentalModel}>{system.mentalModel ?? system.summary}</p>
-              <div className={styles.systemColumns}>
-                {system.components?.length ? <div className={styles.systemBlock}><h3>Components</h3><ul>{system.components.map((item) => <li key={item}>{item}</li>)}</ul></div> : null}
-                {system.controls?.length ? <div className={styles.systemBlock}><h3>Controls</h3><ul>{system.controls.map((item) => <li key={item}>{item}</li>)}</ul></div> : null}
-                {system.indications?.length ? <div className={styles.systemBlock}><h3>Indications</h3><ul>{system.indications.map((item) => <li key={item}>{item}</li>)}</ul></div> : null}
-                {system.normalOperation?.length ? <div className={styles.systemBlock}><h3>Normal operation</h3><ul>{system.normalOperation.map((item) => <li key={item}>{item}</li>)}</ul></div> : null}
-                {system.limitations?.length ? <div className={styles.systemBlock}><h3>Limitations</h3><ul>{system.limitations.map((item) => <li key={item}>{item}</li>)}</ul></div> : null}
-                {system.abnormalCues?.length ? <div className={styles.systemBlock}><h3>Abnormal cues</h3><ul>{system.abnormalCues.map((item) => <li key={item}>{item}</li>)}</ul></div> : null}
-                {system.remember?.length ? <div className={styles.systemBlock}><h3>Remember</h3><ul>{system.remember.map((item) => <li key={item}>{item}</li>)}</ul></div> : null}
-              </div>
-              {system.sourceLabel ? <small className={styles.sourceLine}>Source · {system.sourceLabel}</small> : null}
-              <LearningCompletionButton aircraftId={aircraft.id} kind="systems" contentId={system.id} label={`Mark ${system.title} complete`} />
-            </div>
-          </details>
-        ))}
-      </section>
+      <SystemsBrowser aircraftId={aircraft.id} systems={systems} />
     </main>
   );
 }
