@@ -40,11 +40,23 @@ export default async function AircraftOnboardingPage({params}:Readonly<{params:P
       <div className="section-heading"><div><p className="eyebrow">Aircraft-native modules</p><h2>Module release state</h2></div></div>
       <p>Only domains that have real source-backed content need to exist. Missing domains remain absent rather than being synthesized or inferred.</p>
       <div className="workspace-section-grid">
-        {onboarding.modules.map(module=><article className="workspace-card" key={module.domain}>
-          <div className="workspace-card-topline"><span>{moduleLabel(module.domain)}</span><small>{module.state}</small></div>
-          <p>{module.contentKey?`${module.contentKey}${module.versionNo?` · v${module.versionNo}`:""}`:"No governed content yet"}</p>
-          <strong>{module.state==="absent"?"Optional until genuinely needed":module.state==="draft"?"Authoring / review in progress":module.state==="approved"?"Approved; ready to publish":module.state==="stale"?"Published content needs revision review":"Published to learners"}</strong>
-        </article>)}
+        {onboarding.modules.map(module=>{
+          const liveSuffix=module.released && module.state!=="published"?" · live":"";
+          const statusText=module.state==="absent"
+            ? "Optional until genuinely needed"
+            : module.state==="draft"
+              ? module.released?"Live version exists; newer draft is under review":"Authoring / review in progress"
+              : module.state==="approved"
+                ? module.released?"Live version exists; approved update is ready to publish":"Approved; ready to publish"
+                : module.state==="stale"
+                  ? "Published content needs revision review"
+                  : "Published to learners";
+          return <article className="workspace-card" key={module.domain}>
+            <div className="workspace-card-topline"><span>{moduleLabel(module.domain)}</span><small>{module.state}{liveSuffix}</small></div>
+            <p>{module.contentKey?`${module.contentKey}${module.versionNo?` · v${module.versionNo}`:""}`:"No governed content yet"}</p>
+            <strong>{statusText}</strong>
+          </article>;
+        })}
       </div>
     </section>
 
