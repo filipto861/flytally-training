@@ -1,67 +1,37 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { AdminAircraftWorkspace } from "@/components/admin-aircraft-workspace";
 import { StructuredContentBuilder } from "@/components/structured-content-builder";
 import { requireTrainingAdmin } from "@/lib/admin-auth";
 import { deriveContentStudio } from "@/lib/admin-content-studio";
-import {
-  createStructuredStarterPayload,
-  isStructuredAuthoringDomain,
-  structuredAuthoringDomainLabel,
-  structuredAuthoringDomains,
-} from "@/lib/content-authoring-templates";
+import { createStructuredStarterPayload,isStructuredAuthoringDomain,structuredAuthoringDomainLabel,structuredAuthoringDomains } from "@/lib/content-authoring-templates";
 import { getAdminAircraft } from "@/lib/content-admin-repository";
 import { createStructuredDraftAction } from "../../../../actions";
 import styles from "../../studio.module.css";
 
-export const dynamic = "force-dynamic";
+export const dynamic="force-dynamic";
 
-export default async function NewStructuredModulePage({
-  params,
-  searchParams,
-}: Readonly<{
-  params: Promise<{ aircraftId: string }>;
-  searchParams: Promise<{ domain?: string }>;
-}>) {
+export default async function NewStructuredModulePage({params,searchParams}:Readonly<{params:Promise<{aircraftId:string}>;searchParams:Promise<{domain?:string}>}>){
   await requireTrainingAdmin();
-  const { aircraftId } = await params;
-  const query = await searchParams;
-  const aircraft = await getAdminAircraft(aircraftId);
-  if (!aircraft) notFound();
+  const {aircraftId}=await params;
+  const query=await searchParams;
+  const aircraft=await getAdminAircraft(aircraftId);
+  if(!aircraft)notFound();
+  const requestedDomain=query.domain??"systems";
+  if(!isStructuredAuthoringDomain(requestedDomain))notFound();
+  const studio=deriveContentStudio(aircraft);
+  const payload=createStructuredStarterPayload(aircraftId,requestedDomain);
+  const manualOptions=[...new Map(aircraft.manuals.map(manual=>[manual.manualId,{id:manual.manualId,label:`${manual.title} · ${manual.publisher}`}])).values()];
 
-  const requestedDomain = query.domain ?? "checklists";
-  if (!isStructuredAuthoringDomain(requestedDomain)) notFound();
+  return <AdminAircraftWorkspace aircraftId={aircraftId} displayName={aircraft.displayName} status={aircraft.status} active="content">
+    <section className={styles.pageHeader}><p className="eyebrow">New content</p><h2>{structuredAuthoringDomainLabel(requestedDomain)}</h2><p>Start with an empty structure and add only source-backed aircraft information.</p></section>
 
-  const studio = deriveContentStudio(aircraft);
-  const payload = createStructuredStarterPayload(aircraftId, requestedDomain);
-  const manualOptions = [...new Map(aircraft.manuals.map(manual => [
-    manual.manualId,
-    { id: manual.manualId, label: `${manual.title} · ${manual.publisher}` },
-  ])).values()];
+    <section className={styles.newContentBar}><div><strong>Content type</strong><span>Switching type resets this unsaved form.</span></div><form action={`/admin/aircraft/${encodeURIComponent(aircraftId)}/content/new`} method="get" className={styles.inlineActions}><select name="domain" defaultValue={requestedDomain}>{structuredAuthoringDomains.map(domain=><option key={domain} value={domain}>{structuredAuthoringDomainLabel(domain)}</option>)}</select><button type="submit">Switch</button></form></section>
 
-  return <main className="shell aircraft-detail">
-    <Link className="back-link" href={`/admin/aircraft/${encodeURIComponent(aircraftId)}#authoring`}>← Content Studio</Link>
-
-    <section className="workspace-section-hero">
-      <p className="eyebrow">M33 · New module composer</p>
-      <h1>New {structuredAuthoringDomainLabel(requestedDomain)} module</h1>
-      <p className="lede">Start from a structural template only. FlyTally does not pre-fill aircraft facts, procedures, limits or performance values. Saving creates a human draft; review, approval and publication remain separate governance steps.</p>
-      <nav className={styles.studioNav} aria-label="Choose content domain">
-        {structuredAuthoringDomains.map(domain => <Link key={domain} href={`/admin/aircraft/${encodeURIComponent(aircraftId)}/content/new?domain=${encodeURIComponent(domain)}`}>{structuredAuthoringDomainLabel(domain)}</Link>)}
-      </nav>
-    </section>
-
-    <section className="reference-library">
-      <div className={styles.sectionHeader}><div><p className="eyebrow">Provenance</p><h2>Link exact source references</h2></div><p>At least one governed source reference is required to save a technical draft. These links are the immutable review boundary for the new version.</p></div>
-      {studio.references.length ? <form action={createStructuredDraftAction}>
-        <input type="hidden" name="aircraftId" value={aircraftId}/>
-        <input type="hidden" name="domain" value={requestedDomain}/>
-        <div className={styles.formGrid}>
-          <label>Content key<input name="contentKey" defaultValue="bundle" required/></label>
-        </div>
-        <div className={styles.sourceChoices}>{studio.references.map(reference => <label className={styles.sourceChoice} key={reference.id}><input type="checkbox" name="sourceReferenceId" value={reference.id}/><span><strong>{reference.label}</strong>{reference.note ? <small>{reference.note}</small> : null}</span></label>)}</div>
-        <StructuredContentBuilder domain={requestedDomain} aircraftId={aircraftId} initialPayload={payload} manualOptions={manualOptions}/>
-        <p><button type="submit">Create governed human draft</button></p>
-      </form> : <div className={styles.empty}><p><strong>No exact source references are available yet.</strong></p><p>Create at least one source revision and chapter/section/page reference in Content Studio before authoring technical content.</p><Link href={`/admin/aircraft/${encodeURIComponent(aircraftId)}#references`}>Go to source references →</Link></div>}
-    </section>
-  </main>;
+    {studio.references.length?<form action={createStructuredDraftAction} className={styles.editorForm}>
+      <input type="hidden" name="aircraftId" value={aircraftId}/><input type="hidden" name="domain" value={requestedDomain}/>
+      <section className={styles.sectionBlock}><div className={styles.sectionHeader}><div><p className="eyebrow">Sources</p><h3>What supports this content?</h3></div></div><div className={styles.sourceChoices}>{studio.references.map(reference=><label className={styles.sourceChoice} key={reference.id}><input type="checkbox" name="sourceReferenceId" value={reference.id}/><span><strong>{reference.label}</strong>{reference.note?<small>{reference.note}</small>:null}</span></label>)}</div></section>
+      <section className={styles.sectionBlock}><div className={styles.sectionHeader}><div><p className="eyebrow">Editor</p><h3>Build the module</h3></div></div><StructuredContentBuilder domain={requestedDomain} aircraftId={aircraftId} initialPayload={payload} manualOptions={manualOptions}/><details className={styles.quietDetails}><summary>Advanced identity</summary><label className={styles.field}>Internal content key<input name="contentKey" defaultValue="bundle" required/></label></details><div className={styles.stickySave}><span>Saving creates a draft. Nothing goes live automatically.</span><button type="submit">Create draft</button></div></section>
+    </form>:<section className={styles.emptyState}><strong>Add a source reference first</strong><p>Technical content must be linked to at least one exact source location before it can be saved.</p><Link className={styles.primaryButton} href={`/admin/aircraft/${aircraftId}/sources`}>Open Sources →</Link></section>}
+  </AdminAircraftWorkspace>;
 }
