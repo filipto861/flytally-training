@@ -15,11 +15,6 @@ export function ProductShell({ children }: Readonly<{ children: ReactNode }>) {
               <small>Training</small>
             </span>
           </Link>
-
-          <nav className="global-nav" aria-label="Global navigation">
-            <Link href="/">Aircraft</Link>
-          </nav>
-
           <AccountActions />
         </div>
       </header>
