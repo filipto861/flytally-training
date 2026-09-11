@@ -5,10 +5,10 @@ import type { TrainingContentDomain } from "./content-admin-types.ts";
 import type { TrainingContentRepository } from "./content-repository.ts";
 import { learjet3536CaeNormalChecklist } from "./learjet-cae-pilot-content.ts";
 import { learjet3536CompleteCoreModules } from "./learjet-complete-elearning.ts";
-import { learjet3536CompleteLimitations, learjet3536CompletePerformance } from "./learjet-pilot-data.ts";
-import { learjet3536NativeAbnormal } from "./learjet-native-abnormal.ts";
+import { learjet3536ExpandedAbnormal } from "./learjet-native-abnormal-expanded.ts";
 import type { StaticUniversalTrainingModule } from "./learjet-native-content.ts";
 import { learjet3536NativeKnowledge } from "./learjet-native-knowledge.ts";
+import { learjet3536ExpandedLimitations, learjet3536ExpandedPerformance } from "./learjet-pilot-data-expanded.ts";
 import { learjet3536LearningContent, type AircraftLearningContent } from "./learning-content.ts";
 import { learjet3536ReferenceKnowledge, type AircraftReferenceKnowledge } from "./reference-knowledge.ts";
 import { learjet3536ColdDarkFlow, type SimulatorFlightFlow } from "./simulator-checklists.ts";
@@ -40,10 +40,10 @@ export const staticTrainingContentSeed: StaticTrainingContentSeed = {
   nativeModules: [
     { aircraftId: learjet3536CaeNormalChecklist.aircraftId, domain: "checklists", payload: learjet3536CaeNormalChecklist },
     ...learjetCoreWithoutPilotOverrides,
-    { aircraftId: learjet3536CompletePerformance.aircraftId, domain: "performance", payload: learjet3536CompletePerformance },
-    { aircraftId: learjet3536CompleteLimitations.aircraftId, domain: "limitations", payload: learjet3536CompleteLimitations },
+    { aircraftId: learjet3536ExpandedPerformance.aircraftId, domain: "performance", payload: learjet3536ExpandedPerformance },
+    { aircraftId: learjet3536ExpandedLimitations.aircraftId, domain: "limitations", payload: learjet3536ExpandedLimitations },
     { aircraftId: learjet3536NativeKnowledge.aircraftId, domain: "knowledge", payload: learjet3536NativeKnowledge },
-    { aircraftId: learjet3536NativeAbnormal.aircraftId, domain: "abnormal", payload: learjet3536NativeAbnormal },
+    { aircraftId: learjet3536ExpandedAbnormal.aircraftId, domain: "abnormal", payload: learjet3536ExpandedAbnormal },
   ],
   learningContent: [learjet3536LearningContent],
   normalFlights: [learjet3536ColdDarkFlow],
