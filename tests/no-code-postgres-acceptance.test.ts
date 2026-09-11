@@ -60,17 +60,17 @@ test("a sparse second aircraft can be created, published and read through the ge
           sources: [embeddedSource],
         },
         {
-          id: "fixed-gear-check",
-          challenge: "Fixed landing gear",
+          id: "variant-a-check",
+          challenge: "Variant A configuration",
           response: "CHECK",
-          applicability: { equipmentAllOf: ["fixed-gear"] },
+          applicability: { variants: ["A"] },
           sources: [embeddedSource],
         },
         {
-          id: "retractable-gear-check",
-          challenge: "Retractable landing gear",
-          response: "DOWN",
-          applicability: { equipmentAllOf: ["retractable-gear"] },
+          id: "variant-b-check",
+          challenge: "Variant B configuration",
+          response: "CHECK",
+          applicability: { variants: ["B"] },
           sources: [embeddedSource],
         },
       ],
@@ -115,7 +115,7 @@ test("a sparse second aircraft can be created, published and read through the ge
         { inputs: { mass: 550 }, outputs: { vr: 58 } },
       ],
       interpolation: "none",
-      applicability: { equipmentAllOf: ["fixed-gear"] },
+      applicability: { variants: ["A"] },
       notes: ["Synthetic acceptance values. Not operational aircraft data."],
       sources: [embeddedSource],
     }],
@@ -130,7 +130,7 @@ test("a sparse second aircraft can be created, published and read through the ge
       model: "Light SEP",
       displayName: "Acceptance Light SEP",
     }, subject);
-    await addAircraftVariant(aircraftId, "A", "A", { equipmentTags: ["fixed-gear"], note: "Synthetic disposable acceptance configuration." });
+    await addAircraftVariant(aircraftId, "A");
     await registerGovernedManualRevision({
       aircraftId,
       manualId,
@@ -194,7 +194,7 @@ test("a sparse second aircraft can be created, published and read through the ge
     const configuredChecklists = filterChecklistForConfiguration(storedChecklists, configuration);
     const configuredProcedures = filterProceduresForConfiguration(storedProcedures, configuration);
     const configuredPerformance = filterPerformanceForConfiguration(storedPerformance, configuration);
-    assert.deepEqual(configuredChecklists.phases[0]?.items.map((item) => item.id), ["fuel-selector", "fixed-gear-check"]);
+    assert.deepEqual(configuredChecklists.phases[0]?.items.map((item) => item.id), ["fuel-selector", "variant-a-check"]);
     assert.deepEqual(configuredProcedures.procedures.map((procedure) => procedure.id), ["fuel-system-preparation"]);
     assert.deepEqual(configuredPerformance.datasets.map((dataset) => dataset.id), ["takeoff-reference-speed"]);
 
