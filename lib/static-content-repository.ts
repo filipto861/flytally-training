@@ -8,7 +8,7 @@ import { learjet3536CompleteCoreModules } from "./learjet-complete-elearning.ts"
 import { learjet3536ExpandedAbnormal } from "./learjet-native-abnormal-expanded.ts";
 import type { StaticUniversalTrainingModule } from "./learjet-native-content.ts";
 import { learjet3536NativeKnowledge } from "./learjet-native-knowledge.ts";
-import { learjet3536PracticalLimitations, learjet3536PracticalPerformance } from "./learjet-pilot-data-practical.ts";
+import { learjet3536FlightReadyLimitations, learjet3536FlightReadyPerformance } from "./learjet-pilot-landing-data.ts";
 import { learjet3536LearningContent, type AircraftLearningContent } from "./learning-content.ts";
 import { learjet3536ReferenceKnowledge, type AircraftReferenceKnowledge } from "./reference-knowledge.ts";
 import { learjet3536ColdDarkFlow, type SimulatorFlightFlow } from "./simulator-checklists.ts";
@@ -40,8 +40,8 @@ export const staticTrainingContentSeed: StaticTrainingContentSeed = {
   nativeModules: [
     { aircraftId: learjet3536CaeNormalChecklist.aircraftId, domain: "checklists", payload: learjet3536CaeNormalChecklist },
     ...learjetCoreWithoutPilotOverrides,
-    { aircraftId: learjet3536PracticalPerformance.aircraftId, domain: "performance", payload: learjet3536PracticalPerformance },
-    { aircraftId: learjet3536PracticalLimitations.aircraftId, domain: "limitations", payload: learjet3536PracticalLimitations },
+    { aircraftId: learjet3536FlightReadyPerformance.aircraftId, domain: "performance", payload: learjet3536FlightReadyPerformance },
+    { aircraftId: learjet3536FlightReadyLimitations.aircraftId, domain: "limitations", payload: learjet3536FlightReadyLimitations },
     { aircraftId: learjet3536NativeKnowledge.aircraftId, domain: "knowledge", payload: learjet3536NativeKnowledge },
     { aircraftId: learjet3536ExpandedAbnormal.aircraftId, domain: "abnormal", payload: learjet3536ExpandedAbnormal },
   ],
