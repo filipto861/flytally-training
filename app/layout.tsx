@@ -5,6 +5,7 @@ import { ProductShell } from "@/components/product-shell";
 import "./globals.css";
 import "./release.css";
 import "./navigation.css";
+import "./learner-shell.css";
 
 export const metadata: Metadata = {
   title: {

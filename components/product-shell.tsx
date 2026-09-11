@@ -17,7 +17,7 @@ export function ProductShell({ children }: Readonly<{ children: ReactNode }>) {
           </Link>
 
           <nav className="global-nav" aria-label="Global navigation">
-            <Link href="/">Aircraft library</Link>
+            <Link href="/">Aircraft</Link>
           </nav>
 
           <AccountActions />
