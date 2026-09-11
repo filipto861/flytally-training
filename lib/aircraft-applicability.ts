@@ -29,6 +29,8 @@ export function resolveVariantProfile(
   if (!variant) return undefined;
   const explicit = aircraft.variantProfiles?.find((profile) => profile.key === variant);
   if (explicit) return explicit;
+  // Falling back to an unregistered legacy variant is intentionally limited to
+  // an empty equipment set. Never infer optional equipment from the variant key.
   if (aircraft.variants.includes(variant)) return { key: variant, displayName: variant, equipmentTags: [] };
   return undefined;
 }
