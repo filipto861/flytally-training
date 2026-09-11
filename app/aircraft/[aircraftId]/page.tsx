@@ -5,6 +5,7 @@ import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
 import { resolveSelectedVariant, withVariantQuery } from "@/lib/aircraft-applicability";
 import { getAircraftContentBundle } from "@/lib/content-repository";
 import { getTrainingContentRepository } from "@/lib/content-store";
+import { isSimulatorOnlyAuthority } from "@/lib/source-authority";
 
 export default async function AircraftPage({
   params,
@@ -19,13 +20,16 @@ export default async function AircraftPage({
 
   const { aircraft, capabilities } = bundle;
   const selectedVariant = resolveSelectedVariant(variant, aircraft.variants);
-  const manual = aircraft.manuals[0];
+  const primaryManual = aircraft.manuals.find((manual) => !isSimulatorOnlyAuthority(manual.authorityRole)) ?? aircraft.manuals[0];
+  const supplementarySourceCount = Math.max(0, aircraft.manuals.length - (primaryManual ? 1 : 0));
   const modules = [
     { key: "checklists", title: "Checklists", description: "Operational flight-phase checklists with Run, Learn, Practice, Flow and Challenge & Response modes.", available: capabilities.checklists, href: "checklists" },
     { key: "procedures", title: "Procedures", description: "Detailed procedures with actions, expected results, verification and rationale.", available: capabilities.procedures, href: "procedures" },
     { key: "performance", title: "Performance", description: "Published performance lookup and reference tables driven by source data.", available: capabilities.performance, href: "performance" },
     { key: "limitations", title: "Limitations", description: "Operating limitations, speeds, weights and configuration-specific restrictions.", available: capabilities.limitations, href: "limitations" },
     { key: "systems", title: "Systems", description: "Controls, indications, normal operation, limitations and abnormal cues for installed systems.", available: capabilities.systems, href: "systems" },
+    { key: "flows", title: "Flows", description: "Source-identified workflow drills kept separate from controlling and higher-authority operating material.", available: capabilities.flows, href: "flows" },
+    { key: "avionics", title: "Avionics", description: "Configuration-specific avionics and implementation familiarization with explicit source authority.", available: capabilities.avionics, href: "avionics" },
     { key: "abnormal", title: "Abnormal & Emergency", description: "Abnormal and emergency training when published for this aircraft.", available: capabilities.abnormalEmergency, href: "abnormal" },
     { key: "knowledge", title: "Knowledge", description: "Source-backed questions and explanations for recall and weak-area review.", available: capabilities.knowledge, href: "knowledge" },
   ] as const;
@@ -46,7 +50,7 @@ export default async function AircraftPage({
             <span>{availableModules.length} module{availableModules.length === 1 ? "" : "s"} currently available</span>
           </div>
         </div>
-        {manual ? <aside className="manual-summary compact-summary"><span className="source-pill">Training source</span><h2>{manual.title}</h2><dl><div><dt>Publisher</dt><dd>{manual.publisher}</dd></div><div><dt>Revision</dt><dd>{manual.revision}</dd></div><div><dt>Issue</dt><dd>{manual.issueDate}</dd></div></dl><p>Published training content retains revision-aware source provenance.</p></aside> : null}
+        {primaryManual ? <aside className="manual-summary compact-summary"><span className="source-pill">Primary training source</span><h2>{primaryManual.title}</h2><dl><div><dt>Publisher</dt><dd>{primaryManual.publisher}</dd></div><div><dt>Revision</dt><dd>{primaryManual.revision}</dd></div><div><dt>Issue</dt><dd>{primaryManual.issueDate}</dd></div></dl><p>Published training retains source-level authority and revision provenance.{supplementarySourceCount ? ` ${supplementarySourceCount} supplementary source${supplementarySourceCount === 1 ? "" : "s"} remain separately classified.` : ""}</p></aside> : null}
       </section>
       <section className="start-panel" aria-labelledby="start-title">
         <div><p className="eyebrow">Start training</p><h2 id="start-title">Open the material you need.</h2><p>The aircraft defines its own module set. FlyTally does not assume systems or procedures that are not present on the type.</p></div>
