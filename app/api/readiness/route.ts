@@ -1,9 +1,9 @@
 import { hasFreshCurrentPublishedContent } from "@/lib/content-freshness";
-import { hasCompletePublishedControlledManualCoverage } from "@/lib/controlled-manual-readiness";
 import { getAircraftContentBundle } from "@/lib/content-repository";
 import { getTrainingContentRepository } from "@/lib/content-store";
 import { sql } from "@/lib/db";
 import { inspectReleaseConfiguration } from "@/lib/release-readiness";
+import { hasCompletePublishedSourceProvenance } from "@/lib/source-provenance-readiness";
 import { hasUsableAircraftTrainingContent } from "@/lib/v1-aircraft-readiness";
 
 export const runtime = "nodejs";
@@ -13,10 +13,9 @@ export async function GET() {
   const configuration = inspectReleaseConfiguration(process.env);
   let database = false;
   let progressPersistence = false;
-  let controlledManualPersistence = false;
-  let controlledManualCoverage = false;
+  let sourceProvenanceCoverage = false;
   let currentContentFreshness = false;
-  let releaseReadyAircraft = false;
+  let sourceGovernedRelease = false;
   let aiDraftAuditPersistence = false;
   let identityReplayProtection = false;
   let publishedAircraft = false;
@@ -38,13 +37,6 @@ export async function GET() {
       }
 
       try {
-        await sql`SELECT 1 FROM training_manual_assets LIMIT 0`;
-        controlledManualPersistence = true;
-      } catch {
-        controlledManualPersistence = false;
-      }
-
-      try {
         await sql`SELECT 1 FROM training_ai_draft_runs LIMIT 0`;
         aiDraftAuditPersistence = true;
       } catch {
@@ -63,9 +55,6 @@ export async function GET() {
         const aircraft = await repository.listAircraft();
         publishedAircraft = aircraft.length > 0;
 
-        // Operational learner readiness is deliberately independent from the
-        // optional controlled-PDF release layer. Freshness can therefore be
-        // evaluated even when no Blob credential or controlled PDF exists yet.
         for (const item of aircraft) {
           try {
             const bundle = await getAircraftContentBundle(repository, item.id);
@@ -80,19 +69,16 @@ export async function GET() {
             }
             if (freshContent) currentContentFreshness = true;
 
-            if (configuration.controlledManualStorageReady && controlledManualPersistence) {
-              let controlledCoverage = false;
-              try {
-                controlledCoverage = await hasCompletePublishedControlledManualCoverage(item.id);
-              } catch {
-                controlledCoverage = false;
-              }
-              if (controlledCoverage) controlledManualCoverage = true;
-              if (controlledCoverage && freshContent) releaseReadyAircraft = true;
+            let provenance = false;
+            try {
+              provenance = await hasCompletePublishedSourceProvenance(item.id);
+            } catch {
+              provenance = false;
             }
+            if (provenance) sourceProvenanceCoverage = true;
+            if (provenance && freshContent) sourceGovernedRelease = true;
           } catch {
-            // Keep the specific readiness checks false while preserving the fact
-            // that the published-aircraft catalog itself was readable.
+            // Preserve granular readiness results if one aircraft cannot hydrate.
           }
         }
       } catch {
@@ -112,16 +98,11 @@ export async function GET() {
     && publishedAircraft
     && modularAircraftContent;
 
-  const controlledDocumentRelease = configuration.controlledManualStorageReady
-    && controlledManualPersistence
-    && controlledManualCoverage
-    && releaseReadyAircraft;
-
   return Response.json({
     status: ready ? "ready" : "not-ready",
     profiles: {
       operational: ready,
-      controlledDocumentRelease,
+      sourceGovernedRelease: ready && sourceGovernedRelease,
     },
     checks: {
       configuration: configuration.ready,
@@ -132,10 +113,8 @@ export async function GET() {
       identityReplayProtection,
       publishedAircraft,
       modularAircraftContent,
-      controlledManualPersistence,
-      controlledManualCredential: configuration.controlledManualStorageReady,
-      controlledManualCoverage,
-      releaseReadyAircraft,
+      sourceProvenanceCoverage,
+      sourceGovernedRelease,
     },
   }, {
     status: ready ? 200 : 503,
