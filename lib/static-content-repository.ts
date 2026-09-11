@@ -5,6 +5,7 @@ import type { TrainingContentDomain } from "./content-admin-types.ts";
 import type { TrainingContentRepository } from "./content-repository.ts";
 import { learjet3536CaeNormalChecklist } from "./learjet-cae-pilot-content.ts";
 import { learjet3536CompleteCoreModules } from "./learjet-complete-elearning.ts";
+import { learjet3536CompleteLimitations, learjet3536CompletePerformance } from "./learjet-pilot-data.ts";
 import { learjet3536NativeAbnormal } from "./learjet-native-abnormal.ts";
 import type { StaticUniversalTrainingModule } from "./learjet-native-content.ts";
 import { learjet3536NativeKnowledge } from "./learjet-native-knowledge.ts";
@@ -30,13 +31,17 @@ export type StaticTrainingContentSeed = {
   readonly referenceKnowledge: readonly AircraftReferenceKnowledge[];
 };
 
-const learjetCoreWithoutLegacyChecklist = learjet3536CompleteCoreModules.filter((module) => module.domain !== "checklists");
+const learjetCoreWithoutPilotOverrides = learjet3536CompleteCoreModules.filter(
+  (module) => !["checklists", "performance", "limitations"].includes(module.domain),
+);
 
 export const staticTrainingContentSeed: StaticTrainingContentSeed = {
   aircraft: trainingAircraft,
   nativeModules: [
     { aircraftId: learjet3536CaeNormalChecklist.aircraftId, domain: "checklists", payload: learjet3536CaeNormalChecklist },
-    ...learjetCoreWithoutLegacyChecklist,
+    ...learjetCoreWithoutPilotOverrides,
+    { aircraftId: learjet3536CompletePerformance.aircraftId, domain: "performance", payload: learjet3536CompletePerformance },
+    { aircraftId: learjet3536CompleteLimitations.aircraftId, domain: "limitations", payload: learjet3536CompleteLimitations },
     { aircraftId: learjet3536NativeKnowledge.aircraftId, domain: "knowledge", payload: learjet3536NativeKnowledge },
     { aircraftId: learjet3536NativeAbnormal.aircraftId, domain: "abnormal", payload: learjet3536NativeAbnormal },
   ],

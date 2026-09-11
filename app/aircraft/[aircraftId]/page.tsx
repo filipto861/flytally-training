@@ -18,18 +18,19 @@ export default async function AircraftPage({
   const bundle = await getAircraftContentBundle(getTrainingContentRepository(), aircraftId);
   if (!bundle) notFound();
 
-  const { aircraft, capabilities, referenceKnowledge } = bundle;
+  const { aircraft, capabilities } = bundle;
   const selectedVariant = resolveSelectedVariant(variant, aircraft.variants);
   const manualById = (manualId?: string) => manualId ? aircraft.manuals.find((manual) => manual.id === manualId) : undefined;
   const fallbackTrainingManual = aircraft.manuals.find((manual) => !isSimulatorOnlyAuthority(manual.authorityRole)) ?? aircraft.manuals[0];
   const flyManual = manualById(aircraft.workspaceProfile?.flyManualId) ?? fallbackTrainingManual;
-  const learnManual = manualById(aircraft.workspaceProfile?.learnManualId) ?? fallbackTrainingManual;
+  const fallbackLearnManual = aircraft.manuals.find((manual) => !isSimulatorOnlyAuthority(manual.authorityRole) && manual.id !== flyManual?.id) ?? fallbackTrainingManual;
+  const learnManual = manualById(aircraft.workspaceProfile?.learnManualId) ?? fallbackLearnManual;
   const moduleHref = (href: string) => withVariantQuery(`/aircraft/${aircraft.id}/${href}`, selectedVariant);
 
   const flyModules = [
     { key: "normal", title: "Normal Checklist", description: "The practical phase-by-phase cockpit checklist used to conduct the flight.", available: capabilities.checklists, href: "checklists", cue: "PRIMARY" },
     { key: "performance", title: "Performance", description: "Takeoff, climb/cruise and landing reference data with source-defined lookup only.", available: capabilities.performance, href: "performance", cue: "FLIGHT DATA" },
-    { key: "quick-reference", title: "Quick Reference", description: "Speeds, limits and high-frequency reference items without reopening a full lesson.", available: Boolean(referenceKnowledge) || capabilities.limitations, href: referenceKnowledge ? "quick-reference" : "limitations", cue: "QUICK LOOK" },
+    { key: "quick-reference", title: "Quick Reference", description: "Every published speed, limit, power reference and performance source row for the selected configuration.", available: capabilities.performance && capabilities.limitations, href: "quick-reference", cue: "QUICK LOOK" },
     { key: "abnormal", title: "QRH · Abnormal & Emergency", description: "Fast access to published abnormal and emergency procedures and recognition cues.", available: capabilities.abnormalEmergency, href: "abnormal", cue: "QRH" },
   ] as const;
 
@@ -42,7 +43,7 @@ export default async function AircraftPage({
   ] as const;
 
   const supplementaryModules = [
-    { key: "flows", title: "Supplementary Workflow", description: "Lower-authority or simulator-specific workflow material kept separate from the primary CAE normal checklist.", available: capabilities.flows, href: "flows" },
+    { key: "flows", title: "Supplementary Workflow", description: "Lower-authority or simulator-specific workflow material kept separate from the primary normal checklist.", available: capabilities.flows, href: "flows" },
   ] as const;
 
   const availableFly = flyModules.filter((module) => module.available);
@@ -93,7 +94,7 @@ export default async function AircraftPage({
       {availableLearn.length ? <section aria-labelledby="learn-title">
         <div className="section-heading">
           <div><p className="eyebrow">LEARN</p><h2 id="learn-title">Aircraft knowledge</h2></div>
-          <p>{learnManual ? `${learnManual.title} is the primary deep-learning source; practical CAE material is cross-linked where relevant.` : "Study the published source-backed aircraft material."}</p>
+          <p>{learnManual ? `${learnManual.title} is the primary deep-learning source; practical cockpit-reference material is cross-linked where relevant.` : "Study the published source-backed aircraft material."}</p>
         </div>
         <div className="workspace-overview" aria-label="LEARN training modules">
           {availableLearn.map((module) => <Link className="workspace-card" href={moduleHref(module.href)} key={module.key}><div className="workspace-card-topline"><span>{module.title}</span><small>LEARN</small></div><p>{module.description}</p><strong>Study →</strong></Link>)}
@@ -103,7 +104,7 @@ export default async function AircraftPage({
       {availableSupplementary.length ? <section aria-labelledby="supplement-title">
         <div className="section-heading">
           <div><p className="eyebrow">Supplementary</p><h2 id="supplement-title">Implementation & workflow aids</h2></div>
-          <p>These sources remain explicitly below the primary CAE/FlightSafety training references and never silently override them.</p>
+          <p>Lower-authority sources stay visibly separated and never silently override primary training references.</p>
         </div>
         <div className="workspace-overview" aria-label="Supplementary training material">
           {availableSupplementary.map((module) => <Link className="workspace-card" href={moduleHref(module.href)} key={module.key}><div className="workspace-card-topline"><span>{module.title}</span><small>SUPPLEMENT</small></div><p>{module.description}</p><strong>Open →</strong></Link>)}
