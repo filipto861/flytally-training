@@ -4,7 +4,7 @@ import test from "node:test";
 
 const actions = fs.readFileSync(new URL("../app/admin/actions.ts", import.meta.url), "utf8");
 const adminPage = fs.readFileSync(new URL("../app/admin/page.tsx", import.meta.url), "utf8");
-const adminAircraftPage = fs.readFileSync(new URL("../app/admin/aircraft/[aircraftId]/page.tsx", import.meta.url), "utf8");
+const adminAircraftSettings = fs.readFileSync(new URL("../app/admin/aircraft/[aircraftId]/settings/page.tsx", import.meta.url), "utf8");
 const bootstrapRepository = fs.readFileSync(new URL("../lib/governed-static-bootstrap.ts", import.meta.url), "utf8");
 
 test("static seed migration requires explicit authenticated administrator approval", () => {
@@ -39,7 +39,7 @@ test("replacing an existing published module requires a separate explicit admini
   const confirmation = actions.indexOf('text(form,"confirmReviewedNativeUpgrade")!=="yes"', actionStart);
   const upgrade = actions.indexOf("publishStaticNativeModuleUpgrade(aircraftId,selectedDomain,session.subject)", actionStart);
   assert.ok(actionStart >= 0 && adminCheck > actionStart && confirmation > adminCheck && upgrade > confirmation);
-  assert.match(adminAircraftPage, /name="confirmReviewedNativeUpgrade" type="checkbox" value="yes" required/);
-  assert.match(adminAircraftPage, /new immutable version/);
-  assert.match(adminAircraftPage, /never overwrites the existing version in place/);
+  assert.match(adminAircraftSettings, /name="confirmReviewedNativeUpgrade" type="checkbox" value="yes" required/);
+  assert.match(adminAircraftSettings, /new immutable version/);
+  assert.match(adminAircraftSettings, /never overwrites the existing version in place/);
 });
