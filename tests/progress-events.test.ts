@@ -21,6 +21,7 @@ test("v1 progress activity contract includes the complete learner path", () => {
   assert.deepEqual(trainingActivityKinds, [
     "quick-start",
     "systems",
+    "avionics",
     "orientation",
     "normal-flight",
     "checklist-phase",
