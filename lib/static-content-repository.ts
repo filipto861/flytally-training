@@ -8,7 +8,7 @@ import { learjet3536CompleteCoreModules } from "./learjet-complete-elearning.ts"
 import { learjet3536ExpandedAbnormal } from "./learjet-native-abnormal-expanded.ts";
 import type { StaticUniversalTrainingModule } from "./learjet-native-content.ts";
 import { learjet3536NativeKnowledge } from "./learjet-native-knowledge.ts";
-import { learjet3536FlightReadyLimitations, learjet3536FlightReadyPerformance } from "./learjet-pilot-landing-data.ts";
+import { learjet3536OperationalLimitations, learjet3536OperationalPerformance } from "./learjet-pilot-takeoff-data.ts";
 import { learjet3536LearningContent, type AircraftLearningContent } from "./learning-content.ts";
 import { learjet3536ReferenceKnowledge, type AircraftReferenceKnowledge } from "./reference-knowledge.ts";
 import { learjet3536ColdDarkFlow, type SimulatorFlightFlow } from "./simulator-checklists.ts";
@@ -40,8 +40,8 @@ export const staticTrainingContentSeed: StaticTrainingContentSeed = {
   nativeModules: [
     { aircraftId: learjet3536CaeNormalChecklist.aircraftId, domain: "checklists", payload: learjet3536CaeNormalChecklist },
     ...learjetCoreWithoutPilotOverrides,
-    { aircraftId: learjet3536FlightReadyPerformance.aircraftId, domain: "performance", payload: learjet3536FlightReadyPerformance },
-    { aircraftId: learjet3536FlightReadyLimitations.aircraftId, domain: "limitations", payload: learjet3536FlightReadyLimitations },
+    { aircraftId: learjet3536OperationalPerformance.aircraftId, domain: "performance", payload: learjet3536OperationalPerformance },
+    { aircraftId: learjet3536OperationalLimitations.aircraftId, domain: "limitations", payload: learjet3536OperationalLimitations },
     { aircraftId: learjet3536NativeKnowledge.aircraftId, domain: "knowledge", payload: learjet3536NativeKnowledge },
     { aircraftId: learjet3536ExpandedAbnormal.aircraftId, domain: "abnormal", payload: learjet3536ExpandedAbnormal },
   ],
@@ -87,29 +87,29 @@ export class StaticTrainingContentRepository implements TrainingContentRepositor
   async listAircraft(): Promise<readonly TrainingAircraft[]> { return [...this.aircraftById.values()]; }
   async getAircraft(aircraftId: string): Promise<TrainingAircraft | undefined> { return this.aircraftById.get(aircraftId); }
   async getLearningContent(aircraftId: string): Promise<AircraftLearningContent | undefined> { return this.learningByAircraftId.get(aircraftId); }
-  async getNormalFlight(aircraftId: string): Promise<SimulatorFlightFlow | undefined> { return this.normalFlightByAircraftId.get(aircraftId); }
-  async getCockpitOrientation(aircraftId: string): Promise<CockpitOrientation | undefined> { return this.orientationByAircraftId.get(aircraftId); }
-  async getAbnormalTraining(aircraftId: string): Promise<AircraftAbnormalTraining | undefined> { return this.abnormalByAircraftId.get(aircraftId); }
-  async getReferenceKnowledge(aircraftId: string): Promise<AircraftReferenceKnowledge | undefined> { return this.referenceKnowledgeByAircraftId.get(aircraftId); }
+  async getNormalFlight(aircraftId:string):Promise<SimulatorFlightFlow|undefined>{return this.normalFlightByAircraftId.get(aircraftId);}
+  async getCockpitOrientation(aircraftId:string):Promise<CockpitOrientation|undefined>{return this.orientationByAircraftId.get(aircraftId);}
+  async getAbnormalTraining(aircraftId:string):Promise<AircraftAbnormalTraining|undefined>{return this.abnormalByAircraftId.get(aircraftId);}
+  async getReferenceKnowledge(aircraftId:string):Promise<AircraftReferenceKnowledge|undefined>{return this.referenceKnowledgeByAircraftId.get(aircraftId);}
 
-  async listPublishedModuleDomains(aircraftId: string): Promise<readonly TrainingContentDomain[]> {
-    const domains = new Set<TrainingContentDomain>(this.nativeDomainsByAircraftId.get(aircraftId) ?? []);
-    if (this.learningByAircraftId.has(aircraftId)) domains.add("learning");
-    if (this.normalFlightByAircraftId.has(aircraftId)) domains.add("normal-flight");
-    if (this.orientationByAircraftId.has(aircraftId)) domains.add("orientation");
-    if (this.abnormalByAircraftId.has(aircraftId)) domains.add("abnormal");
-    if (this.referenceKnowledgeByAircraftId.has(aircraftId)) domains.add("reference-knowledge");
+  async listPublishedModuleDomains(aircraftId:string):Promise<readonly TrainingContentDomain[]>{
+    const domains=new Set<TrainingContentDomain>(this.nativeDomainsByAircraftId.get(aircraftId)??[]);
+    if(this.learningByAircraftId.has(aircraftId))domains.add("learning");
+    if(this.normalFlightByAircraftId.has(aircraftId))domains.add("normal-flight");
+    if(this.orientationByAircraftId.has(aircraftId))domains.add("orientation");
+    if(this.abnormalByAircraftId.has(aircraftId))domains.add("abnormal");
+    if(this.referenceKnowledgeByAircraftId.has(aircraftId))domains.add("reference-knowledge");
     return [...domains];
   }
 
-  async getPublishedModule<T>(aircraftId: string, domain: TrainingContentDomain): Promise<T | undefined> {
-    const native = this.nativeByAircraftDomain.get(moduleKey(aircraftId, domain));
-    if (native) return native as T;
-    if (domain === "learning") return this.learningByAircraftId.get(aircraftId) as T | undefined;
-    if (domain === "normal-flight") return this.normalFlightByAircraftId.get(aircraftId) as T | undefined;
-    if (domain === "orientation") return this.orientationByAircraftId.get(aircraftId) as T | undefined;
-    if (domain === "abnormal") return this.abnormalByAircraftId.get(aircraftId) as T | undefined;
-    if (domain === "reference-knowledge") return this.referenceKnowledgeByAircraftId.get(aircraftId) as T | undefined;
+  async getPublishedModule<T>(aircraftId:string,domain:TrainingContentDomain):Promise<T|undefined>{
+    const native=this.nativeByAircraftDomain.get(moduleKey(aircraftId,domain));
+    if(native)return native as T;
+    if(domain==="learning")return this.learningByAircraftId.get(aircraftId) as T|undefined;
+    if(domain==="normal-flight")return this.normalFlightByAircraftId.get(aircraftId) as T|undefined;
+    if(domain==="orientation")return this.orientationByAircraftId.get(aircraftId) as T|undefined;
+    if(domain==="abnormal")return this.abnormalByAircraftId.get(aircraftId) as T|undefined;
+    if(domain==="reference-knowledge")return this.referenceKnowledgeByAircraftId.get(aircraftId) as T|undefined;
     return undefined;
   }
 }
