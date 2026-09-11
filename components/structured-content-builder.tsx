@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { validateContentPayload } from "@/lib/content-contracts";
 import type { TrainingContentDomain } from "@/lib/content-admin-types";
 import styles from "./structured-content-builder.module.css";
@@ -32,7 +32,7 @@ const stringArrayKeys = new Set([
 function asJson(value: unknown): JsonValue {
   return JSON.parse(JSON.stringify(value ?? {})) as JsonValue;
 }
-function isObject(value: JsonValue): value is JsonObject {
+function isObject(value: unknown): value is JsonObject {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 function clone<T extends JsonValue>(value: T): T {
@@ -53,7 +53,7 @@ function getAt(root: JsonValue,path: readonly PathPart[]): JsonValue | undefined
   let current: JsonValue | undefined=root;
   for(const part of path){
     if(Array.isArray(current)&&typeof part==="number")current=current[part];
-    else if(current&&isObject(current)&&typeof part==="string")current=current[part];
+    else if(isObject(current)&&typeof part==="string")current=current[part];
     else return undefined;
   }
   return current;
@@ -63,7 +63,8 @@ function updateAt(root: JsonValue,path: readonly PathPart[],updater:(current:Jso
   const [head,...tail]=path;
   if(Array.isArray(root)&&typeof head==="number"){
     const copy=[...root];
-    if(copy[head]!==undefined)copy[head]=updateAt(copy[head],tail,updater);
+    const current=copy[head];
+    if(current!==undefined)copy[head]=updateAt(current,tail,updater);
     return copy;
   }
   if(isObject(root)&&typeof head==="string"){
@@ -126,10 +127,25 @@ export function StructuredContentBuilder({domain,aircraftId,initialPayload,manua
   function changeArray(path:readonly PathPart[],updater:(items:JsonValue[])=>JsonValue[]){
     commit(updateAt(payload,path,current=>Array.isArray(current)?updater(current):current));
   }
+  function syncPerformanceRows(path:readonly PathPart[]){
+    const dataset=getAt(payload,path.slice(0,-1));
+    if(!isObject(dataset))return;
+    const axisKeys=Array.isArray(dataset.axes)?dataset.axes.flatMap(axis=>isObject(axis)&&typeof axis.key==="string"&&axis.key?[axis.key]:[]):[];
+    const outputKeys=Array.isArray(dataset.outputs)?dataset.outputs.flatMap(output=>isObject(output)&&typeof output.key==="string"&&output.key?[output.key]:[]):[];
+    changeArray(path,rows=>rows.map(row=>{
+      if(!isObject(row))return row;
+      const previousInputs=isObject(row.inputs)?row.inputs:{};
+      const previousOutputs=isObject(row.outputs)?row.outputs:{};
+      const inputs:JsonObject={};const outputs:JsonObject={};
+      for(const key of axisKeys)inputs[key]=previousInputs[key]??"";
+      for(const key of outputKeys)outputs[key]=previousOutputs[key]??"";
+      return {...row,inputs,outputs};
+    }));
+  }
   function applyRaw(){
     try{
       const parsed=JSON.parse(raw) as unknown;
-      if(!parsed||typeof parsed!=="object"||Array.isArray(parsed))throw new Error("Payload must be a JSON object.");
+      if(!isObject(parsed))throw new Error("Payload must be a JSON object.");
       commit(asJson(parsed));
     }catch(error){setRawError(error instanceof Error?error.message:"Invalid JSON payload.");}
   }
@@ -154,16 +170,16 @@ export function StructuredContentBuilder({domain,aircraftId,initialPayload,manua
   function renderArray(items:JsonValue[],path:readonly PathPart[],key:string){
     const scalarOnly=items.length===0?stringArrayKeys.has(key):items.every(item=>item===null||typeof item!=="object");
     if(scalarOnly){
-      return <section className={styles.collection} key={path.join(".")}><div className={styles.collectionHeader}><div><strong>{humanize(key)}</strong><span> · {items.length} item{items.length===1?"":"s"}</span></div><button type="button" onClick={()=>changeArray(path,current=>[...current,current.length?blankFromExample(current[current.length-1],key):emptyArrayPrototype(key,path,payload)])}>+ Add</button></div>{items.length?<div className={styles.scalarList}>{items.map((item,index)=><div className={styles.scalarRow} key={`${path.join(".")}-${index}`}><div>{renderScalar(item as JsonScalar,[...path,index],key)}</div><div className={styles.scalarActions}><button type="button" disabled={index===0} onClick={()=>changeArray(path,current=>{const next=[...current];[next[index-1],next[index]]=[next[index],next[index-1]];return next;})}>↑</button><button type="button" disabled={index===items.length-1} onClick={()=>changeArray(path,current=>{const next=[...current];[next[index],next[index+1]]=[next[index+1],next[index]];return next;})}>↓</button><button type="button" onClick={()=>changeArray(path,current=>current.filter((_,itemIndex)=>itemIndex!==index))}>×</button></div></div>)}</div>:<p className={styles.empty}>No entries yet.</p>}</section>;
+      return <section className={styles.collection} key={path.join(".")}><div className={styles.collectionHeader}><div><strong>{humanize(key)}</strong><span> · {items.length} item{items.length===1?"":"s"}</span></div><button type="button" onClick={()=>changeArray(path,current=>[...current,current.length?blankFromExample(current[current.length-1]!,key):emptyArrayPrototype(key,path,payload)])}>+ Add</button></div>{items.length?<div className={styles.scalarList}>{items.map((item,index)=><div className={styles.scalarRow} key={`${path.join(".")}-${index}`}><div>{renderScalar(item as JsonScalar,[...path,index],key)}</div><div className={styles.scalarActions}><button type="button" disabled={index===0} onClick={()=>changeArray(path,current=>{const next=[...current];const previous=next[index-1];const active=next[index];if(previous===undefined||active===undefined)return current;next[index-1]=active;next[index]=previous;return next;})}>↑</button><button type="button" disabled={index===items.length-1} onClick={()=>changeArray(path,current=>{const next=[...current];const active=next[index];const following=next[index+1];if(active===undefined||following===undefined)return current;next[index]=following;next[index+1]=active;return next;})}>↓</button><button type="button" onClick={()=>changeArray(path,current=>current.filter((_,itemIndex)=>itemIndex!==index))}>×</button></div></div>)}</div>:<p className={styles.empty}>No entries yet.</p>}</section>;
     }
-    return <section className={styles.collection} key={path.join(".")}><div className={styles.collectionHeader}><div><strong>{humanize(key)}</strong><span> · {items.length} item{items.length===1?"":"s"}</span></div><button type="button" onClick={()=>changeArray(path,current=>[...current,current.length?blankFromExample(current[current.length-1],key):emptyArrayPrototype(key,path,payload)])}>+ Add blank item</button></div>{items.length?<div className={styles.collectionItems}>{items.map((item,index)=><details className={styles.item} key={`${path.join(".")}-${index}`} open={items.length<=3}><summary><span className={styles.itemSummary}><span className={styles.itemIndex}>{index+1}</span><span>{itemSummary(item,index)}</span></span><span>▾</span></summary><div className={styles.itemBody}><div className={styles.itemActions}><button type="button" disabled={index===0} onClick={()=>changeArray(path,current=>{const next=[...current];[next[index-1],next[index]]=[next[index],next[index-1]];return next;})}>Move up</button><button type="button" disabled={index===items.length-1} onClick={()=>changeArray(path,current=>{const next=[...current];[next[index],next[index+1]]=[next[index+1],next[index]];return next;})}>Move down</button><button type="button" onClick={()=>changeArray(path,current=>{const next=[...current];next.splice(index+1,0,clone(current[index]));return next;})}>Duplicate</button><button type="button" onClick={()=>changeArray(path,current=>current.filter((_,itemIndex)=>itemIndex!==index))}>Remove</button></div>{renderValue(item,[...path,index],`${key} item`)}</div></details>)}</div>:<p className={styles.empty}>No entries yet. Add the first structured item above.</p>}</section>;
+    return <section className={styles.collection} key={path.join(".")}><div className={styles.collectionHeader}><div><strong>{humanize(key)}</strong><span> · {items.length} item{items.length===1?"":"s"}</span></div><div className={styles.itemActions}>{key==="rows"?<button type="button" onClick={()=>syncPerformanceRows(path)}>Sync row keys</button>:null}<button type="button" onClick={()=>changeArray(path,current=>[...current,current.length?blankFromExample(current[current.length-1]!,key):emptyArrayPrototype(key,path,payload)])}>+ Add blank item</button></div></div>{items.length?<div className={styles.collectionItems}>{items.map((item,index)=><details className={styles.item} key={`${path.join(".")}-${index}`} open={items.length<=3}><summary><span className={styles.itemSummary}><span className={styles.itemIndex}>{index+1}</span><span>{itemSummary(item,index)}</span></span><span>▾</span></summary><div className={styles.itemBody}><div className={styles.itemActions}><button type="button" disabled={index===0} onClick={()=>changeArray(path,current=>{const next=[...current];const previous=next[index-1];const active=next[index];if(previous===undefined||active===undefined)return current;next[index-1]=active;next[index]=previous;return next;})}>Move up</button><button type="button" disabled={index===items.length-1} onClick={()=>changeArray(path,current=>{const next=[...current];const active=next[index];const following=next[index+1];if(active===undefined||following===undefined)return current;next[index]=following;next[index+1]=active;return next;})}>Move down</button><button type="button" onClick={()=>changeArray(path,current=>{const source=current[index];if(source===undefined)return current;const next=[...current];next.splice(index+1,0,clone(source));return next;})}>Duplicate</button><button type="button" onClick={()=>changeArray(path,current=>current.filter((_,itemIndex)=>itemIndex!==index))}>Remove</button></div>{renderValue(item,[...path,index],`${key} item`)}</div></details>)}</div>:<p className={styles.empty}>No entries yet. Add the first structured item above.</p>}</section>;
   }
 
   function renderObject(value:JsonObject,path:readonly PathPart[],label:string){
     const entries=Object.entries(value);
     return <section className={styles.object} key={path.join(".")}><p className={styles.objectTitle}>{humanize(label)}</p>{entries.map(([childKey,child])=>renderValue(child,[...path,childKey],childKey))}</section>;
   }
-  function renderValue(value:JsonValue,path:readonly PathPart[],key:string):React.ReactNode{
+  function renderValue(value:JsonValue,path:readonly PathPart[],key:string):ReactNode{
     if(Array.isArray(value))return renderArray(value,path,key);
     if(isObject(value))return renderObject(value,path,key);
     return <div key={path.join(".")}>{renderScalar(value,path,key)}</div>;
@@ -172,7 +188,7 @@ export function StructuredContentBuilder({domain,aircraftId,initialPayload,manua
   return <div className={styles.builder}>
     <div className={styles.toolbar}><div className={styles.toolbarText}><strong>Structured {humanize(domain)} payload</strong><span>Edit fields and collections directly. The saved result still passes through the normal immutable draft workflow.</span></div><span className={validationErrors.length?styles.statusBad:styles.statusGood}>{validationErrors.length?`${validationErrors.length} contract issue${validationErrors.length===1?"":"s"}`:"Contract valid"}</span></div>
     {validationErrors.length?<ul className={styles.errorList}>{validationErrors.slice(0,12).map(error=><li key={error}>{error}</li>)}{validationErrors.length>12?<li>+ {validationErrors.length-12} more issue(s)</li>:null}</ul>:null}
-    <p className={styles.hint}>Collection controls change structure only in this draft. Duplicate is useful when two items share the same shape; review copied source/applicability fields before saving.</p>
+    <p className={styles.hint}>Collection controls change structure only in this draft. Duplicate is useful when two items share the same shape; review copied source/applicability fields before saving. Performance rows can be synchronized after changing axis/output keys.</p>
     <div className={styles.root}>{isObject(payload)?Object.entries(payload).map(([key,value])=>renderValue(value,[key],key)):renderValue(payload,[],"payload")}</div>
     <textarea hidden name="payload" readOnly value={JSON.stringify(payload)}/>
     <details className={styles.advanced}><summary>Advanced raw JSON escape hatch</summary><p className={styles.hint}>Use only for fields or structural changes the form cannot yet express. Apply JSON first; the structured form and contract validation will update before submit.</p><textarea className={styles.raw} value={raw} onChange={event=>{setRaw(event.target.value);setRawError("");}}/><div className={styles.rawActions}><button type="button" onClick={applyRaw}>Apply JSON to builder</button>{rawError?<span className={styles.rawError}>{rawError}</span>:null}</div></details>
