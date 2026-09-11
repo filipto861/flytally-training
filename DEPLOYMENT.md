@@ -21,7 +21,7 @@ Configure the Training production environment:
 - `TRAINING_CONTENT_BACKEND=postgres` — static content is not a production backend.
 - `OPENAI_API_KEY` when live admin AI drafting is required; AI drafting remains draft-only regardless of configuration.
 
-Controlled manual PDFs are a separate release-governance layer. When that layer is enabled, provision a private Vercel Blob store and use Vercel deployment OIDC where available; `BLOB_READ_WRITE_TOKEN` remains the supported explicit fallback for local/non-Vercel operation. The learner application's operational readiness does not depend on this optional storage layer.
+M31 deliberately has no source-document storage dependency. FlyTally Training does not host source documents and therefore requires no manual Blob store, manual-download capability or source-document storage credential. Administrators retain lawful access to their source material outside FlyTally and may register source identity, revision, authority, exact page references and an optional locally computed SHA-256 fingerprint.
 
 Do not configure `TRAINING_ACCEPTANCE_DATABASE_URL` to the production database.
 
@@ -42,26 +42,26 @@ Run the idempotent bootstrap against the production Training database before the
 TRAINING_DATABASE_URL='postgresql://...' npm run db:init
 ```
 
-The command creates/verifies Training-owned persistence only. It does not publish aircraft content. Ordinary runtime requests intentionally do not self-provision schema.
+The command creates/verifies active Training-owned persistence only. It does not publish aircraft content or create a source-document store. Ordinary runtime requests intentionally do not self-provision schema.
 
 ## 5. Migrate and govern aircraft content
 
 After SSO is configured, sign in with an admin account. Static-seed transition actions are privileged migrations, not passive imports: after explicit confirmation they record the acting administrator as the migration approver and publish seed bundles that are not already published.
 
-The migration bootstrap reference preserves source metadata but does **not by itself satisfy controlled-document release readiness**. When controlled-document release is enabled, the currently published learner versions must reference source records belonging to attached controlled manual revisions whose private Blob has passed byte/signature/hash verification.
+Source governance is record-based rather than document-hosting based. FlyTally persists immutable source identity, revision, authority, exact references and optional SHA-256 fingerprints. The source document itself remains outside FlyTally.
 
 Use the admin review flow rather than copying bundle JSON by hand:
 
-1. upload and server-verify the controlled PDF;
-2. register its immutable manual revision and attach the verified asset;
+1. register the immutable source revision;
+2. optionally select the PDF locally so the browser computes a SHA-256 fingerprint without uploading the file;
 3. create the relevant page/chapter source reference(s);
 4. open each currently published bundle and use **Re-source this payload without rewriting it**;
-5. select only the controlled source reference(s) that support that bundle;
-6. Training creates a new immutable `human` draft with the exact existing payload and the selected controlled provenance;
-7. review the unchanged payload against the cited source, then explicitly approve and publish the new version;
+5. select only fingerprint-backed source reference(s) that support that bundle when stronger source identity is required;
+6. Training creates a new immutable `human` draft with the exact existing payload and the selected provenance;
+7. review the unchanged payload against the source material you hold lawfully outside FlyTally, then explicitly approve and publish the new version;
 8. resolve any stale-source review state only after the replacement has been checked.
 
-The re-source action accepts only references whose manual revision has an `attached` controlled PDF asset. It never mutates the published version and does not auto-approve or auto-publish the replacement.
+The re-source action never mutates the published version and does not auto-approve or auto-publish the replacement. FlyTally does not host source documents, so there is no manual viewer, upload library or download endpoint in this workflow.
 
 ## 6. Verify production readiness
 
@@ -75,9 +75,9 @@ GET https://training.fly-tally.com/api/readiness
 `/api/health` proves process liveness only. `/api/readiness` exposes two explicit profiles:
 
 - `profiles.operational` — the learner application can use its production PostgreSQL backend, persistence, identity boundary and current published modular aircraft content. This controls the endpoint's HTTP 200/503 status.
-- `profiles.controlledDocumentRelease` — controlled PDF persistence, storage credentials and source coverage are complete for at least one fresh published aircraft. This may remain `false` while the controlled-document layer is intentionally deferred.
+- `profiles.sourceGovernedRelease` — at least one fresh published aircraft has complete classified source provenance across all of its currently published training modules.
 
-The response also exposes individual boolean checks so a missing optional controlled-document capability cannot mask the state of the database or published content.
+Source-document storage is intentionally absent from readiness because it is not a FlyTally capability.
 
 ## 7. Prove the no-code second-aircraft architecture separately
 
@@ -87,4 +87,4 @@ Only a successful real PostgreSQL acceptance run counts as evidence that the mul
 
 ## 8. Human release acceptance
 
-Complete the desktop/mobile and cross-device checks in `V1_RELEASE.md`, including SSO replay rejection, progress synchronization, governed authoring, stale-source handling and admin session expiry. Controlled manual upload/verification is additionally required before declaring the controlled-document release profile complete.
+Complete the desktop/mobile and cross-device checks in `V1_RELEASE.md`, including SSO replay rejection, progress synchronization, governed authoring, stale-source handling and admin session expiry. Source records and references must remain reviewable without exposing or storing the underlying source documents.

@@ -6,21 +6,36 @@ Adding a new aircraft must become a **content operation**, not an application-de
 
 The target production workflow is:
 
-`Create aircraft -> register variants -> register manual revision -> import/draft content -> review sources -> approve -> publish`
+`Create aircraft -> register variants -> register source revision -> create exact references -> draft content -> review sources -> approve -> publish`
 
 After publication, the aircraft should appear in the learner-facing Aircraft library automatically. No new route, React component, aircraft-specific `if`, or deployment should be required merely because a new aircraft type was added.
+
+## Source-document boundary
+
+FlyTally Training is **not a manual library** and does not host source documents.
+
+The application persists only the governed facts required to audit training content:
+
+- source family identity and publisher,
+- immutable revision code and issue date,
+- authority classification and applicability notes,
+- exact chapter / section / page references,
+- optional citation URI,
+- optional SHA-256 fingerprint and basic local file metadata.
+
+When an administrator wants a fingerprint, the browser computes SHA-256 locally. The selected PDF is not submitted to FlyTally. There is no product manual-upload store, viewer or download endpoint.
+
+The source document remains under the administrator's own lawful access outside FlyTally. Drafting may use only the relevant excerpt intentionally supplied for that authoring task; the source document itself is not retained as a product asset.
 
 ## Current transition state
 
 The Learjet 35/36 reference content is still physically stored in TypeScript source files while the v1.0 content contracts are stabilised. That is a temporary bootstrap adapter, not the target storage architecture.
 
-As of the content-repository foundation, learner-facing pages no longer retrieve aircraft material directly from those source registries. They consume the asynchronous `TrainingContentRepository` contract through the application composition boundary in `lib/content-store.ts`.
+Learner-facing pages consume the asynchronous `TrainingContentRepository` contract through the application composition boundary in `lib/content-store.ts`.
 
-This distinction is deliberate:
-
-- **today:** `StaticTrainingContentRepository` reads the existing Learjet source-backed records;
-- **target:** `PostgresTrainingContentRepository` reads published records from PostgreSQL;
-- **learner UI:** unchanged between those two storage implementations.
+- **bootstrap adapter:** `StaticTrainingContentRepository` reads existing source-backed records;
+- **production:** `PostgresTrainingContentRepository` reads approved/published records from PostgreSQL;
+- **learner UI:** unchanged between those storage implementations.
 
 ## Non-negotiable boundary
 
@@ -37,74 +52,42 @@ Learner-facing routes and components must therefore not:
 
 Server routes resolve content through `TrainingContentRepository` and pass plain resolved data into interactive client components.
 
-A regression test enforces the first part of this boundary across `app/` and `components/`.
-
 ## Repository contract
 
-The repository currently exposes asynchronous reads for:
+The repository exposes aircraft catalogue/metadata plus first-class training modules such as systems, procedures, checklists, cockpit orientation, abnormal/emergency scenarios, performance, limitations, quick reference, avionics and knowledge content. The module set is sparse and belongs to aircraft data; no aircraft is required to mimic the Learjet curriculum.
 
-- aircraft catalogue
-- aircraft metadata / manuals
-- Quick Start and essential systems
-- normal First Flight / checklist flow
-- cockpit orientation
-- abnormal and emergency scenarios
-
-M6 extends the same contract for:
-
-- Quick Reference / FLY mode
-- question banks and knowledge checks
-
-M7 extends persistence for learner state without coupling learner progress to content approval state.
-
-M8 adds the authoring/admin write side: source ingestion, draft content, approval, publication and revision-change handling.
-
-The read contract is asynchronous now even though the temporary adapter is in-memory. This prevents a future PostgreSQL migration from forcing a rewrite of every page from synchronous to asynchronous data access.
+Learner progress persistence is independent of content approval state. The admin write side owns source records, immutable drafts, approval, publication and revision-change handling.
 
 ## PostgreSQL content model direction
 
-Do not model one database table per Learjet screen. Persist stable product-domain records instead.
+Do not model one database table per aircraft screen. Persist stable product-domain records instead.
 
-Core identity/source records:
+Core identity/source records include:
 
-- `aircraft_types`
-- `aircraft_variants`
-- `manuals`
-- `manual_revisions`
-- `source_references`
-- `content_approvals`
+- `training_aircraft_types`
+- `training_aircraft_variants`
+- `training_manuals` (source families)
+- `training_manual_revisions` (immutable source records)
+- `training_source_references`
+- governed content versions / approvals / publications / stale flags
 
-Published training domains:
+The historical `training_manual_assets` relation may exist in an upgraded database from earlier milestones, but M31 does not provision or use it. It is legacy data, not an active product persistence boundary.
 
-- learning paths / lessons / system topics
-- procedures / phases / steps
-- cockpit regions / controls / hotspots
-- scenarios / stages
-- quick-reference groups / items
-- question banks / questions / answers
-
-Every published technical record must retain stable IDs, revision-aware source references and approval evidence.
-
-Manual revisions remain immutable. Publishing a new revision may mark dependent content stale, but must not silently mutate previously approved content.
+Every published technical record must retain stable IDs, revision-aware source references and approval evidence. Manual/source revisions remain immutable. Publishing a new revision may mark dependent content stale, but must not silently mutate previously approved content.
 
 ## No-code aircraft acceptance test
 
 The architecture is considered ready for multi-aircraft scaling only when this can be demonstrated against the PostgreSQL/admin implementation:
 
-1. Insert/register a second aircraft without modifying application source.
-2. Add at least one variant and controlled manual revision.
-3. Publish Quick Start, normal procedure, cockpit orientation, one abnormal scenario and Quick Reference data through the content pipeline.
-4. The aircraft appears automatically in the Aircraft library.
-5. Existing generic Learn / Checklist / Practice / Reference routes render the second aircraft from its data.
-6. The Learjet continues to render from the same components.
-7. No aircraft-ID branch is added to `app/`, `components/` or the repository interface.
+1. Register a second aircraft without modifying application source.
+2. Add only the variants genuinely required by its applicability model.
+3. Register at least one governed source revision and exact source reference.
+4. Publish whatever first-class training modules that aircraft actually supports.
+5. The aircraft appears automatically in the Aircraft library.
+6. Existing generic learner routes render the second aircraft from its data.
+7. The Learjet continues to render from the same components.
+8. No aircraft-ID branch is added to `app/`, `components/` or the repository interface.
 
-Until this acceptance test passes, FlyTally Training is **database-ready**, not yet fully no-code multi-aircraft.
+## Content-contract evolution
 
-## Why not move every table into PostgreSQL immediately?
-
-The v1.0 domains are still evolving. Prematurely freezing all content structures into relational tables would create migration churn and encourage schema designed around the first aircraft.
-
-The repository boundary lets the product stabilise the domain contracts first. PostgreSQL persistence can then be introduced behind a proven interface, while the source/approval invariants are preserved from the beginning.
-
-The rule is therefore: do not postpone the storage boundary, but also do not invent a giant speculative schema. Add persisted domains when their product contract is real.
+Avoid freezing a relational table around every current UI. The repository boundary allows product-domain contracts to evolve without designing the database around the first aircraft. Persist only stable product concepts and keep provenance, approval and applicability explicit.

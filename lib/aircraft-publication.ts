@@ -12,15 +12,14 @@ function aircraftId(value: string): string {
 
 /**
  * Expose an aircraft in the learner catalogue once it has at least one
- * governed, currently published training bundle, at least one immutable manual
+ * governed, currently published training bundle, at least one immutable source
  * revision and no unresolved stale-source review on its effective training
- * bundles. M9 deliberately does not require one fixed curriculum: the module
- * set belongs to the aircraft data, not to application code.
+ * bundles. The module set belongs to aircraft data, not application code.
  *
  * The legacy cockpit-orientation domain is intentionally excluded from the
  * minimum training-content requirement while that visual module is deferred.
- * Controlled-Blob availability remains the stricter production-readiness gate
- * and is intentionally checked separately.
+ * Stronger source-provenance release status is checked separately and does not
+ * depend on hosting the underlying source documents.
  */
 export async function publishGovernedAircraft(value: string): Promise<void> {
   const id = aircraftId(value);

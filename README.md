@@ -1,20 +1,22 @@
 # FlyTally Training
 
-FlyTally Training is the training and learning product in the FlyTally ecosystem. It is intentionally separated from FlyTally Logbook so training content, learning workflows and future school features can evolve without turning the pilot logbook into a monolith.
+FlyTally Training is the training and learning product in the FlyTally ecosystem. It is intentionally separated from FlyTally Logbook so training content and learning workflows can evolve without turning the pilot logbook into a monolith.
 
 ## Product direction
 
-The first product slice is an aircraft-type training workspace built from authoritative manuals:
+The first product slice is an aircraft-type training workspace built from authoritative source material:
 
-- aircraft types and manual libraries,
-- revision-controlled source documents,
+- aircraft types and immutable source records,
+- revision-controlled provenance without source-document hosting,
 - lessons and study modules,
 - interactive procedures and checklists,
 - question banks and quizzes,
 - learner progress and attempts,
-- source citations and human approval for technical content.
+- exact source citations and human approval for technical content.
 
-AI may assist with extraction, structuring and drafting. It is never the source of truth. Publishable technical content must remain traceable to a specific manual revision and be explicitly approved.
+FlyTally Training is not a document library. Source PDFs remain outside the product. Administrators may register source metadata, revision, authority, page references and an optional SHA-256 fingerprint computed locally in the browser.
+
+AI may assist with structuring and drafting from intentionally supplied excerpts. It is never the source of truth. Publishable technical content must remain traceable to a specific source revision and be explicitly approved.
 
 ## Repository boundaries
 
@@ -41,4 +43,4 @@ npm run verify
 
 Before using a new PostgreSQL database, initialize the Training-owned schema with `npm run db:init`. Production deployment order and environment contracts are documented in `DEPLOYMENT.md`.
 
-See `ARCHITECTURE.md`, `DEVELOPMENT.md`, `ROADMAP.md`, `V1_RELEASE.md` and `NO_CODE_ACCEPTANCE.md` before changing product or release boundaries.
+See `ARCHITECTURE.md`, `CONTENT_ARCHITECTURE.md`, `DEVELOPMENT.md`, `ROADMAP.md`, `V1_RELEASE.md` and `NO_CODE_ACCEPTANCE.md` before changing product or release boundaries.
