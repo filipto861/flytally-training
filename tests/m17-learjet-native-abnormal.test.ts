@@ -4,6 +4,7 @@ import test from "node:test";
 
 import { learjet3536AbnormalTraining } from "../lib/abnormal-scenarios.ts";
 import { validateContentPayload } from "../lib/content-contracts.ts";
+import { learjet3536ExpandedAbnormal } from "../lib/learjet-native-abnormal-expanded.ts";
 import { learjet3536NativeAbnormal } from "../lib/learjet-native-abnormal.ts";
 import { StaticTrainingContentRepository } from "../lib/static-content-repository.ts";
 import { isUniversalAbnormalEmergencyContent, type AircraftAbnormalEmergencyContent } from "../lib/universal-abnormal-emergency.ts";
@@ -91,10 +92,10 @@ test("configuration prose is retained as a note without inventing variant or equ
   }
 });
 
-test("static repository serves native abnormal before the legacy compatibility payload", async () => {
+test("static repository serves the expanded abnormal module before the legacy compatibility payload", async () => {
   const repository = new StaticTrainingContentRepository();
   const published = await repository.getPublishedModule<AircraftAbnormalEmergencyContent>(aircraftId, "abnormal");
-  assert.equal(published?.title, learjet3536NativeAbnormal.title);
+  assert.equal(published?.title, learjet3536ExpandedAbnormal.title);
   assert.equal(isUniversalAbnormalEmergencyContent(published), true);
 });
 
