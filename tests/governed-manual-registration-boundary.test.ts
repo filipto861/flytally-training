@@ -5,26 +5,27 @@ import test from "node:test";
 const registration = fs.readFileSync(new URL("../lib/governed-manual-registration.ts", import.meta.url), "utf8");
 const actions = fs.readFileSync(new URL("../app/admin/actions.ts", import.meta.url), "utf8");
 
-test("admin manual registration uses one PostgreSQL transaction for revision, stale flags and asset attachment", () => {
+test("source revision registration is one PostgreSQL transaction for revision and stale flags", () => {
   assert.match(registration, /sql\.transaction\(\(txn\) => \[/);
-  assert.match(registration, /SET status='claimed'/);
   assert.match(registration, /INSERT INTO training_manual_revisions/);
   assert.match(registration, /INSERT INTO training_content_stale_flags/);
-  assert.match(registration, /SET status='attached',attached_revision_id=/);
+  assert.doesNotMatch(registration, /training_manual_assets|blob_url|status='claimed'|status='attached'/);
 });
 
-test("controlled asset URI and checksum are derived from the verified database row", () => {
-  assert.match(registration, /a\.blob_url,a\.checksum_sha256/);
-  assert.match(registration, /a\.status='claimed'/);
-  assert.match(registration, /a\.claimed_by=\$\{subject\}/);
+test("source record persists metadata and optional fingerprint without a document asset", () => {
+  assert.match(registration, /source_metadata/);
+  assert.match(registration, /checksum_sha256/);
+  assert.match(registration, /documentHostedByFlyTally:false/);
+  assert.doesNotMatch(registration, /@vercel\/blob|manualAsset/);
 });
 
-test("a manual family cannot be silently reused across aircraft", () => {
-  assert.match(registration, /manual_id=\$\{manualId\} AND aircraft_id=\$\{aircraftId\}/);
+test("a source family cannot be silently reused across aircraft", () => {
+  assert.match(registration, /m\.manual_id=\$\{manualId\} AND m\.aircraft_id=\$\{aircraftId\}/);
   assert.match(registration, /Manual family belongs to another aircraft/);
 });
 
-test("server action no longer performs a claim-register-attach sequence outside the transaction", () => {
-  assert.match(actions, /registerGovernedManualRevision/);
-  assert.doesNotMatch(actions, /claimManualAsset|attachClaimedManualAsset|releaseManualAssetClaim/);
+test("server action parses source evidence and has no asset lifecycle", () => {
+  assert.match(actions, /parseSourceRecordEvidence/);
+  assert.match(actions, /sourceMetadata:evidence\.sourceMetadata/);
+  assert.doesNotMatch(actions, /assetId|claimManualAsset|attachClaimedManualAsset|releaseManualAssetClaim/);
 });
