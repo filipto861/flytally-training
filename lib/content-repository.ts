@@ -92,13 +92,14 @@ export async function getAircraftContentBundle(
     referenceKnowledge,
     publishedModuleDomains,
     capabilities: {
+      // These are the only learner routes with an intentional legacy fallback.
       checklists: published.has("checklists") || legacyChecklist,
-      procedures: published.has("procedures") || legacyChecklist,
+      procedures: published.has("procedures"),
       performance: published.has("performance"),
       limitations: published.has("limitations"),
       systems: published.has("systems") || legacySystems,
       abnormalEmergency: published.has("abnormal") || Boolean(abnormalTraining?.scenarios.length),
-      flows: published.has("flows") || legacyChecklist,
+      flows: published.has("flows"),
       avionics: published.has("avionics"),
       knowledge: published.has("knowledge") || legacyKnowledge,
       manual: aircraft.manuals.length > 0,
