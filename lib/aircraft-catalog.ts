@@ -26,16 +26,18 @@ export type TrainingManualRevision = {
   readonly chapters: readonly ManualChapter[];
 };
 
-/**
- * A variant profile is aircraft data, not application logic. `equipmentTags`
- * contain only explicitly governed installation/configuration facts; the
- * learner runtime must never infer optional equipment from the model name.
- */
 export type TrainingAircraftVariantProfile = {
   readonly key: string;
   readonly displayName: string;
   readonly equipmentTags: readonly string[];
   readonly note?: string;
+};
+
+/** Aircraft-data preference for the two pilot-facing workspaces. */
+export type TrainingAircraftWorkspaceProfile = {
+  readonly flyManualId?: string;
+  readonly learnManualId?: string;
+  readonly supplementaryManualIds?: readonly string[];
 };
 
 export type TrainingAircraft = {
@@ -46,6 +48,7 @@ export type TrainingAircraft = {
   readonly variantProfiles?: readonly TrainingAircraftVariantProfile[];
   readonly displayName: string;
   readonly manuals: readonly TrainingManualRevision[];
+  readonly workspaceProfile?: TrainingAircraftWorkspaceProfile;
 };
 
 export const learjet3536: TrainingAircraft = {
@@ -63,7 +66,33 @@ export const learjet3536: TrainingAircraft = {
     { key: "36A", displayName: "36A", equipmentTags: [] },
   ],
   displayName: "Learjet 35/36",
+  workspaceProfile: {
+    flyManualId: "cae-simuflite-learjet-35-36-crh-feb-2007",
+    learnManualId: "fsi-learjet-35-36-ptm-r1-1",
+    supplementaryManualIds: ["flysimware-learjet-35a-msfs-v1-2", "jaydee-learjet-35a-checklist-v1-35-wip1"],
+  },
   manuals: [
+    {
+      id: "cae-simuflite-learjet-35-36-crh-feb-2007",
+      title: "Learjet 35/36 Cockpit Reference Handbook",
+      publisher: "CAE SimuFlite",
+      revision: "February 2007",
+      issueDate: "2007-02",
+      sourceKind: "TRAINING_MANUAL",
+      authorityRole: "TRAINING_REFERENCE",
+      authorityNote:
+        "Cockpit familiarization and training reference. CAE explicitly states that the handbook is not a substitute for the manufacturer's Pilot or Maintenance Manuals.",
+      sourceReferences: { identityPage: 1, authorityNoticePage: 2, revisionPage: 1, contentsPage: 3 },
+      chapters: [
+        { number: 1, title: "Preflight Inspection", status: "READY_TO_DRAFT" },
+        { number: 2, title: "Expanded Normal Procedures", status: "READY_TO_DRAFT" },
+        { number: 3, title: "Limitations", status: "READY_TO_DRAFT" },
+        { number: 4, title: "Aircraft Systems / Avionics", status: "READY_TO_DRAFT" },
+        { number: 5, title: "Performance / Flight Planning", status: "READY_TO_DRAFT" },
+        { number: 6, title: "Servicing / Special Operations", status: "READY_TO_DRAFT" },
+        { number: 7, title: "Emergency Information", status: "READY_TO_DRAFT" },
+      ],
+    },
     {
       id: "fsi-learjet-35-36-ptm-r1-1",
       title: "Learjet 35/36 Pilot Training Manual",
