@@ -7,23 +7,31 @@ const runtime = fs.readFileSync(new URL("../lib/performance-runtime.ts", import.
 
 test("performance workspace focuses one aircraft-defined dataset at a time", () => {
   assert.match(explorer, /aria-label="Performance datasets"/);
-  assert.match(explorer, /datasets\.map\(\(dataset\)/);
+  assert.match(explorer, /visibleDatasets\.map\(\(dataset\)/);
   assert.match(explorer, /setSelectedId\(id\)/);
   assert.match(explorer, /window\.location\.hash/);
   assert.doesNotMatch(explorer, /learjet-35-36|Learjet/);
 });
 
-test("exact lookup remains source-row driven and visibly refuses invented interpolation", () => {
+test("source-defined interpolation is explicit, bounded and source-row driven", () => {
   assert.match(explorer, /getPerformanceSelectionState\(dataset, filters\)/);
-  assert.match(explorer, /No exact source row exists for this combination\. No interpolation has been performed\./);
-  assert.match(explorer, /currently returns stored source rows only; it does not synthesize an interpolated value/);
-  assert.match(runtime, /matchingRows\.length === 1 \? matchingRows\[0\] : undefined/);
-  assert.doesNotMatch(runtime, /interpolate|lerp|linearInterpolation|Math\.round/);
+  assert.match(explorer, /isLinearPerformanceAxis\(dataset, axis\)/);
+  assert.match(explorer, /type="number"/);
+  assert.match(explorer, /step="any"/);
+  assert.match(explorer, /No extrapolation was used\./);
+  assert.match(explorer, /extrapolation outside the encoded range is never performed/);
+
+  assert.match(runtime, /dataset\.interpolation !== "linear-explicit"/);
+  assert.match(runtime, /selected < values\[0\] \|\| selected > values\[values\.length - 1\]/);
+  assert.match(runtime, /matches\.length !== 1/);
+  assert.match(runtime, /supportingRows/);
+  assert.doesNotMatch(runtime, /learjet-35-36|Learjet/);
 });
 
-test("performance workspace keeps source units and provenance visible", () => {
+test("performance workspace keeps source units, supporting rows and provenance visible", () => {
   assert.match(explorer, /formatValue\(row\.inputs\[axis\.key\], axis\.unit\)/);
   assert.match(explorer, /formatValue\(row\.outputs\[output\.key\], output\.unit\)/);
+  assert.match(explorer, /Supporting reference rows/);
   assert.match(explorer, /Source · \{sourceLabel\}/);
-  assert.match(explorer, /source-defined linear/);
+  assert.match(explorer, /Source-defined linear interpolation/);
 });
