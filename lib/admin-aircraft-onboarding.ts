@@ -19,6 +19,7 @@ export type AircraftOnboardingModule = {
   readonly state: OnboardingModuleState;
   readonly versionNo?: number;
   readonly contentKey?: string;
+  readonly released: boolean;
 };
 
 export type AircraftOnboarding = {
@@ -60,17 +61,20 @@ export function deriveAircraftOnboarding(aircraft: AdminAircraftDetail): Aircraf
       state:moduleState(versions),
       versionNo:representative?.versionNo,
       contentKey:representative?.contentKey,
+      released:versions.some(version=>version.state==="published" || version.state==="stale"),
     };
   });
 
   const hasSources=aircraft.manuals.length>0;
   const hasReferences=aircraft.sourceReferences.length>0;
   const hasContent=aircraft.contentVersions.some(version=>version.state!=="archived");
-  const publishedModuleCount=modules.filter(module=>module.state==="published" || module.state==="stale").length;
+  const publishedModuleCount=modules.filter(module=>module.released).length;
   const hasPublishedContent=publishedModuleCount>0;
+  const hasPendingReview=modules.some(module=>module.state==="draft" || module.state==="approved");
   const cataloguePublished=aircraft.status==="published";
   const fresh=aircraft.staleCount===0 && !modules.some(module=>module.state==="stale");
 
+  const representedModuleCount=modules.filter(module=>module.state!=="absent").length;
   const steps:AircraftOnboardingStep[]=[
     {
       id:"profile",
@@ -96,7 +100,7 @@ export function deriveAircraftOnboarding(aircraft: AdminAircraftDetail): Aircraf
       id:"content",
       label:"Module authoring",
       complete:hasContent,
-      detail:hasContent?`${modules.filter(module=>module.state!=="absent").length} current module domain${modules.filter(module=>module.state!=="absent").length===1?"":"s"} represented`:"Create the first source-backed module draft. Sparse aircraft are valid; only publish domains the aircraft genuinely needs.",
+      detail:hasContent?`${representedModuleCount} current module domain${representedModuleCount===1?"":"s"} represented`:"Create the first source-backed module draft. Sparse aircraft are valid; only publish domains the aircraft genuinely needs.",
     },
     {
       id:"publication",
@@ -137,12 +141,15 @@ export function deriveAircraftOnboarding(aircraft: AdminAircraftDetail): Aircraf
   } else if (!hasPublishedContent) {
     phase="review";
     nextAction="Review, approve and publish the first learner module.";
-  } else if (!cataloguePublished) {
-    phase="release";
-    nextAction="Publish the aircraft catalogue entry.";
   } else if (!fresh) {
     phase="maintenance";
     nextAction="Resolve stale-content reviews against the newer manual revision before the next release.";
+  } else if (hasPendingReview && cataloguePublished) {
+    phase="review";
+    nextAction="Review the pending module changes; publish them only when the source-backed revision is ready.";
+  } else if (!cataloguePublished) {
+    phase="release";
+    nextAction="Publish the aircraft catalogue entry.";
   } else {
     phase="ready";
     nextAction="Aircraft is live and current. Add only source-backed modules that materially improve this aircraft.";
