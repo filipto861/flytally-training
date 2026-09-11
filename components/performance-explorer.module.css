@@ -1,4 +1,15 @@
 .explorer { display: grid; gap: 16px; margin-top: 24px; }
+.toolBar { display: grid; grid-template-columns: minmax(0,1fr) minmax(220px,320px); gap: 12px; align-items: end; padding: 14px; border: 1px solid #d8e2ea; border-radius: 16px; background: rgba(255,255,255,.82); }
+.phaseTabs { display: flex; flex-wrap: wrap; gap: 7px; }
+.phaseTabs button { min-height: 36px; padding: 7px 11px; border: 1px solid #ced9e3; border-radius: 999px; background: #fff; color: #596c80; font: inherit; font-size: .76rem; font-weight: 800; cursor: pointer; }
+.phaseTabs button:hover { border-color: #aabaca; }
+.phaseTabs button.phaseActive { border-color: #172033; background: #172033; color: #fff; }
+.searchBox { display: grid; gap: 6px; }
+.searchBox span { color: #718194; font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; }
+.searchBox input { width: 100%; min-height: 40px; padding: 8px 11px; border: 1px solid #cbd7e2; border-radius: 10px; background: #fff; color: #172033; font: inherit; }
+.workspaceMeta { display: flex; justify-content: space-between; align-items: center; gap: 12px; color: #657689; font-size: .78rem; }
+.workspaceMeta strong { color: #2b3748; font-size: .88rem; }
+.noTools { margin: 0; padding: 22px; border: 1px dashed #cbd7e2; border-radius: 14px; color: #657689; text-align: center; }
 .datasetIndex { display: flex; gap: 8px; overflow-x: auto; padding: 2px 0 8px; scrollbar-width: thin; }
 .datasetIndex button { flex: 0 0 220px; display: grid; gap: 4px; padding: 13px 14px; border: 1px solid #d5e0e9; border-radius: 14px; background: #fff; color: #172033; text-align: left; font: inherit; cursor: pointer; }
 .datasetIndex button:hover { border-color: #afbfcd; }
@@ -52,6 +63,9 @@
 .source { margin: 14px 0 0; color: #8190a1; }
 
 @media (max-width: 760px) {
+  .toolBar { grid-template-columns: 1fr; }
+  .phaseTabs { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 3px; }
+  .phaseTabs button { flex: 0 0 auto; }
   .datasetIndex { margin-right: -18px; padding-right: 18px; }
   .datasetIndex button { flex-basis: 190px; }
   .dataset { padding: 18px; }
