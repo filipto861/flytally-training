@@ -83,9 +83,11 @@ function validateEmbeddedApplicability(value:unknown,path:string,errors:string[]
 }
 
 function looksLikeUniversalAbnormal(payload: RecordValue): boolean {
-  if (text(payload.title)) return true;
+  if ("title" in payload) return true;
   if (!objects(payload.scenarios)) return false;
-  return payload.scenarios.some((scenario) => objects(scenario.stages) && scenario.stages.some((stage) => text(stage.label) || text(stage.explanation)));
+  return payload.scenarios.some((scenario) =>
+    objects(scenario.stages) && scenario.stages.some((stage) => "label" in stage || "explanation" in stage || "sources" in stage)
+  );
 }
 
 export function validateContentPayload(domain:TrainingContentDomain,payload:unknown,expectedAircraftId?:string):string[]{
