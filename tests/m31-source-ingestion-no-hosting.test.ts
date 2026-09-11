@@ -16,7 +16,7 @@ test("local source fingerprint never submits the PDF bytes",()=>{
   assert.match(component,/crypto\.subtle\.digest\("SHA-256"/);
   assert.match(component,/type="file"/);
   assert.doesNotMatch(component,/type="file"[^>]*name=/);
-  assert.doesNotMatch(component,/fetch\(|FormData|presign|upload/i);
+  assert.doesNotMatch(component,/fetch\(|FormData|presign/i);
   for(const field of ["sourceOriginalName","sourceSizeBytes","localChecksum"])assert.match(component,new RegExp(`name="${field}"`));
   assert.match(component,/PDF itself will not be uploaded or stored by FlyTally/);
 });
@@ -38,19 +38,12 @@ test("server registration persists provenance metadata but has no hosted asset l
 });
 
 test("manual upload and download surfaces no longer exist",()=>{
-  for(const path of [
-    "components/manual-asset-uploader.tsx",
-    "app/api/admin/manual-assets/presign/route.ts",
-    "app/api/admin/manual-assets/finalize/route.ts",
-    "app/api/admin/manual-assets/[assetId]/download/route.ts",
-    "lib/manual-assets.ts",
-    "lib/controlled-manual-readiness.ts",
-  ])assert.equal(exists(path),false,path);
+  for(const path of ["components/manual-asset-uploader.tsx","app/api/admin/manual-assets/presign/route.ts","app/api/admin/manual-assets/finalize/route.ts","app/api/admin/manual-assets/[assetId]/download/route.ts","lib/manual-assets.ts","lib/controlled-manual-readiness.ts"])assert.equal(exists(path),false,path);
 });
 
 test("source evidence supports local fingerprint, external metadata and metadata-only records",()=>{
   const hash="a".repeat(64);
-  assert.deepEqual(parseSourceRecordEvidence({sourceOriginalName:"AFM.pdf",sourceSizeBytes:"1234",localChecksum:hash}),{checksumSha256:hash,sourceMetadata:{intakeMode:"local-fingerprint",documentHostedByFlyTally:false,originalName:"AFM.pdf",sizeBytes:1234}});
+  assert.deepEqual(parseSourceRecordEvidence({sourceOriginalName:"AFM.pdf",sourceSizeBytes:"1234",localChecksum:hash}),{sourceUri:undefined,checksumSha256:hash,sourceMetadata:{intakeMode:"local-fingerprint",documentHostedByFlyTally:false,originalName:"AFM.pdf",sizeBytes:1234}});
   assert.deepEqual(parseSourceRecordEvidence({sourceUri:"https://example.invalid/source",externalChecksum:hash}),{sourceUri:"https://example.invalid/source",checksumSha256:hash,sourceMetadata:{intakeMode:"external-metadata",documentHostedByFlyTally:false}});
   assert.deepEqual(parseSourceRecordEvidence({}),{sourceUri:undefined,checksumSha256:undefined,sourceMetadata:{intakeMode:"metadata-only",documentHostedByFlyTally:false}});
   assert.throws(()=>parseSourceRecordEvidence({sourceOriginalName:"AFM.pdf",localChecksum:hash}),/incomplete/);
