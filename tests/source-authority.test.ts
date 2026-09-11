@@ -25,9 +25,15 @@ test("M9 source authority taxonomy is explicit and closed", () => {
   assert.equal(isSimulatorOnlyAuthority("SIMULATOR_WORKFLOW"), true);
 });
 
-test("Learjet learner seed is anchored only to the FlightSafety real-aircraft training source", () => {
-  assert.deepEqual(learjet3536.manuals.map(source => source.id), ["fsi-learjet-35-36-ptm-r1-1"]);
-  assert.equal(learjet3536.manuals[0]?.authorityRole, "TRAINING_REFERENCE");
+test("Learjet source catalogue explicitly separates real-aircraft training and simulator supplements", () => {
+  const authorityById = new Map(learjet3536.manuals.map(source => [source.id, source.authorityRole] as const));
+  assert.equal(authorityById.get("fsi-learjet-35-36-ptm-r1-1"), "TRAINING_REFERENCE");
+  assert.equal(authorityById.get("flysimware-learjet-35a-msfs-v1-2"), "SIMULATOR_IMPLEMENTATION");
+  assert.equal(authorityById.get("jaydee-learjet-35a-checklist-v1-35-wip1"), "SIMULATOR_WORKFLOW");
+
+  const nativeDomains = staticTrainingContentSeed.nativeModules?.map(module => module.domain) ?? [];
+  assert.ok(nativeDomains.includes("flows"));
+  assert.ok(nativeDomains.includes("avionics"));
   assert.ok(!(staticTrainingContentSeed.universalModules ?? []).some(module => module.domain === "flows"));
 });
 
