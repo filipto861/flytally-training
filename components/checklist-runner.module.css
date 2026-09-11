@@ -1,25 +1,36 @@
 .runner { margin-top: 34px; }
-.trainingControls { margin-bottom: 18px; padding: 20px; border: 1px solid #d5e0e9; border-radius: 20px; background: rgba(255,255,255,.88); }
+.trainingControls { margin-bottom: 16px; padding: 20px; border: 1px solid #d5e0e9; border-radius: 20px; background: rgba(255,255,255,.88); }
 .modeHeader { display: flex; align-items: end; justify-content: space-between; gap: 24px; }
 .modeHeader p { margin-bottom: 4px; }
 .modeHeader strong, .modeHeader span { display: block; }
 .modeHeader strong { font-size: 1.18rem; }
 .modeHeader > div > span { margin-top: 5px; color: #607084; line-height: 1.45; font-size: .9rem; }
-.phaseSelect { display: grid; gap: 6px; min-width: 240px; }
-.phaseSelect > span { color: #6b7b8d; font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
-.phaseSelect select { width: 100%; padding: 10px 12px; border: 1px solid #cbd7e2; border-radius: 10px; background: #fff; color: #172033; font: inherit; font-weight: 700; }
+.resumeState { flex: 0 0 auto; color: #718195; font-size: .78rem; font-weight: 700; }
 .modeTabs { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 8px; margin-top: 16px; }
 .modeTabs button { padding: 11px 12px; border: 1px solid #ced9e3; border-radius: 11px; background: #f8fafc; color: #526579; font: inherit; font-size: .86rem; font-weight: 760; cursor: pointer; }
 .modeTabs button:hover { border-color: #b4c3d1; }
 .modeTabs button.modeActive { border-color: #172033; background: #172033; color: #fff; }
-.progress { position: sticky; top: 82px; z-index: 5; display: grid; grid-template-columns: auto 1fr auto; gap: 20px; align-items: center; padding: 18px 20px; border: 1px solid #cfdbe6; border-radius: 18px; background: rgba(255,255,255,.95); box-shadow: 0 18px 48px rgba(37,55,78,.08); backdrop-filter: blur(10px); }
+
+.phaseNavigator { display: flex; gap: 8px; margin: 0 0 16px; padding: 2px 0 8px; overflow-x: auto; scrollbar-width: thin; }
+.phaseNavButton { flex: 0 0 170px; display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: center; min-height: 54px; padding: 10px 11px; border: 1px solid #d5e0e9; border-radius: 13px; background: #fff; color: #536579; text-align: left; font: inherit; cursor: pointer; }
+.phaseNavButton > span { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 8px; background: #eef3f7; color: #66788b; font-size: .7rem; font-weight: 800; }
+.phaseNavButton strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .82rem; }
+.phaseNavButton small { color: #8694a3; font-size: .72rem; font-weight: 800; }
+.phaseNavButton:hover { border-color: #afbfcd; }
+.phaseNavActive { border-color: #172033; box-shadow: inset 0 0 0 1px #172033; color: #172033; }
+.phaseNavActive > span { background: #172033; color: #fff; }
+.phaseNavComplete small { color: #365b48; }
+.phaseNavComplete:not(.phaseNavActive) { background: #f5f9f7; border-color: #c7d8ce; }
+
+.progress { position: sticky; top: 82px; z-index: 5; display: grid; grid-template-columns: auto 1fr auto; gap: 20px; align-items: center; padding: 16px 18px; border: 1px solid #cfdbe6; border-radius: 18px; background: rgba(255,255,255,.96); box-shadow: 0 18px 48px rgba(37,55,78,.08); backdrop-filter: blur(10px); }
 .progress p { margin-bottom: 4px; }
 .track { height: 9px; overflow: hidden; border-radius: 999px; background: #e6edf3; }
 .track span { display: block; height: 100%; border-radius: inherit; background: #172033; transition: width 180ms ease; }
-.reset { border: 1px solid #ccd7e1; border-radius: 999px; background: #fff; padding: 9px 13px; font: inherit; font-weight: 700; cursor: pointer; }
-.phases { display: grid; gap: 18px; margin-top: 22px; }
-.phase { padding: 24px; border: 1px solid #d7e1ea; border-radius: 22px; background: rgba(255,255,255,.82); }
-.phaseComplete { border-color: #aabdcf; background: #f4f8fb; }
+.reset { border: 1px solid #ccd7e1; border-radius: 999px; background: #fff; padding: 9px 13px; color: #526579; font: inherit; font-size: .82rem; font-weight: 760; cursor: pointer; }
+.reset:hover { border-color: #aebdca; color: #172033; }
+
+.phase { margin-top: 18px; padding: 24px; border: 1px solid #d7e1ea; border-radius: 22px; background: rgba(255,255,255,.82); }
+.phaseComplete { border-color: #b8cec1; background: #f5f9f7; }
 .phaseHeading { display: flex; gap: 14px; align-items: center; margin-bottom: 16px; }
 .phaseHeading > span { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 11px; background: #e9eff5; font-size: .82rem; font-weight: 800; }
 .phaseHeading h2 { margin: 0; font-size: 1.4rem; }
@@ -31,8 +42,6 @@
 .checkButton[aria-pressed="true"] .checkmark { border-color: #172033; background: #172033; box-shadow: inset 0 0 0 5px #fff; }
 .copy > strong { display: block; line-height: 1.4; }
 .itemComplete .copy { opacity: .58; }
-.showMe { display: inline-block; margin-top: 6px; color: #35536f; font-size: .78rem; font-weight: 800; text-decoration: none; text-transform: capitalize; }
-.showMe:hover { text-decoration: underline; }
 .explanation { margin-top: 8px; }
 .explanation summary { width: fit-content; color: #526579; font-size: .85rem; font-weight: 760; cursor: pointer; }
 .explanation p { margin: 8px 0 0; color: #607084; line-height: 1.5; font-size: .92rem; }
@@ -45,7 +54,7 @@
 .flowPrompt { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 22px; border: 1px dashed #b7c5d3; border-radius: 16px; background: #f6f9fb; }
 .flowPrompt strong { display: block; }
 .flowPrompt p { margin: 5px 0 0; color: #67778a; line-height: 1.5; }
-.flowPrompt button, .challengeActions button { flex: 0 0 auto; padding: 10px 13px; border: 1px solid #c6d2dd; border-radius: 10px; background: #fff; color: #172033; font: inherit; font-size: .84rem; font-weight: 760; cursor: pointer; }
+.flowPrompt button, .challengeActions button, .phaseFooter button { flex: 0 0 auto; padding: 10px 13px; border: 1px solid #c6d2dd; border-radius: 10px; background: #fff; color: #172033; font: inherit; font-size: .84rem; font-weight: 760; cursor: pointer; }
 .challengeItem { grid-template-columns: 1fr auto; align-items: center; }
 .challengeCopy > small, .response small { display: block; margin-bottom: 4px; color: #8190a1; font-size: .7rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
 .challengeCopy > strong { display: block; font-size: 1rem; }
@@ -54,17 +63,30 @@
 .challengeActions { align-self: center; }
 .challengeActions button[aria-pressed="true"] { border-color: #172033; background: #172033; color: #fff; }
 
+.phaseFooter { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-top: 14px; padding: 14px 4px 0; }
+.phaseFooter > div strong, .phaseFooter > div span { display: block; }
+.phaseFooter > div strong { color: #172033; font-size: .82rem; }
+.phaseFooter > div span { margin-top: 2px; color: #728295; font-size: .8rem; }
+.phaseFooter button { border-color: #172033; background: #172033; color: #fff; }
+.phaseFooter button:hover { opacity: .9; }
+.finalPhase { color: #617286; font-size: .84rem; font-weight: 800; }
+
 @media (max-width: 900px) {
   .modeTabs { grid-template-columns: repeat(3, minmax(0,1fr)); }
+  .phaseNavButton { flex-basis: 155px; }
 }
 
 @media (max-width: 760px) {
-  .modeHeader { display: grid; gap: 16px; }
-  .phaseSelect { min-width: 0; }
+  .modeHeader { display: grid; gap: 12px; }
+  .resumeState { justify-self: start; }
   .modeTabs { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .phaseNavigator { margin-right: -18px; padding-right: 18px; }
+  .phaseNavButton { flex-basis: 145px; }
   .progress { position: static; grid-template-columns: 1fr auto; }
   .track { grid-column: 1 / -1; grid-row: 2; }
   .phase { padding: 18px; }
   .flowPrompt, .challengeItem { display: grid; grid-template-columns: 1fr; }
   .flowPrompt button, .challengeActions button { width: 100%; }
+  .phaseFooter { align-items: stretch; display: grid; }
+  .phaseFooter button { width: 100%; }
 }
