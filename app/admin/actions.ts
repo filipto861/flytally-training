@@ -14,11 +14,12 @@ import { bootstrapStaticContentGoverned,publishStaticNativeModuleUpgrade } from 
 import { registerGovernedManualRevision } from "@/lib/governed-manual-registration";
 import { reSourceContentVersion,reviseContentVersion } from "@/lib/content-review-repository";
 import { parseSourceAuthorityRole } from "@/lib/source-authority";
+import { parseSourceRecordEvidence } from "@/lib/source-record-input";
 
 const text=(form:FormData,key:string)=>String(form.get(key)??"").trim();
 const selected=(form:FormData,key:string)=>form.getAll(key).map(value=>String(value).trim()).filter(Boolean);
 const refs=(form:FormData)=>[...new Set([...selected(form,"sourceReferenceId"),...text(form,"sourceReferenceIds").split(",").map(v=>v.trim()).filter(Boolean)])];
-const controlledRefs=(form:FormData)=>selected(form,"controlledSourceReferenceId");
+const fingerprintRefs=(form:FormData)=>selected(form,"fingerprintSourceReferenceId");
 const payload=(form:FormData)=>{try{return JSON.parse(text(form,"payload"));}catch{throw new Error("Draft payload is not valid JSON.");}};
 const domain=(form:FormData):TrainingContentDomain=>{const value=text(form,"domain");if(!(trainingContentDomains as readonly string[]).includes(value))throw new Error("Unsupported content domain.");return value as TrainingContentDomain;};
 const refreshAircraftAdmin=(aircraftId:string)=>{revalidatePath(`/admin/aircraft/${aircraftId}`);revalidatePath(`/admin/aircraft/${aircraftId}/onboarding`);};
@@ -34,7 +35,8 @@ export async function registerRevisionAction(form:FormData){
     if(!existing)throw new Error("Selected source family does not belong to this aircraft.");
     manualId=existing.manualId;title=existing.title;publisher=existing.publisher;sourceKind=existing.sourceKind;
   }
-  await registerGovernedManualRevision({aircraftId,manualId,revisionId:randomUUID(),title,publisher,sourceKind,revision:text(form,"revision"),issueDate:text(form,"issueDate"),authorityRole:parseSourceAuthorityRole(text(form,"authorityRole")),authorityNote:text(form,"authorityNote"),sourceUri:text(form,"sourceUri"),checksumSha256:text(form,"checksum"),assetId:text(form,"assetId")||undefined},session.subject);
+  const evidence=parseSourceRecordEvidence({sourceOriginalName:text(form,"sourceOriginalName"),sourceSizeBytes:text(form,"sourceSizeBytes"),localChecksum:text(form,"localChecksum"),sourceUri:text(form,"sourceUri"),externalChecksum:text(form,"externalChecksum")});
+  await registerGovernedManualRevision({aircraftId,manualId,revisionId:randomUUID(),title,publisher,sourceKind,revision:text(form,"revision"),issueDate:text(form,"issueDate"),authorityRole:parseSourceAuthorityRole(text(form,"authorityRole")),authorityNote:text(form,"authorityNote"),sourceUri:evidence.sourceUri,checksumSha256:evidence.checksumSha256,sourceMetadata:evidence.sourceMetadata},session.subject);
   refreshAircraftAdmin(aircraftId);
 }
 export async function createReferenceAction(form:FormData){const session=await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");await createSourceReference({revisionId:text(form,"revisionId"),chapter:text(form,"chapter"),section:text(form,"section"),pageLabel:text(form,"pageLabel"),note:text(form,"note")},session.subject);refreshAircraftAdmin(aircraftId);}
@@ -43,7 +45,7 @@ export async function createAiDraftAction(form:FormData){const session=await req
 export async function reviseVersionAction(form:FormData){const session=await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");const versionId=await reviseContentVersion({versionId:text(form,"versionId"),payload:payload(form),sourceReferenceIds:refs(form)},session.subject);refreshAircraftAdmin(aircraftId);redirect(`/admin/aircraft/${encodeURIComponent(aircraftId)}/content/${encodeURIComponent(versionId)}`);}
 export async function reSourceVersionAction(form:FormData){
   const session=await requireTrainingAdmin();
-  const result=await reSourceContentVersion({versionId:text(form,"versionId"),sourceReferenceIds:controlledRefs(form)},session.subject);
+  const result=await reSourceContentVersion({versionId:text(form,"versionId"),sourceReferenceIds:fingerprintRefs(form)},session.subject);
   refreshAircraftAdmin(result.aircraftId);
   redirect(`/admin/aircraft/${encodeURIComponent(result.aircraftId)}/content/${encodeURIComponent(result.versionId)}`);
 }
