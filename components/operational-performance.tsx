@@ -147,6 +147,7 @@ export function OperationalPerformance({
   const landingSpeeds = useMemo(() => getLandingSpeeds(profile, numberValue(state.landingWeight)), [profile, state.landingWeight]);
   const mode = state.mode === "takeoff" && !hasTakeoff ? "landing" : state.mode === "landing" && !hasLanding ? "takeoff" : state.mode;
   const nativeMode = mode === "takeoff" ? Boolean(profile.takeoffGridDataset) : Boolean(profile.landingGridDataset);
+  const temperatureLimitedLanding = state.landingSurface === "Compacted snow" || state.landingSurface === "Wet ice";
 
   return (
     <section className={styles.performance} aria-label="Operational performance">
@@ -209,6 +210,7 @@ export function OperationalPerformance({
           <label><span>Runway available</span><div><input inputMode="decimal" onChange={(event) => set("landingRunway", event.target.value)} type="number" value={state.landingRunway}/><small>ft</small></div></label>
           <label><span>Surface</span><select onChange={(event) => set("landingSurface", event.target.value)} value={state.landingSurface}>{landingSurfaces.map((surface) => <option key={surface}>{surface}</option>)}</select></label>
           {landingWeights.length ? <label><span>Weight</span><select onChange={(event) => set("landingWeight", event.target.value)} value={state.landingWeight}><option value="">Select</option>{landingWeights.map((weight) => <option key={weight} value={weight}>{weight} lb</option>)}</select></label> : null}
+          {temperatureLimitedLanding ? <label><span>OAT</span><div><input inputMode="decimal" onChange={(event) => set("landingOatC", event.target.value)} step="any" type="number" value={state.landingOatC}/><small>°C</small></div></label> : null}
         </div></section>
         <section className={`${styles.results} ${factorLanding.withinRunway === false ? styles.alert : ""}`}><h2>Result</h2>{factorLanding.status === "ready" ? <><div className={styles.primary}><span>Landing distance</span><strong>{feet(factorLanding.correctedDistance)}</strong></div><div className={styles.resultGrid}><div><span>VREF</span><strong>{landingSpeeds?.vref === undefined ? "—" : `${landingSpeeds.vref} KIAS`}</strong></div><div><span>VAPP</span><strong>{landingSpeeds?.vapp === undefined ? "—" : `${landingSpeeds.vapp} KIAS`}</strong></div><div><span>Margin</span><strong>{feet(factorLanding.margin)}</strong></div></div></> : <strong className={styles.status}>{factorLanding.reason ?? "Enter inputs"}</strong>}</section>
       </div> : null}
