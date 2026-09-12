@@ -12,14 +12,14 @@ const reference=read("app/aircraft/[aircraftId]/reference/page.tsx");
 const admin=read("components/admin-aircraft-workspace.tsx");
 const adminCss=read("components/admin-aircraft-workspace.module.css");
 
-test("M44 EFB shell remains one stable aircraft navigation rail",()=>{
+test("M44 EFB shell remains one stable, compact aircraft navigation rail",()=>{
   assert.match(nav,/primaryDestinations/);
   assert.match(nav,/\/fly/);
   assert.match(nav,/\/training/);
   assert.match(nav,/\/reference/);
   assert.doesNotMatch(nav,/areaNav|currentArea/);
-  assert.match(navCss,/min-height:calc\(100vh - 112px\)/);
-  assert.match(learnerCss,/grid-template-columns:220px minmax\(0,1fr\)/);
+  assert.match(navCss,/min-height:calc\(100vh - 104px\)/);
+  assert.match(learnerCss,/grid-template-columns:196px minmax\(0,1fr\)/);
 });
 
 test("mobile navigation remains a four-destination bottom tab bar",()=>{
@@ -39,11 +39,12 @@ test("detail stays in capability-driven Learn and Reference hubs",()=>{
   assert.doesNotMatch(training+reference,/bristell|learjet|cessna|boeing/i);
 });
 
-test("aircraft home leads into the operational flight deck",()=>{
+test("aircraft home exposes operational, learning and reference entry points",()=>{
   assert.match(home,/pilot-command-grid/);
-  assert.match(home,/Checklist & performance/);
-  assert.match(home,/Open flight deck/);
-  assert.match(home,/Open learn/);
+  assert.match(home,/<h2>Fly<\/h2>/);
+  assert.match(home,/Open Fly/);
+  assert.match(home,/Open Learn/);
+  assert.match(home,/Open Reference/);
 });
 
 test("admin aircraft shell remains one sticky task tab row",()=>{

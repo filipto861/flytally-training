@@ -24,10 +24,12 @@ test("persistent module-level submenu is removed in favor of dedicated area hubs
   assert.match(nav, /\/reference/);
 });
 
-test("pilot home emphasizes flight and learning tasks instead of content taxonomy", () => {
+test("pilot home emphasizes operational, learning and reference tasks instead of content taxonomy", () => {
   assert.match(aircraftHome, /pilot-command-panel-primary/);
-  assert.match(aircraftHome, /Checklist & performance/);
-  assert.match(aircraftHome, /Open flight deck/);
+  assert.match(aircraftHome, /<h2>Fly<\/h2>/);
+  assert.match(aircraftHome, /Open Fly/);
+  assert.match(aircraftHome, /<h2>Learn<\/h2>/);
+  assert.match(aircraftHome, /<h2>Reference<\/h2>/);
   assert.match(aircraftHome, /Abnormal & Emergency/);
   assert.doesNotMatch(aircraftHome, /Training references|workspaceProfile|publisher|revision/);
 });

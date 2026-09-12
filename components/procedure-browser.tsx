@@ -100,7 +100,7 @@ export function ProcedureBrowser({ aircraftId, procedures, selectedVariant }: Re
         {selected && visible.some((procedure) => procedure.id === selected.id) ? <article className={styles.detail} id={selected.id}>
           <header className={styles.detailHeader}>
             <div><p className="eyebrow">{selected.phase ?? "Procedure"}</p><h2>{selected.title}</h2>{selected.summary ? <p>{selected.summary}</p> : null}</div>
-            <div className={styles.detailProgress}><span>{selectedProgress?.completedSteps ?? 0} / {selected.steps.length}</span><button type="button" onClick={resetSelectedProcedure}>Reset</button></div>
+            <div className={styles.detailProgress}><span>{selectedProgress?.completedSteps ?? 0} / {selected.steps.length}</span><button type="button" onClick={resetSelectedProcedure}>Reset procedure</button></div>
           </header>
           {selected.prerequisites?.length ? <section className={styles.metaBlock}><strong>Prerequisites</strong><ul>{selected.prerequisites.map((item) => <li key={item}>{item}</li>)}</ul></section> : null}
           <ol className={styles.steps}>{selected.steps.map((step, index) => {

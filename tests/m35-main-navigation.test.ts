@@ -8,7 +8,7 @@ const productShell=fs.readFileSync(new URL("../components/product-shell.tsx",imp
 const navigationCss=fs.readFileSync(new URL("../app/navigation.css",import.meta.url),"utf8");
 
 test("learner navigation remains one publication-driven aircraft navigation surface",()=>{
-  assert.match(nav,/Aircraft training navigation/);
+  assert.match(nav,/Aircraft navigation/);
   assert.match(nav,/listPublishedModuleDomains/);
   assert.match(nav,/aircraftWorkspaceSections\(aircraftId, publishedDomains\)/);
   assert.match(nav,/primaryDestinations/);
