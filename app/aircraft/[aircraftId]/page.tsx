@@ -21,9 +21,9 @@ export default async function AircraftPage({
   const selectedVariant = resolveSelectedVariant(variant, aircraft.variants);
   const moduleHref = (href: string) => withVariantQuery(`/aircraft/${aircraft.id}/${href}`, selectedVariant);
 
-  const hasTraining = capabilities.systems || capabilities.procedures || capabilities.knowledge || capabilities.avionics || capabilities.flows;
+  const hasTraining = capabilities.checklists || capabilities.systems || capabilities.procedures || capabilities.knowledge || capabilities.avionics || capabilities.flows;
   const hasFly = capabilities.checklists || capabilities.performance;
-  const hasReference = capabilities.weightBalance || capabilities.limitations || capabilities.abnormalEmergency;
+  const hasReference = capabilities.performance || capabilities.weightBalance || capabilities.limitations || capabilities.abnormalEmergency;
 
   return (
     <main className="shell aircraft-detail">
@@ -31,28 +31,30 @@ export default async function AircraftPage({
 
       <section className="pilot-aircraft-home">
         <header className="pilot-home-header">
-          <p className="eyebrow">Aircraft workspace</p>
+          <p className="eyebrow">Aircraft</p>
           <h1>{aircraft.displayName}</h1>
         </header>
 
         <div className="pilot-command-grid">
           {hasFly ? <article className="pilot-command-panel pilot-command-panel-primary">
-            <p className="eyebrow">Fly</p>
-            <h2>Checklist & performance</h2>
-            <p>Operational flight tools only, optimized for quick touch use.</p>
-            <Link className="pilot-command-primary" href={moduleHref("fly")}>Open flight deck →</Link>
+            <p className="eyebrow">In flight</p>
+            <h2>Fly</h2>
+            <p>Checklist and performance, optimized for quick cockpit use.</p>
+            <Link className="pilot-command-primary" href={moduleHref("fly")}>Open Fly →</Link>
           </article> : null}
 
           {hasTraining ? <article className="pilot-command-panel">
-            <p className="eyebrow">Learn</p>
-            <h2>Learn the aircraft</h2>
-            <p>Systems, procedures, checklist practice and explanations.</p>
-            <Link className="pilot-command-primary" href={moduleHref("training")}>Open learn →</Link>
-          </article> : hasReference ? <article className="pilot-command-panel">
-            <p className="eyebrow">Reference</p>
-            <h2>Aircraft reference</h2>
-            <p>Published limitations, loading and abnormal or emergency material.</p>
-            <Link className="pilot-command-primary" href={moduleHref("reference")}>Open reference →</Link>
+            <p className="eyebrow">Study</p>
+            <h2>Learn</h2>
+            <p>Systems, procedures and checklist practice away from the cockpit.</p>
+            <Link className="pilot-command-primary" href={moduleHref("training")}>Open Learn →</Link>
+          </article> : null}
+
+          {hasReference ? <article className="pilot-command-panel">
+            <p className="eyebrow">Quick access</p>
+            <h2>Reference</h2>
+            <p>Performance, limitations, loading and abnormal or emergency material.</p>
+            <Link className="pilot-command-primary" href={moduleHref("reference")}>Open Reference →</Link>
           </article> : null}
         </div>
 

@@ -22,10 +22,10 @@ export default async function ReferenceHubPage({
 
   const hasQuickReference = capabilities.performance && capabilities.limitations;
   const modules = [
-    capabilities.performance ? { key: "performance", kicker: "Plan", title: "Performance", text: "Use the published performance data and aircraft-specific calculator where the source supports it." } : undefined,
-    capabilities.weightBalance ? { key: "weight-balance", kicker: "Load", title: "Weight & Balance", text: "Check takeoff and landing mass, CG and configuration-specific loading limits." } : undefined,
-    capabilities.limitations ? { key: "limitations", kicker: "Limits", title: "Limitations", text: "Keep speeds, weights, operating boundaries and configuration-specific limits close at hand." } : undefined,
-    capabilities.abnormalEmergency ? { key: "abnormal", kicker: "Emergency", title: "Abnormal & Emergency", text: "Open the source-backed abnormal and emergency procedures without navigating through training material.", critical: true } : undefined,
+    capabilities.performance ? { key: "performance", kicker: "Plan", title: "Performance", text: "Published performance data and calculator." } : undefined,
+    capabilities.weightBalance ? { key: "weight-balance", kicker: "Load", title: "Weight & Balance", text: "Mass, CG and configuration-specific loading limits." } : undefined,
+    capabilities.limitations ? { key: "limitations", kicker: "Limits", title: "Limitations", text: "Speeds, weights and operating boundaries." } : undefined,
+    capabilities.abnormalEmergency ? { key: "abnormal", kicker: "Emergency", title: "Abnormal & Emergency", text: "Source-backed abnormal and emergency procedures.", critical: true } : undefined,
   ].filter((item): item is { key: string; kicker: string; title: string; text: string; critical?: boolean } => Boolean(item));
 
   if (!modules.length && !hasQuickReference) notFound();
@@ -35,15 +35,15 @@ export default async function ReferenceHubPage({
       <AircraftWorkspaceNav aircraftId={aircraft.id} active="reference" variants={aircraft.variants} variantProfiles={aircraft.variantProfiles} selectedVariant={selectedVariant} />
       <section className="pilot-area">
         <header className="pilot-area-header">
-          <p className="eyebrow">Reference · {aircraft.displayName}</p>
-          <h1>Flight reference</h1>
-          <p className="lede">Operational numbers and quick-reference material, separated from study content so you can get to the answer quickly.</p>
+          <p className="eyebrow">Reference</p>
+          <h1>Reference</h1>
+          <p className="lede">Numbers and procedures you may need quickly, separate from study content.</p>
         </header>
         <div className="pilot-area-grid" aria-label="Reference tools">
           {hasQuickReference ? <Link className="pilot-area-card pilot-area-card-featured" href={href("quick-reference")}>
             <small>At a glance</small>
             <strong>Quick Reference</strong>
-            <p>Performance and limitations brought together for fast pre-flight and cockpit review.</p>
+            <p>Performance and limitations together for rapid review.</p>
             <span>Open →</span>
           </Link> : null}
           {modules.map((module) => <Link className={`pilot-area-card${module.critical ? " pilot-area-card-critical" : ""}`} href={href(module.key)} key={module.key}>

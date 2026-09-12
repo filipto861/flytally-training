@@ -37,12 +37,15 @@ export default async function ChecklistsPage({
       <Link className="back-link" href={withVariantQuery(`/aircraft/${aircraft.id}/training`, selectedVariant)}>← Learn</Link>
       <AircraftWorkspaceNav aircraftId={aircraft.id} active="training" variants={aircraft.variants} variantProfiles={aircraft.variantProfiles} selectedVariant={selectedVariant} />
       <section className="workspace-section-hero">
-        <p className="eyebrow">Learn · Checklist training · {aircraft.displayName}{selectedVariant ? ` · ${selectedVariant}` : ""}</p>
+        <p className="eyebrow">Learn · Checklist training</p>
         <h1>{checklist.title}</h1>
-        <p className="lede">Learn, practise, rehearse flows and use challenge & response here. The Fly section uses the same checklist content in a stripped operational view.</p>
-        {configuredUniversal?.disclaimer ? <p><strong>Training boundary:</strong> {configuredUniversal.disclaimer}</p> : null}
-        {configuredUniversal?.sourceNote ? <p><small>Source note · {configuredUniversal.sourceNote}</small></p> : null}
-        {checklist.estimatedMinutes ? <p>Approximate first training pass: {checklist.estimatedMinutes} min.</p> : null}
+        <p className="lede">Learn, practise, rehearse flows and challenge & response. Fly remains the stripped operational view.</p>
+        {configuredUniversal?.disclaimer || configuredUniversal?.sourceNote || checklist.estimatedMinutes ? <details className="pilot-source-details">
+          <summary>Training & source notes</summary>
+          {configuredUniversal?.disclaimer ? <p><strong>Training boundary:</strong> {configuredUniversal.disclaimer}</p> : null}
+          {configuredUniversal?.sourceNote ? <p>Source note · {configuredUniversal.sourceNote}</p> : null}
+          {checklist.estimatedMinutes ? <p>Approximate first training pass: {checklist.estimatedMinutes} min.</p> : null}
+        </details> : null}
       </section>
       <ChecklistRunner checklist={checklist} selectedVariant={selectedVariant} />
     </main>
