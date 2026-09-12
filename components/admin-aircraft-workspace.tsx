@@ -21,22 +21,19 @@ const nav:readonly {key:WorkspaceSection;label:string;href:(aircraftId:string)=>
 ];
 
 export function AdminAircraftWorkspace({aircraftId,displayName,status,active,children}:Props){
-  return <main className={styles.shell}>
-    <div className={styles.topbar}>
-      <div>
+  return <main className={styles.shell} aria-label="Work here by task, not by database object.">
+    <header className={styles.workspaceHeader}>
+      <div className={styles.identityBlock}>
         <Link className={styles.back} href="/admin">← Aircraft</Link>
         <div className={styles.identity}><h1>{displayName}</h1><span className={status==="published"?styles.live:styles.draft}>{status==="published"?"Published":"Draft"}</span></div>
       </div>
       <Link className={styles.onboarding} href={`/admin/aircraft/${encodeURIComponent(aircraftId)}/onboarding`}>Onboarding</Link>
-    </div>
-    <div className={styles.layout}>
-      <aside className={styles.sidebar}>
-        <nav aria-label="Aircraft administration">
-          {nav.map(item=><Link key={item.key} href={item.href(aircraftId)} className={item.key===active?styles.active:undefined}>{item.label}</Link>)}
-        </nav>
-        <p>Technical governance runs in the background. Work here by task, not by database object.</p>
-      </aside>
-      <div className={styles.content}>{children}</div>
-    </div>
+    </header>
+
+    <nav className={styles.tabs} aria-label="Aircraft administration">
+      {nav.map(item=><Link key={item.key} href={item.href(aircraftId)} className={item.key===active?styles.active:undefined}>{item.label}</Link>)}
+    </nav>
+
+    <div className={styles.content}>{children}</div>
   </main>;
 }

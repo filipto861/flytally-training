@@ -7,15 +7,16 @@ const variant=fs.readFileSync(new URL("../components/aircraft-variant-selector.t
 const productShell=fs.readFileSync(new URL("../components/product-shell.tsx",import.meta.url),"utf8");
 const navigationCss=fs.readFileSync(new URL("../app/navigation.css",import.meta.url),"utf8");
 
-test("M35 learner navigation remains one publication-driven navigation surface",()=>{
+test("learner navigation remains one publication-driven aircraft navigation surface",()=>{
   assert.match(nav,/Aircraft training navigation/);
   assert.match(nav,/listPublishedModuleDomains/);
   assert.match(nav,/aircraftWorkspaceSections\(aircraftId, publishedDomains\)/);
+  assert.match(nav,/primaryDestinations/);
   assert.doesNotMatch(nav,/workspace-nav-primary|workspace-nav-secondary|contextualSections|topLinks/);
 });
 
-test("pilot navigation exposes home task areas and progress without exposing domain clutter globally",()=>{
-  assert.match(nav,/>Home<\/Link>/);
+test("pilot navigation exposes stable task destinations and progress without domain clutter globally",()=>{
+  assert.match(nav,/label: "Home"/);
   assert.match(nav,/label: "Training"/);
   assert.match(nav,/label: "Checklists"/);
   assert.match(nav,/label: "Reference"/);

@@ -9,7 +9,7 @@ const aircraftHome = fs.readFileSync(new URL("../app/aircraft/[aircraftId]/page.
 const library = fs.readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
 const productShell = fs.readFileSync(new URL("../components/product-shell.tsx", import.meta.url), "utf8");
 
-test("M37 groups learner content by pilot tasks instead of internal domain taxonomy", () => {
+test("pilot-first grouping survives the EFB navigation rebuild", () => {
   assert.match(nav, /type PilotArea = "training" \| "checklists" \| "reference"/);
   assert.match(nav, /label: "Training"/);
   assert.match(nav, /label: "Checklists"/);
@@ -17,33 +17,31 @@ test("M37 groups learner content by pilot tasks instead of internal domain taxon
   assert.doesNotMatch(nav, /"FLY"|"LEARN"/);
 });
 
-test("M37 keeps domain detail contextual and hidden until the area is active", () => {
-  assert.match(nav, /const currentArea = visibleAreas\.find/);
-  assert.match(nav, /currentArea && currentArea\.entries\.length > 1/);
-  assert.match(nav, /currentArea\.entries\.map/);
-  assert.match(navCss, /\.areaNav/);
-  assert.doesNotMatch(navCss, /\.expandedGroup|\.collapsedGroup/);
+test("persistent module-level submenu is removed in favor of dedicated area hubs", () => {
+  assert.doesNotMatch(nav, /areaNav|currentArea\.entries\.map/);
+  assert.doesNotMatch(navCss, /\.areaNav|\.expandedGroup|\.collapsedGroup/);
+  assert.match(nav, /\/training/);
+  assert.match(nav, /\/reference/);
 });
 
-test("pilot home emphasizes the next action and only a small quick-access set", () => {
-  assert.match(aircraftHome, /const primary = trainingStart/);
-  assert.match(aircraftHome, /pilot-primary-card/);
-  assert.match(aircraftHome, /Quick access/);
+test("pilot home emphasizes direct actions instead of content taxonomy", () => {
+  assert.match(aircraftHome, /pilot-command-panel-primary/);
+  assert.match(aircraftHome, /Quick actions/);
   assert.match(aircraftHome, /Normal checklist/);
-  assert.match(aircraftHome, /Abnormal \/ Emergency/);
+  assert.match(aircraftHome, /Abnormal & Emergency/);
   assert.doesNotMatch(aircraftHome, /Training references|workspaceProfile|publisher|revision/);
 });
 
-test("aircraft library is a pilot selection screen rather than a content-governance dashboard", () => {
-  assert.match(library, /Select an aircraft to start training/);
+test("aircraft library remains a pilot selection screen rather than a governance dashboard", () => {
+  assert.match(library, /Select an aircraft to open its training workspace/);
   assert.match(library, /pilot-aircraft-row/);
   assert.doesNotMatch(library, /Module-driven|governed training content|content repository|manual\.publisher|manual\.revision/);
 });
 
-test("global and aircraft chrome remove redundant navigation layers", () => {
+test("global chrome stays minimal while aircraft navigation becomes app-like", () => {
   assert.doesNotMatch(productShell, /global-nav/);
   assert.match(shellCss, /learner-pilot-nav/);
-  assert.doesNotMatch(shellCss, /learner-sidebar|grid-template-columns:220px/);
+  assert.match(navCss, /primaryNav/);
   assert.match(nav, /className=\{styles\.progressLink\}/);
 });
 
