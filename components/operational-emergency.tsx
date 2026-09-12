@@ -2,30 +2,34 @@
 
 import { useState } from "react";
 
-import type { RuntimeAbnormalTraining, RuntimeAbnormalScenario, RuntimeScenarioSource } from "@/lib/abnormal-runtime";
-import type { TrainingNotice } from "@/lib/universal-aircraft-content";
+import type {
+  OperationalEmergencyContent,
+  OperationalEmergencyNotice,
+  OperationalEmergencyScenario,
+  OperationalEmergencySource,
+} from "@/lib/operational-flight-data";
 import styles from "./operational-emergency.module.css";
 
-function noticeClass(kind: TrainingNotice["kind"]): string {
+function noticeClass(kind: OperationalEmergencyNotice["kind"]): string {
   if (kind === "warning") return styles.warning;
   if (kind === "caution") return styles.caution;
   return styles.note;
 }
 
-function sourceLabel(source: RuntimeScenarioSource): string {
+function sourceLabel(source: OperationalEmergencySource): string {
   return [source.manualId, source.chapter ? `Ch ${source.chapter}` : undefined, source.section, `p. ${source.pageLabel}`]
     .filter(Boolean)
     .join(" · ");
 }
 
-function Notice({ notice }: Readonly<{ notice: TrainingNotice }>) {
+function Notice({ notice }: Readonly<{ notice: OperationalEmergencyNotice }>) {
   return <div className={`${styles.notice} ${noticeClass(notice.kind)}`}>
     <strong>{notice.kind.toUpperCase()}</strong>
     <span>{notice.text}</span>
   </div>;
 }
 
-function Scenario({ scenario }: Readonly<{ scenario: RuntimeAbnormalScenario }>) {
+function Scenario({ scenario }: Readonly<{ scenario: OperationalEmergencyScenario }>) {
   const sources = [...new Set(scenario.stages.flatMap((stage) => stage.sources.map(sourceLabel)))];
 
   return <article className={styles.procedure}>
@@ -72,16 +76,16 @@ function Scenario({ scenario }: Readonly<{ scenario: RuntimeAbnormalScenario }>)
   </article>;
 }
 
-export function OperationalEmergency({ training }: Readonly<{ training: RuntimeAbnormalTraining }>) {
-  const [scenarioId, setScenarioId] = useState(training.scenarios[0]?.id ?? "");
-  const scenario = training.scenarios.find((candidate) => candidate.id === scenarioId) ?? training.scenarios[0];
+export function OperationalEmergency({ emergency }: Readonly<{ emergency: OperationalEmergencyContent }>) {
+  const [scenarioId, setScenarioId] = useState(emergency.scenarios[0]?.id ?? "");
+  const scenario = emergency.scenarios.find((candidate) => candidate.id === scenarioId) ?? emergency.scenarios[0];
   if (!scenario) return null;
 
   return <section className={styles.emergency} aria-label="Emergency quick reference">
     <label className={styles.selector}>
       <span>Emergency procedure</span>
       <select aria-label="Emergency procedure" value={scenario.id} onChange={(event) => setScenarioId(event.target.value)}>
-        {training.scenarios.map((candidate) => <option key={candidate.id} value={candidate.id}>{candidate.title}</option>)}
+        {emergency.scenarios.map((candidate) => <option key={candidate.id} value={candidate.id}>{candidate.title}</option>)}
       </select>
     </label>
     <Scenario scenario={scenario} />

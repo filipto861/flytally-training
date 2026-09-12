@@ -2,9 +2,11 @@
 
 import { useMemo, useState } from "react";
 
-import type { RuntimeAbnormalTraining } from "@/lib/abnormal-runtime";
-import type { RuntimeChecklist } from "@/lib/checklist-runtime";
-import type { PerformanceDataset } from "@/lib/universal-aircraft-content";
+import type {
+  OperationalChecklist as OperationalChecklistData,
+  OperationalEmergencyContent,
+  OperationalPerformanceDataset,
+} from "@/lib/operational-flight-data";
 import { OfflineFlightBootstrap } from "./offline-flight-bootstrap";
 import { OperationalChecklist } from "./operational-checklist";
 import { OperationalEmergency } from "./operational-emergency";
@@ -23,9 +25,9 @@ export function FlightDeck({
 }: Readonly<{
   aircraftId: string;
   aircraftName: string;
-  checklist?: RuntimeChecklist;
-  performanceDatasets: readonly PerformanceDataset[];
-  emergency?: RuntimeAbnormalTraining;
+  checklist?: OperationalChecklistData;
+  performanceDatasets: readonly OperationalPerformanceDataset[];
+  emergency?: OperationalEmergencyContent;
   selectedVariant?: string;
 }>) {
   const available = useMemo(() => [
@@ -71,7 +73,7 @@ export function FlightDeck({
           ? <OperationalPerformance aircraftId={aircraftId} datasets={performanceDatasets} selectedVariant={selectedVariant} />
           : null}
         {active === "emergency" && emergency?.scenarios.length
-          ? <OperationalEmergency training={emergency} />
+          ? <OperationalEmergency emergency={emergency} />
           : null}
       </div>
     </section>

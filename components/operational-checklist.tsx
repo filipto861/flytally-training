@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import type { RuntimeChecklist, RuntimeChecklistItem } from "@/lib/checklist-runtime";
+import type { OperationalChecklist as OperationalChecklistData, OperationalChecklistItem } from "@/lib/operational-flight-data";
 import styles from "./operational-checklist.module.css";
 
 type StoredFlightChecklist = {
@@ -11,19 +11,19 @@ type StoredFlightChecklist = {
   readonly completedIds: readonly string[];
 };
 
-function storageKey(checklist: RuntimeChecklist, selectedVariant?: string): string {
+function storageKey(checklist: OperationalChecklistData, selectedVariant?: string): string {
   return `flytally:flight-checklist:v1:${checklist.aircraftId}:${selectedVariant ?? "common"}:${checklist.title}`;
 }
 
-function operationalAlerts(item: RuntimeChecklistItem) {
-  return item.notices?.filter((notice) => notice.kind === "warning" || notice.kind === "caution") ?? [];
+function operationalAlerts(item: OperationalChecklistItem) {
+  return item.notices ?? [];
 }
 
 export function OperationalChecklist({
   checklist,
   selectedVariant,
 }: Readonly<{
-  checklist: RuntimeChecklist;
+  checklist: OperationalChecklistData;
   selectedVariant?: string;
 }>) {
   const key = useMemo(() => storageKey(checklist, selectedVariant), [checklist, selectedVariant]);

@@ -62,13 +62,16 @@ test("Fly route embeds source-backed aircraft data so all flight tools switch lo
   assert.doesNotMatch(deck,/fetch\(/);
 });
 
-test("flight deck establishes an offline PWA boundary limited to the Fly route",()=>{
+test("flight deck establishes a configuration-safe offline PWA boundary limited to the Fly route",()=>{
   assert.match(offline,/serviceWorker\.register\("\/sw\.js"/);
   assert.match(offline,/CACHE_FLIGHT_PAGE/);
-  assert.match(serviceWorker,/flytally-flight-v1/);
+  assert.match(offline,/MessageChannel/);
+  assert.match(offline,/CACHE_FLIGHT_PAGE_RESULT/);
+  assert.match(serviceWorker,/flytally-flight-v2/);
   assert.match(serviceWorker,/\/_next\/static/);
   assert.match(serviceWorker,/FLIGHT_PATH/);
-  assert.match(serviceWorker,/ignoreSearch: true/);
+  assert.match(serviceWorker,/canonicalFlightRequest/);
+  assert.doesNotMatch(serviceWorker,/ignoreSearch: true/);
   assert.match(manifest,/display: "standalone"/);
   assert.match(navCss,/safe-area-inset-bottom/);
 });

@@ -1,6 +1,6 @@
 const serviceWorker = String.raw`
-const FLIGHT_CACHE = "flytally-flight-v1";
-const STATIC_CACHE = "flytally-static-v1";
+const FLIGHT_CACHE = "flytally-flight-v2";
+const STATIC_CACHE = "flytally-static-v2";
 const FLIGHT_PATH = /\/aircraft\/[^/]+\/fly\/?$/;
 
 self.addEventListener("install", () => self.skipWaiting());
@@ -13,6 +13,15 @@ self.addEventListener("activate", (event) => {
   })());
 });
 
+function canonicalFlightRequest(rawUrl) {
+  const source = new URL(rawUrl, self.location.origin);
+  if (source.origin !== self.location.origin || !FLIGHT_PATH.test(source.pathname)) return undefined;
+  const canonical = new URL(source.pathname, source.origin);
+  const variant = source.searchParams.get("variant");
+  if (variant) canonical.searchParams.set("variant", variant);
+  return new Request(canonical.toString(), { credentials: "same-origin" });
+}
+
 async function cacheAsset(url) {
   try {
     const cache = await caches.open(STATIC_CACHE);
@@ -22,21 +31,30 @@ async function cacheAsset(url) {
 }
 
 async function cacheFlightPage(rawUrl) {
-  const url = new URL(rawUrl, self.location.origin);
-  if (url.origin !== self.location.origin || !FLIGHT_PATH.test(url.pathname)) return;
-  const request = new Request(url.toString(), { credentials: "same-origin" });
-  const response = await fetch(request);
-  if (!response.ok) return;
-  const flightCache = await caches.open(FLIGHT_CACHE);
-  await flightCache.put(request, response.clone());
-  const html = await response.text();
-  const assets = [...html.matchAll(/(?:src|href)="(\/_next\/static\/[^"?#]+(?:\?[^"#]*)?)"/g)].map((match) => new URL(match[1], self.location.origin).toString());
-  await Promise.all([...new Set(assets)].map(cacheAsset));
+  try {
+    const source = new URL(rawUrl, self.location.origin);
+    const cacheKey = canonicalFlightRequest(source.toString());
+    if (!cacheKey) return false;
+    const request = new Request(source.toString(), { credentials: "same-origin" });
+    const response = await fetch(request);
+    if (!response.ok) return false;
+    const flightCache = await caches.open(FLIGHT_CACHE);
+    await flightCache.put(cacheKey, response.clone());
+    const html = await response.text();
+    const assets = [...html.matchAll(/(?:src|href)="(\/_next\/static\/[^"?#]+(?:\?[^"#]*)?)"/g)].map((match) => new URL(match[1], self.location.origin).toString());
+    await Promise.all([...new Set(assets)].map(cacheAsset));
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 self.addEventListener("message", (event) => {
   if (event.data?.type === "CACHE_FLIGHT_PAGE" && typeof event.data.url === "string") {
-    event.waitUntil(cacheFlightPage(event.data.url));
+    event.waitUntil((async () => {
+      const ok = await cacheFlightPage(event.data.url);
+      event.ports?.[0]?.postMessage({ type: "CACHE_FLIGHT_PAGE_RESULT", ok });
+    })());
   }
 });
 
@@ -61,14 +79,16 @@ self.addEventListener("fetch", (event) => {
   if (request.mode === "navigate" && FLIGHT_PATH.test(url.pathname)) {
     event.respondWith((async () => {
       const cache = await caches.open(FLIGHT_CACHE);
+      const cacheKey = canonicalFlightRequest(request.url);
+      if (!cacheKey) return fetch(request);
       try {
         const response = await fetch(request);
-        if (response.ok) await cache.put(request, response.clone());
+        if (response.ok) await cache.put(cacheKey, response.clone());
         return response;
       } catch {
-        const cached = await cache.match(request, { ignoreSearch: true });
+        const cached = await cache.match(cacheKey);
         if (cached) return cached;
-        return new Response("FlyTally Flight Deck is not cached on this device yet.", { status: 503, headers: { "Content-Type": "text/plain; charset=utf-8" } });
+        return new Response("FlyTally Flight Deck is not cached for this aircraft configuration on this device yet.", { status: 503, headers: { "Content-Type": "text/plain; charset=utf-8" } });
       }
     })());
   }
