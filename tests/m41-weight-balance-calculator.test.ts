@@ -87,7 +87,7 @@ test("M41 learner implementation is aircraft-agnostic and source-driven", () => 
   const calculator = fs.readFileSync(new URL("../components/weight-balance-calculator.tsx", import.meta.url), "utf8");
   const engine = fs.readFileSync(new URL("../lib/weight-balance-calculator.ts", import.meta.url), "utf8");
   assert.match(page, /getPublishedAircraftModule<AircraftWeightBalanceContent>/);
-  assert.match(calculator, /planned landing fuel/i);
+  assert.match(calculator, /planned landing state/i);
   assert.match(calculator, /mass × arm/i);
   assert.doesNotMatch(`${page}${calculator}${engine}`, /bristell|learjet|cessna|rotax/i);
 });

@@ -49,6 +49,7 @@ test("a sparse aircraft exposes only its published first-class modules", async (
     checklists: true,
     procedures: true,
     performance: true,
+    weightBalance: false,
     limitations: false,
     systems: false,
     abnormalEmergency: false,
