@@ -13,6 +13,7 @@ export const releaseEligibleTrainingCapabilities = [
   "checklists",
   "procedures",
   "performance",
+  "weightBalance",
   "limitations",
   "systems",
   "abnormalEmergency",

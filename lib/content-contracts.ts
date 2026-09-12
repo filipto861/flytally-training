@@ -4,6 +4,7 @@ import {
   validateUniversalTrainingContentPayload,
 } from "./universal-aircraft-content.ts";
 import { validateUniversalAbnormalEmergencyPayload } from "./universal-abnormal-emergency.ts";
+import { validateUniversalWeightBalancePayload } from "./universal-weight-balance.ts";
 
 type RecordValue = Record<string, unknown>;
 const object=(value:unknown):value is RecordValue=>Boolean(value)&&typeof value==="object"&&!Array.isArray(value);
@@ -101,6 +102,10 @@ export function validateContentPayload(domain:TrainingContentDomain,payload:unkn
       errors.push(...validateUniversalAbnormalEmergencyPayload(payload));
       validateEmbeddedApplicability(payload,"payload",errors);
     } else validateLegacyAbnormal(payload,errors);
+  }
+  else if(domain==="weight-balance"){
+    errors.push(...validateUniversalWeightBalancePayload(payload));
+    validateEmbeddedApplicability(payload,"payload",errors);
   }
   else if(isUniversalTrainingContentDomain(domain)){
     errors.push(...validateUniversalTrainingContentPayload(domain,payload));

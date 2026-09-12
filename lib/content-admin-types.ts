@@ -10,6 +10,7 @@ export const legacyTrainingContentDomains = [
 
 export const trainingContentDomains = [
   ...universalTrainingContentDomains,
+  "weight-balance",
   "abnormal",
   ...legacyTrainingContentDomains,
 ] as const;

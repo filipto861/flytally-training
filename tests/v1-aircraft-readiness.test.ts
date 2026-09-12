@@ -12,6 +12,7 @@ const empty: AircraftContentCapabilities = {
   checklists: false,
   procedures: false,
   performance: false,
+  weightBalance: false,
   limitations: false,
   systems: false,
   abnormalEmergency: false,
