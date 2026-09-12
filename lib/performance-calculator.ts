@@ -2,6 +2,8 @@ import { getPerformanceSelectionState, performanceScalarKey } from "./performanc
 import type { PerformanceDataset, PerformanceRow, PerformanceScalar } from "./universal-aircraft-content.ts";
 
 export type PerformanceCalculatorProfile = {
+  readonly takeoffGridDataset?: PerformanceDataset;
+  readonly landingGridDataset?: PerformanceDataset;
   readonly takeoffFactorDataset?: PerformanceDataset;
   readonly landingFactorDataset?: PerformanceDataset;
   readonly landingSpeedDataset?: PerformanceDataset;
@@ -20,6 +22,21 @@ export type DistanceCalculation = {
   readonly correctedDistance?: number;
   readonly margin?: number;
   readonly runwayUsePercent?: number;
+  readonly withinRunway?: boolean;
+};
+
+export type NativeDistanceCalculation = {
+  readonly status: "incomplete" | "unsupported" | "ready";
+  readonly reason?: string;
+  readonly method?: "exact-source-row" | "bounded-linear-interpolation";
+  readonly sourceIsaTemperatureC?: number;
+  readonly isaDeviationC?: number;
+  readonly groundRunM?: number;
+  readonly distance50ftM?: number;
+  readonly groundRunMarginM?: number;
+  readonly distance50ftMarginM?: number;
+  readonly groundRunUsePercent?: number;
+  readonly distance50ftUsePercent?: number;
   readonly withinRunway?: boolean;
 };
 
@@ -64,7 +81,32 @@ function numericAxisValues(dataset: PerformanceDataset | undefined, axisKey: str
   return [...new Set(values)].sort((left, right) => left - right);
 }
 
+function stringAxisValues(dataset: PerformanceDataset | undefined, axisKey: string): readonly string[] {
+  const values = dataset?.axes.find((axis) => axis.key === axisKey)?.values
+    .filter((value): value is string => typeof value === "string" && value.trim().length > 0) ?? [];
+  return [...new Set(values)];
+}
+
+function isNativeDistanceGrid(dataset: PerformanceDataset): boolean {
+  return hasAxis(dataset, "airportAltitudeFt")
+    && hasAxis(dataset, "isaDeviationC")
+    && hasAxis(dataset, "surface")
+    && hasOutput(dataset, "oatC")
+    && hasOutput(dataset, "groundRunM")
+    && hasOutput(dataset, "distance50ftM");
+}
+
+function gridIntent(dataset: PerformanceDataset): "takeoff" | "landing" | undefined {
+  const identity = `${dataset.id} ${dataset.title}`.toLowerCase();
+  if (/\btakeoff\b/.test(identity)) return "takeoff";
+  if (/\blanding\b/.test(identity)) return "landing";
+  return undefined;
+}
+
 export function buildPerformanceCalculatorProfile(datasets: readonly PerformanceDataset[]): PerformanceCalculatorProfile {
+  const nativeGrids = datasets.filter(isNativeDistanceGrid);
+  const takeoffGridDataset = nativeGrids.find((dataset) => gridIntent(dataset) === "takeoff");
+  const landingGridDataset = nativeGrids.find((dataset) => gridIntent(dataset) === "landing");
   const takeoffFactorDataset = datasets.find((dataset) =>
     hasAxis(dataset, "weight")
     && ["wet8", "wet20", "moderate", "heavy", "compactedSnow", "wetIce"].every((key) => hasOutput(dataset, key)),
@@ -76,7 +118,7 @@ export function buildPerformanceCalculatorProfile(datasets: readonly Performance
   const landingSpeedDataset = datasets.find((dataset) =>
     hasAxis(dataset, "weight") && hasOutput(dataset, "vref") && hasOutput(dataset, "vapp"),
   );
-  return { takeoffFactorDataset, landingFactorDataset, landingSpeedDataset };
+  return { takeoffGridDataset, landingGridDataset, takeoffFactorDataset, landingFactorDataset, landingSpeedDataset };
 }
 
 export function getTakeoffSurfaceOptions(profile: PerformanceCalculatorProfile): readonly TakeoffSurfaceOption[] {
@@ -97,6 +139,10 @@ export function getLandingSurfaceOptions(profile: PerformanceCalculatorProfile):
   return ["Dry", ...sourceValues.filter((value, index) => sourceValues.indexOf(value) === index)];
 }
 
+export function getNativeGridSurfaceOptions(dataset: PerformanceDataset | undefined): readonly string[] {
+  return stringAxisValues(dataset, "surface");
+}
+
 function distanceResult(dryDistance: number | undefined, runwayAvailable: number | undefined, factor: number): DistanceCalculation {
   if (dryDistance === undefined || !Number.isFinite(dryDistance) || dryDistance <= 0) {
     return { status: "incomplete", reason: "Enter the dry distance from the controlling performance chart." };
@@ -111,6 +157,151 @@ function distanceResult(dryDistance: number | undefined, runwayAvailable: number
     margin,
     runwayUsePercent: validRunway === undefined ? undefined : (correctedDistance / validRunway) * 100,
     withinRunway: validRunway === undefined ? undefined : correctedDistance <= validRunway,
+  };
+}
+
+type Bracket = { readonly low: number; readonly high: number };
+
+function bracket(values: readonly number[], target: number): Bracket | undefined {
+  if (!values.length || target < values[0] || target > values[values.length - 1]) return undefined;
+  const exact = values.find((value) => Math.abs(value - target) < 1e-9);
+  if (exact !== undefined) return { low: exact, high: exact };
+  let low = values[0];
+  let high = values[values.length - 1];
+  for (let index = 0; index < values.length - 1; index += 1) {
+    if (target > values[index] && target < values[index + 1]) {
+      low = values[index];
+      high = values[index + 1];
+      break;
+    }
+  }
+  return { low, high };
+}
+
+function interpolate(lowValue: number, highValue: number, lowAxis: number, highAxis: number, target: number): number {
+  if (Math.abs(highAxis - lowAxis) < 1e-9) return lowValue;
+  const fraction = (target - lowAxis) / (highAxis - lowAxis);
+  return lowValue + ((highValue - lowValue) * fraction);
+}
+
+function gridRow(dataset: PerformanceDataset, altitude: number, isaDeviation: number, surface: string): PerformanceRow | undefined {
+  return exactRow(dataset, { airportAltitudeFt: altitude, isaDeviationC: isaDeviation, surface });
+}
+
+function sourceIsaTemperatureAtAltitude(dataset: PerformanceDataset, altitudeFt: number, surface: string): number | undefined {
+  const altitudes = numericAxisValues(dataset, "airportAltitudeFt");
+  const altitudeBracket = bracket(altitudes, altitudeFt);
+  if (!altitudeBracket) return undefined;
+
+  const baseAt = (altitude: number): number | undefined => {
+    const exactIsa = gridRow(dataset, altitude, 0, surface);
+    const exactTemperature = numericOutput(exactIsa, "oatC");
+    if (exactTemperature !== undefined) return exactTemperature;
+
+    const candidate = dataset.rows.find((row) =>
+      row.inputs.airportAltitudeFt === altitude
+      && row.inputs.surface === surface
+      && typeof row.inputs.isaDeviationC === "number"
+      && typeof row.outputs.oatC === "number");
+    if (!candidate || typeof candidate.inputs.isaDeviationC !== "number" || typeof candidate.outputs.oatC !== "number") return undefined;
+    return candidate.outputs.oatC - candidate.inputs.isaDeviationC;
+  };
+
+  const lowTemperature = baseAt(altitudeBracket.low);
+  const highTemperature = baseAt(altitudeBracket.high);
+  if (lowTemperature === undefined || highTemperature === undefined) return undefined;
+  return interpolate(lowTemperature, highTemperature, altitudeBracket.low, altitudeBracket.high, altitudeFt);
+}
+
+function interpolatedGridOutput(
+  dataset: PerformanceDataset,
+  altitudeFt: number,
+  isaDeviationC: number,
+  surface: string,
+  outputKey: string,
+): { readonly value?: number; readonly exact: boolean } {
+  const altitudeBracket = bracket(numericAxisValues(dataset, "airportAltitudeFt"), altitudeFt);
+  const deviationBracket = bracket(numericAxisValues(dataset, "isaDeviationC"), isaDeviationC);
+  if (!altitudeBracket || !deviationBracket) return { exact: false };
+
+  const at = (altitude: number, deviation: number): number | undefined =>
+    numericOutput(gridRow(dataset, altitude, deviation, surface), outputKey);
+
+  const q00 = at(altitudeBracket.low, deviationBracket.low);
+  const q01 = at(altitudeBracket.low, deviationBracket.high);
+  const q10 = at(altitudeBracket.high, deviationBracket.low);
+  const q11 = at(altitudeBracket.high, deviationBracket.high);
+  if (q00 === undefined || q01 === undefined || q10 === undefined || q11 === undefined) return { exact: false };
+
+  const lowAltitudeValue = interpolate(q00, q01, deviationBracket.low, deviationBracket.high, isaDeviationC);
+  const highAltitudeValue = interpolate(q10, q11, deviationBracket.low, deviationBracket.high, isaDeviationC);
+  return {
+    value: interpolate(lowAltitudeValue, highAltitudeValue, altitudeBracket.low, altitudeBracket.high, altitudeFt),
+    exact: altitudeBracket.low === altitudeBracket.high && deviationBracket.low === deviationBracket.high,
+  };
+}
+
+export function calculateNativeDistanceGrid(
+  dataset: PerformanceDataset | undefined,
+  input: Readonly<{
+    airportAltitudeFt?: number;
+    oatC?: number;
+    surface?: string;
+    runwayAvailableM?: number;
+  }>,
+): NativeDistanceCalculation {
+  if (!dataset) return { status: "unsupported", reason: "No source-backed runway-distance grid is published for this operation." };
+  const altitudeFt = input.airportAltitudeFt;
+  const oatC = input.oatC;
+  const surface = input.surface?.trim();
+  if (altitudeFt === undefined || !Number.isFinite(altitudeFt) || oatC === undefined || !Number.isFinite(oatC) || !surface) {
+    return { status: "incomplete", reason: "Enter airport altitude, OAT and runway surface." };
+  }
+  if (!getNativeGridSurfaceOptions(dataset).includes(surface)) {
+    return { status: "unsupported", reason: "The selected runway surface is not present in the source table." };
+  }
+
+  const sourceIsaTemperatureC = sourceIsaTemperatureAtAltitude(dataset, altitudeFt, surface);
+  if (sourceIsaTemperatureC === undefined) {
+    return { status: "unsupported", reason: "Airport altitude is outside the published source-table envelope." };
+  }
+  const isaDeviationC = oatC - sourceIsaTemperatureC;
+  const deviationBracket = bracket(numericAxisValues(dataset, "isaDeviationC"), isaDeviationC);
+  if (!deviationBracket) {
+    return {
+      status: "unsupported",
+      reason: "OAT places the calculation outside the published ISA-deviation envelope. FlyTally will not extrapolate.",
+      sourceIsaTemperatureC,
+      isaDeviationC,
+    };
+  }
+
+  const groundRun = interpolatedGridOutput(dataset, altitudeFt, isaDeviationC, surface, "groundRunM");
+  const distance50ft = interpolatedGridOutput(dataset, altitudeFt, isaDeviationC, surface, "distance50ftM");
+  if (groundRun.value === undefined || distance50ft.value === undefined) {
+    return { status: "unsupported", reason: "The source grid does not contain all bounding rows required for this calculation.", sourceIsaTemperatureC, isaDeviationC };
+  }
+  if ((!groundRun.exact || !distance50ft.exact) && dataset.interpolation !== "linear-explicit") {
+    return { status: "unsupported", reason: "This input falls between source rows and this dataset does not permit software interpolation.", sourceIsaTemperatureC, isaDeviationC };
+  }
+
+  const runwayAvailableM = input.runwayAvailableM !== undefined && Number.isFinite(input.runwayAvailableM) && input.runwayAvailableM > 0
+    ? input.runwayAvailableM
+    : undefined;
+  const groundRunMarginM = runwayAvailableM === undefined ? undefined : runwayAvailableM - groundRun.value;
+  const distance50ftMarginM = runwayAvailableM === undefined ? undefined : runwayAvailableM - distance50ft.value;
+  return {
+    status: "ready",
+    method: groundRun.exact && distance50ft.exact ? "exact-source-row" : "bounded-linear-interpolation",
+    sourceIsaTemperatureC,
+    isaDeviationC,
+    groundRunM: groundRun.value,
+    distance50ftM: distance50ft.value,
+    groundRunMarginM,
+    distance50ftMarginM,
+    groundRunUsePercent: runwayAvailableM === undefined ? undefined : (groundRun.value / runwayAvailableM) * 100,
+    distance50ftUsePercent: runwayAvailableM === undefined ? undefined : (distance50ft.value / runwayAvailableM) * 100,
+    withinRunway: runwayAvailableM === undefined ? undefined : distance50ft.value <= runwayAvailableM,
   };
 }
 
