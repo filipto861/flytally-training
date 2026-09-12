@@ -5,6 +5,7 @@ export type AircraftModuleNavKey =
   | "checklists"
   | "procedures"
   | "performance"
+  | "weight-balance"
   | "limitations"
   | "systems"
   | "flows"
@@ -38,6 +39,7 @@ export function aircraftWorkspaceSections(
     { key: "checklists", label: "Checklists", href: `${base}/checklists`, available: has("checklists", "normal-flight") },
     { key: "procedures", label: "Procedures", href: `${base}/procedures`, available: has("procedures") },
     { key: "performance", label: "Performance", href: `${base}/performance`, available: has("performance") },
+    { key: "weight-balance", label: "Weight & Balance", href: `${base}/weight-balance`, available: has("weight-balance") },
     { key: "limitations", label: "Limitations", href: `${base}/limitations`, available: has("limitations") },
     { key: "systems", label: "Systems", href: `${base}/systems`, available: has("systems", "learning") },
     { key: "flows", label: "Flows", href: `${base}/flows`, available: has("flows") },

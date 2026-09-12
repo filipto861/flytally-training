@@ -14,7 +14,7 @@ type NavEntry = { readonly key: string; readonly label: string; readonly href: s
 
 const trainingOrder = ["systems", "procedures", "knowledge", "avionics", "flows"] as const;
 const checklistOrder = ["checklists", "abnormal"] as const;
-const referenceOrder = ["performance", "limitations"] as const;
+const referenceOrder = ["performance", "weight-balance", "limitations"] as const;
 
 const labelFor = (key: string, fallback: string): string => {
   if (key === "checklists") return "Normal";

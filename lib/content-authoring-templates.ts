@@ -1,8 +1,8 @@
 import type { TrainingContentDomain } from "./content-admin-types.ts";
 import { universalTrainingContentDomains, type UniversalTrainingContentDomain } from "./universal-aircraft-content.ts";
 
-export const structuredAuthoringDomains = [...universalTrainingContentDomains, "abnormal"] as const;
-export type StructuredAuthoringDomain = UniversalTrainingContentDomain | "abnormal";
+export const structuredAuthoringDomains = [...universalTrainingContentDomains, "weight-balance", "abnormal"] as const;
+export type StructuredAuthoringDomain = UniversalTrainingContentDomain | "weight-balance" | "abnormal";
 
 export function isStructuredAuthoringDomain(value: string): value is StructuredAuthoringDomain {
   return (structuredAuthoringDomains as readonly string[]).includes(value);
@@ -10,6 +10,7 @@ export function isStructuredAuthoringDomain(value: string): value is StructuredA
 
 export function structuredAuthoringDomainLabel(domain: StructuredAuthoringDomain): string {
   if (domain === "abnormal") return "Abnormal & emergency";
+  if (domain === "weight-balance") return "Weight & Balance";
   return domain.charAt(0).toUpperCase() + domain.slice(1);
 }
 
@@ -40,6 +41,21 @@ export function createStructuredStarterPayload(aircraftId: string, domain: Struc
           rows: [{ inputs: { axis1: "" }, outputs: { output1: "" } }],
           interpolation: "none",
         }],
+      };
+    case "weight-balance":
+      return {
+        aircraftId,
+        title: "",
+        empty: { massKg: 0, armMm: 0, momentKgMm: 0, sources: [{ manualId: "", pageLabel: "" }] },
+        limits: {
+          maxTakeoffMassKg: 0,
+          envelope: [
+            { massKg: 0, forwardCgMm: 0, aftCgMm: 0 },
+            { massKg: 0, forwardCgMm: 0, aftCgMm: 0 },
+          ],
+          sources: [{ manualId: "", pageLabel: "" }],
+        },
+        stations: [{ id: "", label: "", armMm: 0, input: "mass-kg", sources: [{ manualId: "", pageLabel: "" }] }],
       };
     case "limitations":
       return {

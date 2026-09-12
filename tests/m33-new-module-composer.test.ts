@@ -5,10 +5,10 @@ import { createStructuredStarterPayload,isStructuredAuthoringDomain,structuredAu
 import { validateContentPayload } from "../lib/content-contracts.ts";
 
 const aircraftId="m33-test-aircraft";
-const primaryCollections:Record<(typeof structuredAuthoringDomains)[number],string>={checklists:"phases",procedures:"procedures",performance:"datasets",limitations:"groups",systems:"systems",flows:"flows",avionics:"topics",knowledge:"questions",abnormal:"scenarios"};
+const primaryCollections:Record<(typeof structuredAuthoringDomains)[number],string>={checklists:"phases",procedures:"procedures",performance:"datasets",limitations:"groups",systems:"systems",flows:"flows",avionics:"topics",knowledge:"questions","weight-balance":"stations",abnormal:"scenarios"};
 
 test("M33 exposes only modern universal structured domains",()=>{
-  assert.deepEqual(structuredAuthoringDomains,["checklists","procedures","performance","limitations","systems","flows","avionics","knowledge","abnormal"]);
+  assert.deepEqual(structuredAuthoringDomains,["checklists","procedures","performance","limitations","systems","flows","avionics","knowledge","weight-balance","abnormal"]);
   for(const legacy of ["learning","normal-flight","orientation","reference-knowledge"])assert.equal(isStructuredAuthoringDomain(legacy),false);
 });
 

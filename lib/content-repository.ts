@@ -10,6 +10,7 @@ export type AircraftContentCapabilities = {
   readonly checklists: boolean;
   readonly procedures: boolean;
   readonly performance: boolean;
+  readonly weightBalance: boolean;
   readonly limitations: boolean;
   readonly systems: boolean;
   readonly abnormalEmergency: boolean;
@@ -95,6 +96,7 @@ export async function getAircraftContentBundle(
       checklists: published.has("checklists") || legacyChecklist,
       procedures: published.has("procedures"),
       performance: published.has("performance"),
+      weightBalance: published.has("weight-balance"),
       limitations: published.has("limitations"),
       systems: published.has("systems") || legacySystems,
       abnormalEmergency: published.has("abnormal") || Boolean(abnormalTraining?.scenarios.length),

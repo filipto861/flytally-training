@@ -33,8 +33,9 @@ export default async function AircraftPage({
   const referenceStart = capabilities.performance && capabilities.limitations
     ? { href: "quick-reference", label: "Quick Reference" }
     : capabilities.performance ? { href: "performance", label: "Performance" }
-      : capabilities.limitations ? { href: "limitations", label: "Limitations" }
-        : undefined;
+      : capabilities.weightBalance ? { href: "weight-balance", label: "Weight & Balance" }
+        : capabilities.limitations ? { href: "limitations", label: "Limitations" }
+          : undefined;
 
   const primary = trainingStart
     ? { eyebrow: "Training", title: `Start with ${trainingStart.label}`, description: "Build aircraft knowledge through the published training material.", ...trainingStart }
@@ -47,6 +48,7 @@ export default async function AircraftPage({
   const quickLinks = [
     capabilities.checklists ? { href: "checklists", label: "Normal checklist" } : undefined,
     capabilities.abnormalEmergency ? { href: "abnormal", label: "Abnormal / Emergency" } : undefined,
+    capabilities.weightBalance ? { href: "weight-balance", label: "Weight & Balance" } : undefined,
     referenceStart,
   ].filter((item): item is { href: string; label: string } => Boolean(item))
     .filter((item, index, items) => items.findIndex((candidate) => candidate.href === item.href) === index)
