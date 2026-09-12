@@ -14,19 +14,23 @@ export function structuredAuthoringDomainLabel(domain: StructuredAuthoringDomain
   return domain.charAt(0).toUpperCase() + domain.slice(1);
 }
 
+function applicabilityStarter() {
+  return { variants: [], equipmentAllOf: [], equipmentAnyOf: [], equipmentNoneOf: [] };
+}
+
 export function createStructuredStarterPayload(aircraftId: string, domain: StructuredAuthoringDomain): Record<string, unknown> {
   switch (domain) {
     case "checklists":
       return {
         aircraftId,
         title: "",
-        phases: [{ id: "", title: "", sequence: 1, items: [{ id: "", challenge: "" }] }],
+        phases: [{ id: "", title: "", sequence: 1, applicability: applicabilityStarter(), items: [{ id: "", challenge: "", applicability: applicabilityStarter() }] }],
       };
     case "procedures":
       return {
         aircraftId,
         title: "",
-        procedures: [{ id: "", title: "", steps: [{ id: "", action: "" }] }],
+        procedures: [{ id: "", title: "", applicability: applicabilityStarter(), steps: [{ id: "", action: "" }] }],
       };
     case "performance":
       return {
@@ -40,6 +44,7 @@ export function createStructuredStarterPayload(aircraftId: string, domain: Struc
           outputs: [{ key: "output1", label: "" }],
           rows: [{ inputs: { axis1: "" }, outputs: { output1: "" } }],
           interpolation: "none",
+          applicability: applicabilityStarter(),
         }],
       };
     case "weight-balance":
@@ -61,31 +66,31 @@ export function createStructuredStarterPayload(aircraftId: string, domain: Struc
       return {
         aircraftId,
         title: "",
-        groups: [{ id: "", title: "", items: [{ id: "", label: "", value: "" }] }],
+        groups: [{ id: "", title: "", items: [{ id: "", label: "", value: "", applicability: applicabilityStarter() }] }],
       };
     case "systems":
       return {
         aircraftId,
         title: "",
-        systems: [{ id: "", title: "", summary: "" }],
+        systems: [{ id: "", title: "", summary: "", applicability: applicabilityStarter() }],
       };
     case "flows":
       return {
         aircraftId,
         title: "",
-        flows: [{ id: "", title: "", steps: [{ id: "", action: "" }] }],
+        flows: [{ id: "", title: "", applicability: applicabilityStarter(), steps: [{ id: "", action: "" }] }],
       };
     case "avionics":
       return {
         aircraftId,
         title: "",
-        topics: [{ id: "", title: "", summary: "" }],
+        topics: [{ id: "", title: "", summary: "", applicability: applicabilityStarter() }],
       };
     case "knowledge":
       return {
         aircraftId,
         title: "",
-        questions: [{ id: "", area: "", prompt: "", choices: ["", ""], correctIndex: 0, explanation: "" }],
+        questions: [{ id: "", area: "", prompt: "", choices: ["", ""], correctIndex: 0, explanation: "", applicability: applicabilityStarter() }],
       };
     case "abnormal":
       return {
@@ -101,12 +106,14 @@ export function createStructuredStarterPayload(aircraftId: string, domain: Struc
           summary: "",
           setup: "",
           objectives: [""],
+          applicability: applicabilityStarter(),
           stages: [{
             id: "",
             label: "",
             prompt: "",
             expectedResponse: [""],
             explanation: "",
+            applicability: applicabilityStarter(),
             sources: [{ manualId: "", pageLabel: "" }],
           }],
           debrief: [""],

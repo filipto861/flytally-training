@@ -5,6 +5,7 @@ import { sql } from "./db";
 import {
   type AdminAircraftDetail,
   type AdminAircraftSummary,
+  type AdminAircraftVariantProfile,
   type AdminContentVersion,
   type AdminManualRevision,
   type AdminSourceReference,
@@ -136,15 +137,60 @@ function validId(value: string, label: string) {
   return cleaned;
 }
 
+function requiredText(value:string,label:string,maxLength=200){
+  const cleaned=value.trim();
+  if(!cleaned || cleaned.length>maxLength)throw new Error(`Invalid ${label}.`);
+  return cleaned;
+}
+
+function metadataObject(value:unknown):Record<string,unknown>{
+  if(typeof value==="string"){
+    try{return metadataObject(JSON.parse(value));}catch{return {};}
+  }
+  return value&&typeof value==="object"&&!Array.isArray(value)?value as Record<string,unknown>:{};
+}
+
+function metadataStringArray(value:unknown):string[]{
+  return Array.isArray(value)?[...new Set(value.filter((item):item is string=>typeof item==="string").map(item=>item.trim()).filter(Boolean))]:[];
+}
+
 export async function createAircraft(input: {id:string;manufacturer:string;model:string;displayName:string}, subject: string) {
   void subject;
   const id = validId(input.id, "aircraft id");
-  await sql`INSERT INTO training_aircraft_types(aircraft_id,manufacturer,model,display_name) VALUES(${id},${input.manufacturer.trim()},${input.model.trim()},${input.displayName.trim()})`;
+  await sql`INSERT INTO training_aircraft_types(aircraft_id,manufacturer,model,display_name) VALUES(${id},${requiredText(input.manufacturer,"manufacturer")},${requiredText(input.model,"model")},${requiredText(input.displayName,"display name")})`;
+}
+
+export async function updateAircraftProfile(aircraftId:string,input:{manufacturer:string;model:string;displayName:string}){
+  const id=validId(aircraftId,"aircraft id");
+  const rows=await sql`UPDATE training_aircraft_types SET manufacturer=${requiredText(input.manufacturer,"manufacturer")},model=${requiredText(input.model,"model")},display_name=${requiredText(input.displayName,"display name")},updated_at=NOW() WHERE aircraft_id=${id} RETURNING aircraft_id` as Array<{aircraft_id:string}>;
+  if(!rows[0])throw new Error("Aircraft not found.");
 }
 
 export async function addAircraftVariant(aircraftId: string, variant: string) {
   const key = validId(variant, "variant");
-  await sql`INSERT INTO training_aircraft_variants(aircraft_id,variant_key,display_name) VALUES(${aircraftId},${key},${variant.trim()}) ON CONFLICT(aircraft_id,variant_key) DO NOTHING`;
+  const rows=await sql`INSERT INTO training_aircraft_variants(aircraft_id,variant_key,display_name)
+    SELECT a.aircraft_id,${key},${variant.trim()} FROM training_aircraft_types a WHERE a.aircraft_id=${aircraftId} AND a.status='draft'
+    ON CONFLICT(aircraft_id,variant_key) DO NOTHING RETURNING variant_key` as Array<{variant_key:string}>;
+  if(rows[0])return;
+  const existing=await sql`SELECT v.variant_key,a.status FROM training_aircraft_variants v JOIN training_aircraft_types a ON a.aircraft_id=v.aircraft_id WHERE v.aircraft_id=${aircraftId} AND v.variant_key=${key} LIMIT 1` as Array<{variant_key:string;status:string}>;
+  if(existing[0]?.status==="draft")return;
+  throw new Error("Variant configuration is frozen after the aircraft catalogue entry is published.");
+}
+
+export async function upsertAircraftVariant(aircraftId:string,input:{key:string;displayName:string;equipmentTags:readonly string[];note?:string}){
+  const id=validId(aircraftId,"aircraft id");
+  const key=validId(input.key,"variant key");
+  const displayName=requiredText(input.displayName,"variant display name");
+  const equipmentTags=[...new Set(input.equipmentTags.map(tag=>validId(tag,"equipment tag")))];
+  const note=input.note?.trim()||undefined;
+  if(note && note.length>2000)throw new Error("Variant note is too long.");
+  const metadata=JSON.stringify({equipmentTags,...(note?{note}:{})});
+  const rows=await sql`INSERT INTO training_aircraft_variants(aircraft_id,variant_key,display_name,metadata)
+    SELECT a.aircraft_id,${key},${displayName},${metadata}::jsonb FROM training_aircraft_types a WHERE a.aircraft_id=${id} AND a.status='draft'
+    ON CONFLICT(aircraft_id,variant_key) DO UPDATE SET display_name=EXCLUDED.display_name,metadata=EXCLUDED.metadata
+    WHERE EXISTS(SELECT 1 FROM training_aircraft_types a WHERE a.aircraft_id=EXCLUDED.aircraft_id AND a.status='draft')
+    RETURNING variant_key` as Array<{variant_key:string}>;
+  if(!rows[0])throw new Error("Variant configuration can only be changed while the aircraft catalogue entry is in draft.");
 }
 
 export async function createSourceReference(input:{revisionId:string;chapter?:string;section?:string;pageLabel:string;note?:string},subject:string):Promise<string>{
@@ -171,11 +217,18 @@ export async function listAdminAircraft(){return adminSummaries();}
 
 export async function getAdminAircraft(aircraftId:string):Promise<AdminAircraftDetail|undefined>{
   const summary=(await adminSummaries()).find(item=>item.id===aircraftId); if(!summary)return undefined;
+  const variantRows=await sql`SELECT variant_key,display_name,metadata FROM training_aircraft_variants WHERE aircraft_id=${aircraftId} ORDER BY variant_key` as Array<{variant_key:string;display_name:string;metadata:unknown}>;
   const manuals=await sql`SELECT m.manual_id,r.revision_id,m.title,m.publisher,r.revision_code,r.issue_date,m.source_kind,COALESCE(to_jsonb(r)->>'authority_role','UNCLASSIFIED') AS authority_role,r.source_uri,r.checksum_sha256 FROM training_manuals m JOIN training_manual_revisions r ON r.manual_id=m.manual_id WHERE m.aircraft_id=${aircraftId} ORDER BY r.registered_at DESC` as Array<{manual_id:string;revision_id:string;title:string;publisher:string;revision_code:string;issue_date:string;source_kind:string;authority_role:string;source_uri:string|null;checksum_sha256:string|null}>;
   const refs=await sql`SELECT sr.reference_id,sr.revision_id,sr.chapter,sr.section,sr.page_label,sr.note FROM training_source_references sr JOIN training_manual_revisions r ON r.revision_id=sr.revision_id JOIN training_manuals m ON m.manual_id=r.manual_id WHERE m.aircraft_id=${aircraftId} ORDER BY sr.created_at DESC` as Array<{reference_id:string;revision_id:string;chapter:string|null;section:string|null;page_label:string;note:string|null}>;
   const versions=await sql`SELECT v.version_id,i.domain,i.content_key,v.version_no,v.state,v.origin,v.created_by,v.created_at,a.reviewed_by,p.published_at FROM training_content_items i JOIN training_content_versions v ON v.item_id=i.item_id LEFT JOIN LATERAL(SELECT reviewed_by FROM training_content_approvals aa WHERE aa.version_id=v.version_id AND aa.decision='approved' ORDER BY reviewed_at DESC LIMIT 1)a ON TRUE LEFT JOIN training_content_publications p ON p.version_id=v.version_id WHERE i.aircraft_id=${aircraftId} ORDER BY v.created_at DESC` as Array<{version_id:string;domain:TrainingContentDomain;content_key:string;version_no:number|string;state:AdminContentVersion["state"];origin:AdminContentVersion["origin"];created_by:string;created_at:string|Date;reviewed_by:string|null;published_at:string|Date|null}>;
+  const variantProfiles=variantRows.map((row):AdminAircraftVariantProfile=>{
+    const metadata=metadataObject(row.metadata);
+    const note=typeof metadata.note==="string"&&metadata.note.trim()?metadata.note.trim():undefined;
+    return {key:row.variant_key,displayName:row.display_name,equipmentTags:metadataStringArray(metadata.equipmentTags),note};
+  });
   return {
     ...summary,
+    variantProfiles,
     manuals:manuals.map((r):AdminManualRevision=>({manualId:r.manual_id,revisionId:r.revision_id,title:r.title,publisher:r.publisher,revision:r.revision_code,issueDate:r.issue_date,sourceKind:r.source_kind,authorityRole:parseSourceAuthorityRole(r.authority_role||"UNCLASSIFIED"),sourceUri:r.source_uri??undefined,checksumSha256:r.checksum_sha256??undefined})),
     sourceReferences:refs.map((r):AdminSourceReference=>({id:r.reference_id,revisionId:r.revision_id,chapter:r.chapter??undefined,section:r.section??undefined,pageLabel:r.page_label,note:r.note??undefined})),
     contentVersions:versions.map((v):AdminContentVersion=>({id:v.version_id,domain:v.domain,contentKey:v.content_key,versionNo:Number(v.version_no),state:v.state,origin:v.origin,createdBy:v.created_by,createdAt:new Date(v.created_at).toISOString(),approvedBy:v.reviewed_by??undefined,publishedAt:v.published_at?new Date(v.published_at).toISOString():undefined})),

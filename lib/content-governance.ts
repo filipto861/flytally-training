@@ -4,7 +4,10 @@ import { sql } from "./db";
 import { assertValidContentPayload, validateContentPayload } from "./content-contracts";
 import type { TrainingContentDomain } from "./content-admin-types";
 import { collectEmbeddedManualIds } from "./content-source-binding";
-import { assertApplicabilityVariantsRegistered } from "./content-applicability-binding";
+import {
+  assertApplicabilityEquipmentRegistered,
+  assertApplicabilityVariantsRegistered,
+} from "./content-applicability-binding";
 
 export type ContentVersionReviewRecord = {
   readonly id: string;
@@ -22,6 +25,15 @@ export type ContentVersionReviewRecord = {
 function json(value: unknown): unknown {
   if (typeof value !== "string") return value;
   try { return JSON.parse(value); } catch { return value; }
+}
+
+function stringArray(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string" && Boolean(item.trim())).map((item) => item.trim()) : [];
+}
+
+function variantMetadata(value: unknown): Record<string, unknown> {
+  const parsed = json(value);
+  return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed as Record<string, unknown> : {};
 }
 
 export async function getContentVersionForReview(versionId: string): Promise<ContentVersionReviewRecord | undefined> {
@@ -101,13 +113,14 @@ export async function assertEmbeddedSourcesMatchVersionLinks(payload: unknown, r
 
 /**
  * Applicability is part of the release contract, not just a learner-side
- * filter. A typo in a variant key would otherwise validate structurally but
- * silently hide the content at runtime. Approval and publication therefore
- * fail closed when payload applicability names an unregistered variant.
+ * filter. Variant and equipment identifiers therefore have to exist in the
+ * configured aircraft profile before a draft may be approved or published.
  */
 export async function assertEmbeddedApplicabilityMatchesAircraft(aircraftId: string, payload: unknown): Promise<void> {
-  const rows = await sql`SELECT variant_key FROM training_aircraft_variants WHERE aircraft_id=${aircraftId}` as Array<{variant_key:string}>;
+  const rows = await sql`SELECT variant_key,metadata FROM training_aircraft_variants WHERE aircraft_id=${aircraftId}` as Array<{variant_key:string;metadata:unknown}>;
+  const equipmentTags = [...new Set(rows.flatMap((row) => stringArray(variantMetadata(row.metadata).equipmentTags)))];
   assertApplicabilityVariantsRegistered(payload, rows.map((row) => row.variant_key), aircraftId);
+  assertApplicabilityEquipmentRegistered(payload, equipmentTags, aircraftId);
 }
 
 export async function assertContentVersionValidForApprovalOrPublication(versionId: string): Promise<ContentVersionReviewRecord> {
