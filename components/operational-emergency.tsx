@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import type {
   OperationalEmergencyContent,
@@ -9,6 +9,8 @@ import type {
   OperationalEmergencySource,
 } from "@/lib/operational-flight-data";
 import styles from "./operational-emergency.module.css";
+
+const ALL_CATEGORIES = "__all__";
 
 function noticeClass(kind: OperationalEmergencyNotice["kind"]): string {
   if (kind === "warning") return styles.warning;
@@ -77,17 +79,74 @@ function Scenario({ scenario }: Readonly<{ scenario: OperationalEmergencyScenari
 }
 
 export function OperationalEmergency({ emergency }: Readonly<{ emergency: OperationalEmergencyContent }>) {
+  const categories = useMemo(
+    () => [...new Set(emergency.scenarios.map((scenario) => scenario.category))],
+    [emergency.scenarios],
+  );
+  const [category, setCategory] = useState(ALL_CATEGORIES);
   const [scenarioId, setScenarioId] = useState(emergency.scenarios[0]?.id ?? "");
-  const scenario = emergency.scenarios.find((candidate) => candidate.id === scenarioId) ?? emergency.scenarios[0];
+  const filteredScenarios = category === ALL_CATEGORIES
+    ? emergency.scenarios
+    : emergency.scenarios.filter((candidate) => candidate.category === category);
+  const scenario = filteredScenarios.find((candidate) => candidate.id === scenarioId) ?? filteredScenarios[0] ?? emergency.scenarios[0];
   if (!scenario) return null;
 
+  function chooseCategory(nextCategory: string) {
+    setCategory(nextCategory);
+    if (nextCategory === ALL_CATEGORIES) return;
+    const current = emergency.scenarios.find((candidate) => candidate.id === scenarioId);
+    if (current?.category === nextCategory) return;
+    const first = emergency.scenarios.find((candidate) => candidate.category === nextCategory);
+    if (first) setScenarioId(first.id);
+  }
+
   return <section className={styles.emergency} aria-label="Emergency quick reference">
-    <label className={styles.selector}>
-      <span>Emergency procedure</span>
-      <select aria-label="Emergency procedure" value={scenario.id} onChange={(event) => setScenarioId(event.target.value)}>
-        {emergency.scenarios.map((candidate) => <option key={candidate.id} value={candidate.id}>{candidate.title}</option>)}
-      </select>
-    </label>
+    <div className={styles.index}>
+      <div className={styles.indexHeader}>
+        <strong>Quick access</strong>
+        <span>{emergency.scenarios.length} procedures</span>
+      </div>
+      <div className={styles.categories} role="group" aria-label="Emergency categories">
+        <button
+          aria-pressed={category === ALL_CATEGORIES}
+          className={category === ALL_CATEGORIES ? styles.activeCategory : undefined}
+          onClick={() => chooseCategory(ALL_CATEGORIES)}
+          type="button"
+        >All <span>{emergency.scenarios.length}</span></button>
+        {categories.map((item) => {
+          const count = emergency.scenarios.filter((scenarioItem) => scenarioItem.category === item).length;
+          return <button
+            aria-pressed={category === item}
+            className={category === item ? styles.activeCategory : undefined}
+            key={item}
+            onClick={() => chooseCategory(item)}
+            type="button"
+          >{item} <span>{count}</span></button>;
+        })}
+      </div>
+
+      <label className={styles.selector}>
+        <span>Emergency procedure</span>
+        <select aria-label="Emergency procedure" value={scenario.id} onChange={(event) => setScenarioId(event.target.value)}>
+          {filteredScenarios.map((candidate) => <option key={candidate.id} value={candidate.id}>
+            {category === ALL_CATEGORIES ? `${candidate.category} · ${candidate.title}` : candidate.title}
+          </option>)}
+        </select>
+      </label>
+
+      {category !== ALL_CATEGORIES ? <div className={styles.quickProcedures} aria-label={`${category} procedures`}>
+        {filteredScenarios.map((candidate) => <button
+          aria-current={candidate.id === scenario.id ? "true" : undefined}
+          className={candidate.id === scenario.id ? styles.activeProcedure : undefined}
+          key={candidate.id}
+          onClick={() => setScenarioId(candidate.id)}
+          type="button"
+        >
+          <strong>{candidate.title}</strong>
+          <span>{candidate.phase}</span>
+        </button>)}
+      </div> : null}
+    </div>
     <Scenario scenario={scenario} />
   </section>;
 }
