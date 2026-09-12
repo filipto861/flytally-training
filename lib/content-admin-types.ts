@@ -30,6 +30,13 @@ export function parseContentVersionOrigin(value: string): ContentVersionOrigin {
   return value as ContentVersionOrigin;
 }
 
+export type AdminAircraftVariantProfile = {
+  readonly key: string;
+  readonly displayName: string;
+  readonly equipmentTags: readonly string[];
+  readonly note?: string;
+};
+
 export type AdminAircraftSummary = {
   readonly id: string;
   readonly manufacturer: string;
@@ -78,6 +85,7 @@ export type AdminContentVersion = {
 };
 
 export type AdminAircraftDetail = AdminAircraftSummary & {
+  readonly variantProfiles?: readonly AdminAircraftVariantProfile[];
   readonly manuals: readonly AdminManualRevision[];
   readonly sourceReferences: readonly AdminSourceReference[];
   readonly contentVersions: readonly AdminContentVersion[];

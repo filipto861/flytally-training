@@ -7,7 +7,7 @@ import { createAiAssistedDraft } from "@/lib/ai-draft-workflow";
 import { requireTrainingAdmin } from "@/lib/admin-auth";
 import { publishGovernedAircraft } from "@/lib/aircraft-publication";
 import { isModernStructuredDomain } from "@/lib/content-authoring-templates";
-import { addAircraftVariant,createAircraft,createSourceReference,getAdminAircraft,resolveStaleFlag } from "@/lib/content-admin-repository";
+import { addAircraftVariant,createAircraft,createSourceReference,getAdminAircraft,resolveStaleFlag,updateAircraftProfile,upsertAircraftVariant } from "@/lib/content-admin-repository";
 import { parseContentVersionOrigin,trainingContentDomains,type TrainingContentDomain } from "@/lib/content-admin-types";
 import { approveGovernedContentVersion,createGovernedDraftVersion,publishGovernedContentVersion } from "@/lib/content-governed-lifecycle";
 import { initializeTrainingDatabase } from "@/lib/database-bootstrap";
@@ -21,16 +21,23 @@ const text=(form:FormData,key:string)=>String(form.get(key)??"").trim();
 const selected=(form:FormData,key:string)=>form.getAll(key).map(value=>String(value).trim()).filter(Boolean);
 const refs=(form:FormData)=>[...new Set([...selected(form,"sourceReferenceId"),...text(form,"sourceReferenceIds").split(",").map(v=>v.trim()).filter(Boolean)])];
 const fingerprintRefs=(form:FormData)=>selected(form,"fingerprintSourceReferenceId");
+const equipmentTags=(form:FormData)=>[...new Set(text(form,"equipmentTags").split(/[\n,]/).map(value=>value.trim()).filter(Boolean))];
 const payload=(form:FormData)=>{try{return JSON.parse(text(form,"payload"));}catch{throw new Error("Draft payload is not valid JSON.");}};
 const domain=(form:FormData):TrainingContentDomain=>{const value=text(form,"domain");if(!(trainingContentDomains as readonly string[]).includes(value))throw new Error("Unsupported content domain.");return value as TrainingContentDomain;};
 const refreshAircraftAdmin=(aircraftId:string)=>{
   for(const path of ["", "/content", "/sources", "/review", "/settings", "/onboarding"])revalidatePath(`/admin/aircraft/${aircraftId}${path}`);
   revalidatePath("/admin");
 };
+const refreshAircraftRuntime=(aircraftId:string)=>{
+  revalidatePath("/");
+  revalidatePath(`/aircraft/${aircraftId}`,"layout");
+};
 
 export async function createAircraftAction(form:FormData){const session=await requireTrainingAdmin();const aircraftId=text(form,"id");await createAircraft({id:aircraftId,manufacturer:text(form,"manufacturer"),model:text(form,"model"),displayName:text(form,"displayName")},session.subject);revalidatePath("/admin");redirect(`/admin/aircraft/${encodeURIComponent(aircraftId)}/onboarding`);}
-export async function addVariantAction(form:FormData){await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");await addAircraftVariant(aircraftId,text(form,"variant"));refreshAircraftAdmin(aircraftId);}
-export async function publishAircraftAction(form:FormData){await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");await publishGovernedAircraft(aircraftId);revalidatePath("/");refreshAircraftAdmin(aircraftId);}
+export async function updateAircraftProfileAction(form:FormData){await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");await updateAircraftProfile(aircraftId,{manufacturer:text(form,"manufacturer"),model:text(form,"model"),displayName:text(form,"displayName")});refreshAircraftAdmin(aircraftId);refreshAircraftRuntime(aircraftId);}
+export async function addVariantAction(form:FormData){await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");await addAircraftVariant(aircraftId,text(form,"variant"));refreshAircraftAdmin(aircraftId);refreshAircraftRuntime(aircraftId);}
+export async function saveVariantProfileAction(form:FormData){await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");await upsertAircraftVariant(aircraftId,{key:text(form,"variantKey"),displayName:text(form,"variantDisplayName"),equipmentTags:equipmentTags(form),note:text(form,"variantNote")||undefined});refreshAircraftAdmin(aircraftId);refreshAircraftRuntime(aircraftId);}
+export async function publishAircraftAction(form:FormData){await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");await publishGovernedAircraft(aircraftId);refreshAircraftRuntime(aircraftId);refreshAircraftAdmin(aircraftId);}
 export async function registerRevisionAction(form:FormData){
   const session=await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");const requestedManualId=text(form,"manualId");
   let manualId=requestedManualId||randomUUID();let title=text(form,"title");let publisher=text(form,"publisher");let sourceKind=text(form,"sourceKind");
@@ -63,7 +70,7 @@ export async function reSourceVersionAction(form:FormData){
   redirect(`/admin/aircraft/${encodeURIComponent(result.aircraftId)}/content/${encodeURIComponent(result.versionId)}`);
 }
 export async function approveVersionAction(form:FormData){const session=await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");const versionId=text(form,"versionId");await approveGovernedContentVersion(versionId,session.subject,text(form,"note"));refreshAircraftAdmin(aircraftId);revalidatePath(`/admin/aircraft/${aircraftId}/content/${versionId}`);}
-export async function publishVersionAction(form:FormData){const session=await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");const versionId=text(form,"versionId");await publishGovernedContentVersion(versionId,session.subject);revalidatePath("/");refreshAircraftAdmin(aircraftId);revalidatePath(`/admin/aircraft/${aircraftId}/content/${versionId}`);}
+export async function publishVersionAction(form:FormData){const session=await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");const versionId=text(form,"versionId");await publishGovernedContentVersion(versionId,session.subject);refreshAircraftRuntime(aircraftId);refreshAircraftAdmin(aircraftId);revalidatePath(`/admin/aircraft/${aircraftId}/content/${versionId}`);}
 export async function resolveStaleAction(form:FormData){const session=await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");await resolveStaleFlag(Number(text(form,"staleId")),session.subject,text(form,"note"));refreshAircraftAdmin(aircraftId);}
 export async function initializeTrainingDatabaseAction(){await requireTrainingAdmin();await initializeTrainingDatabase();revalidatePath("/admin");}
 export async function bootstrapStaticAction(form:FormData){
@@ -80,8 +87,7 @@ export async function publishNativeModuleUpgradeAction(form:FormData){
   const aircraftId=text(form,"aircraftId");
   const selectedDomain=domain(form);
   const versionId=await publishStaticNativeModuleUpgrade(aircraftId,selectedDomain,session.subject);
-  revalidatePath("/");
-  revalidatePath(`/aircraft/${aircraftId}`);
+  refreshAircraftRuntime(aircraftId);
   revalidatePath(`/aircraft/${aircraftId}/${selectedDomain}`);
   refreshAircraftAdmin(aircraftId);
   redirect(`/admin/aircraft/${encodeURIComponent(aircraftId)}/content/${encodeURIComponent(versionId)}`);
