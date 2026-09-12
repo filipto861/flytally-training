@@ -18,8 +18,8 @@ export type AircraftContentCapabilities = {
   readonly knowledge: boolean;
   readonly manual: boolean;
 
-  // Legacy migration capabilities. Keep these while Learjet v1 content is
-  // progressively re-published into the universal first-class domains.
+  // Legacy migration capabilities kept only while older governed payload shapes
+  // remain readable. New aircraft use the universal first-class domains.
   readonly quickStart: boolean;
   readonly normalFlight: boolean;
   readonly cockpitOrientation: boolean;
@@ -92,7 +92,6 @@ export async function getAircraftContentBundle(
     referenceKnowledge,
     publishedModuleDomains,
     capabilities: {
-      // These are the only learner routes with an intentional legacy fallback.
       checklists: published.has("checklists") || legacyChecklist,
       procedures: published.has("procedures"),
       performance: published.has("performance"),

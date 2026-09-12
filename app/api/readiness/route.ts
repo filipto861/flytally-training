@@ -89,14 +89,16 @@ export async function GET() {
     }
   }
 
-  const ready = configuration.ready
+  const infrastructureReady = configuration.ready
     && database
     && progressPersistence
-    && currentContentFreshness
     && aiDraftAuditPersistence
-    && identityReplayProtection
-    && publishedAircraft
-    && modularAircraftContent;
+    && identityReplayProtection;
+  const catalogReady = publishedAircraft && modularAircraftContent && currentContentFreshness;
+  // An intentionally empty catalog is a valid operational state while aircraft
+  // content is being rebuilt. Once anything is published, catalog integrity is
+  // again mandatory for operational readiness.
+  const ready = infrastructureReady && (publishedAircraft ? catalogReady : true);
 
   return Response.json({
     status: ready ? "ready" : "not-ready",
