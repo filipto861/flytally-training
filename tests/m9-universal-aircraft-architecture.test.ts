@@ -7,6 +7,8 @@ import { validateContentPayload } from "../lib/content-contracts.ts";
 import { universalTrainingContentDomains } from "../lib/universal-aircraft-content.ts";
 
 const aircraftPage = fs.readFileSync(new URL("../app/aircraft/[aircraftId]/page.tsx", import.meta.url), "utf8");
+const trainingHub = fs.readFileSync(new URL("../app/aircraft/[aircraftId]/training/page.tsx", import.meta.url), "utf8");
+const referenceHub = fs.readFileSync(new URL("../app/aircraft/[aircraftId]/reference/page.tsx", import.meta.url), "utf8");
 const workspacePage = fs.readFileSync(new URL("../app/aircraft/[aircraftId]/[section]/page.tsx", import.meta.url), "utf8");
 const checklistRunner = fs.readFileSync(new URL("../components/checklist-runner.tsx", import.meta.url), "utf8");
 const coldDarkPage = fs.readFileSync(new URL("../app/aircraft/[aircraftId]/cold-dark/page.tsx", import.meta.url), "utf8");
@@ -32,9 +34,10 @@ test("generic learner UX contains no mandatory two-engine or cockpit-map path", 
   assert.doesNotMatch(checklistRunner, /orientation|Show me/i);
   assert.match(coldDarkPage, /\/checklists/);
   assert.match(aircraftPage, /capabilities\.checklists/);
-  assert.match(aircraftPage, /const trainingStart/);
-  assert.match(aircraftPage, /const checklistStart/);
-  assert.match(aircraftPage, /const referenceStart/);
-  assert.match(aircraftPage, /const primary = trainingStart/);
-  assert.doesNotMatch(aircraftPage, /Not used for this aircraft/);
+  assert.match(aircraftPage, /const hasTraining = capabilities\.systems/);
+  assert.match(aircraftPage, /moduleHref\("training"\)/);
+  assert.match(trainingHub, /capabilities\.systems/);
+  assert.match(trainingHub, /capabilities\.procedures/);
+  assert.match(referenceHub, /capabilities\.limitations/);
+  assert.doesNotMatch(aircraftPage + trainingHub + referenceHub, /Not used for this aircraft/);
 });
