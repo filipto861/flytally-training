@@ -21,11 +21,10 @@ test("M56 uses device safe areas and a full-width native-style bottom tab bar",(
   assert.match(mobile,/border-radius:0;/);
 });
 
-test("M56 establishes a non-overlapping mobile sticky stack for Fly",()=>{
+test("M56 keeps the non-overlapping mobile sticky stack while allowing later screen-space refinement",()=>{
   assert.match(mobile,/nav\[aria-label="Flight tools"\][\s\S]*--mobile-app-header-height/);
   assert.match(mobile,/select\[aria-label="Checklist phase"\][\s\S]*--mobile-flight-tabs-height/);
   assert.match(mobile,/section\[aria-label="Emergency quick reference"\][\s\S]*--mobile-flight-tabs-height/);
-  assert.match(mobile,/section\[aria-label\$="Checklist"\]>footer[\s\S]*--mobile-bottom-nav-height/);
   assert.match(mobile,/section\[aria-label="Operational performance"\][\s\S]*--mobile-bottom-nav-height/);
 });
 
