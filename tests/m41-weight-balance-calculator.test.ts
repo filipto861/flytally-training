@@ -3,6 +3,7 @@ import fs from "node:fs";
 import test from "node:test";
 
 import { aircraftWorkspaceSections } from "../lib/aircraft-workspace-navigation.ts";
+import { configurationForVariant, matchesAircraftApplicability } from "../lib/aircraft-applicability.ts";
 import { validateContentPayload } from "../lib/content-contracts.ts";
 import type { AircraftWeightBalanceContent } from "../lib/universal-weight-balance.ts";
 import { calculateWeightBalance } from "../lib/weight-balance-calculator.ts";
@@ -34,6 +35,14 @@ const content: AircraftWeightBalanceContent = {
 test("M41 validates a generic source-backed weight-and-balance module", () => {
   assert.deepEqual(validateContentPayload("weight-balance", content, content.aircraftId), []);
   assert.ok(aircraftWorkspaceSections(content.aircraftId, ["weight-balance"]).some((section) => section.key === "weight-balance"));
+});
+
+test("M42 weight-and-balance supports explicit aircraft-configuration applicability", () => {
+  const scoped: AircraftWeightBalanceContent = { ...content, applicability: { variants: ["serial-a"] } };
+  assert.deepEqual(validateContentPayload("weight-balance", scoped, scoped.aircraftId), []);
+  assert.equal(matchesAircraftApplicability(scoped.applicability, configurationForVariant("serial-a")), true);
+  assert.equal(matchesAircraftApplicability(scoped.applicability, configurationForVariant("serial-b")), false);
+  assert.match(validateContentPayload("weight-balance", { ...content, applicability: { variants: [] } }, content.aircraftId).join("; "), /variants must be a non-empty array/i);
 });
 
 test("M41 calculates takeoff and landing from empty moment plus station moments", () => {
@@ -87,6 +96,7 @@ test("M41 learner implementation is aircraft-agnostic and source-driven", () => 
   const calculator = fs.readFileSync(new URL("../components/weight-balance-calculator.tsx", import.meta.url), "utf8");
   const engine = fs.readFileSync(new URL("../lib/weight-balance-calculator.ts", import.meta.url), "utf8");
   assert.match(page, /getPublishedAircraftModule<AircraftWeightBalanceContent>/);
+  assert.match(page, /matchesAircraftApplicability\(content\.applicability, configuration\)/);
   assert.match(calculator, /planned landing state/i);
   assert.match(calculator, /mass × arm/i);
   assert.doesNotMatch(`${page}${calculator}${engine}`, /bristell|learjet|cessna|rotax/i);

@@ -1,4 +1,4 @@
-import type { TrainingSourceReference, UniversalModuleMetadata } from "./universal-aircraft-content.ts";
+import type { AircraftApplicability, TrainingSourceReference, UniversalModuleMetadata } from "./universal-aircraft-content.ts";
 
 export type WeightBalanceInputKind = "mass-kg" | "fuel-litres";
 
@@ -32,6 +32,8 @@ export type WeightBalanceCgScale = {
 export type AircraftWeightBalanceContent = UniversalModuleMetadata & {
   readonly aircraftId: string;
   readonly title: string;
+  /** Configuration boundary for aircraft-specific empty-weight and station data. */
+  readonly applicability?: AircraftApplicability;
   readonly empty: {
     readonly massKg: number;
     readonly armMm: number;
