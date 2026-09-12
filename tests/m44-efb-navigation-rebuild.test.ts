@@ -12,8 +12,9 @@ const reference=read("app/aircraft/[aircraftId]/reference/page.tsx");
 const admin=read("components/admin-aircraft-workspace.tsx");
 const adminCss=read("components/admin-aircraft-workspace.module.css");
 
-test("M44 replaces stacked learner menus with a stable EFB navigation rail",()=>{
+test("M44 EFB shell remains one stable aircraft navigation rail",()=>{
   assert.match(nav,/primaryDestinations/);
+  assert.match(nav,/\/fly/);
   assert.match(nav,/\/training/);
   assert.match(nav,/\/reference/);
   assert.doesNotMatch(nav,/areaNav|currentArea/);
@@ -21,31 +22,31 @@ test("M44 replaces stacked learner menus with a stable EFB navigation rail",()=>
   assert.match(learnerCss,/grid-template-columns:220px minmax\(0,1fr\)/);
 });
 
-test("M44 mobile navigation is a four-destination bottom tab bar",()=>{
+test("mobile navigation remains a four-destination bottom tab bar",()=>{
   assert.match(navCss,/position:fixed/);
   assert.match(navCss,/grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
-  for(const label of ["Home","Training","Checklists","Reference"])assert.match(nav,new RegExp(`label: \"${label}\"`));
+  for(const label of ["Home","Fly","Learn","Reference"])assert.match(nav,new RegExp(`label: \"${label}\"`));
 });
 
-test("M44 moves detail into capability-driven training and reference hubs",()=>{
+test("detail stays in capability-driven Learn and Reference hubs",()=>{
   assert.match(training,/capabilities\.systems/);
   assert.match(training,/capabilities\.procedures/);
   assert.match(training,/capabilities\.knowledge/);
+  assert.match(training,/capabilities\.checklists/);
   assert.match(reference,/capabilities\.performance/);
   assert.match(reference,/capabilities\.weightBalance/);
   assert.match(reference,/capabilities\.abnormalEmergency/);
   assert.doesNotMatch(training+reference,/bristell|learjet|cessna|boeing/i);
 });
 
-test("M44 aircraft home becomes a command center with direct operational actions",()=>{
+test("aircraft home leads into the operational flight deck",()=>{
   assert.match(home,/pilot-command-grid/);
-  assert.match(home,/Open training/);
-  assert.match(home,/Normal checklist/);
-  assert.match(home,/Performance/);
-  assert.match(home,/Weight & Balance/);
+  assert.match(home,/Checklist & performance/);
+  assert.match(home,/Open flight deck/);
+  assert.match(home,/Open learn/);
 });
 
-test("M44 simplifies the admin aircraft shell into one sticky task tab row",()=>{
+test("admin aircraft shell remains one sticky task tab row",()=>{
   assert.match(admin,/className=\{styles\.tabs\}/);
   assert.doesNotMatch(admin,/className=\{styles\.sidebar\}/);
   assert.match(adminCss,/\.tabs\{position:sticky/);

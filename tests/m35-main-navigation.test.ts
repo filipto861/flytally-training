@@ -17,12 +17,11 @@ test("learner navigation remains one publication-driven aircraft navigation surf
 
 test("pilot navigation exposes stable task destinations and progress without domain clutter globally",()=>{
   assert.match(nav,/label: "Home"/);
-  assert.match(nav,/label: "Training"/);
-  assert.match(nav,/label: "Checklists"/);
+  assert.match(nav,/label: "Fly"/);
+  assert.match(nav,/label: "Learn"/);
   assert.match(nav,/label: "Reference"/);
   assert.match(nav,/className=\{styles\.progressLink\}/);
   assert.match(nav,/quick-reference/);
-  assert.doesNotMatch(nav,/"FLY"|"LEARN"/);
 });
 
 test("aircraft variant remains a compact utility instead of a primary navigation choice",()=>{

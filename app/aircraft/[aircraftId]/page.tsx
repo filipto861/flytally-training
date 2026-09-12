@@ -22,12 +22,8 @@ export default async function AircraftPage({
   const moduleHref = (href: string) => withVariantQuery(`/aircraft/${aircraft.id}/${href}`, selectedVariant);
 
   const hasTraining = capabilities.systems || capabilities.procedures || capabilities.knowledge || capabilities.avionics || capabilities.flows;
-  const quickActions = [
-    capabilities.checklists ? { href: "checklists", label: "Normal checklist" } : undefined,
-    capabilities.performance ? { href: "performance", label: "Performance" } : undefined,
-    capabilities.weightBalance ? { href: "weight-balance", label: "Weight & Balance" } : undefined,
-    capabilities.limitations ? { href: "limitations", label: "Limitations" } : undefined,
-  ].filter((item): item is { href: string; label: string } => Boolean(item));
+  const hasFly = capabilities.checklists || capabilities.performance;
+  const hasReference = capabilities.weightBalance || capabilities.limitations || capabilities.abnormalEmergency;
 
   return (
     <main className="shell aircraft-detail">
@@ -37,25 +33,27 @@ export default async function AircraftPage({
         <header className="pilot-home-header">
           <p className="eyebrow">Aircraft workspace</p>
           <h1>{aircraft.displayName}</h1>
-          <p className="lede">Everything for this aircraft in one place: learn it, run the checklist, or open the numbers you need before flight.</p>
         </header>
 
         <div className="pilot-command-grid">
-          {hasTraining ? <article className="pilot-command-panel pilot-command-panel-primary">
-            <p className="eyebrow">Training</p>
-            <h2>Know the aircraft</h2>
-            <p>Systems, procedures and knowledge are grouped into one focused study area instead of another layer of menu choices.</p>
-            <Link className="pilot-command-primary" href={moduleHref("training")}>Open training →</Link>
+          {hasFly ? <article className="pilot-command-panel pilot-command-panel-primary">
+            <p className="eyebrow">Fly</p>
+            <h2>Checklist & performance</h2>
+            <p>Operational flight tools only, optimized for quick touch use.</p>
+            <Link className="pilot-command-primary" href={moduleHref("fly")}>Open flight deck →</Link>
           </article> : null}
 
-          <article className="pilot-command-panel">
-            <p className="eyebrow">Before flight</p>
-            <h2>Quick actions</h2>
-            <p>Open the operational tool directly. No need to remember where it lives in the content structure.</p>
-            <div className="pilot-command-list">
-              {quickActions.map((item) => <Link href={moduleHref(item.href)} key={item.href}><span>{item.label}</span><span aria-hidden="true">→</span></Link>)}
-            </div>
-          </article>
+          {hasTraining ? <article className="pilot-command-panel">
+            <p className="eyebrow">Learn</p>
+            <h2>Learn the aircraft</h2>
+            <p>Systems, procedures, checklist practice and explanations.</p>
+            <Link className="pilot-command-primary" href={moduleHref("training")}>Open learn →</Link>
+          </article> : hasReference ? <article className="pilot-command-panel">
+            <p className="eyebrow">Reference</p>
+            <h2>Aircraft reference</h2>
+            <p>Published limitations, loading and abnormal or emergency material.</p>
+            <Link className="pilot-command-primary" href={moduleHref("reference")}>Open reference →</Link>
+          </article> : null}
         </div>
 
         {capabilities.abnormalEmergency ? <Link className="pilot-emergency-strip" href={moduleHref("abnormal")}>

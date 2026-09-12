@@ -9,12 +9,12 @@ const aircraftHome = fs.readFileSync(new URL("../app/aircraft/[aircraftId]/page.
 const library = fs.readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
 const productShell = fs.readFileSync(new URL("../components/product-shell.tsx", import.meta.url), "utf8");
 
-test("pilot-first grouping survives the EFB navigation rebuild", () => {
-  assert.match(nav, /type PilotArea = "training" \| "checklists" \| "reference"/);
-  assert.match(nav, /label: "Training"/);
-  assert.match(nav, /label: "Checklists"/);
+test("pilot-first grouping evolves into explicit Fly, Learn and Reference areas", () => {
+  assert.match(nav, /type PilotArea = "fly" \| "learn" \| "reference"/);
+  assert.match(nav, /label: "Fly"/);
+  assert.match(nav, /label: "Learn"/);
   assert.match(nav, /label: "Reference"/);
-  assert.doesNotMatch(nav, /"FLY"|"LEARN"/);
+  assert.match(nav, /\/fly/);
 });
 
 test("persistent module-level submenu is removed in favor of dedicated area hubs", () => {
@@ -24,10 +24,10 @@ test("persistent module-level submenu is removed in favor of dedicated area hubs
   assert.match(nav, /\/reference/);
 });
 
-test("pilot home emphasizes direct actions instead of content taxonomy", () => {
+test("pilot home emphasizes flight and learning tasks instead of content taxonomy", () => {
   assert.match(aircraftHome, /pilot-command-panel-primary/);
-  assert.match(aircraftHome, /Quick actions/);
-  assert.match(aircraftHome, /Normal checklist/);
+  assert.match(aircraftHome, /Checklist & performance/);
+  assert.match(aircraftHome, /Open flight deck/);
   assert.match(aircraftHome, /Abnormal & Emergency/);
   assert.doesNotMatch(aircraftHome, /Training references|workspaceProfile|publisher|revision/);
 });
