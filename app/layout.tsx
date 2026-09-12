@@ -16,6 +16,9 @@ export const metadata: Metadata = {
   description: "Source-backed aircraft training with checklists, procedures, performance, limitations and systems.",
   applicationName: "FlyTally Training",
   manifest: "/manifest.webmanifest",
+  icons: {
+    icon: "https://fly-tally.com/logbook_icon_32.png",
+  },
 };
 
 export const viewport: Viewport = {
