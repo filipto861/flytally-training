@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Source-backed aircraft training and offline flight tools.",
     start_url: "/",
     display: "standalone",
-    background_color: "#f4f7fa",
-    theme_color: "#101a29",
+    background_color: "#f4f7fb",
+    theme_color: "#f4f7fb",
     orientation: "any",
   };
 }

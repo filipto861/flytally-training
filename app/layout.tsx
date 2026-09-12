@@ -6,6 +6,7 @@ import "./globals.css";
 import "./release.css";
 import "./navigation.css";
 import "./learner-shell.css";
+import "./flytally-brand.css";
 
 export const metadata: Metadata = {
   title: {
@@ -21,7 +22,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#101a29",
+  themeColor: "#f4f7fb",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {

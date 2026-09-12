@@ -2,34 +2,45 @@
 
 import { useMemo, useState } from "react";
 
+import type { RuntimeAbnormalTraining } from "@/lib/abnormal-runtime";
 import type { RuntimeChecklist } from "@/lib/checklist-runtime";
 import type { PerformanceDataset } from "@/lib/universal-aircraft-content";
 import { OfflineFlightBootstrap } from "./offline-flight-bootstrap";
 import { OperationalChecklist } from "./operational-checklist";
+import { OperationalEmergency } from "./operational-emergency";
 import { OperationalPerformance } from "./operational-performance";
 import styles from "./flight-deck.module.css";
 
-type FlightView = "checklist" | "performance";
+type FlightView = "checklist" | "performance" | "emergency";
 
 export function FlightDeck({
   aircraftId,
   aircraftName,
   checklist,
   performanceDatasets,
+  emergency,
   selectedVariant,
 }: Readonly<{
   aircraftId: string;
   aircraftName: string;
   checklist?: RuntimeChecklist;
   performanceDatasets: readonly PerformanceDataset[];
+  emergency?: RuntimeAbnormalTraining;
   selectedVariant?: string;
 }>) {
   const available = useMemo(() => [
     checklist ? "checklist" as const : undefined,
     performanceDatasets.length ? "performance" as const : undefined,
-  ].filter((value): value is FlightView => Boolean(value)), [checklist, performanceDatasets.length]);
+    emergency?.scenarios.length ? "emergency" as const : undefined,
+  ].filter((value): value is FlightView => Boolean(value)), [checklist, performanceDatasets.length, emergency?.scenarios.length]);
   const [view, setView] = useState<FlightView>(available[0] ?? "checklist");
   const active = available.includes(view) ? view : available[0];
+
+  const tabLabel = (item: FlightView) => item === "checklist" ? "Checklist" : item === "performance" ? "Performance" : "Emergency";
+  const tabClass = (item: FlightView) => {
+    if (item === "emergency") return active === item ? `${styles.emergencyTab} ${styles.activeEmergencyTab}` : styles.emergencyTab;
+    return active === item ? styles.activeTab : undefined;
+  };
 
   return (
     <section className={styles.deck} aria-label={`${aircraftName} flight deck`}>
@@ -41,14 +52,15 @@ export function FlightDeck({
         <OfflineFlightBootstrap />
       </header>
 
-      {available.length > 1 ? <nav className={styles.tabs} aria-label="Flight tools">
+      {available.length > 1 ? <nav className={styles.tabs} data-tab-count={available.length} aria-label="Flight tools">
         {available.map((item) => <button
+          aria-label={item === "emergency" ? "Emergency quick reference" : undefined}
           aria-pressed={active === item}
-          className={active === item ? styles.activeTab : undefined}
+          className={tabClass(item)}
           key={item}
           onClick={() => setView(item)}
           type="button"
-        >{item === "checklist" ? "Checklist" : "Performance"}</button>)}
+        >{tabLabel(item)}</button>)}
       </nav> : null}
 
       <div className={styles.content}>
@@ -57,6 +69,9 @@ export function FlightDeck({
           : null}
         {active === "performance" && performanceDatasets.length
           ? <OperationalPerformance aircraftId={aircraftId} datasets={performanceDatasets} selectedVariant={selectedVariant} />
+          : null}
+        {active === "emergency" && emergency?.scenarios.length
+          ? <OperationalEmergency training={emergency} />
           : null}
       </div>
     </section>

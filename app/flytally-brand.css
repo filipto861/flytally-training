@@ -1,0 +1,73 @@
+/* FlyTally shared product language — aligned with the Logbook v1.50 light design system. */
+:root{
+  --bg:#f4f7fb;
+  --panel:#ffffff;
+  --panel2:#eef3f8;
+  --surface:#ffffff;
+  --surface-raised:#f8fafc;
+  --surface-muted:#f1f5f9;
+  --surface-hover:#eaf1f7;
+  --line:#d5dee8;
+  --line-soft:#e4eaf0;
+  --line-strong:#b6c5d5;
+  --text:#102033;
+  --text-soft:#34485f;
+  --muted:#66788d;
+  --control-bg:#ffffff;
+  --control-hover:#f4f8fb;
+  --control-border:#c8d4e0;
+  --accent:#0b946e;
+  --accent-strong:#087557;
+  --accent-soft:rgba(11,148,110,.10);
+  --accent2:#087fb8;
+  --link:#066f9f;
+  --danger-text:#b4233a;
+  --danger-bg:#fff1f3;
+  --danger-border:#efb2bc;
+  --warning-text:#9a5b00;
+  --warning-bg:#fff8e8;
+  --warning-border:#edc978;
+  --info-text:#066f9f;
+  --info-bg:#edf8fd;
+  --info-border:#a9d7eb;
+  --focus-color:#087fb8;
+  --focus-ring:0 0 0 3px rgba(8,127,184,.18);
+  --shadow-soft:0 10px 30px rgba(15,35,55,.07);
+  --shadow-raised:0 18px 48px rgba(15,35,55,.12);
+}
+
+html,body{background:var(--bg);color:var(--text)}
+body{accent-color:var(--accent);background:var(--bg)}
+::selection{background:var(--accent-soft);color:var(--text)}
+:where(a,button,input,select,textarea,summary,[tabindex]):focus-visible{outline:2px solid var(--focus-color);outline-offset:2px;box-shadow:var(--focus-ring)}
+:where(input,select,textarea){background:var(--control-bg);border-color:var(--control-border);color:var(--text)}
+:where(input,select,textarea):hover:not(:disabled){border-color:var(--line-strong)}
+
+.app-header{border-bottom-color:rgba(213,222,232,.92);background:rgba(248,250,252,.94);box-shadow:0 4px 18px rgba(15,35,55,.025)}
+.app-header-inner{min-height:66px}
+.brand{gap:10px}
+.brand-mark{width:36px;height:36px;border:1px solid rgba(11,148,110,.2);border-radius:11px;background:var(--accent-soft);color:var(--accent);font-size:.7rem;font-weight:900;box-shadow:none}
+.brand>span:last-child{gap:1px;line-height:1}
+.brand strong{color:var(--text);font-size:1rem;letter-spacing:-.015em}
+.brand small{order:-1;margin:0;color:var(--muted);font-size:.57rem;font-weight:850;letter-spacing:.11em;text-transform:uppercase}
+
+.eyebrow{color:var(--muted)}
+.lede,.section-heading>p,.aircraft-card p,.manual-summary p,.workspace-card p,.back-link{color:var(--muted)}
+.status,.source-pill{border-color:var(--line);background:var(--surface-raised);color:var(--text-soft)}
+.aircraft-card,.manual-summary,.workspace-card,.chapter-list li{border-color:var(--line);background:var(--surface);box-shadow:var(--shadow-soft)}
+.aircraft-card:hover,a.workspace-card:hover{border-color:var(--line-strong);box-shadow:var(--shadow-raised)}
+.availability-dot::before{background:var(--accent)}
+.workspace-card-topline small,.hero-facts span,.chapter-number{background:var(--surface-muted);color:var(--muted)}
+.app-footer{border-top-color:var(--line);background:rgba(255,255,255,.72)}
+.app-footer-inner{color:var(--muted)}
+.workspace-nav{border-color:var(--line);background:var(--surface-raised)}
+.workspace-nav a{color:var(--muted)}
+.workspace-nav a:hover{background:var(--surface-hover);color:var(--text)}
+.workspace-nav a.active{background:var(--accent-soft);color:var(--accent-strong)}
+.start-panel{border-color:#203650;background:linear-gradient(135deg,#0e1b2d 0%,#13243a 100%);box-shadow:var(--shadow-raised)}
+.primary-action{background:var(--accent);color:#fff}
+.primary-action:hover{background:var(--accent-strong)}
+.pilot-source-details{border-color:var(--line)!important;background:var(--surface-raised)!important;color:var(--muted)!important}
+.pilot-source-details summary{color:var(--text-soft)!important}
+
+@media(max-width:760px){.app-header-inner{min-height:62px}.brand-mark{width:34px;height:34px}.brand strong{font-size:.96rem}}
