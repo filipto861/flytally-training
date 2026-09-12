@@ -5,7 +5,6 @@ import { useEffect, useMemo, useState } from "react";
 import {
   buildPerformanceCalculatorProfile,
   calculateLandingDistance,
-  calculateNativeDistanceGrid,
   calculateTakeoffDistance,
   getLandingSpeeds,
   getLandingSurfaceOptions,
@@ -13,7 +12,9 @@ import {
   getNativeGridSurfaceOptions,
   getTakeoffSurfaceOptions,
   getTakeoffWeights,
+  type NativeDistanceCalculation,
 } from "@/lib/performance-calculator";
+import { calculateOperationalNativeDistanceGrid } from "@/lib/operational-performance-policy";
 import type { PerformanceDataset } from "@/lib/universal-aircraft-content";
 import styles from "./operational-performance.module.css";
 
@@ -67,6 +68,9 @@ function numberValue(value: string): number | undefined {
 function meters(value: number | undefined): string { return value === undefined ? "—" : `${Math.round(value)} m`; }
 function feet(value: number | undefined): string { return value === undefined ? "—" : `${Math.round(value)} ft`; }
 function percent(value: number | undefined): string { return value === undefined ? "—" : `${Math.round(value)}%`; }
+function calculationMethod(result: NativeDistanceCalculation): string {
+  return result.method === "bounded-linear-interpolation" ? "Interpolated between published rows" : "Published table value";
+}
 
 export function OperationalPerformance({
   aircraftId,
@@ -116,14 +120,14 @@ export function OperationalPerformance({
   const takeoffGridSurface = state.takeoffGridSurface || nativeTakeoffSurfaces[0] || "";
   const landingGridSurface = state.landingGridSurface || nativeLandingSurfaces[0] || "";
 
-  const nativeTakeoff = useMemo(() => calculateNativeDistanceGrid(profile.takeoffGridDataset, {
+  const nativeTakeoff = useMemo(() => calculateOperationalNativeDistanceGrid(profile.takeoffGridDataset, {
     airportAltitudeFt: numberValue(state.takeoffAltitudeFt),
     oatC: numberValue(state.takeoffOatC),
     surface: takeoffGridSurface,
     runwayAvailableM: numberValue(state.takeoffRunwayM),
   }), [profile.takeoffGridDataset, state.takeoffAltitudeFt, state.takeoffOatC, state.takeoffRunwayM, takeoffGridSurface]);
 
-  const nativeLanding = useMemo(() => calculateNativeDistanceGrid(profile.landingGridDataset, {
+  const nativeLanding = useMemo(() => calculateOperationalNativeDistanceGrid(profile.landingGridDataset, {
     airportAltitudeFt: numberValue(state.landingAltitudeFt),
     oatC: numberValue(state.landingOatC),
     surface: landingGridSurface,
@@ -170,6 +174,7 @@ export function OperationalPerformance({
           <h2>Result</h2>
           {nativeTakeoff.status === "ready" ? <>
             <div className={styles.primary}><span>50 ft distance</span><strong>{meters(nativeTakeoff.distance50ftM)}</strong></div>
+            <div className={styles.method} aria-label="Calculation method">{calculationMethod(nativeTakeoff)}</div>
             <div className={styles.resultGrid}><div><span>Ground run</span><strong>{meters(nativeTakeoff.groundRunM)}</strong></div><div><span>Margin</span><strong>{meters(nativeTakeoff.distance50ftMarginM)}</strong></div><div><span>Runway used</span><strong>{percent(nativeTakeoff.distance50ftUsePercent)}</strong></div></div>
           </> : <strong className={styles.status}>{nativeTakeoff.reason ?? "Enter inputs"}</strong>}
         </section>
@@ -189,6 +194,7 @@ export function OperationalPerformance({
           <h2>Result</h2>
           {nativeLanding.status === "ready" ? <>
             <div className={styles.primary}><span>50 ft distance</span><strong>{meters(nativeLanding.distance50ftM)}</strong></div>
+            <div className={styles.method} aria-label="Calculation method">{calculationMethod(nativeLanding)}</div>
             <div className={styles.resultGrid}><div><span>Ground run</span><strong>{meters(nativeLanding.groundRunM)}</strong></div><div><span>Margin</span><strong>{meters(nativeLanding.distance50ftMarginM)}</strong></div><div><span>Runway used</span><strong>{percent(nativeLanding.distance50ftUsePercent)}</strong></div></div>
           </> : <strong className={styles.status}>{nativeLanding.reason ?? "Enter inputs"}</strong>}
         </section>

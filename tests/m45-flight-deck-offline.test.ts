@@ -8,6 +8,7 @@ const flyPage=read("app/aircraft/[aircraftId]/fly/page.tsx");
 const deck=read("components/flight-deck.tsx");
 const checklist=read("components/operational-checklist.tsx");
 const performance=read("components/operational-performance.tsx");
+const performancePolicy=read("lib/operational-performance-policy.ts");
 const emergency=read("components/operational-emergency.tsx");
 const offline=read("components/offline-flight-bootstrap.tsx");
 const serviceWorker=read("app/sw.js/route.ts");
@@ -34,13 +35,14 @@ test("operational checklist removes training modes and explanatory commentary",(
 });
 
 test("operational performance is a client-side calculator without reference drawers or training commentary",()=>{
-  assert.match(performance,/calculateNativeDistanceGrid/);
+  assert.match(performance,/calculateOperationalNativeDistanceGrid/);
+  assert.match(performancePolicy,/calculateNativeDistanceGrid/);
   assert.match(performance,/calculateTakeoffDistance/);
   assert.match(performance,/calculateLandingDistance/);
   assert.match(performance,/localStorage/);
   assert.match(performance,/temperatureLimitedLanding/);
   assert.match(performance,/set\("landingOatC"/);
-  assert.doesNotMatch(performance,/PerformanceExplorer|Calculation method|Reference data|Training aid/);
+  assert.doesNotMatch(performance,/PerformanceExplorer|Reference data|Training aid/);
 });
 
 test("emergency quick reference renders source-backed response actions without training mechanics",()=>{
@@ -72,5 +74,5 @@ test("flight deck establishes an offline PWA boundary limited to the Fly route",
 });
 
 test("Fly implementation stays aircraft-agnostic",()=>{
-  assert.doesNotMatch(flyPage+deck+checklist+performance+emergency,/bristell|learjet|cessna|boeing|rotax/i);
+  assert.doesNotMatch(flyPage+deck+checklist+performance+performancePolicy+emergency,/bristell|learjet|cessna|boeing|rotax/i);
 });
