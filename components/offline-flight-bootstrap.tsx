@@ -11,16 +11,18 @@ export function OfflineFlightBootstrap() {
 
   useEffect(() => {
     let mounted = true;
-    const updateConnectivity = () => {
-      if (!mounted) return;
-      if (!navigator.onLine) setState("offline");
-    };
-    window.addEventListener("offline", updateConnectivity);
-    window.addEventListener("online", () => mounted && setState("ready"));
+    const handleOffline = () => { if (mounted) setState("offline"); };
+    const handleOnline = () => { if (mounted) setState("ready"); };
+    window.addEventListener("offline", handleOffline);
+    window.addEventListener("online", handleOnline);
 
     if (!("serviceWorker" in navigator)) {
-      setState(navigator.onLine ? "unsupported" : "offline");
-      return () => { mounted = false; window.removeEventListener("offline", updateConnectivity); };
+      setState("unsupported");
+      return () => {
+        mounted = false;
+        window.removeEventListener("offline", handleOffline);
+        window.removeEventListener("online", handleOnline);
+      };
     }
 
     void (async () => {
@@ -37,7 +39,8 @@ export function OfflineFlightBootstrap() {
 
     return () => {
       mounted = false;
-      window.removeEventListener("offline", updateConnectivity);
+      window.removeEventListener("offline", handleOffline);
+      window.removeEventListener("online", handleOnline);
     };
   }, []);
 
