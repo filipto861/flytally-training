@@ -1,0 +1,77 @@
+/* M56 — mobile-first application shell. Keep aircraft/content logic out of this layer. */
+:root{
+  --mobile-app-header-height:56px;
+  --mobile-bottom-nav-height:70px;
+  --mobile-flight-tabs-height:68px;
+}
+
+@media(max-width:900px){
+  html{scroll-padding-top:calc(var(--mobile-app-header-height) + env(safe-area-inset-top) + 8px)}
+  body{min-height:100dvh;background:var(--bg);overscroll-behavior-y:none}
+
+  .app-header{padding-top:env(safe-area-inset-top);background:rgba(248,250,252,.97);box-shadow:0 1px 0 rgba(213,222,232,.8)}
+  .app-header-inner{width:100%;min-height:var(--mobile-app-header-height);padding:0 12px}
+  body:has(.learner-pilot-nav) .app-footer{display:none}
+
+  .shell:has(> .learner-pilot-nav){
+    width:100%;
+    min-height:calc(100dvh - var(--mobile-app-header-height) - env(safe-area-inset-top));
+    padding:8px 10px calc(var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom) + 18px);
+  }
+  .shell:has(> .learner-pilot-nav)>.learner-pilot-nav{margin-bottom:10px}
+  .learner-pilot-nav>div:first-child{border-radius:12px;background:var(--surface);box-shadow:none}
+
+  /* Native-style bottom tab bar: fixed to the device edge, not a floating web pill. */
+  .learner-pilot-nav nav[aria-label="Pilot workspace"]{
+    right:0;
+    bottom:0;
+    left:0;
+    gap:0;
+    min-height:calc(var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom));
+    padding:5px 8px calc(5px + env(safe-area-inset-bottom));
+    border:0;
+    border-top:1px solid rgba(213,222,232,.94);
+    border-radius:0;
+    background:rgba(250,252,254,.97);
+    box-shadow:0 -8px 28px rgba(15,35,55,.08);
+  }
+  .learner-pilot-nav nav[aria-label="Pilot workspace"] a{min-height:58px;border-radius:11px}
+
+  /* Fly stays readable while scrolling: global header -> tool tabs -> local control. */
+  .flight-shell nav[aria-label="Flight tools"]{
+    top:calc(var(--mobile-app-header-height) + env(safe-area-inset-top) + 5px);
+    z-index:40;
+    margin-inline:-2px;
+  }
+  .flight-shell section[aria-label$="Checklist"]>div:has(>label select[aria-label="Checklist phase"]){
+    top:calc(var(--mobile-app-header-height) + var(--mobile-flight-tabs-height) + env(safe-area-inset-top));
+    z-index:35;
+  }
+  .flight-shell section[aria-label$="Checklist"]>footer{
+    bottom:calc(var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom));
+  }
+  .flight-shell section[aria-label="Emergency quick reference"]>div:first-child{
+    top:calc(var(--mobile-app-header-height) + var(--mobile-flight-tabs-height) + env(safe-area-inset-top));
+    z-index:35;
+  }
+  .flight-shell section[aria-label="Operational performance"]>div>section:nth-of-type(2){
+    bottom:calc(var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom));
+  }
+
+  /* Remove desktop-style elevation where the mobile hierarchy already provides separation. */
+  .pilot-command-panel,.pilot-area-card,.pilot-aircraft-row{box-shadow:none}
+  .pilot-command-panel,.pilot-area-card,.pilot-aircraft-row,.workspace-card{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+}
+
+@media(max-width:520px){
+  .app-header-inner{padding-inline:10px}
+  .shell:has(> .learner-pilot-nav){padding-inline:7px}
+  .learner-pilot-nav nav[aria-label="Pilot workspace"]{padding-inline:5px}
+  .learner-pilot-nav nav[aria-label="Pilot workspace"] a{min-height:56px}
+  .pilot-command-panel,.pilot-area-card,.pilot-aircraft-row{border-radius:14px}
+}
+
+@media(display-mode:standalone) and (max-width:900px){
+  .app-header{background:rgba(248,250,252,.985)}
+  .learner-pilot-nav nav[aria-label="Pilot workspace"]{background:rgba(250,252,254,.985)}
+}
