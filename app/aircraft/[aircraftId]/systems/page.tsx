@@ -53,9 +53,9 @@ export default async function SystemsPage({
       <Link className="back-link" href={withVariantQuery(`/aircraft/${aircraft.id}`, selectedVariant)}>← {aircraft.displayName}</Link>
       <AircraftWorkspaceNav aircraftId={aircraft.id} active="systems" variants={aircraft.variants} variantProfiles={aircraft.variantProfiles} selectedVariant={selectedVariant} />
       <section className="workspace-section-hero">
-        <p className="eyebrow">Learn · Systems</p>
-        <h1>{configuredUniversal?.title ?? `${systems.length} aircraft systems`}</h1>
-        <p className="lede">Choose a system and focus on controls, indications, limitations and abnormal cues.</p>
+        <p className="eyebrow">Learn</p>
+        <h1>Systems</h1>
+        <p className="lede">Choose one system and focus on what matters operationally.</p>
         {configuredUniversal?.disclaimer || configuredUniversal?.sourceNote ? <details className="pilot-source-details">
           <summary>Training & source notes</summary>
           {configuredUniversal?.disclaimer ? <p><strong>Training boundary:</strong> {configuredUniversal.disclaimer}</p> : null}

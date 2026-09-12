@@ -119,29 +119,27 @@ export function OperationalChecklist({
         </div>
       </div>
 
-      <nav className={styles.phases} aria-label="Checklist phases">
-        {checklist.phases.map((phase) => {
-          const phaseDone = phase.items.length > 0 && phase.items.every((item) => completed.has(item.id));
-          return <button
-            aria-current={phase.id === currentPhase.id ? "step" : undefined}
-            className={`${phase.id === currentPhase.id ? styles.activePhase : ""} ${phaseDone ? styles.completePhase : ""}`}
-            key={phase.id}
-            onClick={() => choosePhase(phase.id)}
+      <div className={styles.phaseBar}>
+        <label className={styles.phasePicker}>
+          <span>Phase {phaseIndex + 1} of {checklist.phases.length}</span>
+          <select aria-label="Checklist phase" onChange={(event) => choosePhase(event.target.value)} value={currentPhase.id}>
+            {checklist.phases.map((phase) => {
+              const phaseDone = phase.items.length > 0 && phase.items.every((item) => completed.has(item.id));
+              return <option key={phase.id} value={phase.id}>{phaseDone ? "✓ " : ""}{phase.title}</option>;
+            })}
+          </select>
+        </label>
+        <div className={styles.phaseActions}>
+          <span aria-label={`${completeInPhase} of ${currentPhase.items.length} items complete`}>{completeInPhase}/{currentPhase.items.length}</span>
+          <button
+            aria-label={resetArmed ? `Confirm reset of ${currentPhase.title}` : `Reset ${currentPhase.title}`}
+            className={resetArmed ? styles.resetArmed : undefined}
+            onBlur={() => setResetArmed(false)}
+            onClick={resetPhase}
             type="button"
-          >{phaseDone ? <span aria-hidden="true">✓ </span> : null}{phase.title}</button>;
-        })}
-      </nav>
-
-      <header className={styles.phaseHeader}>
-        <div><h1>{currentPhase.title}</h1><span>{completeInPhase}/{currentPhase.items.length}</span></div>
-        <button
-          aria-label={resetArmed ? `Confirm reset of ${currentPhase.title}` : `Reset ${currentPhase.title}`}
-          className={resetArmed ? styles.resetArmed : undefined}
-          onBlur={() => setResetArmed(false)}
-          onClick={resetPhase}
-          type="button"
-        >{resetArmed ? "Confirm" : "Reset"}</button>
-      </header>
+          >{resetArmed ? "Confirm" : "Reset"}</button>
+        </div>
+      </div>
 
       <div className={styles.items}>
         {currentPhase.items.map((item) => {

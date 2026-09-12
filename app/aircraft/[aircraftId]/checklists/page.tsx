@@ -37,9 +37,9 @@ export default async function ChecklistsPage({
       <Link className="back-link" href={withVariantQuery(`/aircraft/${aircraft.id}/training`, selectedVariant)}>← Learn</Link>
       <AircraftWorkspaceNav aircraftId={aircraft.id} active="training" variants={aircraft.variants} variantProfiles={aircraft.variantProfiles} selectedVariant={selectedVariant} />
       <section className="workspace-section-hero">
-        <p className="eyebrow">Learn · Checklist training</p>
-        <h1>{checklist.title}</h1>
-        <p className="lede">Learn, practise, rehearse flows and challenge & response. Fly remains the stripped operational view.</p>
+        <p className="eyebrow">Learn</p>
+        <h1>Checklist training</h1>
+        <p className="lede">Learn the checklist, rehearse flows and practise challenge & response.</p>
         {configuredUniversal?.disclaimer || configuredUniversal?.sourceNote || checklist.estimatedMinutes ? <details className="pilot-source-details">
           <summary>Training & source notes</summary>
           {configuredUniversal?.disclaimer ? <p><strong>Training boundary:</strong> {configuredUniversal.disclaimer}</p> : null}

@@ -41,9 +41,9 @@ export default async function ProceduresPage({
       <Link className="back-link" href={withVariantQuery(`/aircraft/${aircraft.id}`, selectedVariant)}>← {aircraft.displayName}</Link>
       <AircraftWorkspaceNav aircraftId={aircraft.id} active="procedures" variants={aircraft.variants} variantProfiles={aircraft.variantProfiles} selectedVariant={selectedVariant} />
       <section className="workspace-section-hero">
-        <p className="eyebrow">Learn · Procedures</p>
-        <h1>{configuredUniversal?.title ?? "Operating procedures"}</h1>
-        <p className="lede">Select a procedure, work through the steps and verify the expected result.</p>
+        <p className="eyebrow">Learn</p>
+        <h1>Procedures</h1>
+        <p className="lede">Choose a procedure and work through it step by step.</p>
         {configuredUniversal?.disclaimer || configuredUniversal?.sourceNote ? <details className="pilot-source-details">
           <summary>Training & source notes</summary>
           {configuredUniversal?.disclaimer ? <p><strong>Training boundary:</strong> {configuredUniversal.disclaimer}</p> : null}
