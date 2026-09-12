@@ -1,9 +1,8 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
-import { PerformanceExplorer } from "@/components/performance-explorer";
-import { configurationForAircraftVariant, filterPerformanceForConfiguration, resolveSelectedVariant, withVariantQuery } from "@/lib/aircraft-applicability";
+import { PerformanceCalculator } from "@/components/performance-calculator";
+import { configurationForAircraftVariant, filterPerformanceForConfiguration, resolveSelectedVariant } from "@/lib/aircraft-applicability";
 import { getPublishedAircraftModule } from "@/lib/content-repository";
 import { getTrainingContentRepository } from "@/lib/content-store";
 import type { AircraftPerformanceContent } from "@/lib/universal-aircraft-content";
@@ -29,16 +28,13 @@ export default async function PerformancePage({
 
   return (
     <main className="shell aircraft-detail">
-      <Link className="back-link" href={withVariantQuery(`/aircraft/${aircraft.id}`, selectedVariant)}>← {aircraft.displayName}</Link>
       <AircraftWorkspaceNav aircraftId={aircraft.id} active="performance" variants={aircraft.variants} variantProfiles={aircraft.variantProfiles} selectedVariant={selectedVariant} />
       <section className="workspace-section-hero">
         <p className="eyebrow">Performance · {aircraft.displayName}{selectedVariant ? ` · ${selectedVariant}` : ""}</p>
-        <h1>{configuredContent.title}</h1>
-        <p className="lede">Filter the published performance datasets by their own axes and read the exact source row. The generic explorer never invents interpolation or aircraft-specific calculation logic.</p>
-        {configuredContent.disclaimer ? <p><strong>Training boundary:</strong> {configuredContent.disclaimer}</p> : null}
-        {configuredContent.sourceNote ? <p><small>Source note · {configuredContent.sourceNote}</small></p> : null}
+        <h1>Performance calculator</h1>
+        <p className="lede">Calculate takeoff and landing runway corrections from the performance data actually published for this aircraft. Missing AFM chart logic is never reconstructed or guessed.</p>
       </section>
-      <PerformanceExplorer datasets={configuredContent.datasets} />
+      <PerformanceCalculator datasets={configuredContent.datasets} disclaimer={configuredContent.disclaimer} />
     </main>
   );
 }
