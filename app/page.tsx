@@ -11,18 +11,19 @@ export default async function HomePage() {
   return (
     <main className="shell home-shell pilot-library">
       <section className="pilot-library-header">
-        <h1>Aircraft</h1>
-        <p>Select an aircraft to start training.</p>
+        <p className="eyebrow">FlyTally Training</p>
+        <h1>Your aircraft</h1>
+        <p>Select an aircraft to open its training workspace.</p>
       </section>
 
       <section className="pilot-aircraft-list" aria-label="Training aircraft">
         {aircraft.map((item) => <Link className="pilot-aircraft-row" href={`/aircraft/${item.id}`} key={item.id}>
           <div className="pilot-aircraft-row-main">
             <h2>{item.displayName}</h2>
-            {item.variants.length ? <p>{item.variants.join(" · ")}</p> : <p>Training content available</p>}
+            {item.variants.length ? <p>{item.variants.join(" · ")}</p> : <p>Published training package</p>}
           </div>
-          <span className="pilot-aircraft-row-status">Ready</span>
-          <span className="pilot-aircraft-row-action">Open →</span>
+          <span className="pilot-aircraft-row-status">Available</span>
+          <span className="pilot-aircraft-row-action">Open workspace →</span>
         </Link>)}
       </section>
     </main>

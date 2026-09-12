@@ -12,7 +12,7 @@ test("primary product copy is aircraft-training first rather than simulator-mode
   assert.doesNotMatch(learnerFacingProductCopy, /simulator-first|simulator familiarization|start cold\s*&\s*dark/i);
   assert.match(layout, /Source-backed aircraft training/);
   assert.match(shell, /current approved aircraft, operator and regulatory documents remain authoritative/i);
-  assert.match(home, /Select an aircraft to start training/);
+  assert.match(home, /Select an aircraft to open its training workspace/);
   assert.match(home, /aria-label="Training aircraft"/);
 });
 
@@ -20,5 +20,5 @@ test("aircraft library no longer depends on the legacy normal-flight bundle for 
   assert.match(home, /repository\.listAircraft\(\)/);
   assert.doesNotMatch(home, /getNormalFlight/);
   assert.doesNotMatch(home, /First Flight available|Content in progress/);
-  assert.match(home, /pilot-aircraft-row-status">Ready/);
+  assert.match(home, /pilot-aircraft-row-status">Available/);
 });
