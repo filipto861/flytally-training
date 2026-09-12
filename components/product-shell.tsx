@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 
 import { AccountActions } from "@/components/account-actions";
 
-const FLYTALLY_MARK = "https://fly-tally.com/logbook_icon_32.png";
+const FLYTALLY_MARK = "/pwa-icon";
 
 export function ProductShell({ children }: Readonly<{ children: ReactNode }>) {
   return (

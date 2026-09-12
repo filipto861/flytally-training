@@ -1,14 +1,26 @@
 const serviceWorker = String.raw`
 const FLIGHT_CACHE = "flytally-flight-v2";
-const STATIC_CACHE = "flytally-static-v2";
+const STATIC_CACHE = "flytally-static-v3";
+const SHELL_CACHE = "flytally-shell-v1";
+const SHELL_ASSETS = ["/manifest.webmanifest", "/pwa-icon"];
 const FLIGHT_PATH = /\/aircraft\/[^/]+\/fly\/?$/;
 
-self.addEventListener("install", () => self.skipWaiting());
+async function cacheShell() {
+  const cache = await caches.open(SHELL_CACHE);
+  await Promise.allSettled(SHELL_ASSETS.map(async (path) => {
+    const response = await fetch(path, { cache: "reload", credentials: "same-origin" });
+    if (response.ok) await cache.put(path, response.clone());
+  }));
+}
+
+self.addEventListener("install", (event) => {
+  event.waitUntil(cacheShell().finally(() => self.skipWaiting()));
+});
 
 self.addEventListener("activate", (event) => {
   event.waitUntil((async () => {
     const names = await caches.keys();
-    await Promise.all(names.filter((name) => name.startsWith("flytally-") && ![FLIGHT_CACHE, STATIC_CACHE].includes(name)).map((name) => caches.delete(name)));
+    await Promise.all(names.filter((name) => name.startsWith("flytally-") && ![FLIGHT_CACHE, STATIC_CACHE, SHELL_CACHE].includes(name)).map((name) => caches.delete(name)));
     await self.clients.claim();
   })());
 });
@@ -63,6 +75,18 @@ self.addEventListener("fetch", (event) => {
   if (request.method !== "GET") return;
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
+
+  if (SHELL_ASSETS.includes(url.pathname)) {
+    event.respondWith((async () => {
+      const cache = await caches.open(SHELL_CACHE);
+      const cached = await cache.match(request, { ignoreSearch: true });
+      if (cached) return cached;
+      const response = await fetch(request);
+      if (response.ok) await cache.put(url.pathname, response.clone());
+      return response;
+    })());
+    return;
+  }
 
   if (url.pathname.startsWith("/_next/static/")) {
     event.respondWith((async () => {
