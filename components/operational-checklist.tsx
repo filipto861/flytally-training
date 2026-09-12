@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import type { RuntimeChecklist, RuntimeChecklistItem } from "@/lib/checklist-runtime";
 import styles from "./operational-checklist.module.css";
@@ -30,6 +30,8 @@ export function OperationalChecklist({
   const [phaseId, setPhaseId] = useState(() => checklist.phases[0]?.id ?? "");
   const [completed, setCompleted] = useState<Set<string>>(() => new Set());
   const [hydrated, setHydrated] = useState(false);
+  const [resetArmed, setResetArmed] = useState(false);
+  const itemRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
   useEffect(() => {
     let stored: StoredFlightChecklist | undefined;
@@ -61,18 +63,48 @@ export function OperationalChecklist({
   if (!currentPhase) return null;
   const phaseIndex = checklist.phases.findIndex((phase) => phase.id === currentPhase.id);
   const completeInPhase = currentPhase.items.filter((item) => completed.has(item.id)).length;
+  const totalItems = checklist.phases.reduce((sum, phase) => sum + phase.items.length, 0);
+  const totalComplete = checklist.phases.reduce((sum, phase) => sum + phase.items.filter((item) => completed.has(item.id)).length, 0);
+  const overallPercent = totalItems ? Math.round((totalComplete / totalItems) * 100) : 0;
+  const nextUncheckedId = currentPhase.items.find((item) => !completed.has(item.id))?.id;
+
+  function choosePhase(nextPhaseId: string) {
+    setResetArmed(false);
+    setPhaseId(nextPhaseId);
+  }
 
   function toggle(itemId: string) {
+    const wasDone = completed.has(itemId);
+    const shouldAdvance = !wasDone && nextUncheckedId === itemId;
+    const itemIndex = currentPhase.items.findIndex((item) => item.id === itemId);
+    const followingUnchecked = shouldAdvance
+      ? currentPhase.items.slice(itemIndex + 1).find((item) => !completed.has(item.id))
+      : undefined;
+
     setCompleted((current) => {
       const next = new Set(current);
       if (next.has(itemId)) next.delete(itemId); else next.add(itemId);
       return next;
     });
+
+    if (followingUnchecked) {
+      window.requestAnimationFrame(() => {
+        const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+        itemRefs.current[followingUnchecked.id]?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "center" });
+      });
+    }
   }
 
   function resetPhase() {
+    if (!resetArmed) {
+      setResetArmed(true);
+      return;
+    }
     const ids = new Set(currentPhase.items.map((item) => item.id));
     setCompleted((current) => new Set([...current].filter((id) => !ids.has(id))));
+    setResetArmed(false);
+    const first = currentPhase.items[0];
+    if (first) window.requestAnimationFrame(() => itemRefs.current[first.id]?.scrollIntoView({ behavior: "auto", block: "center" }));
   }
 
   const previous = checklist.phases[phaseIndex - 1];
@@ -80,6 +112,13 @@ export function OperationalChecklist({
 
   return (
     <section className={styles.checklist} aria-label={checklist.title}>
+      <div className={styles.overallProgress} aria-label="Overall checklist progress">
+        <div><strong>Checklist</strong><span>{totalComplete}/{totalItems}</span></div>
+        <div className={styles.progressTrack} role="progressbar" aria-valuemin={0} aria-valuemax={totalItems} aria-valuenow={totalComplete}>
+          <span style={{ width: `${overallPercent}%` }} />
+        </div>
+      </div>
+
       <nav className={styles.phases} aria-label="Checklist phases">
         {checklist.phases.map((phase) => {
           const phaseDone = phase.items.length > 0 && phase.items.every((item) => completed.has(item.id));
@@ -87,26 +126,34 @@ export function OperationalChecklist({
             aria-current={phase.id === currentPhase.id ? "step" : undefined}
             className={`${phase.id === currentPhase.id ? styles.activePhase : ""} ${phaseDone ? styles.completePhase : ""}`}
             key={phase.id}
-            onClick={() => setPhaseId(phase.id)}
+            onClick={() => choosePhase(phase.id)}
             type="button"
-          >{phase.title}</button>;
+          >{phaseDone ? <span aria-hidden="true">✓ </span> : null}{phase.title}</button>;
         })}
       </nav>
 
       <header className={styles.phaseHeader}>
         <div><h1>{currentPhase.title}</h1><span>{completeInPhase}/{currentPhase.items.length}</span></div>
-        <button onClick={resetPhase} type="button">Reset</button>
+        <button
+          aria-label={resetArmed ? `Confirm reset of ${currentPhase.title}` : `Reset ${currentPhase.title}`}
+          className={resetArmed ? styles.resetArmed : undefined}
+          onBlur={() => setResetArmed(false)}
+          onClick={resetPhase}
+          type="button"
+        >{resetArmed ? "Confirm" : "Reset"}</button>
       </header>
 
       <div className={styles.items}>
         {currentPhase.items.map((item) => {
           const done = completed.has(item.id);
+          const isNext = !done && item.id === nextUncheckedId;
           const alerts = operationalAlerts(item);
-          return <div className={`${styles.itemWrap} ${done ? styles.done : ""}`} key={item.id}>
+          return <div className={`${styles.itemWrap} ${done ? styles.done : ""} ${isNext ? styles.nextItem : ""}`} key={item.id}>
             <button
               aria-pressed={done}
               className={styles.item}
               onClick={() => toggle(item.id)}
+              ref={(node) => { itemRefs.current[item.id] = node; }}
               type="button"
             >
               <span className={styles.check} aria-hidden="true">{done ? "✓" : ""}</span>
@@ -123,8 +170,8 @@ export function OperationalChecklist({
       </div>
 
       <footer className={styles.footer}>
-        {previous ? <button onClick={() => setPhaseId(previous.id)} type="button">← {previous.title}</button> : <span />}
-        {next ? <button className={styles.next} onClick={() => setPhaseId(next.id)} type="button">{next.title} →</button> : <strong>{completeInPhase === currentPhase.items.length ? "Complete ✓" : "Final phase"}</strong>}
+        {previous ? <button onClick={() => choosePhase(previous.id)} type="button">← {previous.title}</button> : <span />}
+        {next ? <button className={styles.next} onClick={() => choosePhase(next.id)} type="button">{next.title} →</button> : <strong>{completeInPhase === currentPhase.items.length ? "Complete ✓" : "Final phase"}</strong>}
       </footer>
     </section>
   );
