@@ -2,7 +2,11 @@ import { notFound } from "next/navigation";
 
 import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
 import { WeightBalanceCalculator } from "@/components/weight-balance-calculator";
-import { resolveSelectedVariant } from "@/lib/aircraft-applicability";
+import {
+  configurationForAircraftVariant,
+  matchesAircraftApplicability,
+  resolveSelectedVariant,
+} from "@/lib/aircraft-applicability";
 import { getPublishedAircraftModule } from "@/lib/content-repository";
 import { getTrainingContentRepository } from "@/lib/content-store";
 import type { AircraftWeightBalanceContent } from "@/lib/universal-weight-balance";
@@ -23,6 +27,8 @@ export default async function WeightBalancePage({
   if (!aircraft || !content) notFound();
 
   const selectedVariant = resolveSelectedVariant(variant, aircraft.variants);
+  const configuration = configurationForAircraftVariant(aircraft, selectedVariant);
+  if (!matchesAircraftApplicability(content.applicability, configuration)) notFound();
 
   return (
     <main className="shell aircraft-detail">
