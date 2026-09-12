@@ -31,6 +31,7 @@ export function OperationalChecklist({
   const [completed, setCompleted] = useState<Set<string>>(() => new Set());
   const [hydrated, setHydrated] = useState(false);
   const [resetArmed, setResetArmed] = useState(false);
+  const [resetAllArmed, setResetAllArmed] = useState(false);
   const itemRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
   useEffect(() => {
@@ -70,10 +71,12 @@ export function OperationalChecklist({
 
   function choosePhase(nextPhaseId: string) {
     setResetArmed(false);
+    setResetAllArmed(false);
     setPhaseId(nextPhaseId);
   }
 
   function toggle(itemId: string) {
+    setResetAllArmed(false);
     const wasDone = completed.has(itemId);
     const shouldAdvance = !wasDone && nextUncheckedId === itemId;
     const itemIndex = currentPhase.items.findIndex((item) => item.id === itemId);
@@ -96,6 +99,7 @@ export function OperationalChecklist({
   }
 
   function resetPhase() {
+    setResetAllArmed(false);
     if (!resetArmed) {
       setResetArmed(true);
       return;
@@ -107,13 +111,40 @@ export function OperationalChecklist({
     if (first) window.requestAnimationFrame(() => itemRefs.current[first.id]?.scrollIntoView({ behavior: "auto", block: "center" }));
   }
 
+  function resetAll() {
+    setResetArmed(false);
+    if (!resetAllArmed) {
+      setResetAllArmed(true);
+      return;
+    }
+    const firstPhase = checklist.phases[0];
+    setCompleted(new Set());
+    setPhaseId(firstPhase?.id ?? "");
+    setResetAllArmed(false);
+    const firstItem = firstPhase?.items[0];
+    if (firstItem) window.requestAnimationFrame(() => itemRefs.current[firstItem.id]?.scrollIntoView({ behavior: "auto", block: "center" }));
+  }
+
   const previous = checklist.phases[phaseIndex - 1];
   const next = checklist.phases[phaseIndex + 1];
 
   return (
     <section className={styles.checklist} aria-label={checklist.title}>
       <div className={styles.overallProgress} aria-label="Overall checklist progress">
-        <div><strong>Checklist</strong><span>{totalComplete}/{totalItems}</span></div>
+        <div className={styles.overallHeader}>
+          <strong>Checklist</strong>
+          <div className={styles.overallActions}>
+            <span>{totalComplete}/{totalItems}</span>
+            <button
+              aria-label={resetAllArmed ? "Confirm reset of entire checklist" : "Reset entire checklist"}
+              className={resetAllArmed ? styles.resetAllArmed : undefined}
+              disabled={totalComplete === 0}
+              onBlur={() => setResetAllArmed(false)}
+              onClick={resetAll}
+              type="button"
+            >{resetAllArmed ? "Confirm all" : "Reset all"}</button>
+          </div>
+        </div>
         <div className={styles.progressTrack} role="progressbar" aria-valuemin={0} aria-valuemax={totalItems} aria-valuenow={totalComplete}>
           <span style={{ width: `${overallPercent}%` }} />
         </div>
