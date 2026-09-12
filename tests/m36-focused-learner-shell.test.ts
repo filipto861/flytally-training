@@ -14,10 +14,11 @@ test("focused learner shell keeps one aircraft navigator with stable primary des
   assert.doesNotMatch(nav, /areaNav|collapsedGroup|expandedGroup|activeGroup/);
 });
 
-test("module detail is moved into dedicated hub pages instead of a persistent second menu row", () => {
+test("module detail is moved into dedicated Learn and Reference hubs instead of a persistent second menu row", () => {
   const trainingHub = fs.readFileSync(new URL("../app/aircraft/[aircraftId]/training/page.tsx", import.meta.url), "utf8");
   const referenceHub = fs.readFileSync(new URL("../app/aircraft/[aircraftId]/reference/page.tsx", import.meta.url), "utf8");
   assert.match(trainingHub, /Learn the aircraft/);
+  assert.match(trainingHub, /Checklist training/);
   assert.match(referenceHub, /Flight reference/);
   assert.match(trainingHub, /capabilities\.systems/);
   assert.match(referenceHub, /capabilities\.performance/);
@@ -27,14 +28,16 @@ test("learner pages use an EFB rail on desktop and a bottom tab bar on mobile", 
   assert.match(navCss, /position:sticky/);
   assert.match(navCss, /position:fixed/);
   assert.match(navCss, /grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
+  assert.match(navCss, /safe-area-inset-bottom/);
   assert.match(shellCss, /grid-template-columns:220px minmax\(0,1fr\)/);
   assert.match(shellCss, /workspace-section-hero/);
 });
 
 test("aircraft home is a command surface rather than a module catalogue", () => {
   assert.match(aircraftHome, /pilot-command-grid/);
-  assert.match(aircraftHome, /Quick actions/);
-  assert.match(aircraftHome, /Open training/);
+  assert.match(aircraftHome, /Checklist & performance/);
+  assert.match(aircraftHome, /Open flight deck/);
+  assert.match(aircraftHome, /Open learn/);
   assert.doesNotMatch(aircraftHome, /workspace-overview|workspace-card|focused-choice-grid|Training references/);
 });
 

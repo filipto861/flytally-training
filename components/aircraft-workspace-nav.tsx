@@ -9,12 +9,11 @@ import styles from "./aircraft-workspace-nav.module.css";
 
 export type { AircraftModuleNavKey } from "@/lib/aircraft-workspace-navigation";
 
-type PilotArea = "training" | "checklists" | "reference";
+type PilotArea = "fly" | "learn" | "reference";
 type PrimaryKey = "overview" | PilotArea;
 type NavEntry = { readonly key: string; readonly label: string; readonly href: string };
 
-const trainingOrder = ["systems", "procedures", "knowledge", "avionics", "flows"] as const;
-const checklistOrder = ["checklists"] as const;
+const learnOrder = ["systems", "procedures", "knowledge", "avionics", "flows", "checklists"] as const;
 const referenceOrder = ["performance", "weight-balance", "limitations", "abnormal"] as const;
 
 const orderedEntries = (
@@ -27,8 +26,8 @@ const orderedEntries = (
 
 function PilotIcon({ kind }: Readonly<{ kind: PrimaryKey }>) {
   if (kind === "overview") return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5"/><path d="M6.5 9.5V20h11V9.5"/></svg>;
-  if (kind === "training") return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5.5h6.5c1.7 0 3 1.3 3 3V19c-.8-1.1-1.8-1.6-3-1.6H5z"/><path d="M19 5.5h-4.5v12c.8-.1 1.5-.1 2.1.2.9.4 1.5.8 2.4 1.3z"/></svg>;
-  if (kind === "checklists") return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h11M8 12h11M8 18h11"/><path d="m3.5 6 1 1 2-2M3.5 12l1 1 2-2M3.5 18l1 1 2-2"/></svg>;
+  if (kind === "fly") return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h11M8 12h11M8 18h11"/><path d="m3.5 6 1 1 2-2M3.5 12l1 1 2-2M3.5 18l1 1 2-2"/></svg>;
+  if (kind === "learn") return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5.5h6.5c1.7 0 3 1.3 3 3V19c-.8-1.1-1.8-1.6-3-1.6H5z"/><path d="M19 5.5h-4.5v12c.8-.1 1.5-.1 2.1.2.9.4 1.5.8 2.4 1.3z"/></svg>;
   return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h14v15H5z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>;
 }
 
@@ -53,26 +52,27 @@ export async function AircraftWorkspaceNav({
   const sections = aircraftWorkspaceSections(aircraftId, publishedDomains);
   const overview = sections.find((section) => section.key === "overview");
   const progress = sections.find((section) => section.key === "progress");
+  const checklist = sections.find((section) => section.key === "checklists");
+  const performance = sections.find((section) => section.key === "performance");
 
-  const training = orderedEntries(sections, trainingOrder);
-  const checklists = orderedEntries(sections, checklistOrder);
+  const learn = orderedEntries(sections, learnOrder);
   const referenceBase = orderedEntries(sections, referenceOrder);
-  const hasQuickReference = referenceBase.some((section) => section.key === "performance")
-    && referenceBase.some((section) => section.key === "limitations");
+  const hasQuickReference = Boolean(performance) && referenceBase.some((section) => section.key === "limitations");
   const reference: readonly NavEntry[] = hasQuickReference
     ? [{ key: "quick-reference", label: "Quick Reference", href: `/aircraft/${aircraftId}/quick-reference` }, ...referenceBase]
     : referenceBase;
+  const hasFly = Boolean(checklist || performance);
 
   const activeArea: PilotArea | undefined =
-    active === "training" || training.some((entry) => entry.key === active) ? "training"
-      : active === "checklists" || checklists.some((entry) => entry.key === active) ? "checklists"
+    active === "fly" ? "fly"
+      : active === "training" || learn.some((entry) => entry.key === active) ? "learn"
         : active === "reference" || active === "quick-reference" || reference.some((entry) => entry.key === active) ? "reference"
           : undefined;
 
   const primaryDestinations: readonly { key: PrimaryKey; label: string; href: string }[] = [
     ...(overview ? [{ key: "overview" as const, label: "Home", href: overview.href }] : []),
-    ...(training.length ? [{ key: "training" as const, label: "Training", href: `/aircraft/${aircraftId}/training` }] : []),
-    ...(checklists.length ? [{ key: "checklists" as const, label: "Checklists", href: checklists[0].href }] : []),
+    ...(hasFly ? [{ key: "fly" as const, label: "Fly", href: `/aircraft/${aircraftId}/fly` }] : []),
+    ...(learn.length ? [{ key: "learn" as const, label: "Learn", href: `/aircraft/${aircraftId}/training` }] : []),
     ...(reference.length ? [{ key: "reference" as const, label: "Reference", href: `/aircraft/${aircraftId}/reference` }] : []),
   ];
 

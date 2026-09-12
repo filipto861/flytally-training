@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 
 import { ProductShell } from "@/components/product-shell";
@@ -14,6 +14,14 @@ export const metadata: Metadata = {
   },
   description: "Source-backed aircraft training with checklists, procedures, performance, limitations and systems.",
   applicationName: "FlyTally Training",
+  manifest: "/manifest.webmanifest",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#101a29",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {

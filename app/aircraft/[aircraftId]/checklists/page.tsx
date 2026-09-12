@@ -34,12 +34,12 @@ export default async function ChecklistsPage({
 
   return (
     <main className="shell aircraft-detail">
-      <Link className="back-link" href={withVariantQuery(`/aircraft/${aircraft.id}`, selectedVariant)}>← {aircraft.displayName}</Link>
-      <AircraftWorkspaceNav aircraftId={aircraft.id} active="checklists" variants={aircraft.variants} variantProfiles={aircraft.variantProfiles} selectedVariant={selectedVariant} />
+      <Link className="back-link" href={withVariantQuery(`/aircraft/${aircraft.id}/training`, selectedVariant)}>← Learn</Link>
+      <AircraftWorkspaceNav aircraftId={aircraft.id} active="training" variants={aircraft.variants} variantProfiles={aircraft.variantProfiles} selectedVariant={selectedVariant} />
       <section className="workspace-section-hero">
-        <p className="eyebrow">Checklists · {aircraft.displayName}{selectedVariant ? ` · ${selectedVariant}` : ""}</p>
+        <p className="eyebrow">Learn · Checklist training · {aircraft.displayName}{selectedVariant ? ` · ${selectedVariant}` : ""}</p>
         <h1>{checklist.title}</h1>
-        <p className="lede">Run the checklist directly, or switch to Learn, Practice, Flow or Challenge & Response without changing the underlying aircraft data.</p>
+        <p className="lede">Learn, practise, rehearse flows and use challenge & response here. The Fly section uses the same checklist content in a stripped operational view.</p>
         {configuredUniversal?.disclaimer ? <p><strong>Training boundary:</strong> {configuredUniversal.disclaimer}</p> : null}
         {configuredUniversal?.sourceNote ? <p><small>Source note · {configuredUniversal.sourceNote}</small></p> : null}
         {checklist.estimatedMinutes ? <p>Approximate first training pass: {checklist.estimatedMinutes} min.</p> : null}
