@@ -79,7 +79,7 @@ self.addEventListener("fetch", (event) => {
   if (SHELL_ASSETS.includes(url.pathname)) {
     event.respondWith((async () => {
       const cache = await caches.open(SHELL_CACHE);
-      const cached = await cache.match(request, { ignoreSearch: true });
+      const cached = await cache.match(url.pathname);
       if (cached) return cached;
       const response = await fetch(request);
       if (response.ok) await cache.put(url.pathname, response.clone());

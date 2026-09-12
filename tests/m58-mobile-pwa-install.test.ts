@@ -50,7 +50,8 @@ test("M58 precaches PWA support assets without widening the authenticated Fly of
   assert.match(serviceWorker,/SHELL_CACHE\s*=\s*"flytally-shell-v1"/);
   assert.match(serviceWorker,/SHELL_ASSETS\s*=\s*\["\/manifest\.webmanifest", "\/pwa-icon"\]/);
   assert.match(serviceWorker,/Promise\.allSettled/);
-  assert.match(serviceWorker,/cache\.match\(request, \{ ignoreSearch: true \}\)/);
+  assert.match(serviceWorker,/cache\.match\(url\.pathname\)/);
+  assert.doesNotMatch(serviceWorker,/ignoreSearch:\s*true/);
   assert.match(serviceWorker,/CACHE_FLIGHT_PAGE/);
   assert.match(serviceWorker,/FLIGHT_PATH/);
   assert.match(serviceWorker,/request\.mode === "navigate" && FLIGHT_PATH\.test\(url\.pathname\)/);
