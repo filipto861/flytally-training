@@ -11,8 +11,8 @@ export function ProductShell({ children }: Readonly<{ children: ReactNode }>) {
           <Link className="brand" href="/" aria-label="FlyTally Training home">
             <span className="brand-mark" aria-hidden="true">FT</span>
             <span>
-              <strong>FlyTally</strong>
               <small>Training</small>
+              <strong>FlyTally</strong>
             </span>
           </Link>
           <AccountActions />
