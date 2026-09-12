@@ -79,12 +79,12 @@ export async function AircraftWorkspaceNav({
   const activePrimary: PrimaryKey = active === "overview" ? "overview" : activeArea ?? "overview";
 
   return (
-    <section className={`${styles.navigator} learner-pilot-nav`} aria-label="Aircraft training navigation">
+    <section className={`${styles.navigator} learner-pilot-nav`} aria-label="Aircraft navigation">
       <div className={styles.aircraftCard}>
-        <Link className={styles.libraryLink} href="/">← All aircraft</Link>
+        <Link className={styles.libraryLink} href="/" aria-label="All aircraft"><span aria-hidden="true">←</span><span className={styles.libraryLabel}>Aircraft</span></Link>
         <div className={styles.aircraftIdentity}>
           <strong>{aircraft?.displayName ?? aircraftId}</strong>
-          <span>{selectedVariant ?? "Aircraft workspace"}</span>
+          <span>{selectedVariant ?? "All configurations"}</span>
         </div>
         <AircraftVariantSelector variants={variants} variantProfiles={variantProfiles} selectedVariant={selectedVariant} />
       </div>
@@ -101,10 +101,9 @@ export async function AircraftWorkspaceNav({
         </Link>)}
       </nav>
 
-      <div className={styles.utilities}>
-        {progress ? <Link className={styles.progressLink} href={withVariantQuery(progress.href, selectedVariant)}>Progress <span aria-hidden="true">→</span></Link> : null}
-        <small>Published, source-backed aircraft content</small>
-      </div>
+      {progress ? <div className={styles.utilities}>
+        <Link className={styles.progressLink} href={withVariantQuery(progress.href, selectedVariant)}>Progress <span aria-hidden="true">→</span></Link>
+      </div> : null}
     </section>
   );
 }

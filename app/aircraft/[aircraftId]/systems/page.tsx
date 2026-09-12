@@ -53,11 +53,14 @@ export default async function SystemsPage({
       <Link className="back-link" href={withVariantQuery(`/aircraft/${aircraft.id}`, selectedVariant)}>← {aircraft.displayName}</Link>
       <AircraftWorkspaceNav aircraftId={aircraft.id} active="systems" variants={aircraft.variants} variantProfiles={aircraft.variantProfiles} selectedVariant={selectedVariant} />
       <section className="workspace-section-hero">
-        <p className="eyebrow">Systems · {aircraft.displayName}{selectedVariant ? ` · ${selectedVariant}` : ""}</p>
+        <p className="eyebrow">Learn · Systems</p>
         <h1>{configuredUniversal?.title ?? `${systems.length} aircraft systems`}</h1>
-        <p className="lede">Study one system at a time. Search by component, control, indication, limitation or abnormal cue and keep the source context visible while you build the aircraft mental model.</p>
-        {configuredUniversal?.disclaimer ? <p><strong>Training boundary:</strong> {configuredUniversal.disclaimer}</p> : null}
-        {configuredUniversal?.sourceNote ? <p><small>Source note · {configuredUniversal.sourceNote}</small></p> : null}
+        <p className="lede">Choose a system and focus on controls, indications, limitations and abnormal cues.</p>
+        {configuredUniversal?.disclaimer || configuredUniversal?.sourceNote ? <details className="pilot-source-details">
+          <summary>Training & source notes</summary>
+          {configuredUniversal?.disclaimer ? <p><strong>Training boundary:</strong> {configuredUniversal.disclaimer}</p> : null}
+          {configuredUniversal?.sourceNote ? <p>Source note · {configuredUniversal.sourceNote}</p> : null}
+        </details> : null}
       </section>
       <SystemsBrowser aircraftId={aircraft.id} systems={systems} />
     </main>

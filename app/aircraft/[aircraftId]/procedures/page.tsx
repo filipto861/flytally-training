@@ -41,11 +41,14 @@ export default async function ProceduresPage({
       <Link className="back-link" href={withVariantQuery(`/aircraft/${aircraft.id}`, selectedVariant)}>← {aircraft.displayName}</Link>
       <AircraftWorkspaceNav aircraftId={aircraft.id} active="procedures" variants={aircraft.variants} variantProfiles={aircraft.variantProfiles} selectedVariant={selectedVariant} />
       <section className="workspace-section-hero">
-        <p className="eyebrow">Procedures · {aircraft.displayName}{selectedVariant ? ` · ${selectedVariant}` : ""}</p>
+        <p className="eyebrow">Learn · Procedures</p>
         <h1>{configuredUniversal?.title ?? "Operating procedures"}</h1>
-        <p className="lede">Open a procedure behind the checklist, work through each step, verify expected indications and keep the source context visible while you learn.</p>
-        {configuredUniversal?.disclaimer ? <p><strong>Training boundary:</strong> {configuredUniversal.disclaimer}</p> : null}
-        {configuredUniversal?.sourceNote ? <p><small>Source note · {configuredUniversal.sourceNote}</small></p> : null}
+        <p className="lede">Select a procedure, work through the steps and verify the expected result.</p>
+        {configuredUniversal?.disclaimer || configuredUniversal?.sourceNote ? <details className="pilot-source-details">
+          <summary>Training & source notes</summary>
+          {configuredUniversal?.disclaimer ? <p><strong>Training boundary:</strong> {configuredUniversal.disclaimer}</p> : null}
+          {configuredUniversal?.sourceNote ? <p>Source note · {configuredUniversal.sourceNote}</p> : null}
+        </details> : null}
       </section>
       <ProcedureBrowser aircraftId={aircraft.id} procedures={procedures} selectedVariant={selectedVariant} />
     </main>
