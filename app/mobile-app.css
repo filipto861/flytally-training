@@ -1,8 +1,8 @@
-/* M56 — mobile-first application shell. Keep aircraft/content logic out of this layer. */
+/* M57 — mobile screen-space optimization on top of the M56 app shell. */
 :root{
   --mobile-app-header-height:56px;
   --mobile-bottom-nav-height:70px;
-  --mobile-flight-tabs-height:68px;
+  --mobile-flight-tabs-height:56px;
 }
 
 @media(max-width:900px){
@@ -16,10 +16,15 @@
   .shell:has(> .learner-pilot-nav){
     width:100%;
     min-height:calc(100dvh - var(--mobile-app-header-height) - env(safe-area-inset-top));
-    padding:8px 10px calc(var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom) + 18px);
+    padding:6px 10px calc(var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom) + 16px);
   }
-  .shell:has(> .learner-pilot-nav)>.learner-pilot-nav{margin-bottom:10px}
+  .shell:has(> .learner-pilot-nav)>.learner-pilot-nav{margin-bottom:7px}
   .learner-pilot-nav>div:first-child{border-radius:12px;background:var(--surface);box-shadow:none}
+
+  /* Fly gets a denser aircraft context row; the duplicated FLY/aircraft title is hidden in the local deck header. */
+  .flight-shell>.learner-pilot-nav{margin-bottom:4px!important}
+  .flight-shell>.learner-pilot-nav>div:first-child{min-height:42px;padding:5px 8px;border-radius:10px}
+  .flight-shell>.learner-pilot-nav>div:first-child strong{font-size:.84rem}
 
   /* Native-style bottom tab bar: fixed to the device edge, not a floating web pill. */
   .learner-pilot-nav nav[aria-label="Pilot workspace"]{
@@ -37,20 +42,17 @@
   }
   .learner-pilot-nav nav[aria-label="Pilot workspace"] a{min-height:58px;border-radius:11px}
 
-  /* Fly stays readable while scrolling: global header -> tool tabs -> local control. */
+  /* Compact Fly sticky stack: global header -> tool tabs -> local phase/QRH selector. */
   .flight-shell nav[aria-label="Flight tools"]{
-    top:calc(var(--mobile-app-header-height) + env(safe-area-inset-top) + 5px);
+    top:calc(var(--mobile-app-header-height) + env(safe-area-inset-top) + 3px);
     z-index:40;
-    margin-inline:-2px;
+    margin-inline:-1px;
   }
   .flight-shell section[aria-label$="Checklist"]>div:has(>label select[aria-label="Checklist phase"]){
     top:calc(var(--mobile-app-header-height) + var(--mobile-flight-tabs-height) + env(safe-area-inset-top));
     z-index:35;
   }
-  .flight-shell section[aria-label$="Checklist"]>footer{
-    bottom:calc(var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom));
-  }
-  .flight-shell section[aria-label="Emergency quick reference"]>div:first-child{
+  .flight-shell section[aria-label="Emergency quick reference"]>div:nth-child(2){
     top:calc(var(--mobile-app-header-height) + var(--mobile-flight-tabs-height) + env(safe-area-inset-top));
     z-index:35;
   }

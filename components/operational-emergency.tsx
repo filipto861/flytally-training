@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import type {
   OperationalEmergencyContent,
@@ -85,10 +85,34 @@ export function OperationalEmergency({ emergency }: Readonly<{ emergency: Operat
   );
   const [category, setCategory] = useState(ALL_CATEGORIES);
   const [scenarioId, setScenarioId] = useState(emergency.scenarios[0]?.id ?? "");
+  const [indexCollapsed, setIndexCollapsed] = useState(false);
+  const indexOriginRef = useRef<HTMLSpanElement | null>(null);
   const filteredScenarios = category === ALL_CATEGORIES
     ? emergency.scenarios
     : emergency.scenarios.filter((candidate) => candidate.category === category);
   const scenario = filteredScenarios.find((candidate) => candidate.id === scenarioId) ?? filteredScenarios[0] ?? emergency.scenarios[0];
+
+  useEffect(() => {
+    const updateCollapsedState = () => {
+      if (!window.matchMedia("(max-width: 700px)").matches) {
+        setIndexCollapsed(false);
+        return;
+      }
+      const origin = indexOriginRef.current;
+      if (!origin) return;
+      const originY = origin.getBoundingClientRect().top + window.scrollY;
+      setIndexCollapsed(window.scrollY > originY + 170);
+    };
+
+    updateCollapsedState();
+    window.addEventListener("scroll", updateCollapsedState, { passive: true });
+    window.addEventListener("resize", updateCollapsedState);
+    return () => {
+      window.removeEventListener("scroll", updateCollapsedState);
+      window.removeEventListener("resize", updateCollapsedState);
+    };
+  }, []);
+
   if (!scenario) return null;
 
   function chooseCategory(nextCategory: string) {
@@ -100,52 +124,77 @@ export function OperationalEmergency({ emergency }: Readonly<{ emergency: Operat
     if (first) setScenarioId(first.id);
   }
 
+  function expandQuickAccess() {
+    setIndexCollapsed(false);
+    const origin = indexOriginRef.current;
+    if (!origin) return;
+    const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+    const originY = origin.getBoundingClientRect().top + window.scrollY;
+    window.scrollTo({ top: Math.max(0, originY - 118), behavior: reducedMotion ? "auto" : "smooth" });
+  }
+
   return <section className={styles.emergency} aria-label="Emergency quick reference">
-    <div className={styles.index}>
-      <div className={styles.indexHeader}>
-        <strong>Quick access</strong>
-        <span>{emergency.scenarios.length} procedures</span>
-      </div>
-      <div className={styles.categories} role="group" aria-label="Emergency categories">
-        <button
-          aria-pressed={category === ALL_CATEGORIES}
-          className={category === ALL_CATEGORIES ? styles.activeCategory : undefined}
-          onClick={() => chooseCategory(ALL_CATEGORIES)}
-          type="button"
-        >All <span>{emergency.scenarios.length}</span></button>
-        {categories.map((item) => {
-          const count = emergency.scenarios.filter((scenarioItem) => scenarioItem.category === item).length;
-          return <button
-            aria-pressed={category === item}
-            className={category === item ? styles.activeCategory : undefined}
-            key={item}
-            onClick={() => chooseCategory(item)}
+    <span aria-hidden="true" className={styles.indexSentinel} ref={indexOriginRef} />
+    <div className={`${styles.index}${indexCollapsed ? ` ${styles.indexCollapsed}` : ""}`}>
+      <button
+        aria-expanded={!indexCollapsed}
+        className={styles.compactIndex}
+        onClick={expandQuickAccess}
+        type="button"
+      >
+        <span>
+          <small>{scenario.category}</small>
+          <strong>{scenario.title}</strong>
+        </span>
+        <span aria-hidden="true">⌄</span>
+      </button>
+
+      <div className={styles.indexExpanded}>
+        <div className={styles.indexHeader}>
+          <strong>Quick access</strong>
+          <span>{emergency.scenarios.length} procedures</span>
+        </div>
+        <div className={styles.categories} role="group" aria-label="Emergency categories">
+          <button
+            aria-pressed={category === ALL_CATEGORIES}
+            className={category === ALL_CATEGORIES ? styles.activeCategory : undefined}
+            onClick={() => chooseCategory(ALL_CATEGORIES)}
             type="button"
-          >{item} <span>{count}</span></button>;
-        })}
+          >All <span>{emergency.scenarios.length}</span></button>
+          {categories.map((item) => {
+            const count = emergency.scenarios.filter((scenarioItem) => scenarioItem.category === item).length;
+            return <button
+              aria-pressed={category === item}
+              className={category === item ? styles.activeCategory : undefined}
+              key={item}
+              onClick={() => chooseCategory(item)}
+              type="button"
+            >{item} <span>{count}</span></button>;
+          })}
+        </div>
+
+        <label className={styles.selector}>
+          <span>Emergency procedure</span>
+          <select aria-label="Emergency procedure" value={scenario.id} onChange={(event) => setScenarioId(event.target.value)}>
+            {filteredScenarios.map((candidate) => <option key={candidate.id} value={candidate.id}>
+              {category === ALL_CATEGORIES ? `${candidate.category} · ${candidate.title}` : candidate.title}
+            </option>)}
+          </select>
+        </label>
+
+        {category !== ALL_CATEGORIES ? <div className={styles.quickProcedures} aria-label={`${category} procedures`}>
+          {filteredScenarios.map((candidate) => <button
+            aria-current={candidate.id === scenario.id ? "true" : undefined}
+            className={candidate.id === scenario.id ? styles.activeProcedure : undefined}
+            key={candidate.id}
+            onClick={() => setScenarioId(candidate.id)}
+            type="button"
+          >
+            <strong>{candidate.title}</strong>
+            <span>{candidate.phase}</span>
+          </button>)}
+        </div> : null}
       </div>
-
-      <label className={styles.selector}>
-        <span>Emergency procedure</span>
-        <select aria-label="Emergency procedure" value={scenario.id} onChange={(event) => setScenarioId(event.target.value)}>
-          {filteredScenarios.map((candidate) => <option key={candidate.id} value={candidate.id}>
-            {category === ALL_CATEGORIES ? `${candidate.category} · ${candidate.title}` : candidate.title}
-          </option>)}
-        </select>
-      </label>
-
-      {category !== ALL_CATEGORIES ? <div className={styles.quickProcedures} aria-label={`${category} procedures`}>
-        {filteredScenarios.map((candidate) => <button
-          aria-current={candidate.id === scenario.id ? "true" : undefined}
-          className={candidate.id === scenario.id ? styles.activeProcedure : undefined}
-          key={candidate.id}
-          onClick={() => setScenarioId(candidate.id)}
-          type="button"
-        >
-          <strong>{candidate.title}</strong>
-          <span>{candidate.phase}</span>
-        </button>)}
-      </div> : null}
     </div>
     <Scenario scenario={scenario} />
   </section>;
