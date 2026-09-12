@@ -36,6 +36,8 @@ test("operational performance is a client-side calculator without reference draw
   assert.match(performance,/calculateTakeoffDistance/);
   assert.match(performance,/calculateLandingDistance/);
   assert.match(performance,/localStorage/);
+  assert.match(performance,/temperatureLimitedLanding/);
+  assert.match(performance,/set\("landingOatC"/);
   assert.doesNotMatch(performance,/PerformanceExplorer|Calculation method|Reference data|Training aid/);
 });
 
