@@ -84,9 +84,8 @@ export function LearningCompletionButton({
   };
 
   return <div className={styles.completionRow}>
-    <p>{completed ? "Recorded in your aircraft progress." : "When you have reviewed this material, record it as completed."}</p>
-    <button className={styles.button} type="button" onClick={markComplete} disabled={completed || checking}>
-      {completed ? "Completed ✓" : checking ? "Checking progress…" : label}
+    <button aria-label={label} className={styles.button} type="button" onClick={markComplete} disabled={completed || checking}>
+      {completed ? "Completed ✓" : checking ? "Checking…" : "Mark complete"}
     </button>
   </div>;
 }

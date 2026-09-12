@@ -23,9 +23,9 @@ export default async function ProgressOverviewPage({
       <Link className="back-link" href={withVariantQuery(`/aircraft/${aircraft.id}`, selectedVariant)}>← {aircraft.displayName}</Link>
       <AircraftWorkspaceNav aircraftId={aircraft.id} active="progress" variants={aircraft.variants} variantProfiles={aircraft.variantProfiles} selectedVariant={selectedVariant} />
       <section className="workspace-section-hero">
-        <p className="eyebrow">Progress · {aircraft.displayName}{selectedVariant ? ` · ${selectedVariant}` : ""}</p>
-        <h1>What you have practiced — and what needs another pass.</h1>
-        <p className="lede">Checklist completions, abnormal scenarios and knowledge attempts feed one aircraft-scoped progress stream. Progress remains attached to the aircraft; configuration-aware proficiency can be layered on without changing content identity.</p>
+        <p className="eyebrow">Aircraft</p>
+        <h1>Progress</h1>
+        <p className="lede">See what you have completed and what needs another pass.</p>
       </section>
       <ProgressPanel aircraftId={aircraft.id} />
     </main>

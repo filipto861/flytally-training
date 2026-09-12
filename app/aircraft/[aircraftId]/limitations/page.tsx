@@ -32,11 +32,14 @@ export default async function LimitationsPage({
       <Link className="back-link" href={withVariantQuery(`/aircraft/${aircraft.id}`, selectedVariant)}>← {aircraft.displayName}</Link>
       <AircraftWorkspaceNav aircraftId={aircraft.id} active="limitations" variants={aircraft.variants} variantProfiles={aircraft.variantProfiles} selectedVariant={selectedVariant} />
       <section className="workspace-section-hero">
-        <p className="eyebrow">Limitations · {aircraft.displayName}{selectedVariant ? ` · ${selectedVariant}` : ""}</p>
-        <h1>{configuredContent.title}</h1>
-        <p className="lede">Use the source-backed limitation set as a fast study reference. Search values and conditions, narrow by category, and isolate published warnings or cautions without inferring limits that are not in this aircraft configuration.</p>
-        {configuredContent.disclaimer ? <p><strong>Training boundary:</strong> {configuredContent.disclaimer}</p> : null}
-        {configuredContent.sourceNote ? <p><small>Source note · {configuredContent.sourceNote}</small></p> : null}
+        <p className="eyebrow">Reference</p>
+        <h1>Limitations</h1>
+        <p className="lede">Search published operating limits, values and conditions.</p>
+        {configuredContent.disclaimer || configuredContent.sourceNote ? <details className="pilot-source-details">
+          <summary>Training & source notes</summary>
+          {configuredContent.disclaimer ? <p><strong>Training boundary:</strong> {configuredContent.disclaimer}</p> : null}
+          {configuredContent.sourceNote ? <p>Source note · {configuredContent.sourceNote}</p> : null}
+        </details> : null}
       </section>
       <LimitationsExplorer groups={configuredContent.groups} />
     </main>

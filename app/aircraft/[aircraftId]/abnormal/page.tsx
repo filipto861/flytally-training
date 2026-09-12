@@ -16,7 +16,6 @@ import {
   isUniversalAbnormalEmergencyContent,
   type AircraftAbnormalEmergencyContent,
 } from "@/lib/universal-abnormal-emergency";
-import styles from "../learning.module.css";
 
 export default async function AbnormalEmergencyPage({
   params,
@@ -48,6 +47,9 @@ export default async function AbnormalEmergencyPage({
       : undefined;
   if (!training?.scenarios.length) notFound();
   const minutes = training.scenarios.reduce((total, scenario) => total + scenario.minutes, 0);
+  const authorityNote = universal
+    ? "Scenario and stage applicability is filtered against the selected aircraft configuration. Current approved AFM/QRH, supplements and operator procedures remain controlling."
+    : "This source set predates structured configuration applicability. FlyTally does not infer equipment-specific abnormal actions from the model name; current approved AFM/QRH, supplements and operator procedures remain controlling.";
 
   return (
     <main className="shell aircraft-detail">
@@ -55,20 +57,14 @@ export default async function AbnormalEmergencyPage({
       <AircraftWorkspaceNav aircraftId={aircraft.id} active="abnormal" variants={aircraft.variants} variantProfiles={aircraft.variantProfiles} selectedVariant={selectedVariant} />
 
       <section className="workspace-section-hero">
-        <p className="eyebrow">Abnormal & Emergency · {aircraft.displayName}{selectedVariant ? ` · ${selectedVariant}` : ""}</p>
-        <h1>{training.title}</h1>
-        <p className="lede">
-          Practice published abnormal and emergency scenarios as structured training sequences. Stage names, actions and configuration applicability come from the aircraft content rather than from application code.
-        </p>
-      </section>
-
-      <section className={styles.learningHeader}>
-        <p>
-          {universal
-            ? "Scenario and stage applicability is filtered against the selected aircraft configuration. Current approved AFM/QRH, supplements and operator procedures remain controlling."
-            : "This published source set predates structured configuration applicability. FlyTally does not infer equipment-specific abnormal actions from the model name; current approved AFM/QRH, supplements and operator procedures remain controlling."}
-        </p>
-        <span className={styles.timeBadge}>{training.scenarios.length} scenarios · ~{minutes} min full set</span>
+        <p className="eyebrow">Reference</p>
+        <h1>Abnormal &amp; Emergency</h1>
+        <p className="lede">Choose a scenario and work through the published sequence.</p>
+        <details className="pilot-source-details">
+          <summary>Training & source notes</summary>
+          <p>{authorityNote}</p>
+          <p>{training.scenarios.length} scenarios · ~{minutes} min full set</p>
+        </details>
       </section>
 
       <ScenarioTrainer training={training} />

@@ -37,11 +37,14 @@ export default async function KnowledgePage({
       <Link className="back-link" href={withVariantQuery(`/aircraft/${aircraft.id}`, selectedVariant)}>← {aircraft.displayName}</Link>
       <AircraftWorkspaceNav aircraftId={aircraft.id} active="knowledge" variants={aircraft.variants} variantProfiles={aircraft.variantProfiles} selectedVariant={selectedVariant} />
       <section className="workspace-section-hero">
-        <p className="eyebrow">Knowledge · {aircraft.displayName}{selectedVariant ? ` · ${selectedVariant}` : ""}</p>
-        <h1>{content.title}</h1>
-        <p className="lede">Use the question bank to find weak areas, not to collect a meaningless score. Technical answers retain their registered source context.</p>
-        {content.sourceNote ? <p>{content.sourceNote}</p> : null}
-        {content.disclaimer ? <p><strong>Authority:</strong> {content.disclaimer}</p> : null}
+        <p className="eyebrow">Learn</p>
+        <h1>Knowledge</h1>
+        <p className="lede">Use the question bank to find weak areas and review what needs another pass.</p>
+        {content.sourceNote || content.disclaimer ? <details className="pilot-source-details">
+          <summary>Training & source notes</summary>
+          {content.disclaimer ? <p><strong>Training boundary:</strong> {content.disclaimer}</p> : null}
+          {content.sourceNote ? <p>Source note · {content.sourceNote}</p> : null}
+        </details> : null}
       </section>
       <KnowledgeTrainer content={content} />
     </main>
