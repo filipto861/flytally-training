@@ -30,9 +30,9 @@ export default async function PerformancePage({
     <main className="shell aircraft-detail">
       <AircraftWorkspaceNav aircraftId={aircraft.id} active="performance" variants={aircraft.variants} variantProfiles={aircraft.variantProfiles} selectedVariant={selectedVariant} />
       <section className="workspace-section-hero">
-        <p className="eyebrow">Performance · {aircraft.displayName}{selectedVariant ? ` · ${selectedVariant}` : ""}</p>
-        <h1>Performance calculator</h1>
-        <p className="lede">Calculate takeoff and landing runway corrections from the performance data actually published for this aircraft. Missing AFM chart logic is never reconstructed or guessed.</p>
+        <p className="eyebrow">Reference</p>
+        <h1>Performance</h1>
+        <p className="lede">Calculate takeoff and landing performance from published aircraft data.</p>
       </section>
       <PerformanceCalculator datasets={configuredContent.datasets} disclaimer={configuredContent.disclaimer} />
     </main>

@@ -42,10 +42,14 @@ export default async function FlowsPage({
       <Link className="back-link" href={withVariantQuery(`/aircraft/${aircraft.id}`, selectedVariant)}>← {aircraft.displayName}</Link>
       <AircraftWorkspaceNav aircraftId={aircraft.id} active="flows" variants={aircraft.variants} variantProfiles={aircraft.variantProfiles} selectedVariant={selectedVariant} />
       <section className="workspace-section-hero">
-        <p className="eyebrow">Flows · {aircraft.displayName}{selectedVariant ? ` · ${selectedVariant}` : ""}</p>
-        <h1>{configuredContent.title}</h1>
-        {configuredContent.sourceNote ? <p className="lede">{configuredContent.sourceNote}</p> : null}
-        {configuredContent.disclaimer ? <p><strong>Authority boundary:</strong> {configuredContent.disclaimer}</p> : null}
+        <p className="eyebrow">Learn</p>
+        <h1>Flows</h1>
+        <p className="lede">Rehearse one published cockpit flow at a time.</p>
+        {configuredContent.sourceNote || configuredContent.disclaimer ? <details className="pilot-source-details">
+          <summary>Training & source notes</summary>
+          {configuredContent.disclaimer ? <p><strong>Training boundary:</strong> {configuredContent.disclaimer}</p> : null}
+          {configuredContent.sourceNote ? <p>Source note · {configuredContent.sourceNote}</p> : null}
+        </details> : null}
       </section>
 
       {configuredContent.flows.map((flow, flowIndex) => (

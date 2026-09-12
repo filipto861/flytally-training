@@ -34,9 +34,9 @@ export default async function WeightBalancePage({
     <main className="shell aircraft-detail">
       <AircraftWorkspaceNav aircraftId={aircraft.id} active="weight-balance" variants={aircraft.variants} variantProfiles={aircraft.variantProfiles} selectedVariant={selectedVariant} />
       <section className="workspace-section-hero">
-        <p className="eyebrow">Weight &amp; Balance · {aircraft.displayName}{selectedVariant ? ` · ${selectedVariant}` : ""}</p>
+        <p className="eyebrow">Reference</p>
         <h1>Weight &amp; Balance</h1>
-        <p className="lede">Check takeoff and planned landing mass and centre of gravity from the published empty-aircraft data, loading stations and CG envelope.</p>
+        <p className="lede">Check takeoff and landing mass and centre of gravity.</p>
       </section>
       <WeightBalanceCalculator content={content} />
     </main>

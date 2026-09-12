@@ -45,9 +45,9 @@ export default async function QuickReferencePage({
       <Link className="back-link" href={withVariantQuery(`/aircraft/${aircraft.id}`, selectedVariant)}>← {aircraft.displayName}</Link>
       <AircraftWorkspaceNav aircraftId={aircraft.id} active="quick-reference" variants={aircraft.variants} variantProfiles={aircraft.variantProfiles} selectedVariant={selectedVariant} />
       <section className="workspace-section-hero">
-        <p className="eyebrow">FLY · Quick Reference · {aircraft.displayName}{selectedVariant ? ` · ${selectedVariant}` : ""}</p>
-        <h1>Complete published cockpit data.</h1>
-        <p className="lede">One place for every currently published limitation, speed, power reference and performance source row that applies to the selected aircraft configuration. Source authority stays visible and no missing value is invented.</p>
+        <p className="eyebrow">Reference</p>
+        <h1>Quick Reference</h1>
+        <p className="lede">Key published performance and limitations in one place.</p>
       </section>
       <PilotQuickReference performance={configuredPerformance} limitations={configuredLimitations} manualLabels={manualLabels} />
     </main>

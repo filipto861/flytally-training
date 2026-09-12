@@ -59,17 +59,21 @@ export default async function AvionicsPage({
       />
 
       <section className="workspace-section-hero">
-        <p className="eyebrow">Avionics · {aircraft.displayName}{selectedVariant ? ` · ${selectedVariant}` : ""}</p>
-        <h1>{configuredContent.title}</h1>
-        {configuredContent.sourceNote ? <p className="lede">{configuredContent.sourceNote}</p> : null}
-        {configuredContent.disclaimer ? <p><strong>Authority boundary:</strong> {configuredContent.disclaimer}</p> : null}
+        <p className="eyebrow">Learn</p>
+        <h1>Avionics</h1>
+        <p className="lede">Study the installed avionics for the selected aircraft configuration.</p>
+        {configuredContent.sourceNote || configuredContent.disclaimer ? <details className="pilot-source-details">
+          <summary>Training & source notes</summary>
+          {configuredContent.disclaimer ? <p><strong>Training boundary:</strong> {configuredContent.disclaimer}</p> : null}
+          {configuredContent.sourceNote ? <p>Source note · {configuredContent.sourceNote}</p> : null}
+        </details> : null}
       </section>
 
       {configuredContent.topics.map((topic, index) => (
         <section className="reference-library" id={topic.id} key={topic.id}>
           <div className="section-heading">
             <div>
-              <p className="eyebrow">Avionics topic {index + 1}</p>
+              <p className="eyebrow">Topic {index + 1}</p>
               <h2>{topic.title}</h2>
             </div>
             {topic.configuration ? <p>{topic.configuration}</p> : null}
