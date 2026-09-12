@@ -30,8 +30,7 @@ export async function getContentVersionForReview(versionId: string): Promise<Con
     FROM training_content_versions v JOIN training_content_items i ON i.item_id=v.item_id
     LEFT JOIN training_content_version_sources cvs ON cvs.version_id=v.version_id
     WHERE v.version_id=${versionId}
-    GROUP BY v.version_id,v.version_no,v.state,v.origin,v.payload,i.aircraft_id,i.domain,i.content_key LIMIT 1`
-    as Array<{version_id:string;version_no:number|string;state:string;origin:string;payload:unknown;aircraft_id:string;domain:TrainingContentDomain;content_key:string;source_ids:unknown}>;
+    GROUP BY v.version_id,v.version_no,v.state,v.origin,v.payload,i.aircraft_id,i.domain,i.content_key LIMIT 1` as Array<{version_id:string;version_no:number|string;state:string;origin:string;payload:unknown;aircraft_id:string;domain:TrainingContentDomain;content_key:string;source_ids:unknown}>;
   const row = rows[0];
   if (!row) return undefined;
   const payload = json(row.payload);
