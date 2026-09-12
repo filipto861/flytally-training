@@ -1,17 +1,11 @@
-import { learjet3536AbnormalTraining, type AircraftAbnormalTraining } from "./abnormal-scenarios.ts";
+import type { AircraftAbnormalTraining } from "./abnormal-scenarios.ts";
 import { trainingAircraft, type TrainingAircraft } from "./aircraft-catalog.ts";
-import { learjet3536CockpitOrientation, type CockpitOrientation } from "./cockpit-orientation.ts";
+import type { CockpitOrientation } from "./cockpit-orientation.ts";
 import type { TrainingContentDomain } from "./content-admin-types.ts";
 import type { TrainingContentRepository } from "./content-repository.ts";
-import { learjet3536CaeNormalChecklist } from "./learjet-cae-pilot-content.ts";
-import { learjet3536CompleteCoreModules } from "./learjet-complete-elearning.ts";
-import { learjet3536ExpandedAbnormal } from "./learjet-native-abnormal-expanded.ts";
-import type { StaticUniversalTrainingModule } from "./learjet-native-content.ts";
-import { learjet3536NativeKnowledge } from "./learjet-native-knowledge.ts";
-import { learjet3536OperationalLimitations, learjet3536OperationalPerformance } from "./learjet-pilot-takeoff-data.ts";
-import { learjet3536LearningContent, type AircraftLearningContent } from "./learning-content.ts";
-import { learjet3536ReferenceKnowledge, type AircraftReferenceKnowledge } from "./reference-knowledge.ts";
-import { learjet3536ColdDarkFlow, type SimulatorFlightFlow } from "./simulator-checklists.ts";
+import type { AircraftLearningContent } from "./learning-content.ts";
+import type { AircraftReferenceKnowledge } from "./reference-knowledge.ts";
+import type { SimulatorFlightFlow } from "./simulator-checklists.ts";
 
 export type StaticTrainingModule = {
   readonly aircraftId: string;
@@ -19,10 +13,12 @@ export type StaticTrainingModule = {
   readonly payload: { readonly aircraftId: string };
 };
 
+export type StaticUniversalTrainingModule = StaticTrainingModule;
+
 export type StaticTrainingContentSeed = {
   readonly aircraft: readonly TrainingAircraft[];
   readonly nativeModules?: readonly StaticTrainingModule[];
-  /** @deprecated M9 compatibility for fixtures created before nativeModules. */
+  /** @deprecated compatibility for fixtures created before nativeModules. */
   readonly universalModules?: readonly StaticUniversalTrainingModule[];
   readonly learningContent: readonly AircraftLearningContent[];
   readonly normalFlights: readonly SimulatorFlightFlow[];
@@ -31,27 +27,19 @@ export type StaticTrainingContentSeed = {
   readonly referenceKnowledge: readonly AircraftReferenceKnowledge[];
 };
 
-const learjetCoreWithoutPilotOverrides = learjet3536CompleteCoreModules.filter(
-  (module) => !["checklists", "performance", "limitations"].includes(module.domain),
-);
-
+/**
+ * Production aircraft content is database-governed. The built-in seed is kept
+ * deliberately empty so a removed or superseded aircraft can never be
+ * resurrected by a deploy or database bootstrap.
+ */
 export const staticTrainingContentSeed: StaticTrainingContentSeed = {
   aircraft: trainingAircraft,
-  nativeModules: [
-    { aircraftId: learjet3536CaeNormalChecklist.aircraftId, domain: "checklists", payload: learjet3536CaeNormalChecklist },
-    ...learjetCoreWithoutPilotOverrides,
-    { aircraftId: learjet3536OperationalPerformance.aircraftId, domain: "performance", payload: learjet3536OperationalPerformance },
-    { aircraftId: learjet3536OperationalLimitations.aircraftId, domain: "limitations", payload: learjet3536OperationalLimitations },
-    { aircraftId: learjet3536NativeKnowledge.aircraftId, domain: "knowledge", payload: learjet3536NativeKnowledge },
-    { aircraftId: learjet3536ExpandedAbnormal.aircraftId, domain: "abnormal", payload: learjet3536ExpandedAbnormal },
-  ],
-  learningContent: [learjet3536LearningContent],
-  normalFlights: [learjet3536ColdDarkFlow],
-  cockpitOrientations: [learjet3536CockpitOrientation],
-  // Kept only so an existing database/static fixture has a migration fallback.
-  // Learner getPublishedModule() always prefers nativeModules.
-  abnormalTrainings: [learjet3536AbnormalTraining],
-  referenceKnowledge: [learjet3536ReferenceKnowledge],
+  nativeModules: [],
+  learningContent: [],
+  normalFlights: [],
+  cockpitOrientations: [],
+  abnormalTrainings: [],
+  referenceKnowledge: [],
 };
 
 const moduleKey = (aircraftId: string, domain: TrainingContentDomain): string => `${aircraftId}:${domain}`;
