@@ -33,8 +33,8 @@ test("Fly exposes emergency as a fast third operational tool",()=>{
 test("Fly only enables QRH presentation for validated universal abnormal content",()=>{
   assert.match(fly,/isUniversalAbnormalEmergencyContent/);
   assert.match(fly,/filterAbnormalEmergencyForConfiguration/);
-  assert.match(fly,/normalizeUniversalAbnormalEmergency/);
-  assert.doesNotMatch(fly,/normalizeLegacyAbnormalTraining/);
+  assert.match(fly,/toOperationalEmergency/);
+  assert.doesNotMatch(fly,/normalizeLegacyAbnormalTraining|normalizeUniversalAbnormalEmergency/);
 });
 
 test("QRH presentation preserves published actions and removes training interaction",()=>{

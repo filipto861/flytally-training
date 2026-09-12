@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 
 import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
 import { FlightDeck } from "@/components/flight-deck";
-import { normalizeUniversalAbnormalEmergency } from "@/lib/abnormal-runtime";
 import {
   configurationForAircraftVariant,
   filterAbnormalEmergencyForConfiguration,
@@ -13,6 +12,11 @@ import {
 import { normalizeLegacyFlightFlow, normalizeUniversalChecklist } from "@/lib/checklist-runtime";
 import { getPublishedAircraftModule } from "@/lib/content-repository";
 import { getTrainingContentRepository } from "@/lib/content-store";
+import {
+  toOperationalChecklist,
+  toOperationalEmergency,
+  toOperationalPerformanceDatasets,
+} from "@/lib/operational-flight-data";
 import { isUniversalAbnormalEmergencyContent } from "@/lib/universal-abnormal-emergency";
 import type { AircraftChecklistContent, AircraftPerformanceContent } from "@/lib/universal-aircraft-content";
 
@@ -36,19 +40,23 @@ export default async function FlyPage({
 
   const selectedVariant = resolveSelectedVariant(variant, aircraft.variants);
   const configuration = configurationForAircraftVariant(aircraft, selectedVariant);
+
   const configuredChecklist = checklistContent ? filterChecklistForConfiguration(checklistContent, configuration) : undefined;
-  const checklist = configuredChecklist
+  const runtimeChecklist = configuredChecklist
     ? normalizeUniversalChecklist(configuredChecklist)
     : legacyChecklist
       ? normalizeLegacyFlightFlow(legacyChecklist)
       : undefined;
+  const checklist = runtimeChecklist ? toOperationalChecklist(runtimeChecklist) : undefined;
+
   const configuredPerformance = performanceContent ? filterPerformanceForConfiguration(performanceContent, configuration) : undefined;
-  const datasets = configuredPerformance?.datasets ?? [];
+  const datasets = toOperationalPerformanceDatasets(configuredPerformance?.datasets ?? []);
+
   const configuredAbnormal = isUniversalAbnormalEmergencyContent(abnormalContent)
     ? filterAbnormalEmergencyForConfiguration(abnormalContent, configuration)
     : undefined;
   const emergency = configuredAbnormal?.scenarios.length
-    ? normalizeUniversalAbnormalEmergency(configuredAbnormal)
+    ? toOperationalEmergency(configuredAbnormal)
     : undefined;
 
   if ((!checklist || !checklist.phases.length) && !datasets.length && !emergency?.scenarios.length) notFound();
