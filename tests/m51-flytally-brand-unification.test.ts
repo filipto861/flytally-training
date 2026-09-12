@@ -7,12 +7,14 @@ const brand=read("app/flytally-brand.css");
 const layout=read("app/layout.tsx");
 const navigation=read("app/navigation.css");
 const shell=read("components/product-shell.tsx");
+const iconRoute=read("app/pwa-icon/route.ts");
 
 test("M51 uses the canonical FlyTally mark with a visible Training lockup",()=>{
-  assert.match(shell,/https:\/\/fly-tally\.com\/logbook_icon_32\.png/);
+  assert.match(shell,/FLYTALLY_MARK\s*=\s*"\/pwa-icon"/);
+  assert.match(iconRoute,/https:\/\/fly-tally\.com\/logbook_icon\.png/);
   assert.match(shell,/<small>Training<\/small>\s*<strong>FlyTally<\/strong>/);
   assert.match(brand,/\.brand-mark img\{/);
-  assert.match(layout,/icons:[\s\S]*fly-tally\.com\/logbook_icon_32\.png/);
+  assert.match(layout,/icons:[\s\S]*icon:\s*"\/pwa-icon"/);
 });
 
 test("the FlyTally wordmark stays visible on narrow mobile screens",()=>{

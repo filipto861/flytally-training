@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { PwaInstallCard } from "@/components/pwa-install-card";
 import { getTrainingContentRepository } from "@/lib/content-store";
 
 export const dynamic = "force-dynamic";
@@ -15,6 +16,8 @@ export default async function HomePage() {
         <h1>Your aircraft</h1>
         <p>Select an aircraft to open its training workspace.</p>
       </section>
+
+      <PwaInstallCard />
 
       <section className="pilot-aircraft-list" aria-label="Training aircraft">
         {aircraft.map((item) => <Link className="pilot-aircraft-row" href={`/aircraft/${item.id}`} key={item.id}>

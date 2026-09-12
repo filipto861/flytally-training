@@ -18,7 +18,13 @@ export const metadata: Metadata = {
   applicationName: "FlyTally Training",
   manifest: "/manifest.webmanifest",
   icons: {
-    icon: "https://fly-tally.com/logbook_icon_32.png",
+    icon: "/pwa-icon",
+    apple: "/pwa-icon",
+  },
+  appleWebApp: {
+    capable: true,
+    title: "FlyTally Training",
+    statusBarStyle: "default",
   },
 };
 
