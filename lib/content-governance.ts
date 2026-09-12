@@ -115,7 +115,7 @@ export async function assertContentVersionValidForApprovalOrPublication(versionI
   if (!version) throw new Error("Content version not found.");
   assertValidContentPayload(version.domain,version.payload,version.aircraftId);
   await assertEmbeddedApplicabilityMatchesAircraft(version.aircraftId, version.payload);
-  await assertSourceReferencesBelongToAircraft(version.aircraftId, version.sourceReferenceIds);
+  await assertSourceReferencesBelongToAircraft(version.aircraftId,version.sourceReferenceIds);
   await assertEmbeddedSourcesMatchVersionLinks(version.payload, version.sourceReferenceIds);
   return version;
 }
