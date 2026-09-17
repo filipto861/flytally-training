@@ -9,18 +9,18 @@ export type OperationalNativeDistanceInput = Readonly<{
 }>;
 
 /**
- * Fly uses bounded software interpolation between published runway-distance
- * table points even when the source manual does not prescribe an interpolation
- * method. The source dataset is never mutated: the operational policy is a
- * runtime calculation choice and remains visibly labelled as interpolation.
+ * Fly honors the governed source dataset interpolation authority exactly.
+ * Runtime code must never opt a dataset into interpolation simply because
+ * bounding source rows happen to exist.
  *
- * The underlying calculator still requires every bounding source row and still
- * refuses extrapolation outside the published altitude / ISA envelope.
+ * Exact source rows remain usable when interpolation is "none". Inputs between
+ * rows are rejected unless the governed dataset explicitly declares
+ * "linear-explicit". The underlying calculator also refuses extrapolation
+ * outside the published altitude / ISA envelope and requires every bounding row.
  */
 export function calculateOperationalNativeDistanceGrid(
   dataset: PerformanceDataset | undefined,
   input: OperationalNativeDistanceInput,
 ): NativeDistanceCalculation {
-  if (!dataset) return calculateNativeDistanceGrid(dataset, input);
-  return calculateNativeDistanceGrid({ ...dataset, interpolation: "linear-explicit" }, input);
+  return calculateNativeDistanceGrid(dataset, input);
 }

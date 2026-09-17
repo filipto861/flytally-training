@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { AccountActions } from "@/components/account-actions";
+import { LegalLinks } from "@/components/legal-links";
 
 const FLYTALLY_MARK = "/pwa-icon";
 
@@ -24,9 +25,12 @@ export function ProductShell({ children }: Readonly<{ children: ReactNode }>) {
       </header>
       {children}
       <footer className="app-footer">
-        <div className="app-footer-inner">
-          <span>FlyTally Training</span>
-          <span>Training aid · current approved aircraft, operator and regulatory documents remain authoritative.</span>
+        <div className="app-footer-inner" style={{alignItems:"flex-start",padding:"18px 0",minHeight:"84px"}}>
+          <div>
+            <strong style={{display:"block",color:"#526277",marginBottom:"4px"}}>FlyTally Training</strong>
+            <span>Supplemental training/reference aid · current approved aircraft, operator and regulatory documents remain authoritative.</span>
+          </div>
+          <LegalLinks />
         </div>
       </footer>
     </>
