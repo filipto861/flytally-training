@@ -29,18 +29,15 @@ const exactOnlyGrid: PerformanceDataset = {
   interpolation: "none",
 };
 
-test("M52 keeps governed source policy intact while Fly enables bounded software interpolation", () => {
+test("M52 governed source interpolation policy is also authoritative in Fly", () => {
   const input = { airportAltitudeFt: 1000, oatC: 18, surface: "Concrete", runwayAvailableM: 500 };
   const governed = calculateNativeDistanceGrid(exactOnlyGrid, input);
   assert.equal(governed.status, "unsupported");
   assert.match(governed.reason ?? "", /does not permit software interpolation/i);
 
   const operational = calculateOperationalNativeDistanceGrid(exactOnlyGrid, input);
-  assert.equal(operational.status, "ready");
-  assert.equal(operational.method, "bounded-linear-interpolation");
-  assert.equal(operational.groundRunM, 130);
-  assert.equal(operational.distance50ftM, 360);
-  assert.equal(operational.distance50ftMarginM, 140);
+  assert.equal(operational.status, "unsupported");
+  assert.match(operational.reason ?? "", /does not permit software interpolation/i);
   assert.equal(exactOnlyGrid.interpolation, "none");
 });
 
