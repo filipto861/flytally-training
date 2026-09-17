@@ -71,7 +71,7 @@ test("v2.8 documents source-rights, AI human approval and no unauthorized operat
   const docs=read("docs/compliance/V2_8_COMPLIANCE_FOUNDATION.md"),policy=read("lib/operational-performance-policy.ts");
   assert.match(docs,/human governed review\/approval is required/i);
   assert.match(docs,/Proprietary, NDA-restricted/i);
-  assert.match(docs,/must not rewrite a dataset from `none` to `linear-explicit`/);
+  assert.match(docs,/must (?:not|never) rewrite a dataset from `none` to `linear-explicit`/);
   assert.doesNotMatch(policy,/\{ \.\.\.dataset, interpolation: "linear-explicit" \}/);
   assert.match(policy,/honors the governed source dataset interpolation authority exactly/i);
 });
