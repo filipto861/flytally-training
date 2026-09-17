@@ -1,0 +1,69 @@
+# FlyTally Training v2.8 — Compliance & Operational Safety Foundation
+
+Status: private-beta implementation baseline. The canonical public legal notices live at `https://fly-tally.com/legal`; Training links to them rather than maintaining a second legal copy.
+
+## Operational safety contract
+
+FlyTally Training is a supplemental training/reference aid. Current approved aircraft documentation, operator procedures, regulatory requirements and qualified instruction remain authoritative.
+
+### Performance
+- An operational result may use an exact published source row regardless of interpolation policy.
+- An input between published rows is supported only when the governed `PerformanceDataset.interpolation` value is explicitly `linear-explicit`.
+- Runtime/Flight Deck code must never rewrite a dataset from `none` to `linear-explicit`.
+- Extrapolation outside the published altitude/temperature/ISA envelope is always unsupported.
+- Missing bounding rows, unsupported surfaces and incomplete source authority fail closed.
+- Calculation UI must distinguish exact published rows from explicitly authorised bounded interpolation.
+
+### Source authority & applicability
+- Operational content is released through the governed content lifecycle; draft AI output cannot publish itself.
+- Aircraft/variant applicability is filtered before the operational client boundary.
+- Source document identity/revision and content publication status are part of the safety boundary.
+- If applicability, authority or freshness is ambiguous, the operational experience should withhold a result rather than infer one.
+
+### Emergency/reference wording
+- FlyTally must not imply that a derived training page is an approved AFM/POH/QRH/MEL/checklist unless the underlying document and approval scope support that statement.
+- Product copy should prefer Training Reference / Quick Reference / Emergency Reference where the material is a FlyTally derivative.
+
+## AI and source-rights boundary
+
+- OpenAI drafting is admin-only and draft-only; human governed review/approval is required before publication.
+- `store:false` or equivalent API controls do not replace a source-rights assessment.
+- Proprietary, NDA-restricted or otherwise non-shareable manual excerpts must not be sent to an external model/provider without verified permission for that processing.
+- Source PDFs remain local during FlyTally source fingerprinting; FlyTally stores provenance/fingerprint metadata rather than the source document itself unless a future governed storage feature is explicitly introduced and reviewed.
+
+## Privacy/storage baseline
+
+Training may use:
+- a required authentication/session mechanism;
+- browser local storage for learner progress, form state and preferences;
+- a service-worker cache for explicitly prepared offline flight-deck content;
+- PostgreSQL for server-side identity/progress/governed content.
+
+These functional mechanisms do not by themselves justify a non-essential-cookie consent banner. Advertising/behavioural tracking must not be introduced without a privacy/consent review.
+
+Canonical notices: Privacy, Terms, Cookies & Local Storage, Aviation Safety, Providers and Report are linked from the global footer through `NEXT_PUBLIC_FLYTALLY_LEGAL_URL`.
+
+## Processor/service register
+
+- **Vercel** — hosting, delivery, server-side runtime.
+- **Neon** — Training PostgreSQL infrastructure.
+- **FlyTally Logbook identity service** — short-lived trusted SSO assertion issuer.
+- **OpenAI** — optional admin-only drafting provider when configured.
+
+Adding a new production processor/provider requires an update to the canonical public provider notice, internal data-flow/processor record and DPA/transfer review before launch.
+
+## Incident response
+
+Use the platform v2.8 incident process: contain, scope affected data/users/systems, rotate credentials or invalidate sessions if required, preserve minimal evidence, document decisions, assess personal-data breach reporting/user notification, remediate and add a regression test/control. Do not place secrets or unnecessary personal/source-confidential data in GitHub/CI incident records.
+
+## v2.8 Training regression requirements
+
+- runtime does not opt a source into interpolation;
+- exact source rows work with interpolation `none`;
+- between-row values fail closed with interpolation `none`;
+- between-row values work only with `linear-explicit` and remain bounded;
+- extrapolation remains blocked;
+- legal/safety links are globally available;
+- AI drafting remains human-approved and source-rights constrained;
+- source PDFs remain non-hosted in the existing ingestion flow;
+- Vercel preview builds remain skipped for ordinary feature branches, with production deployment only after validated merge to `main`.
