@@ -4,6 +4,7 @@ import { sql } from "./db";
 import { assertValidContentPayload, validateContentPayload } from "./content-contracts";
 import type { TrainingContentDomain } from "./content-admin-types";
 import { collectEmbeddedManualIds } from "./content-source-binding";
+import { isOperationalSourceAuthority, requiresOperationalSourceAuthority } from "./source-authority";
 import {
   assertApplicabilityEquipmentRegistered,
   assertApplicabilityVariantsRegistered,
@@ -73,6 +74,30 @@ export async function assertSourceReferencesBelongToAircraft(aircraftId: string,
   if (invalid.length) throw new Error(`Source references do not belong to aircraft ${aircraftId}: ${invalid.join(", ")}`);
 }
 
+export async function assertOperationalSourceAuthorityForVersion(
+  domain: TrainingContentDomain,
+  referenceIds: readonly string[],
+): Promise<void> {
+  if (!requiresOperationalSourceAuthority(domain)) return;
+  const unique = [...new Set(referenceIds.filter(Boolean))];
+  const referencesJson = JSON.stringify(unique);
+  const rows = await sql`WITH input_refs AS (
+      SELECT DISTINCT value::text AS reference_id
+      FROM jsonb_array_elements_text(${referencesJson}::jsonb)
+    )
+    SELECT ir.reference_id,r.authority_role
+    FROM input_refs ir
+    JOIN training_source_references sr ON sr.reference_id=ir.reference_id
+    JOIN training_manual_revisions r ON r.revision_id=sr.revision_id` as Array<{reference_id:string;authority_role:string}>;
+  const roles = new Map(rows.map((row) => [row.reference_id, row.authority_role]));
+  const invalid = unique.filter((id) => !isOperationalSourceAuthority(roles.get(id) ?? ""));
+  if (invalid.length) {
+    throw new Error(
+      `Operational ${domain} content requires CONTROLLING or OPERATING_REFERENCE source authority: ${invalid.join(", ")}`,
+    );
+  }
+}
+
 /**
  * Native M9 payloads carry manualId at claim/item level. Publication therefore
  * requires the immutable version-source links to cover exactly those source
@@ -129,6 +154,7 @@ export async function assertContentVersionValidForApprovalOrPublication(versionI
   assertValidContentPayload(version.domain,version.payload,version.aircraftId);
   await assertEmbeddedApplicabilityMatchesAircraft(version.aircraftId, version.payload);
   await assertSourceReferencesBelongToAircraft(version.aircraftId,version.sourceReferenceIds);
+  await assertOperationalSourceAuthorityForVersion(version.domain, version.sourceReferenceIds);
   await assertEmbeddedSourcesMatchVersionLinks(version.payload, version.sourceReferenceIds);
   return version;
 }

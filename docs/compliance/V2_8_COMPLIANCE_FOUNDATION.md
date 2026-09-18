@@ -16,9 +16,12 @@ FlyTally Training is a supplemental training/reference aid. Current approved air
 
 ### Source authority & applicability
 - Operational content is released through the governed content lifecycle; draft AI output cannot publish itself.
+- Safety-critical operational domains (checklists, procedures, performance, weight & balance, limitations and abnormal/emergency) may be approved or published only from sources classified as `CONTROLLING` or `OPERATING_REFERENCE`.
 - Aircraft/variant applicability is filtered before the operational client boundary.
 - Source document identity/revision and content publication status are part of the safety boundary.
-- If applicability, authority or freshness is ambiguous, the operational experience should withhold a result rather than infer one.
+- Flight Deck independently re-checks current publication freshness and source authority for checklists, performance and abnormal/emergency content before exposing it.
+- The legacy normal-flight fallback is not permitted in Flight Deck because it does not carry the same governed publication/source contract.
+- If applicability, authority, freshness or database governance is ambiguous, the operational experience withholds the affected module rather than inferring or serving stale content.
 
 ### Emergency/reference wording
 - FlyTally must not imply that a derived training page is an approved AFM/POH/QRH/MEL/checklist unless the underlying document and approval scope support that statement.
@@ -59,6 +62,8 @@ Use the platform v2.8 incident process: contain, scope affected data/users/syste
 ## v2.8 Training regression requirements
 
 - runtime does not opt a source into interpolation;
+- safety-critical publication rejects training-only, simulator-only or unclassified source authority;
+- Flight Deck withholds stale, missing-source or non-authoritative operational modules and has no legacy checklist fallback;
 - exact source rows work with interpolation `none`;
 - between-row values fail closed with interpolation `none`;
 - between-row values work only with `linear-explicit` and remain bounded;

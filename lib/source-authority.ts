@@ -9,6 +9,26 @@ export const sourceAuthorityRoles = [
 
 export type SourceAuthorityRole = typeof sourceAuthorityRoles[number];
 
+export const operationalSourceAuthorityRoles = ["CONTROLLING", "OPERATING_REFERENCE"] as const;
+export const operationalSafetyDomains = [
+  "checklists",
+  "procedures",
+  "performance",
+  "weight-balance",
+  "limitations",
+  "abnormal",
+] as const;
+
+export type OperationalSourceAuthorityRole = typeof operationalSourceAuthorityRoles[number];
+
+export function isOperationalSourceAuthority(role: string): role is OperationalSourceAuthorityRole {
+  return (operationalSourceAuthorityRoles as readonly string[]).includes(role);
+}
+
+export function requiresOperationalSourceAuthority(domain: string): boolean {
+  return (operationalSafetyDomains as readonly string[]).includes(domain);
+}
+
 export function parseSourceAuthorityRole(value: string): SourceAuthorityRole {
   if (!(sourceAuthorityRoles as readonly string[]).includes(value)) throw new Error("Unsupported source authority role.");
   return value as SourceAuthorityRole;

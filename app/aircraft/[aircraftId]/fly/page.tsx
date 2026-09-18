@@ -9,7 +9,7 @@ import {
   filterPerformanceForConfiguration,
   resolveSelectedVariant,
 } from "@/lib/aircraft-applicability";
-import { normalizeLegacyFlightFlow, normalizeUniversalChecklist } from "@/lib/checklist-runtime";
+import { normalizeUniversalChecklist } from "@/lib/checklist-runtime";
 import { getPublishedAircraftModule } from "@/lib/content-repository";
 import { getTrainingContentRepository } from "@/lib/content-store";
 import {
@@ -17,6 +17,7 @@ import {
   toOperationalEmergency,
   toOperationalPerformanceDatasets,
 } from "@/lib/operational-flight-data";
+import { getOperationalFlightReadiness } from "@/lib/operational-content-readiness";
 import { isUniversalAbnormalEmergencyContent } from "@/lib/universal-abnormal-emergency";
 import type { AircraftChecklistContent, AircraftPerformanceContent } from "@/lib/universal-aircraft-content";
 
@@ -29,30 +30,30 @@ export default async function FlyPage({
 }>) {
   const [{ aircraftId }, { variant }] = await Promise.all([params, searchParams]);
   const repository = getTrainingContentRepository();
-  const [aircraft, checklistContent, legacyChecklist, performanceContent, abnormalContent] = await Promise.all([
+  const [aircraft, checklistContent, performanceContent, abnormalContent, operationalReadiness] = await Promise.all([
     repository.getAircraft(aircraftId),
     getPublishedAircraftModule<AircraftChecklistContent>(repository, aircraftId, "checklists"),
-    repository.getNormalFlight(aircraftId),
     getPublishedAircraftModule<AircraftPerformanceContent>(repository, aircraftId, "performance"),
     getPublishedAircraftModule<unknown>(repository, aircraftId, "abnormal"),
+    getOperationalFlightReadiness(aircraftId),
   ]);
   if (!aircraft) notFound();
 
   const selectedVariant = resolveSelectedVariant(variant, aircraft.variants);
   const configuration = configurationForAircraftVariant(aircraft, selectedVariant);
 
-  const configuredChecklist = checklistContent ? filterChecklistForConfiguration(checklistContent, configuration) : undefined;
-  const runtimeChecklist = configuredChecklist
-    ? normalizeUniversalChecklist(configuredChecklist)
-    : legacyChecklist
-      ? normalizeLegacyFlightFlow(legacyChecklist)
-      : undefined;
+  const configuredChecklist = operationalReadiness.checklists.ready && checklistContent
+    ? filterChecklistForConfiguration(checklistContent, configuration)
+    : undefined;
+  const runtimeChecklist = configuredChecklist ? normalizeUniversalChecklist(configuredChecklist) : undefined;
   const checklist = runtimeChecklist ? toOperationalChecklist(runtimeChecklist) : undefined;
 
-  const configuredPerformance = performanceContent ? filterPerformanceForConfiguration(performanceContent, configuration) : undefined;
+  const configuredPerformance = operationalReadiness.performance.ready && performanceContent
+    ? filterPerformanceForConfiguration(performanceContent, configuration)
+    : undefined;
   const datasets = toOperationalPerformanceDatasets(configuredPerformance?.datasets ?? []);
 
-  const configuredAbnormal = isUniversalAbnormalEmergencyContent(abnormalContent)
+  const configuredAbnormal = operationalReadiness.abnormal.ready && isUniversalAbnormalEmergencyContent(abnormalContent)
     ? filterAbnormalEmergencyForConfiguration(abnormalContent, configuration)
     : undefined;
   const emergency = configuredAbnormal?.scenarios.length
