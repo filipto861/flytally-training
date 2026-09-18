@@ -121,6 +121,7 @@ test("a sparse second aircraft can be created, published and read through the ge
       displayName: "Acceptance Light SEP",
     }, subject);
     await addAircraftVariant(aircraftId, "A");
+    await addAircraftVariant(aircraftId, "B");
     await registerGovernedManualRevision({
       aircraftId,
       manualId,
