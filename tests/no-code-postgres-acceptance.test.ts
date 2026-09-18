@@ -6,6 +6,11 @@ import type {
   AircraftPerformanceContent,
   AircraftProcedureContent,
 } from "../lib/universal-aircraft-content.ts";
+import type { AircraftWeightBalanceContent } from "../lib/universal-weight-balance.ts";
+import {
+  buildV31AcceptancePerformance,
+  buildV31AcceptanceWeightBalance,
+} from "./fixtures/v31-second-aircraft.ts";
 
 const acceptanceUrl = process.env.TRAINING_ACCEPTANCE_DATABASE_URL?.trim();
 
@@ -21,6 +26,8 @@ test("a sparse second aircraft can be created, published and read through the ge
     { getAircraftContentBundle },
     { validateContentPayload },
     { configurationForAircraftVariant, filterChecklistForConfiguration, filterProceduresForConfiguration, filterPerformanceForConfiguration },
+    { buildPerformanceCalculatorProfile, calculateLandingDistance, calculateTakeoffDistance, getMetricLookupResults },
+    { calculateWeightBalance },
     { sql },
   ] = await Promise.all([
     import("../lib/database-bootstrap.ts"),
@@ -32,6 +39,8 @@ test("a sparse second aircraft can be created, published and read through the ge
     import("../lib/content-repository.ts"),
     import("../lib/content-contracts.ts"),
     import("../lib/aircraft-applicability.ts"),
+    import("../lib/performance-calculator.ts"),
+    import("../lib/weight-balance-calculator.ts"),
     import("../lib/db.ts"),
   ]);
   await initializeTrainingDatabase();
@@ -99,29 +108,10 @@ test("a sparse second aircraft can be created, published and read through the ge
     }],
   };
 
-  const performance: AircraftPerformanceContent = {
-    aircraftId,
-    title: "Acceptance Light SEP Performance",
-    sourceNote: "Synthetic exact-row acceptance data; interpolation is intentionally disabled.",
-    datasets: [{
-      id: "takeoff-reference-speed",
-      title: "Takeoff reference speed",
-      description: "Synthetic lookup table used only to verify generic performance rendering and exact-row lookup.",
-      kind: "lookup-table",
-      axes: [{ key: "mass", label: "Mass", unit: "kg", values: [500, 550] }],
-      outputs: [{ key: "vr", label: "VR", unit: "kt" }],
-      rows: [
-        { inputs: { mass: 500 }, outputs: { vr: 55 } },
-        { inputs: { mass: 550 }, outputs: { vr: 58 } },
-      ],
-      interpolation: "none",
-      applicability: { variants: ["A"] },
-      notes: ["Synthetic acceptance values. Not operational aircraft data."],
-      sources: [embeddedSource],
-    }],
-  };
+  const performance = buildV31AcceptancePerformance(aircraftId, embeddedSource);
+  const weightBalance = buildV31AcceptanceWeightBalance(aircraftId, embeddedSource);
 
-  const domains = { checklists, procedures, performance } as const;
+  const domains = { checklists, procedures, performance, "weight-balance": weightBalance } as const;
 
   try {
     await createAircraft({
@@ -166,7 +156,7 @@ test("a sparse second aircraft can be created, published and read through the ge
     const bundle = await getAircraftContentBundle(repository, aircraftId);
     assert.ok(bundle);
     assert.equal(bundle.aircraft.id, aircraftId);
-    assert.deepEqual(bundle.publishedModuleDomains, ["checklists", "performance", "procedures"]);
+    assert.deepEqual(bundle.publishedModuleDomains, ["checklists", "performance", "procedures", "weight-balance"]);
     assert.deepEqual(bundle.capabilities, {
       checklists: true,
       procedures: true,
@@ -188,7 +178,8 @@ test("a sparse second aircraft can be created, published and read through the ge
     const storedChecklists = await repository.getPublishedModule<AircraftChecklistContent>(aircraftId, "checklists");
     const storedProcedures = await repository.getPublishedModule<AircraftProcedureContent>(aircraftId, "procedures");
     const storedPerformance = await repository.getPublishedModule<AircraftPerformanceContent>(aircraftId, "performance");
-    assert.ok(storedChecklists && storedProcedures && storedPerformance);
+    const storedWeightBalance = await repository.getPublishedModule<AircraftWeightBalanceContent>(aircraftId, "weight-balance");
+    assert.ok(storedChecklists && storedProcedures && storedPerformance && storedWeightBalance);
 
     const configuration = configurationForAircraftVariant(bundle.aircraft, "A");
     const configuredChecklists = filterChecklistForConfiguration(storedChecklists, configuration);
@@ -196,7 +187,31 @@ test("a sparse second aircraft can be created, published and read through the ge
     const configuredPerformance = filterPerformanceForConfiguration(storedPerformance, configuration);
     assert.deepEqual(configuredChecklists.phases[0]?.items.map((item) => item.id), ["fuel-selector", "variant-a-check"]);
     assert.deepEqual(configuredProcedures.procedures.map((procedure) => procedure.id), ["fuel-system-preparation"]);
-    assert.deepEqual(configuredPerformance.datasets.map((dataset) => dataset.id), ["takeoff-reference-speed"]);
+    assert.deepEqual(configuredPerformance.datasets.map((dataset) => dataset.id), ["departure-penalties", "arrival-surface-table", "arrival-reference-values"]);
+
+    const profile = buildPerformanceCalculatorProfile(configuredPerformance.datasets);
+    const takeoff = calculateTakeoffDistance(profile, { dryDistance: 500, runwayAvailable: 700, weight: 1000, surface: "damp" });
+    assert.equal(takeoff.status, "ready");
+    assert.equal(takeoff.correctedDistance, 550);
+    const landing = calculateLandingDistance(profile, { dryDistance: 400, runwayAvailable: 800, surface: "ice", oatC: 4 });
+    assert.equal(landing.status, "ready");
+    assert.equal(landing.correctedDistance, 720);
+    assert.deepEqual(getMetricLookupResults(profile.landingSpeedDataset, 900), [
+      { key: "referenceVelocity", label: "Reference speed", unit: "KIAS", value: 70 },
+      { key: "approachVelocity", label: "Approach speed", unit: "KIAS", value: 75 },
+    ]);
+
+    assert.equal(storedWeightBalance.units?.mass?.label, "lb");
+    assert.equal(storedWeightBalance.units?.volume?.label, "US gal");
+    const wb = calculateWeightBalance(storedWeightBalance, {
+      values: {
+        pilot: 80 * (storedWeightBalance.units?.mass?.fromNormalized ?? 1),
+        fuel: 40 * (storedWeightBalance.units?.volume?.fromNormalized ?? 1),
+      },
+      landingFuelValue: 10 * (storedWeightBalance.units?.volume?.fromNormalized ?? 1),
+    });
+    assert.equal(wb.status, "ready");
+    assert.ok(Math.abs((wb.takeoff?.massKg ?? 0) - 508.8) < 1e-7);
 
     for (const absentDomain of ["limitations", "systems", "flows", "avionics", "knowledge", "abnormal", "learning", "normal-flight", "orientation", "reference-knowledge"] as const) {
       assert.equal(await repository.getPublishedModule(aircraftId, absentDomain), undefined, `${absentDomain} must stay absent for the sparse aircraft`);
