@@ -24,7 +24,7 @@ test("PostgreSQL learner repository hydrates display name and equipment tags fro
 });
 
 test("configuration runtime never infers equipment from a variant key", () => {
-  assert.match(applicability, /profile\?\.equipmentTags \?\? \[\]/);
+  assert.match(applicability, /mergeAircraftEquipmentTags\(aircraft\.equipmentTags, profile\?\.equipmentTags\)/);
   assert.match(applicability, /Falling back to an[\s\S]*empty equipment set/);
   assert.doesNotMatch(applicability, /35A|36A|AAK|ECR|Learjet/i);
 });
