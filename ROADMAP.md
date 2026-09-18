@@ -224,13 +224,13 @@ The aircraft-training milestone history below remains valid. For shared FlyTally
 
 Completed across Training and Logbook, including source-authority/freshness fail-closed behavior, privacy self-service, cross-product erasure, security and release audit controls.
 
-### v2.9 — Commercial & External Validation — current
+### v2.9 — Commercial & External Validation — technical implementation complete ✅
 
 Training participates in one shared FlyTally launch boundary. C1 keeps the canonical legal/commercial state in Logbook, requires an explicit source/publication-rights review for Training content, and does not add a duplicate Training launch flag.
 
-C2 covers the versioned commercial legal publication boundary. C3 ✅ adds shared provider-agnostic entitlements: Logbook remains the authority, Training validates signed entitlement-bearing identity assertions and enforces `training.access` without knowing a billing provider. C4 ✅ adds the shared signature-assurance/regulatory-validation boundary without claiming QES, manufacturer or authority approval; external validation evidence remains pending. C5 ✅ adds the shared brand/public-claims boundary and canonical claims link without claiming trademark, manufacturer or authority approval; external evidence remains pending. C6 is the final commercial release audit.
+C2 covers the versioned commercial legal publication boundary. C3 ✅ adds shared provider-agnostic entitlements: Logbook remains the authority, Training validates signed entitlement-bearing identity assertions and enforces `training.access` without knowing a billing provider. C4 ✅ adds the shared signature-assurance/regulatory-validation boundary without claiming QES, manufacturer or authority approval; external validation evidence remains pending. C5 ✅ adds the shared brand/public-claims boundary and canonical claims link without claiming trademark, manufacturer or authority approval; external evidence remains pending. C6 ✅ binds Training to the canonical final release audit without duplicating launch state. The current commercial verdict remains blocked pending real external evidence and commercial-runtime decisions.
 
-### v3.0 — Multi-aircraft product scale
+### v3.0 — Multi-aircraft product scale — next
 
 After v2.9, return to the original post-v1 objective: prove repeatable no-code multi-aircraft onboarding and product scale without weakening source governance or Flight Deck safety.
 
