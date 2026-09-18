@@ -29,7 +29,7 @@ Logbook remains the entitlement authority. Its short-lived FlyTally identity ass
 
 The contract supports time-bounded grants so an expired entitlement cannot survive only because a Training session cookie has a longer lifetime.
 
-Rollout is backward-compatible: legacy `ft1` identity assertions and pre-C3 Training sessions retain their existing private-beta access until normal expiry. New sessions use the entitlement-bearing contract.
+Rollout is backward-compatible: legacy `ft1` identity assertions and pre-C3 Training sessions retain their existing private-beta access until normal expiry. New sessions use the entitlement-bearing contract. The legacy fallback is a migration aid only and must be removed or explicitly closed before C6 can authorize a commercial launch.
 
 Training does not know or care which commercial provider created a durable grant. Provider, organization and manual-grant decisions remain on the canonical Logbook side.
 
