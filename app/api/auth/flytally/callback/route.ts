@@ -27,7 +27,7 @@ export async function GET(request: Request) {
   if (!claims) return errorResponse("invalid_identity_assertion", 401);
 
   let sessionToken: string;
-  try { sessionToken = createTrainingSessionToken(claims.sub, claims.role); }
+  try { sessionToken = createTrainingSessionToken(claims.sub, claims.role, claims.entitlements); }
   catch { return errorResponse("training_session_not_configured", 503); }
 
   let consumed = false;
