@@ -3,10 +3,11 @@ import { NextResponse } from "next/server";
 import { getTrainingProgressRepository } from "@/lib/progress-repository";
 import { normalizeServerProgressEvent, type PersistedTrainingProgressEvent } from "@/lib/progress-events";
 import { getTrainingSession } from "@/lib/training-session";
+import { isTrustedMutationRequest } from "@/lib/request-security";
 
 function cleanAircraftId(value: string | null): string | null {
   const id = value?.trim();
-  return id && id.length <= 128 ? id : null;
+  return id && id.length <= 128 && /^[a-zA-Z0-9][a-zA-Z0-9._:-]*$/.test(id) ? id : null;
 }
 
 export async function GET(request: Request) {
@@ -23,6 +24,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  if (!isTrustedMutationRequest(request)) return NextResponse.json({ error: "untrusted_origin" }, { status: 403, headers: { "cache-control": "private, no-store" } });
   const session = await getTrainingSession();
   if (!session) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   let body: unknown;
@@ -40,5 +42,5 @@ export async function POST(request: Request) {
 
   const accepted = normalized as PersistedTrainingProgressEvent[];
   await getTrainingProgressRepository().appendEvents(session.subject, accepted);
-  return NextResponse.json({ accepted: accepted.length });
+  return NextResponse.json({ accepted: accepted.length }, { headers: { "cache-control": "private, no-store" } });
 }
