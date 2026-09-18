@@ -131,7 +131,7 @@ test("a sparse second aircraft can be created, published and read through the ge
       sourceKind: "POH",
       revision: "1",
       issueDate: "2026-09",
-      authorityRole: "TRAINING_REFERENCE",
+      authorityRole: "OPERATING_REFERENCE",
       authorityNote: "Synthetic disposable acceptance source.",
       sourceUri: "acceptance://light-sep-manual.pdf",
       checksumSha256: "a".repeat(64),
