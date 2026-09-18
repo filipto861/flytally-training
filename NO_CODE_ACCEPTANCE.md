@@ -2,7 +2,9 @@
 
 FlyTally Training is considered genuinely no-code for a new aircraft only when the PostgreSQL acceptance harness passes against a disposable Training database.
 
-The harness first runs the same idempotent Training database bootstrap used for deployment, then creates a brand-new aircraft ID at runtime, adds a variant and immutable controlled-source revision, creates source provenance, publishes valid bundles for all five generic content domains, publishes the aircraft catalogue entry, and reads the result back through `PostgresTrainingContentRepository` and `getAircraftContentBundle`. It finally deletes the synthetic aircraft by cascade.
+The harness first runs the same idempotent Training database bootstrap used for deployment, then creates a brand-new aircraft ID at runtime, adds a variant and immutable controlled-source revision, creates source provenance, publishes representative universal modules plus Weight & Balance, publishes the aircraft catalogue entry, and reads the result back through `PostgresTrainingContentRepository` and `getAircraftContentBundle`. It finally deletes the synthetic aircraft by cascade.
+
+The v3.1 M2C fixture deliberately uses performance keys unrelated to the original reference-aircraft vocabulary (`massBand`, `runwayCondition`, `referenceVelocity`, etc.), declarative takeoff/landing factor contracts, a generic metric lookup, and lb/in/lb·in/US gal W&B presentation. After PostgreSQL read-back the harness executes the same generic calculator runtime against the stored payloads. This proves that JSON persistence and governed publication do not silently reintroduce Learjet-shaped assumptions.
 
 It deliberately does **not** add a React component, route, repository method, aircraft-specific `if`/`switch`, or learner-facing aircraft literal. The test fixture is data used to exercise the same admin/content contracts that a real second aircraft uses.
 
@@ -16,7 +18,9 @@ npm run test:no-code-aircraft
 
 The runner refuses to start without the acknowledgement. It also refuses when `TRAINING_DATABASE_URL` is present and exactly matches `TRAINING_ACCEPTANCE_DATABASE_URL`. This is an additional guard, not a substitute for checking the target database yourself.
 
-Never point `TRAINING_ACCEPTANCE_DATABASE_URL` at production. The test performs real schema initialization, writes and cleanup. A skipped default unit test is not acceptance evidence; the dedicated command must complete successfully against PostgreSQL before the no-code criterion is marked complete.
+Never point `TRAINING_ACCEPTANCE_DATABASE_URL` at production. The test performs real schema initialization, writes and cleanup. A skipped default unit test is not acceptance evidence; the dedicated command must complete successfully against PostgreSQL before the no-code criterion or v3.1 M2 database boundary is marked complete.
+
+The normal CI suite also executes the same M2C fixture through a JSON round-trip without PostgreSQL. That catches contract/runtime regressions early, but it is intentionally **not** a substitute for the destructive disposable-database acceptance run.
 
 The manual GitHub Actions workflow adds the same safety boundary: it requires the disposable database secret plus an explicit boolean confirmation before the runner receives the acknowledgement token. Dependencies are installed from the committed lockfile with `npm ci`.
 
