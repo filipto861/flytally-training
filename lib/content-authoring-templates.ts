@@ -40,6 +40,8 @@ export function createStructuredStarterPayload(aircraftId: string, domain: Struc
           id: "",
           title: "",
           kind: "reference-table",
+          phase: "reference",
+          calculator: { kind: "metric-lookup", operation: "reference", axisKey: "axis1", outputKeys: ["output1"] },
           axes: [{ key: "axis1", label: "", values: [""] }],
           outputs: [{ key: "output1", label: "" }],
           rows: [{ inputs: { axis1: "" }, outputs: { output1: "" } }],
