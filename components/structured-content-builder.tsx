@@ -343,7 +343,7 @@ export function StructuredContentBuilder({domain,aircraftId,initialPayload,manua
     </section>;
   }
 
-  function renderApplicabilityChoices(items:JsonValue[],path:readonly PathPart[],key:string){
+  function renderApplicabilityChoices(items:JsonValue[],path:readonly PathPart[],key:string,objectPath:readonly PathPart[]=path.slice(0,-1)){
     const selected=items.filter((item):item is string=>typeof item==="string"&&Boolean(item.trim()));
     const registered=key==="variants"
       ? variantOptions
@@ -351,13 +351,21 @@ export function StructuredContentBuilder({domain,aircraftId,initialPayload,manua
     const known=new Set(registered.map(option=>option.id));
     const options=[...registered,...selected.filter(value=>!known.has(value)).map(value=>({id:value,label:`${value} (unregistered)`}))];
     const toggle=(id:string,checked:boolean)=>{
-      const next=checked?[...selected,id]:selected.filter(value=>value!==id);
-      setValue(path,[...new Set(next)]);
+      const next=[...new Set(checked?[...selected,id]:selected.filter(value=>value!==id))];
+      setObjectProperty(objectPath,key,next.length?next:undefined);
     };
     return <section className={styles.collection} key={path.join(".")}>
       <div className={styles.collectionHeader}><div><strong>{humanize(key)}</strong><span> · {selected.length} selected</span></div></div>
-      {options.length?<div className={styles.choiceGrid}>{options.map(option=><label className={styles.choice} key={option.id}><input type="checkbox" checked={selected.includes(option.id)} onChange={event=>toggle(option.id,event.target.checked)}/><span><strong>{option.label}</strong>{!known.has(option.id)?<small>Remove or register this identifier before approval.</small>:null}</span></label>)}</div>:<p className={styles.empty}>{key==="variants"?"No aircraft variants are registered. Leave empty for common content.":"No equipment tags are registered. Add equipment in Aircraft Settings before scoping content."}</p>}
-      <p className={styles.hint}>Empty means this block is not restricted by {key==="variants"?"variant":"this equipment rule"}.</p>
+      {options.length?<div className={styles.choiceGrid}>{options.map(option=><label className={styles.choice} key={option.id}><input type="checkbox" checked={selected.includes(option.id)} onChange={event=>toggle(option.id,event.target.checked)}/><span><strong>{option.label}</strong>{!known.has(option.id)?<small>Remove or register this identifier before approval.</small>:null}</span></label>)}</div>:<p className={styles.empty}>{key==="variants"?"No aircraft variants are registered. Common content needs no variant restriction.":"No equipment tags are registered. Add equipment in Aircraft Settings before scoping content."}</p>}
+      <p className={styles.hint}>No selection means this restriction is omitted from the payload and the content remains common for this rule.</p>
+    </section>;
+  }
+
+  function renderApplicabilityObject(value:JsonObject,path:readonly PathPart[]){
+    const note=value.note;
+    return <section className={styles.object} key={path.join(".")}><p className={styles.objectTitle}>Applicability</p>
+      {[...applicabilityArrayKeys].map(key=>renderApplicabilityChoices(Array.isArray(value[key])?value[key] as JsonValue[]:[],[...path,key],key,path))}
+      {typeof note==="string"?renderValue(note,[...path,"note"],"note"):null}
     </section>;
   }
 
@@ -373,6 +381,7 @@ export function StructuredContentBuilder({domain,aircraftId,initialPayload,manua
   }
 
   function renderObject(value:JsonObject,path:readonly PathPart[],label:string){
+    if(label==="applicability")return renderApplicabilityObject(value,path);
     const entries=Object.entries(value);
     const selectorKind=label==="selector"&&domain==="performance"&&(value.kind==="output-options"||value.kind==="axis")?value.kind:undefined;
     return <section className={styles.object} key={path.join(".")}><p className={styles.objectTitle}>{humanize(label)}</p>

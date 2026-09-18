@@ -48,19 +48,18 @@ test("M55 equipment applicability is collected only from applicability blocks an
 });
 
 test("M55 structured starters expose no-code configuration applicability for every supported scoped domain",()=>{
-  const scopedDomains:StructuredAuthoringDomain[]=["checklists","procedures","performance","limitations","systems","flows","avionics","knowledge","abnormal"];
+  const scopedDomains:StructuredAuthoringDomain[]=["checklists","procedures","performance","weight-balance","limitations","systems","flows","avionics","knowledge","abnormal"];
   for(const domain of scopedDomains){
     const payload=createStructuredStarterPayload("generic-aircraft",domain);
     const blocks=applicabilityBlocks(payload);
     assert.ok(blocks.length>0,`${domain} should expose at least one applicability editor`);
     for(const block of blocks){
-      assert.deepEqual(block.variants,[]);
-      assert.deepEqual(block.equipmentAllOf,[]);
-      assert.deepEqual(block.equipmentAnyOf,[]);
-      assert.deepEqual(block.equipmentNoneOf,[]);
+      assert.equal(block.variants,undefined);
+      assert.equal(block.equipmentAllOf,undefined);
+      assert.equal(block.equipmentAnyOf,undefined);
+      assert.equal(block.equipmentNoneOf,undefined);
     }
   }
-  assert.equal(applicabilityBlocks(createStructuredStarterPayload("generic-aircraft","weight-balance")).length,0);
 });
 
 test("M55 aircraft settings persist rich draft configuration data without source-code registration",()=>{
