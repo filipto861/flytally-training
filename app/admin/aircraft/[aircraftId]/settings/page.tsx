@@ -6,7 +6,7 @@ import { deriveContentStudio } from "@/lib/admin-content-studio";
 import { getAdminAircraft } from "@/lib/content-admin-repository";
 import { trainingContentDomains } from "@/lib/content-admin-types";
 import { listStaticNativeUpgradeDomains } from "@/lib/governed-static-bootstrap";
-import { createDraftAction,publishAircraftAction,publishNativeModuleUpgradeAction,saveVariantProfileAction,updateAircraftProfileAction } from "../../../actions";
+import { createDraftAction,publishAircraftAction,publishNativeModuleUpgradeAction,saveCommonEquipmentAction,saveVariantProfileAction,updateAircraftProfileAction } from "../../../actions";
 import styles from "../studio.module.css";
 
 export const dynamic="force-dynamic";
@@ -21,6 +21,7 @@ export default async function AircraftSettingsPage({params}:Readonly<{params:Pro
   const studio=deriveContentStudio(aircraft);
   const nativeUpgradeDomains=listStaticNativeUpgradeDomains(aircraftId);
   const variantProfiles=aircraft.variantProfiles??[];
+  const commonEquipment=aircraft.equipmentTags??[];
   const configurationEditable=aircraft.status==="draft";
 
   return <AdminAircraftWorkspace aircraftId={aircraftId} displayName={aircraft.displayName} status={aircraft.status} active="settings">
@@ -43,14 +44,22 @@ export default async function AircraftSettingsPage({params}:Readonly<{params:Pro
 
     <section className={styles.sectionBlock}>
       <div className={styles.sectionHeader}><div><p className="eyebrow">Configuration</p><h2>Variants &amp; equipment</h2></div></div>
-      <p>Variants are optional. Equipment tags are exact configuration identifiers used by content applicability; FlyTally never infers equipment from a variant name.</p>
+      <p>Variants are optional. Equipment tags are exact configuration identifiers used by content applicability; FlyTally never infers equipment from an aircraft or variant name.</p>
+      <div className={styles.settingsCard}>
+        <div><strong>Common equipment</strong><p>{commonEquipment.length?`${commonEquipment.length} tag${commonEquipment.length===1?"":"s"} apply to every configuration`:"No equipment tags apply globally. Add only equipment that is genuinely installed across the aircraft configuration."}</p>{commonEquipment.length?<p>{commonEquipment.map(tag=><code key={tag}>{tag} </code>)}</p>:null}</div>
+        {configurationEditable?<form action={saveCommonEquipmentAction} className={styles.editorForm}>
+          <Hidden aircraftId={aircraftId}/>
+          <label className={styles.full}>Common equipment tags<textarea name="equipmentTags" defaultValue={commonEquipment.join(", ")} placeholder="engine-model, propeller-model, avionics-package"/></label>
+          <button type="submit">Save common equipment</button>
+        </form>:null}
+      </div>
       {variantProfiles.length?variantProfiles.map(profile=><div className={styles.settingsCard} key={profile.key}>
         <div><strong>{profile.displayName}</strong><p><code>{profile.key}</code>{profile.equipmentTags.length?` · ${profile.equipmentTags.length} equipment tag${profile.equipmentTags.length===1?"":"s"}`:" · no equipment tags"}</p>{profile.note?<p>{profile.note}</p>:null}</div>
         {configurationEditable?<form action={saveVariantProfileAction} className={styles.editorForm}>
           <Hidden aircraftId={aircraftId}/><input type="hidden" name="variantKey" value={profile.key}/>
           <div className={styles.formGrid}>
             <label>Display name<input name="variantDisplayName" defaultValue={profile.displayName} required/></label>
-            <label className={styles.full}>Equipment tags<textarea name="equipmentTags" defaultValue={profile.equipmentTags.join(", ")} placeholder="engine-model, propeller-model, avionics-package"/></label>
+            <label className={styles.full}>Variant-only equipment tags<textarea name="equipmentTags" defaultValue={profile.equipmentTags.join(", ")} placeholder="equipment installed only in this variant"/></label>
             <label className={styles.full}>Configuration note<textarea name="variantNote" defaultValue={profile.note??""}/></label>
           </div><button type="submit">Save configuration</button>
         </form>:null}
@@ -60,7 +69,7 @@ export default async function AircraftSettingsPage({params}:Readonly<{params:Pro
         <div className={styles.formGrid}>
           <label>Variant key<input name="variantKey" placeholder="sn-001" required/></label>
           <label>Display name<input name="variantDisplayName" placeholder="S/N 001 · Registration" required/></label>
-          <label className={styles.full}>Equipment tags<textarea name="equipmentTags" placeholder="engine-model, propeller-model, avionics-package"/></label>
+          <label className={styles.full}>Variant-only equipment tags<textarea name="equipmentTags" placeholder="equipment installed only in this variant"/></label>
           <label className={styles.full}>Configuration note<textarea name="variantNote" placeholder="Optional source-backed configuration context"/></label>
         </div><button type="submit">Add variant</button>
       </form></div>:<div className={styles.settingsCard}><div><strong>Configuration locked for this release</strong><p>Published aircraft keep their variant/equipment profile stable so applicability cannot change outside the governed release boundary. Configure variants before catalogue publication.</p></div></div>}

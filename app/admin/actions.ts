@@ -7,7 +7,7 @@ import { createAiAssistedDraft } from "@/lib/ai-draft-workflow";
 import { requireTrainingAdmin } from "@/lib/admin-auth";
 import { publishGovernedAircraft } from "@/lib/aircraft-publication";
 import { isModernStructuredDomain } from "@/lib/content-authoring-templates";
-import { addAircraftVariant,createAircraft,createSourceReference,getAdminAircraft,resolveStaleFlag,updateAircraftProfile,upsertAircraftVariant } from "@/lib/content-admin-repository";
+import { addAircraftVariant,createAircraft,createSourceReference,getAdminAircraft,resolveStaleFlag,setAircraftCommonEquipment,updateAircraftProfile,upsertAircraftVariant } from "@/lib/content-admin-repository";
 import { parseContentVersionOrigin,trainingContentDomains,type TrainingContentDomain } from "@/lib/content-admin-types";
 import { approveGovernedContentVersion,createGovernedDraftVersion,publishGovernedContentVersion } from "@/lib/content-governed-lifecycle";
 import { initializeTrainingDatabase } from "@/lib/database-bootstrap";
@@ -36,6 +36,7 @@ const refreshAircraftRuntime=(aircraftId:string)=>{
 export async function createAircraftAction(form:FormData){const session=await requireTrainingAdmin();const aircraftId=text(form,"id");await createAircraft({id:aircraftId,manufacturer:text(form,"manufacturer"),model:text(form,"model"),displayName:text(form,"displayName")},session.subject);revalidatePath("/admin");redirect(`/admin/aircraft/${encodeURIComponent(aircraftId)}/onboarding`);}
 export async function updateAircraftProfileAction(form:FormData){await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");await updateAircraftProfile(aircraftId,{manufacturer:text(form,"manufacturer"),model:text(form,"model"),displayName:text(form,"displayName")});refreshAircraftAdmin(aircraftId);refreshAircraftRuntime(aircraftId);}
 export async function addVariantAction(form:FormData){await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");await addAircraftVariant(aircraftId,text(form,"variant"));refreshAircraftAdmin(aircraftId);refreshAircraftRuntime(aircraftId);}
+export async function saveCommonEquipmentAction(form:FormData){await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");await setAircraftCommonEquipment(aircraftId,equipmentTags(form));refreshAircraftAdmin(aircraftId);refreshAircraftRuntime(aircraftId);}
 export async function saveVariantProfileAction(form:FormData){await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");await upsertAircraftVariant(aircraftId,{key:text(form,"variantKey"),displayName:text(form,"variantDisplayName"),equipmentTags:equipmentTags(form),note:text(form,"variantNote")||undefined});refreshAircraftAdmin(aircraftId);refreshAircraftRuntime(aircraftId);}
 export async function publishAircraftAction(form:FormData){await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");await publishGovernedAircraft(aircraftId);refreshAircraftRuntime(aircraftId);refreshAircraftAdmin(aircraftId);}
 export async function registerRevisionAction(form:FormData){

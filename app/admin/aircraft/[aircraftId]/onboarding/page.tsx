@@ -15,7 +15,7 @@ export default async function AircraftOnboardingPage({params}:Readonly<{params:P
   if(!aircraft)notFound();
   const onboarding=deriveAircraftOnboarding(aircraft);
   const variantProfiles=aircraft.variantProfiles??[];
-  const equipmentTags=[...new Set(variantProfiles.flatMap(profile=>profile.equipmentTags))];
+  const equipmentTags=[...new Set([...(aircraft.equipmentTags??[]),...variantProfiles.flatMap(profile=>profile.equipmentTags)])];
 
   return <main className="shell aircraft-detail">
     <Link className="back-link" href={`/admin/aircraft/${aircraftId}`}>← Content studio</Link>
@@ -32,7 +32,7 @@ export default async function AircraftOnboardingPage({params}:Readonly<{params:P
       <div className="workspace-section-grid">
         <article className="workspace-card"><div className="workspace-card-topline"><span>Aircraft identity</span><small>{aircraft.status}</small></div><strong>{aircraft.manufacturer} {aircraft.model}</strong><p>{aircraft.displayName}</p></article>
         <article className="workspace-card"><div className="workspace-card-topline"><span>Variants</span><small>{variantProfiles.length}</small></div><strong>{variantProfiles.length?`${variantProfiles.length} explicit configuration${variantProfiles.length===1?"":"s"}`:"Common configuration"}</strong><p>Variants stay optional; they exist only when the source-backed aircraft configuration needs them.</p></article>
-        <article className="workspace-card"><div className="workspace-card-topline"><span>Equipment inventory</span><small>{equipmentTags.length}</small></div><strong>{equipmentTags.length?`${equipmentTags.length} applicability tag${equipmentTags.length===1?"":"s"}`:"No equipment scoping"}</strong><p>Equipment is explicit data and is never inferred from the aircraft or variant name.</p></article>
+        <article className="workspace-card"><div className="workspace-card-topline"><span>Equipment inventory</span><small>{equipmentTags.length}</small></div><strong>{equipmentTags.length?`${equipmentTags.length} applicability tag${equipmentTags.length===1?"":"s"}`:"No equipment scoping"}</strong><p>Common and variant-only equipment are explicit data and are never inferred from the aircraft or variant name.</p></article>
       </div>
     </section>
 

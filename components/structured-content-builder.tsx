@@ -10,12 +10,15 @@ type JsonValue = JsonScalar | JsonValue[] | JsonObject;
 type JsonObject = { [key: string]: JsonValue };
 type PathPart = string | number;
 type ManualOption = { readonly id: string; readonly label: string };
+type ApplicabilityOption = { readonly id: string; readonly label: string };
 
 type Props = Readonly<{
   domain: TrainingContentDomain;
   aircraftId: string;
   initialPayload: unknown;
   manualOptions?: readonly ManualOption[];
+  variantOptions?: readonly ApplicabilityOption[];
+  equipmentOptions?: readonly string[];
 }>;
 
 const multilineKeys = new Set([
@@ -23,6 +26,7 @@ const multilineKeys = new Set([
   "expectedResult","setup","why","note","mentalModel","configuration",
 ]);
 const preserveOnBlank = new Set(["kind","interpolation","difficulty"]);
+const applicabilityArrayKeys = new Set(["variants","equipmentAllOf","equipmentAnyOf","equipmentNoneOf"]);
 const stringArrayKeys = new Set([
   "components","controls","indications","normalOperation","limitations","abnormalCues","remember","prerequisites",
   "completionCriteria","notes","choices","objectives","debrief","expectedResponse","procedures","variants",
@@ -116,7 +120,7 @@ function emptyArrayPrototype(key:string,path:readonly PathPart[],root:JsonValue)
   return "";
 }
 
-export function StructuredContentBuilder({domain,aircraftId,initialPayload,manualOptions=[]}:Props){
+export function StructuredContentBuilder({domain,aircraftId,initialPayload,manualOptions=[],variantOptions=[],equipmentOptions=[]}:Props){
   const [payload,setPayload]=useState<JsonValue>(()=>asJson(initialPayload));
   const [raw,setRaw]=useState(()=>JSON.stringify(asJson(initialPayload),null,2));
   const [rawError,setRawError]=useState("");
@@ -167,7 +171,26 @@ export function StructuredContentBuilder({domain,aircraftId,initialPayload,manua
     return <label className={styles.field}><span>{humanize(key)}</span><input value={value} onChange={event=>setValue(path,event.target.value)}/></label>;
   }
 
+  function renderApplicabilityChoices(items:JsonValue[],path:readonly PathPart[],key:string){
+    const selected=items.filter((item):item is string=>typeof item==="string"&&Boolean(item.trim()));
+    const registered=key==="variants"
+      ? variantOptions
+      : equipmentOptions.map(tag=>({id:tag,label:tag}));
+    const known=new Set(registered.map(option=>option.id));
+    const options=[...registered,...selected.filter(value=>!known.has(value)).map(value=>({id:value,label:`${value} (unregistered)`}))];
+    const toggle=(id:string,checked:boolean)=>{
+      const next=checked?[...selected,id]:selected.filter(value=>value!==id);
+      setValue(path,[...new Set(next)]);
+    };
+    return <section className={styles.collection} key={path.join(".")}>
+      <div className={styles.collectionHeader}><div><strong>{humanize(key)}</strong><span> · {selected.length} selected</span></div></div>
+      {options.length?<div className={styles.choiceGrid}>{options.map(option=><label className={styles.choice} key={option.id}><input type="checkbox" checked={selected.includes(option.id)} onChange={event=>toggle(option.id,event.target.checked)}/><span><strong>{option.label}</strong>{!known.has(option.id)?<small>Remove or register this identifier before approval.</small>:null}</span></label>)}</div>:<p className={styles.empty}>{key==="variants"?"No aircraft variants are registered. Leave empty for common content.":"No equipment tags are registered. Add equipment in Aircraft Settings before scoping content."}</p>}
+      <p className={styles.hint}>Empty means this block is not restricted by {key==="variants"?"variant":"this equipment rule"}.</p>
+    </section>;
+  }
+
   function renderArray(items:JsonValue[],path:readonly PathPart[],key:string){
+    if(applicabilityArrayKeys.has(key))return renderApplicabilityChoices(items,path,key);
     const scalarOnly=items.length===0?stringArrayKeys.has(key):items.every(item=>item===null||typeof item!=="object");
     if(scalarOnly){
       return <section className={styles.collection} key={path.join(".")}><div className={styles.collectionHeader}><div><strong>{humanize(key)}</strong><span> · {items.length} item{items.length===1?"":"s"}</span></div><button type="button" onClick={()=>changeArray(path,current=>[...current,current.length?blankFromExample(current[current.length-1]!,key):emptyArrayPrototype(key,path,payload)])}>+ Add</button></div>{items.length?<div className={styles.scalarList}>{items.map((item,index)=><div className={styles.scalarRow} key={`${path.join(".")}-${index}`}><div>{renderScalar(item as JsonScalar,[...path,index],key)}</div><div className={styles.scalarActions}><button type="button" disabled={index===0} onClick={()=>changeArray(path,current=>{const next=[...current];const previous=next[index-1];const active=next[index];if(previous===undefined||active===undefined)return current;next[index-1]=active;next[index]=previous;return next;})}>↑</button><button type="button" disabled={index===items.length-1} onClick={()=>changeArray(path,current=>{const next=[...current];const active=next[index];const following=next[index+1];if(active===undefined||following===undefined)return current;next[index]=following;next[index+1]=active;return next;})}>↓</button><button type="button" onClick={()=>changeArray(path,current=>current.filter((_,itemIndex)=>itemIndex!==index))}>×</button></div></div>)}</div>:<p className={styles.empty}>No entries yet.</p>}</section>;
