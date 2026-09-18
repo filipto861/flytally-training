@@ -1,0 +1,46 @@
+name: v3.1 M2 disposable acceptance closure
+
+on:
+  push:
+    branches:
+      - codex/v31-m2-acceptance-run-4
+    paths:
+      - .github/workflows/v31-m2-acceptance-closure.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v31-m2-disposable-acceptance
+  cancel-in-progress: false
+
+jobs:
+  postgres-second-aircraft:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      TRAINING_ACCEPTANCE_DATABASE_URL: ${{ secrets.TRAINING_ACCEPTANCE_DATABASE_URL }}
+      TRAINING_ACCEPTANCE_CONFIRM_DISPOSABLE: I_UNDERSTAND_THIS_IS_DISPOSABLE
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Pin run to approved disposable Neon branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$TRAINING_ACCEPTANCE_DATABASE_URL"
+          case "$TRAINING_ACCEPTANCE_DATABASE_URL" in
+            *"ep-icy-sunset-b1vva89b-pooler.c-5.eu-central-1.aws.neon.tech"*) ;;
+            *)
+              echo "Acceptance secret does not point to the approved no-code-acceptance-20260910 branch." >&2
+              exit 2
+              ;;
+          esac
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Execute v3.1 M2 PostgreSQL acceptance
+        run: npm run test:no-code-aircraft
