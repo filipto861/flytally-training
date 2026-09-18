@@ -240,9 +240,20 @@ The shared sequence is U0 audit → U1 navigation/task hierarchy → U2 Licences
 
 U6 closes v3.0 with keyboard skip navigation, touch-target and safe-area hardening, overflow containment, reduced-motion support and forced-colors fallbacks while preserving the operational Fly deck and the aircraft-agnostic content model.
 
-### v3.1 — Multi-aircraft product scale — next after v3.0
+### v3.1 — Multi-aircraft product scale — current
 
-Return to the original post-v1 objective only after UX consolidation: prove repeatable no-code multi-aircraft onboarding and product scale without weakening source governance or Flight Deck safety.
+Return to the original post-v1 objective after UX consolidation: prove repeatable no-code multi-aircraft onboarding and product scale without weakening source governance or Flight Deck safety.
+
+The v3.1 sequence is:
+
+- **M1 — architecture audit ✅**: confirm which boundaries are already genuinely aircraft-agnostic and identify semantic coupling that would block a real second aircraft. The audit found the database/admin/applicability/progress/navigation foundations ready; the principal blocker is the Learjet-shaped performance calculator vocabulary.
+- **M2 — generic operational calculator contracts — next**: replace magic performance axis/output names and fixed unit/correction assumptions with governed declarative operation/input/output/constraint metadata; make W&B source/display units declarative while preserving safe normalized calculations.
+- **M3 — Studio hardening for repeatable aircraft packages**: make the complete second-aircraft configuration, source, applicability and module workflow operable without raw database edits.
+- **M4 — real second-aircraft onboarding**: publish the first structurally different aircraft through Studio/data only.
+- **M5 — second-aircraft operational acceptance**: validate Home / Fly / Learn / Reference, progress, applicability, sparse modules and calculators end to end.
+- **M6 — scale closure**: prove a third sparse aircraft remains a content/admin operation and close v3.1 without aircraft-specific learner code.
+
+The detailed M1 findings and M2 entry criteria are recorded in `V31_M1_MULTI_AIRCRAFT_ARCHITECTURE_AUDIT.md`.
 
 ## After v1.0
 
