@@ -2,6 +2,20 @@ import type { AircraftApplicability, TrainingSourceReference, UniversalModuleMet
 
 export type WeightBalanceInputKind = "mass-kg" | "fuel-litres";
 
+export type WeightBalanceDisplayUnit = {
+  readonly label: string;
+  /** Multiply the normalized internal value by this factor for pilot-facing input/display. */
+  readonly fromNormalized: number;
+  readonly decimals?: number;
+};
+
+export type WeightBalanceDisplayUnits = {
+  readonly mass?: WeightBalanceDisplayUnit;
+  readonly arm?: WeightBalanceDisplayUnit;
+  readonly moment?: WeightBalanceDisplayUnit;
+  readonly volume?: WeightBalanceDisplayUnit;
+};
+
 export type WeightBalanceStation = {
   readonly id: string;
   readonly label: string;
@@ -32,6 +46,8 @@ export type WeightBalanceCgScale = {
 export type AircraftWeightBalanceContent = UniversalModuleMetadata & {
   readonly aircraftId: string;
   readonly title: string;
+  /** Pilot/source-facing units; calculations remain normalized to kg, mm, kg·mm and litres. */
+  readonly units?: WeightBalanceDisplayUnits;
   /** Configuration boundary for aircraft-specific empty-weight and station data. */
   readonly applicability?: AircraftApplicability;
   readonly empty: {
@@ -76,6 +92,20 @@ export function validateUniversalWeightBalancePayload(payload: unknown): string[
   if (!text(payload.title)) errors.push("weight-balance title is required");
   if (payload.sourceNote !== undefined && !text(payload.sourceNote)) errors.push("weight-balance sourceNote must be non-empty text when supplied");
   if (payload.disclaimer !== undefined && !text(payload.disclaimer)) errors.push("weight-balance disclaimer must be non-empty text when supplied");
+
+  if (payload.units !== undefined) {
+    if (!object(payload.units)) errors.push("weight-balance units must be an object");
+    else {
+      for (const key of ["mass", "arm", "moment", "volume"] as const) {
+        const unit = payload.units[key];
+        if (unit === undefined) continue;
+        if (!object(unit) || !text(unit.label) || !positive(unit.fromNormalized)
+          || (unit.decimals !== undefined && (!Number.isInteger(unit.decimals) || Number(unit.decimals) < 0 || Number(unit.decimals) > 6))) {
+          errors.push(`weight-balance units.${key} must contain a label, positive fromNormalized factor and optional 0-6 decimals`);
+        }
+      }
+    }
+  }
 
   if (!object(payload.empty)
     || !positive(payload.empty.massKg)

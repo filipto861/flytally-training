@@ -1,4 +1,4 @@
-import type { AircraftWeightBalanceContent, WeightBalanceEnvelopePoint, WeightBalanceStation } from "./universal-weight-balance.ts";
+import type { AircraftWeightBalanceContent, WeightBalanceDisplayUnit, WeightBalanceEnvelopePoint, WeightBalanceStation } from "./universal-weight-balance.ts";
 
 export type WeightBalanceInput = {
   readonly values: Readonly<Record<string, number | undefined>>;
@@ -30,8 +30,40 @@ function finite(value: number | undefined): value is number {
   return typeof value === "number" && Number.isFinite(value);
 }
 
-export function stationMassKg(station: WeightBalanceStation, value: number): number {
-  return station.input === "fuel-litres" ? value * (station.densityKgPerL ?? 0) : value;
+const defaultUnits = {
+  mass: { label: "kg", fromNormalized: 1, decimals: 1 },
+  arm: { label: "mm", fromNormalized: 1, decimals: 1 },
+  moment: { label: "kg·mm", fromNormalized: 1, decimals: 0 },
+  volume: { label: "l", fromNormalized: 1, decimals: 1 },
+} as const;
+
+export type WeightBalanceQuantity = keyof typeof defaultUnits;
+
+export function weightBalanceUnit(content: AircraftWeightBalanceContent, quantity: WeightBalanceQuantity): WeightBalanceDisplayUnit {
+  return content.units?.[quantity] ?? defaultUnits[quantity];
+}
+
+export function normalizedToWeightBalanceDisplay(content: AircraftWeightBalanceContent, quantity: WeightBalanceQuantity, value: number): number {
+  return value * weightBalanceUnit(content, quantity).fromNormalized;
+}
+
+export function weightBalanceDisplayToNormalized(content: AircraftWeightBalanceContent, quantity: WeightBalanceQuantity, value: number): number {
+  return value / weightBalanceUnit(content, quantity).fromNormalized;
+}
+
+export function formatWeightBalanceValue(content: AircraftWeightBalanceContent, quantity: WeightBalanceQuantity, value: number | undefined): string {
+  if (value === undefined) return "—";
+  const unit = weightBalanceUnit(content, quantity);
+  const decimals = unit.decimals ?? defaultUnits[quantity].decimals;
+  return `${normalizedToWeightBalanceDisplay(content, quantity, value).toFixed(decimals)} ${unit.label}`;
+}
+
+export function stationMassKg(content: AircraftWeightBalanceContent, station: WeightBalanceStation, value: number): number {
+  if (station.input === "fuel-litres") {
+    const litres = weightBalanceDisplayToNormalized(content, "volume", value);
+    return litres * (station.densityKgPerL ?? 0);
+  }
+  return weightBalanceDisplayToNormalized(content, "mass", value);
 }
 
 function envelopeAtMass(points: readonly WeightBalanceEnvelopePoint[], massKg: number): { forwardCgMm: number; aftCgMm: number } | undefined {
@@ -69,7 +101,7 @@ function phaseResult(
   let massKg = content.empty.massKg;
   let momentKgMm = content.empty.momentKgMm;
   for (const station of content.stations) {
-    const mass = stationMassKg(station, values[station.id] ?? 0);
+    const mass = stationMassKg(content, station, values[station.id] ?? 0);
     massKg += mass;
     momentKgMm += mass * station.armMm;
   }
@@ -87,20 +119,21 @@ function phaseResult(
   };
 }
 
-function validateStationValue(station: WeightBalanceStation, value: number, issues: string[], context = station.label): void {
+function validateStationValue(content: AircraftWeightBalanceContent, station: WeightBalanceStation, value: number, issues: string[], context = station.label): void {
   if (!Number.isFinite(value) || value < 0) {
     issues.push(`${context}: enter a non-negative value.`);
     return;
   }
-  const mass = stationMassKg(station, value);
+  const mass = stationMassKg(content, station, value);
   if (station.minimumMassKg !== undefined && mass < station.minimumMassKg) {
-    issues.push(`${context}: minimum ${station.minimumMassKg} kg.`);
+    issues.push(`${context}: minimum ${formatWeightBalanceValue(content, "mass", station.minimumMassKg)}.`);
   }
   if (station.maxMassKg !== undefined && mass > station.maxMassKg + 1e-9) {
-    issues.push(`${context}: exceeds ${station.maxMassKg} kg.`);
+    issues.push(`${context}: exceeds ${formatWeightBalanceValue(content, "mass", station.maxMassKg)}.`);
   }
-  if (station.input === "fuel-litres" && station.maxVolumeL !== undefined && value > station.maxVolumeL + 1e-9) {
-    issues.push(`${context}: exceeds ${station.maxVolumeL} l.`);
+  if (station.input === "fuel-litres" && station.maxVolumeL !== undefined) {
+    const volumeL = weightBalanceDisplayToNormalized(content, "volume", value);
+    if (volumeL > station.maxVolumeL + 1e-9) issues.push(`${context}: exceeds ${formatWeightBalanceValue(content, "volume", station.maxVolumeL)}.`);
   }
 }
 
@@ -121,12 +154,12 @@ export function calculateWeightBalance(content: AircraftWeightBalanceContent, in
   for (const station of content.stations) {
     const value = input.values[station.id] ?? 0;
     takeoffValues[station.id] = value;
-    validateStationValue(station, value, issues);
+    validateStationValue(content, station, value, issues);
   }
 
   const landingValues = { ...takeoffValues };
   if (fuelStation && finite(input.landingFuelValue)) {
-    validateStationValue(fuelStation, input.landingFuelValue, issues, `${fuelStation.label} at landing`);
+    validateStationValue(content, fuelStation, input.landingFuelValue, issues, `${fuelStation.label} at landing`);
     if (input.landingFuelValue > takeoffValues[fuelStation.id] + 1e-9) {
       issues.push(`${fuelStation.label}: landing quantity cannot exceed takeoff quantity.`);
     }
@@ -137,14 +170,14 @@ export function calculateWeightBalance(content: AircraftWeightBalanceContent, in
   const landingMax = content.limits.maxLandingMassKg ?? content.limits.maxTakeoffMassKg;
   const landing = fuelStation ? phaseResult(content, landingValues, landingMax) : undefined;
 
-  if (!takeoff.withinMass) issues.push(`Takeoff mass exceeds ${content.limits.maxTakeoffMassKg} kg.`);
+  if (!takeoff.withinMass) issues.push(`Takeoff mass exceeds ${formatWeightBalanceValue(content, "mass", content.limits.maxTakeoffMassKg)}.`);
   if (!takeoff.forwardLimitMm || !takeoff.aftLimitMm) issues.push("Takeoff mass is outside the published CG-envelope mass range.");
-  else if (!takeoff.withinCg) issues.push(`Takeoff CG is outside ${takeoff.forwardLimitMm.toFixed(1)}–${takeoff.aftLimitMm.toFixed(1)} mm.`);
+  else if (!takeoff.withinCg) issues.push(`Takeoff CG is outside ${formatWeightBalanceValue(content, "arm", takeoff.forwardLimitMm)}–${formatWeightBalanceValue(content, "arm", takeoff.aftLimitMm)}.`);
 
   if (landing) {
-    if (!landing.withinMass) issues.push(`Landing mass exceeds ${landingMax} kg.`);
+    if (!landing.withinMass) issues.push(`Landing mass exceeds ${formatWeightBalanceValue(content, "mass", landingMax)}.`);
     if (!landing.forwardLimitMm || !landing.aftLimitMm) issues.push("Landing mass is outside the published CG-envelope mass range.");
-    else if (!landing.withinCg) issues.push(`Landing CG is outside ${landing.forwardLimitMm.toFixed(1)}–${landing.aftLimitMm.toFixed(1)} mm.`);
+    else if (!landing.withinCg) issues.push(`Landing CG is outside ${formatWeightBalanceValue(content, "arm", landing.forwardLimitMm)}–${formatWeightBalanceValue(content, "arm", landing.aftLimitMm)}.`);
   }
 
   return {
