@@ -35,7 +35,7 @@ test("C5 Training keeps source-backed wording scoped rather than authority/manuf
   const layout=read("app/layout.tsx");
   const docs=read("docs/compliance/V2_9_COMMERCIAL_VALIDATION.md");
   assert.match(layout,/Source-backed aircraft training/);
-  assert.match(docs,/does not mean manufacturer, operator or aviation-authority approval/i);
+  assert.match(docs,/do not mean manufacturer, operator or aviation-authority approval/i);
   assert.match(docs,/must not market a technically published aircraft package as manufacturer-approved/i);
   assert.match(docs,/must not add a registered-trademark claim or the .* symbol/i);
 });
