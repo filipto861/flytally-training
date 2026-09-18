@@ -232,7 +232,7 @@ export function StructuredContentBuilder({domain,aircraftId,initialPayload,manua
     const stationPath=path.slice(0,-1);
     const station=getAt(payload,stationPath);
     if(!isObject(station))return;
-    const next={...station,input:kind};
+    const next:JsonObject={...station,input:kind};
     if(kind==="fuel-litres"){
       if(typeof next.densityKgPerL!=="number")next.densityKgPerL=0;
     }else{
@@ -402,7 +402,7 @@ export function StructuredContentBuilder({domain,aircraftId,initialPayload,manua
             setObjectProperty(["limits"],"maxLandingMassKg",fallback);
           }else setObjectProperty(["limits"],"maxLandingMassKg",undefined);
         }}/><span><strong>Separate landing mass limit</strong><small>Enable when the approved source publishes one.</small></span></label>
-        <label className={styles.field}><span>Fuel burn station</span><select value={fuelBurnStation} onChange={event=>setObjectProperty([],"fuelBurnStationId",event.target.value||undefined)}><option value="">Not configured</option>{fuelStations.map(station=><option key={String(station.id)} value={String(station.id)}>{typeof station.label==="string"&&station.label?station.label:station.id}</option>)}</select></label>
+        <label className={styles.field}><span>Fuel burn station</span><select value={fuelBurnStation} onChange={event=>setObjectProperty([],"fuelBurnStationId",event.target.value||undefined)}><option value="">Not configured</option>{fuelStations.map(station=><option key={String(station.id)} value={String(station.id)}>{typeof station.label==="string"&&station.label?station.label:String(station.id)}</option>)}</select></label>
       </div>
     </section>;
   })():null;
