@@ -47,10 +47,22 @@ Training-specific manufacturer/source approval remains distinct from aviation-au
 
 C4 remains fail-closed for commercial launch until the shared regulatory evidence version is explicitly committed after external validation.
 
+## C5 — Brand & public claims boundary
+
+The canonical C5 registry and trademark/marketing-claim evidence state live in FlyTally Logbook and the shared legal centre. Training links directly to that public policy rather than keeping a second trademark truth source.
+
+Training may describe itself as **Source-backed aircraft training** or a **Source-backed training and reference aid** only while published learner content preserves the governed source/provenance boundary. Those descriptions do not mean manufacturer, operator or aviation-authority approval.
+
+Training must not market a technically published aircraft package as manufacturer-approved, EASA/ÚCL/LAA-approved, official, fully compliant or otherwise externally endorsed merely because its source and human review gates passed.
+
+The FlyTally name is used as the product brand, but Training must not add a registered-trademark claim or the `®` symbol unless the shared C5 evidence state later permits it.
+
+C5 remains fail-closed for commercial launch until the canonical trademark/brand decision, marketing-claims review and matching external evidence are recorded.
+
 ## Planned v2.9 continuation
 
 - C2 — consume the final externally reviewed shared legal/commercial surface.
 - C3 ✅ — consume the shared signed entitlement contract without aircraft-specific or provider-specific code.
 - C4 ✅ — consume the shared signature assurance / regulatory-validation boundary and keep manufacturer, authority and QES claims separate; external validation evidence remains pending.
-- C5 — keep marketing claims and source-rights evidence aligned with published aircraft content.
+- C5 ✅ — consume the shared brand/claims policy, keep source-backed wording scoped and prohibit unsupported trademark/manufacturer/authority claims; external evidence remains pending.
 - C6 — participate in the shared commercial release audit.
