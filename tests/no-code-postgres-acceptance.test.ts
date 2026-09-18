@@ -162,6 +162,7 @@ test("a sparse second aircraft can be created, published and read through the ge
       checklists: true,
       procedures: true,
       performance: true,
+      weightBalance: true,
       limitations: false,
       systems: false,
       abnormalEmergency: false,
