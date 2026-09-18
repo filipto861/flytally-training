@@ -3,6 +3,14 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { validateContentPayload } from "@/lib/content-contracts";
 import type { TrainingContentDomain } from "@/lib/content-admin-types";
+import {
+  createPerformanceAuthoringDataset,
+  createPerformanceAuthoringStructure,
+  performanceAuthoringModeFromDataset,
+  performanceAuthoringModes,
+  type PerformanceAuthoringMode,
+} from "@/lib/performance-authoring-presets";
+import { performancePhases } from "@/lib/universal-aircraft-content";
 import styles from "./structured-content-builder.module.css";
 
 type JsonScalar = string | number | boolean | null;
@@ -30,7 +38,7 @@ const applicabilityArrayKeys = new Set(["variants","equipmentAllOf","equipmentAn
 const stringArrayKeys = new Set([
   "components","controls","indications","normalOperation","limitations","abnormalCues","remember","prerequisites",
   "completionCriteria","notes","choices","objectives","debrief","expectedResponse","procedures","variants",
-  "equipmentAllOf","equipmentAnyOf","equipmentNoneOf","checklistItemIds",
+  "equipmentAllOf","equipmentAnyOf","equipmentNoneOf","checklistItemIds","outputKeys","selectorValues",
 ]);
 
 function asJson(value: unknown): JsonValue {
@@ -94,7 +102,7 @@ function emptyArrayPrototype(key:string,path:readonly PathPart[],root:JsonValue)
   if(key==="notices")return {kind:"note",text:""};
   if(key==="phases")return {id:"",title:"",sequence:1,items:[]};
   if(key==="procedures")return {id:"",title:"",steps:[]};
-  if(key==="datasets")return {id:"",title:"",kind:"reference-table",axes:[],outputs:[],rows:[],interpolation:"none"};
+  if(key==="datasets")return asJson(createPerformanceAuthoringDataset("metric-lookup"));
   if(key==="axes")return {key:"",label:"",values:[""]};
   if(key==="outputs")return {key:"",label:""};
   if(key==="rows"){
@@ -117,6 +125,8 @@ function emptyArrayPrototype(key:string,path:readonly PathPart[],root:JsonValue)
   if(key==="questions")return {id:"",area:"",prompt:"",choices:["",""],correctIndex:0,explanation:""};
   if(key==="scenarios")return {id:"",title:"",category:"",phase:"",difficulty:"core",minutes:0,summary:"",setup:"",objectives:[],debrief:[],stages:[]};
   if(key==="stages")return {id:"",label:"",prompt:"",expectedResponse:[],explanation:"",sources:[]};
+  if(key==="constraints")return {when:{selectorValues:[]},input:{key:"",label:"",unit:""},operator:"lte",value:0,message:""};
+  if(key==="options")return {value:"",label:"",factorOutputKey:""};
   return "";
 }
 
@@ -128,6 +138,53 @@ export function StructuredContentBuilder({domain,aircraftId,initialPayload,manua
 
   function commit(next:JsonValue){setPayload(next);setRaw(JSON.stringify(next,null,2));setRawError("");}
   function setValue(path:readonly PathPart[],next:JsonValue){commit(updateAt(payload,path,()=>next));}
+  function setObjectProperty(path:readonly PathPart[],key:string,next:JsonValue|undefined){
+    commit(updateAt(payload,path,current=>{
+      if(!isObject(current))return current;
+      const copy={...current};
+      if(next===undefined)delete copy[key];else copy[key]=next;
+      return copy;
+    }));
+  }
+  function switchPerformanceDatasetMode(datasetPath:readonly PathPart[],mode:PerformanceAuthoringMode){
+    const dataset=getAt(payload,datasetPath);
+    if(!isObject(dataset))return;
+    const calculator=isObject(dataset.calculator)?dataset.calculator:undefined;
+    const requestedOperation=typeof calculator?.operation==="string"?calculator.operation:typeof dataset.phase==="string"?dataset.phase:undefined;
+    const structure=asJson(createPerformanceAuthoringStructure(mode,requestedOperation));
+    if(!isObject(structure))return;
+    const preserved:JsonObject={};
+    for(const key of ["id","title","description","kind","notes","applicability","sources"]){
+      const value=dataset[key];if(value!==undefined)preserved[key]=value;
+    }
+    setValue(datasetPath,{...preserved,...structure});
+  }
+  function switchDistanceFactorSelector(selectorPath:readonly PathPart[],kind:"output-options"|"axis"){
+    const dataset=getAt(payload,selectorPath.slice(0,-2));
+    const selector=getAt(payload,selectorPath);
+    if(!isObject(dataset)||!isObject(selector))return;
+    const firstAxis=Array.isArray(dataset.axes)&&isObject(dataset.axes[0])&&typeof dataset.axes[0].key==="string"?dataset.axes[0].key:"lookupValue";
+    const firstOutput=Array.isArray(dataset.outputs)&&isObject(dataset.outputs[0])&&typeof dataset.outputs[0].key==="string"?dataset.outputs[0].key:"factor";
+    const baseline=isObject(selector.baseline)?selector.baseline:{value:"baseline",label:"Published baseline",fixedFactor:1};
+    if(kind==="axis"){
+      setValue(selectorPath,{kind:"axis",label:typeof selector.label==="string"?selector.label:"Condition",axisKey:firstAxis,factorOutput:firstOutput,baseline});
+    }else{
+      setValue(selectorPath,{kind:"output-options",label:typeof selector.label==="string"?selector.label:"Condition",lookupAxis:firstAxis,baseline,options:[{value:"condition",label:"Condition",factorOutputKey:firstOutput}]});
+    }
+  }
+  function setWeightBalanceStationInput(path:readonly PathPart[],kind:"mass-kg"|"fuel-litres"){
+    const stationPath=path.slice(0,-1);
+    const station=getAt(payload,stationPath);
+    if(!isObject(station))return;
+    const next={...station,input:kind};
+    if(kind==="fuel-litres"){
+      if(typeof next.densityKgPerL!=="number")next.densityKgPerL=0;
+    }else{
+      delete next.densityKgPerL;
+      delete next.maxVolumeL;
+    }
+    setValue(stationPath,next);
+  }
   function changeArray(path:readonly PathPart[],updater:(items:JsonValue[])=>JsonValue[]){
     commit(updateAt(payload,path,current=>Array.isArray(current)?updater(current):current));
   }
@@ -161,6 +218,15 @@ export function StructuredContentBuilder({domain,aircraftId,initialPayload,manua
       return <label className={styles.field}><span>{humanize(key)}</span><select value={value} onChange={event=>setValue(path,event.target.value)}>{!hasCurrent&&value?<option value={value}>{value}</option>:null}<option value="">Select source family</option>{manualOptions.map(option=><option key={option.id} value={option.id}>{option.label}</option>)}</select></label>;
     }
     if(key==="interpolation"&&typeof value==="string")return <label className={styles.field}><span>{humanize(key)}</span><select value={value} onChange={event=>setValue(path,event.target.value)}><option value="none">none</option><option value="linear-explicit">linear-explicit</option></select></label>;
+    if(key==="phase"&&typeof value==="string"&&domain==="performance")return <label className={styles.field}><span>Flight phase</span><select value={value} onChange={event=>setValue(path,event.target.value)}>{performancePhases.map(phase=><option key={phase} value={phase}>{humanize(phase)}</option>)}</select></label>;
+    if(key==="operation"&&typeof value==="string"&&domain==="performance"){
+      const parent=getAt(payload,path.slice(0,-1));
+      const limited=isObject(parent)&&(parent.kind==="runway-distance-grid"||parent.kind==="distance-factor");
+      const options=limited?performancePhases.filter(phase=>phase==="takeoff"||phase==="landing"):performancePhases;
+      return <label className={styles.field}><span>Operation</span><select value={value} onChange={event=>setValue(path,event.target.value)}>{options.map(operation=><option key={operation} value={operation}>{humanize(operation)}</option>)}</select></label>;
+    }
+    if(key==="operator"&&typeof value==="string"&&["lte","gte"].includes(value))return <label className={styles.field}><span>Limit rule</span><select value={value} onChange={event=>setValue(path,event.target.value)}><option value="lte">At or below (≤)</option><option value="gte">At or above (≥)</option></select></label>;
+    if(key==="input"&&typeof value==="string"&&["mass-kg","fuel-litres"].includes(value))return <label className={styles.field}><span>Station input</span><select value={value} onChange={event=>setWeightBalanceStationInput(path,event.target.value as "mass-kg"|"fuel-litres")}><option value="mass-kg">Mass</option><option value="fuel-litres">Fuel volume</option></select></label>;
     if(key==="kind"&&typeof value==="string"&&["lookup-table","reference-table"].includes(value))return <label className={styles.field}><span>{humanize(key)}</span><select value={value} onChange={event=>setValue(path,event.target.value)}><option value="lookup-table">lookup table</option><option value="reference-table">reference table</option></select></label>;
     if(key==="kind"&&typeof value==="string"&&["note","caution","warning"].includes(value))return <label className={styles.field}><span>{humanize(key)}</span><select value={value} onChange={event=>setValue(path,event.target.value)}><option value="note">note</option><option value="caution">caution</option><option value="warning">warning</option></select></label>;
     if(key==="difficulty"&&typeof value==="string"&&["core","advanced"].includes(value))return <label className={styles.field}><span>{humanize(key)}</span><select value={value} onChange={event=>setValue(path,event.target.value)}><option value="core">core</option><option value="advanced">advanced</option></select></label>;
@@ -195,12 +261,16 @@ export function StructuredContentBuilder({domain,aircraftId,initialPayload,manua
     if(scalarOnly){
       return <section className={styles.collection} key={path.join(".")}><div className={styles.collectionHeader}><div><strong>{humanize(key)}</strong><span> · {items.length} item{items.length===1?"":"s"}</span></div><button type="button" onClick={()=>changeArray(path,current=>[...current,current.length?blankFromExample(current[current.length-1]!,key):emptyArrayPrototype(key,path,payload)])}>+ Add</button></div>{items.length?<div className={styles.scalarList}>{items.map((item,index)=><div className={styles.scalarRow} key={`${path.join(".")}-${index}`}><div>{renderScalar(item as JsonScalar,[...path,index],key)}</div><div className={styles.scalarActions}><button type="button" disabled={index===0} onClick={()=>changeArray(path,current=>{const next=[...current];const previous=next[index-1];const active=next[index];if(previous===undefined||active===undefined)return current;next[index-1]=active;next[index]=previous;return next;})}>↑</button><button type="button" disabled={index===items.length-1} onClick={()=>changeArray(path,current=>{const next=[...current];const active=next[index];const following=next[index+1];if(active===undefined||following===undefined)return current;next[index]=following;next[index+1]=active;return next;})}>↓</button><button type="button" onClick={()=>changeArray(path,current=>current.filter((_,itemIndex)=>itemIndex!==index))}>×</button></div></div>)}</div>:<p className={styles.empty}>No entries yet.</p>}</section>;
     }
-    return <section className={styles.collection} key={path.join(".")}><div className={styles.collectionHeader}><div><strong>{humanize(key)}</strong><span> · {items.length} item{items.length===1?"":"s"}</span></div><div className={styles.itemActions}>{key==="rows"?<button type="button" onClick={()=>syncPerformanceRows(path)}>Sync row keys</button>:null}<button type="button" onClick={()=>changeArray(path,current=>[...current,current.length?blankFromExample(current[current.length-1]!,key):emptyArrayPrototype(key,path,payload)])}>+ Add blank item</button></div></div>{items.length?<div className={styles.collectionItems}>{items.map((item,index)=><details className={styles.item} key={`${path.join(".")}-${index}`} open={items.length<=3}><summary><span className={styles.itemSummary}><span className={styles.itemIndex}>{index+1}</span><span>{itemSummary(item,index)}</span></span><span>▾</span></summary><div className={styles.itemBody}><div className={styles.itemActions}><button type="button" disabled={index===0} onClick={()=>changeArray(path,current=>{const next=[...current];const previous=next[index-1];const active=next[index];if(previous===undefined||active===undefined)return current;next[index-1]=active;next[index]=previous;return next;})}>Move up</button><button type="button" disabled={index===items.length-1} onClick={()=>changeArray(path,current=>{const next=[...current];const active=next[index];const following=next[index+1];if(active===undefined||following===undefined)return current;next[index]=following;next[index+1]=active;return next;})}>Move down</button><button type="button" onClick={()=>changeArray(path,current=>{const source=current[index];if(source===undefined)return current;const next=[...current];next.splice(index+1,0,clone(source));return next;})}>Duplicate</button><button type="button" onClick={()=>changeArray(path,current=>current.filter((_,itemIndex)=>itemIndex!==index))}>Remove</button></div>{renderValue(item,[...path,index],`${key} item`)}</div></details>)}</div>:<p className={styles.empty}>No entries yet. Add the first structured item above.</p>}</section>;
+    return <section className={styles.collection} key={path.join(".")}><div className={styles.collectionHeader}><div><strong>{humanize(key)}</strong><span> · {items.length} item{items.length===1?"":"s"}</span></div><div className={styles.itemActions}>{key==="rows"?<button type="button" onClick={()=>syncPerformanceRows(path)}>Sync row keys</button>:null}<button type="button" onClick={()=>changeArray(path,current=>[...current,current.length?blankFromExample(current[current.length-1]!,key):emptyArrayPrototype(key,path,payload)])}>+ Add blank item</button></div></div>{items.length?<div className={styles.collectionItems}>{items.map((item,index)=><details className={styles.item} key={`${path.join(".")}-${index}`} open={items.length<=3}><summary><span className={styles.itemSummary}><span className={styles.itemIndex}>{index+1}</span><span>{itemSummary(item,index)}</span></span><span>▾</span></summary><div className={styles.itemBody}>{key==="datasets"&&domain==="performance"&&isObject(item)?<div className={styles.composerPanel}><label className={styles.field}><span>Dataset behavior</span><select value={performanceAuthoringModeFromDataset(item)} onChange={event=>switchPerformanceDatasetMode([...path,index],event.target.value as PerformanceAuthoringMode)}>{performanceAuthoringModes.map(mode=><option key={mode} value={mode}>{mode==="reference-only"?"Reference only":humanize(mode)}</option>)}</select></label><p className={styles.hint}>Changing behavior replaces calculator bindings, axes, outputs and rows with a valid starter shape. Dataset identity, notes, sources and applicability are preserved.</p></div>:null}<div className={styles.itemActions}><button type="button" disabled={index===0} onClick={()=>changeArray(path,current=>{const next=[...current];const previous=next[index-1];const active=next[index];if(previous===undefined||active===undefined)return current;next[index-1]=active;next[index]=previous;return next;})}>Move up</button><button type="button" disabled={index===items.length-1} onClick={()=>changeArray(path,current=>{const next=[...current];const active=next[index];const following=next[index+1];if(active===undefined||following===undefined)return current;next[index]=following;next[index+1]=active;return next;})}>Move down</button><button type="button" onClick={()=>changeArray(path,current=>{const source=current[index];if(source===undefined)return current;const next=[...current];next.splice(index+1,0,clone(source));return next;})}>Duplicate</button><button type="button" onClick={()=>changeArray(path,current=>current.filter((_,itemIndex)=>itemIndex!==index))}>Remove</button></div>{renderValue(item,[...path,index],`${key} item`)}</div></details>)}</div>:<p className={styles.empty}>No entries yet. Add the first structured item above.</p>}</section>;
   }
 
   function renderObject(value:JsonObject,path:readonly PathPart[],label:string){
     const entries=Object.entries(value);
-    return <section className={styles.object} key={path.join(".")}><p className={styles.objectTitle}>{humanize(label)}</p>{entries.map(([childKey,child])=>renderValue(child,[...path,childKey],childKey))}</section>;
+    const selectorKind=label==="selector"&&domain==="performance"&&(value.kind==="output-options"||value.kind==="axis")?value.kind:undefined;
+    return <section className={styles.object} key={path.join(".")}><p className={styles.objectTitle}>{humanize(label)}</p>
+      {selectorKind?<div className={styles.composerPanel}><label className={styles.field}><span>Factor selector behavior</span><select value={selectorKind} onChange={event=>switchDistanceFactorSelector(path,event.target.value as "output-options"|"axis")}><option value="output-options">Named correction options</option><option value="axis">Dataset axis values</option></select></label><p className={styles.hint}>Switching selector behavior resets only the selector bindings; dataset rows remain unchanged.</p></div>:null}
+      {entries.filter(([childKey])=>!(selectorKind&&childKey==="kind")).map(([childKey,child])=>renderValue(child,[...path,childKey],childKey))}
+    </section>;
   }
   function renderValue(value:JsonValue,path:readonly PathPart[],key:string):ReactNode{
     if(Array.isArray(value))return renderArray(value,path,key);
@@ -208,8 +278,30 @@ export function StructuredContentBuilder({domain,aircraftId,initialPayload,manua
     return <div key={path.join(".")}>{renderScalar(value,path,key)}</div>;
   }
 
+  const weightBalanceSetup=domain==="weight-balance"&&isObject(payload)?(()=>{
+    const stations=Array.isArray(payload.stations)?payload.stations.filter(isObject):[];
+    const fuelStations=stations.filter(station=>station.input==="fuel-litres"&&typeof station.id==="string"&&station.id.trim());
+    const limits=isObject(payload.limits)?payload.limits:undefined;
+    const hasLandingLimit=Boolean(limits&&typeof limits.maxLandingMassKg==="number");
+    const fuelBurnStation=typeof payload.fuelBurnStationId==="string"?payload.fuelBurnStationId:"";
+    return <section className={styles.composerPanel}>
+      <div><strong>Weight & Balance setup</strong><p className={styles.hint}>Optional operational fields can be configured here without editing raw JSON.</p></div>
+      <div className={styles.setupGrid}>
+        <label className={styles.choice}><input type="checkbox" checked={hasLandingLimit} onChange={event=>{
+          if(!limits)return;
+          if(event.target.checked){
+            const fallback=typeof limits.maxTakeoffMassKg==="number"?limits.maxTakeoffMassKg:0;
+            setObjectProperty(["limits"],"maxLandingMassKg",fallback);
+          }else setObjectProperty(["limits"],"maxLandingMassKg",undefined);
+        }}/><span><strong>Separate landing mass limit</strong><small>Enable when the approved source publishes one.</small></span></label>
+        <label className={styles.field}><span>Fuel burn station</span><select value={fuelBurnStation} onChange={event=>setObjectProperty([],"fuelBurnStationId",event.target.value||undefined)}><option value="">Not configured</option>{fuelStations.map(station=><option key={String(station.id)} value={String(station.id)}>{typeof station.label==="string"&&station.label?station.label:station.id}</option>)}</select></label>
+      </div>
+    </section>;
+  })():null;
+
   return <div className={styles.builder}>
     <div className={styles.toolbar}><div className={styles.toolbarText}><strong>Structured {humanize(domain)} payload</strong><span>Edit fields and collections directly. The saved result still passes through the normal immutable draft workflow.</span></div><span className={validationErrors.length?styles.statusBad:styles.statusGood}>{validationErrors.length?`${validationErrors.length} contract issue${validationErrors.length===1?"":"s"}`:"Contract valid"}</span></div>
+    {weightBalanceSetup}
     {validationErrors.length?<ul className={styles.errorList}>{validationErrors.slice(0,12).map(error=><li key={error}>{error}</li>)}{validationErrors.length>12?<li>+ {validationErrors.length-12} more issue(s)</li>:null}</ul>:null}
     <p className={styles.hint}>Collection controls change structure only in this draft. Duplicate is useful when two items share the same shape; review copied source/applicability fields before saving. Performance rows can be synchronized after changing axis/output keys.</p>
     <div className={styles.root}>{isObject(payload)?Object.entries(payload).map(([key,value])=>renderValue(value,[key],key)):renderValue(payload,[],"payload")}</div>

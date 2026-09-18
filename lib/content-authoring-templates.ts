@@ -1,4 +1,5 @@
 import type { TrainingContentDomain } from "./content-admin-types.ts";
+import { createPerformanceAuthoringDataset } from "./performance-authoring-presets.ts";
 import { universalTrainingContentDomains, type UniversalTrainingContentDomain } from "./universal-aircraft-content.ts";
 
 export const structuredAuthoringDomains = [...universalTrainingContentDomains, "weight-balance", "abnormal"] as const;
@@ -36,18 +37,7 @@ export function createStructuredStarterPayload(aircraftId: string, domain: Struc
       return {
         aircraftId,
         title: "",
-        datasets: [{
-          id: "",
-          title: "",
-          kind: "reference-table",
-          phase: "reference",
-          calculator: { kind: "metric-lookup", operation: "reference", axisKey: "axis1", outputKeys: ["output1"] },
-          axes: [{ key: "axis1", label: "", values: [""] }],
-          outputs: [{ key: "output1", label: "" }],
-          rows: [{ inputs: { axis1: "" }, outputs: { output1: "" } }],
-          interpolation: "none",
-          applicability: applicabilityStarter(),
-        }],
+        datasets: [createPerformanceAuthoringDataset("metric-lookup")],
       };
     case "weight-balance":
       return {
