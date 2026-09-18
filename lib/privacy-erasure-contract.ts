@@ -1,4 +1,4 @@
-import { decodeSignedPayload } from "./identity-contract";
+import { decodeSignedPayload } from "./identity-contract.ts";
 
 export const TRAINING_PRIVACY_ERASURE_VERSION = "ftp1";
 const MAX_ASSERTION_SECONDS = 2 * 60;

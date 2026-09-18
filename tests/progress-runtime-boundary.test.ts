@@ -17,7 +17,9 @@ test("learner progress repository performs no schema DDL", () => {
 
 test("progress sync batches event ingestion instead of sequential INSERT loops", () => {
   assert.match(repository, /jsonb_to_recordset/);
-  assert.match(repository, /WITH incoming AS/);
+  assert.match(repository, /WITH account_guard AS MATERIALIZED/);
+  assert.match(repository, /\), incoming AS \(/);
+  assert.match(repository, /CROSS JOIN account_guard/);
   assert.doesNotMatch(repository, /for\s*\(const event of events\)[\s\S]{0,500}await sql`INSERT INTO training_progress_events/);
 });
 
