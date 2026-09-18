@@ -228,7 +228,7 @@ Completed across Training and Logbook, including source-authority/freshness fail
 
 Training participates in one shared FlyTally launch boundary. C1 keeps the canonical legal/commercial state in Logbook, requires an explicit source/publication-rights review for Training content, and does not add a duplicate Training launch flag.
 
-C2–C6 cover reviewed commercial terms, shared billing/entitlements after the business model is chosen, signature/regulator strategy, brand/claims review and final commercial release audit.
+C2 covers the versioned commercial legal publication boundary. C3 ✅ adds shared provider-agnostic entitlements: Logbook remains the authority, Training validates signed entitlement-bearing identity assertions and enforces `training.access` without knowing a billing provider. C4–C6 cover signature/regulator strategy, brand/claims review and final commercial release audit.
 
 ### v3.0 — Multi-aircraft product scale
 

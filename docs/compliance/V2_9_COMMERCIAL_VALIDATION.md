@@ -21,16 +21,19 @@ The shared commercial gate includes a mandatory Training source/publication-righ
 
 A source-derived content set must therefore not be treated as commercially publishable merely because it is technically published in Training.
 
-## Commercial access model
+## C3 — Shared entitlement boundary
 
-C1 deliberately does not introduce subscriptions, paid aircraft packs, entitlements or a public-content paywall.
+C3 introduces a provider-agnostic entitlement contract without choosing prices, plans or a payment provider.
 
-Those decisions belong to v2.9 C3 after the shared business model is chosen. Until then:
+Logbook remains the entitlement authority. Its short-lived FlyTally identity assertion now carries a signed entitlement snapshot (identity contract `ft2`). Training validates that snapshot, persists it into its own signed session and requires an active `training.access` grant before issuing or accepting learner access.
 
-- current Training authentication/progress behavior remains unchanged;
-- learner data remains private;
-- currently published reference content keeps the v2.8 technical access behavior;
-- no new commercial-access claim is inferred from that behavior.
+The contract supports time-bounded grants so an expired entitlement cannot survive only because a Training session cookie has a longer lifetime.
+
+Rollout is backward-compatible: legacy `ft1` identity assertions and pre-C3 Training sessions retain their existing private-beta access until normal expiry. New sessions use the entitlement-bearing contract. The legacy fallback is a migration aid only and must be removed or explicitly closed before C6 can authorize a commercial launch.
+
+Training does not know or care which commercial provider created a durable grant. Provider, organization and manual-grant decisions remain on the canonical Logbook side.
+
+C3 deliberately does **not** introduce prices, paid aircraft packs, checkout, card storage or a public-content paywall.
 
 ## External validation
 
@@ -41,7 +44,7 @@ QES is also a decision gate, not a presumed requirement. The existing FlyTally a
 ## Planned v2.9 continuation
 
 - C2 — consume the final externally reviewed shared legal/commercial surface.
-- C3 — apply the chosen shared entitlement/billing model without aircraft-specific code.
+- C3 ✅ — consume the shared signed entitlement contract without aircraft-specific or provider-specific code.
 - C4 — record the Training-specific regulator/manufacturer validation decision where applicable.
 - C5 — keep marketing claims and source-rights evidence aligned with published aircraft content.
 - C6 — participate in the shared commercial release audit.

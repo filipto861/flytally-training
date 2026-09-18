@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { hasActiveEntitlement } from "@/lib/entitlements";
 import { verifyFlyTallyIdentityAssertion } from "@/lib/identity-contract";
 import { consumeFlyTallyIdentityAssertion } from "@/lib/identity-replay";
 import { safeLocalPath } from "@/lib/local-path";
@@ -25,9 +26,12 @@ export async function GET(request: Request) {
   let claims;
   try { claims = verifyFlyTallyIdentityAssertion(assertion, identitySecret()); } catch { claims = null; }
   if (!claims) return errorResponse("invalid_identity_assertion", 401);
+  if (!hasActiveEntitlement(claims.entitlements, "training.access")) {
+    return errorResponse("training_entitlement_required", 403);
+  }
 
   let sessionToken: string;
-  try { sessionToken = createTrainingSessionToken(claims.sub, claims.role); }
+  try { sessionToken = createTrainingSessionToken(claims.sub, claims.role, claims.entitlements); }
   catch { return errorResponse("training_session_not_configured", 503); }
 
   let consumed = false;
