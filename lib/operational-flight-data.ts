@@ -60,6 +60,8 @@ export type OperationalPerformanceDataset = {
   readonly id: string;
   readonly title: string;
   readonly kind: PerformanceDataset["kind"];
+  readonly phase?: PerformanceDataset["phase"];
+  readonly calculator?: PerformanceDataset["calculator"];
   readonly axes: readonly PerformanceAxis[];
   readonly outputs: readonly PerformanceOutput[];
   readonly rows: readonly PerformanceRow[];
@@ -73,6 +75,8 @@ export function toOperationalPerformanceDatasets(
     id: dataset.id,
     title: dataset.title,
     kind: dataset.kind,
+    phase: dataset.phase,
+    calculator: dataset.calculator,
     interpolation: dataset.interpolation,
     axes: dataset.axes.map((axis) => ({
       key: axis.key,
