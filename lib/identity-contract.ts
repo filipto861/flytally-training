@@ -69,7 +69,7 @@ export function decodeSignedPayload<T extends object>(token: string, secret: str
 function validateBaseClaims(
   claims: Partial<FlyTallyIdentityBaseClaims>,
   nowSeconds: number,
-): claims is FlyTallyIdentityBaseClaims {
+): boolean {
   if (claims.iss !== "flytally-logbook" || claims.aud !== "flytally-training") return false;
   if (typeof claims.sub !== "string" || claims.sub.length < 1 || claims.sub.length > 128) return false;
   if (claims.role !== "admin" && claims.role !== "user") return false;
