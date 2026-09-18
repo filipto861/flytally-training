@@ -17,6 +17,7 @@ import {
   type NativeDistanceCalculation,
 } from "@/lib/performance-calculator";
 import type { PerformanceDataset, TrainingSourceReference } from "@/lib/universal-aircraft-content";
+import { DeclarativePerformanceWorkspace } from "./declarative-performance-workspace";
 import { PerformanceExplorer } from "./performance-explorer";
 import styles from "./performance-calculator.module.css";
 
@@ -116,7 +117,7 @@ function NativeDistanceResults({ calculation, operation }: Readonly<{ calculatio
   );
 }
 
-export function PerformanceCalculator({
+function LegacyPerformanceCalculator({
   datasets,
   disclaimer,
 }: Readonly<{
@@ -284,6 +285,39 @@ export function PerformanceCalculator({
         </div>
       </details>
 
+      <details className={styles.referenceDrawer}>
+        <summary>Reference data & other performance tables</summary>
+        <div className={styles.referenceBody}><PerformanceExplorer datasets={datasets} /></div>
+      </details>
+    </section>
+  );
+}
+
+
+export function PerformanceCalculator({
+  datasets,
+  disclaimer,
+}: Readonly<{
+  datasets: readonly PerformanceDataset[];
+  disclaimer?: string;
+}>) {
+  const hasDeclaredOperational = datasets.some((dataset) =>
+    dataset.calculator && (dataset.calculator.operation === "takeoff" || dataset.calculator.operation === "landing")
+  );
+  if (!hasDeclaredOperational) return <LegacyPerformanceCalculator datasets={datasets} disclaimer={disclaimer} />;
+
+  const declared = datasets.filter((dataset) => dataset.calculator && (dataset.calculator.operation === "takeoff" || dataset.calculator.operation === "landing"));
+  return (
+    <section className={styles.wrapper} aria-label="Performance calculator">
+      <DeclarativePerformanceWorkspace datasets={declared} />
+      <details className={styles.methodDetails}>
+        <summary>Calculation method & sources</summary>
+        <div className={styles.methodBody}>
+          <p><strong>Governed calculator contract.</strong> Input labels, units, calculator bindings, exact lookup rules and constraints come from the published aircraft dataset. Interpolation is used only where that dataset explicitly permits bounded interpolation; extrapolation is never performed.</p>
+          {declared.map((dataset) => <div className={styles.sourceItem} key={dataset.id}><strong>{dataset.title}</strong>{sourceLine(dataset.sources) ? <span>{sourceLine(dataset.sources)}</span> : null}{dataset.notes?.length ? <ul>{dataset.notes.map((note) => <li key={note}>{note}</li>)}</ul> : null}</div>)}
+          <p className={styles.disclaimer}>{disclaimer ?? "Training aid only. Verify performance using the applicable approved aircraft/operator documentation."}</p>
+        </div>
+      </details>
       <details className={styles.referenceDrawer}>
         <summary>Reference data & other performance tables</summary>
         <div className={styles.referenceBody}><PerformanceExplorer datasets={datasets} /></div>
