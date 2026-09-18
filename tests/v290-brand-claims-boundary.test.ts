@@ -7,7 +7,7 @@ const root=path.resolve(import.meta.dirname,"..");
 const read=(file:string)=>fs.readFileSync(path.join(root,file),"utf8");
 
 const unsafe=[
-  /\bFlyTally®\b/i,
+  /\bFlyTally®/i,
   /\bFlyTally\b[^.\n]{0,80}\b(?:EASA|ÚCL|UCL|Czech CAA|LAA(?: ČR| CZ)?)\b[^.\n]{0,40}\b(?:approved|certified|endorsed|official|compliant)\b/i,
   /\bFlyTally\b[^.\n]{0,60}\b(?:approved|certified|endorsed|official|compliant)\b[^.\n]{0,60}\b(?:EASA|ÚCL|UCL|Czech CAA|LAA(?: ČR| CZ)?)\b/i,
   /\bFlyTally\b[^.\n]{0,80}\bregistered trademark\b/i,
