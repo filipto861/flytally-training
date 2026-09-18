@@ -2,6 +2,7 @@ import "server-only";
 
 import { sql } from "./db";
 import type { PersistedTrainingProgressEvent, TrainingActivityKind } from "./progress-events";
+import { PRIVACY_RESET_AIRCRAFT_ID } from "./training-privacy";
 
 export type AircraftLearningState = {
   readonly aircraftId: string;
@@ -81,14 +82,21 @@ export class PostgresTrainingProgressRepository implements TrainingProgressRepos
           score_percent integer,
           weak_areas jsonb
         )
+      ), eligible AS (
+        SELECT x.* FROM incoming x
+        WHERE x.occurred_at::timestamptz > COALESCE(
+          (SELECT last_activity_at FROM training_aircraft_state
+            WHERE account_subject=${accountSubject} AND aircraft_id=${PRIVACY_RESET_AIRCRAFT_ID} LIMIT 1),
+          '-infinity'::timestamptz
+        )
       ), inserted AS (
         INSERT INTO training_progress_events(account_subject,event_id,aircraft_id,activity_kind,content_id,occurred_at,completed,score_percent,weak_areas)
         SELECT ${accountSubject},x.event_id,x.aircraft_id,x.activity_kind,x.content_id,x.occurred_at::timestamptz,x.completed,x.score_percent::smallint,COALESCE(x.weak_areas,'[]'::jsonb)
-        FROM incoming x
+        FROM eligible x
         ON CONFLICT(account_subject,event_id) DO NOTHING
         RETURNING aircraft_id
       ), affected AS (
-        SELECT DISTINCT aircraft_id FROM incoming
+        SELECT DISTINCT aircraft_id FROM eligible
       ), latest AS (
         SELECT DISTINCT ON (e.aircraft_id)
           e.aircraft_id,e.activity_kind,e.content_id,e.occurred_at
