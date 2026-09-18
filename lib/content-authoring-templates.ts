@@ -53,6 +53,12 @@ export function createStructuredStarterPayload(aircraftId: string, domain: Struc
       return {
         aircraftId,
         title: "",
+        units: {
+          mass: { label: "kg", fromNormalized: 1, decimals: 1 },
+          arm: { label: "mm", fromNormalized: 1, decimals: 1 },
+          moment: { label: "kg·mm", fromNormalized: 1, decimals: 0 },
+          volume: { label: "l", fromNormalized: 1, decimals: 1 },
+        },
         empty: { massKg: 0, armMm: 0, momentKgMm: 0, sources: [{ manualId: "", pageLabel: "" }] },
         limits: {
           maxTakeoffMassKg: 0,

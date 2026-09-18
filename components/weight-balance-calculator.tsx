@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 
-import { calculateWeightBalance } from "@/lib/weight-balance-calculator";
+import { calculateWeightBalance, formatWeightBalanceValue, normalizedToWeightBalanceDisplay, weightBalanceUnit } from "@/lib/weight-balance-calculator";
 import type { AircraftWeightBalanceContent, WeightBalanceStation } from "@/lib/universal-weight-balance";
 import type { TrainingSourceReference } from "@/lib/universal-aircraft-content";
 import styles from "./weight-balance-calculator.module.css";
@@ -13,20 +13,8 @@ function numberFromInput(value: string): number | undefined {
   return Number.isFinite(parsed) ? parsed : undefined;
 }
 
-function formatMass(value: number | undefined): string {
-  return value === undefined ? "—" : `${value.toFixed(1)} kg`;
-}
-
-function formatCg(value: number | undefined): string {
-  return value === undefined ? "—" : `${value.toFixed(1)} mm`;
-}
-
-function formatMoment(value: number | undefined): string {
-  return value === undefined ? "—" : `${Math.round(value).toLocaleString("en-US")} kg·mm`;
-}
-
-function stationUnit(station: WeightBalanceStation): string {
-  return station.input === "fuel-litres" ? "l" : "kg";
+function stationUnit(content: AircraftWeightBalanceContent, station: WeightBalanceStation): string {
+  return weightBalanceUnit(content, station.input === "fuel-litres" ? "volume" : "mass").label;
 }
 
 function sourceLabel(source: TrainingSourceReference): string {
@@ -76,10 +64,10 @@ export function WeightBalanceCalculator({ content }: Readonly<{ content: Aircraf
           </div>
 
           <div className={styles.baseline}>
-            <div><span>Empty mass</span><strong>{formatMass(content.empty.massKg)}</strong></div>
-            <div><span>Empty CG</span><strong>{formatCg(content.empty.armMm)}</strong></div>
-            <div><span>Useful load</span><strong>{formatMass(usefulLoad)}</strong></div>
-            <div><span>MTOW</span><strong>{formatMass(content.limits.maxTakeoffMassKg)}</strong></div>
+            <div><span>Empty mass</span><strong>{formatWeightBalanceValue(content, "mass", content.empty.massKg)}</strong></div>
+            <div><span>Empty CG</span><strong>{formatWeightBalanceValue(content, "arm", content.empty.armMm)}</strong></div>
+            <div><span>Useful load</span><strong>{formatWeightBalanceValue(content, "mass", usefulLoad)}</strong></div>
+            <div><span>MTOW</span><strong>{formatWeightBalanceValue(content, "mass", content.limits.maxTakeoffMassKg)}</strong></div>
           </div>
 
           <div className={styles.fields}>
@@ -97,14 +85,14 @@ export function WeightBalanceCalculator({ content }: Readonly<{ content: Aircraf
                       type="number"
                       value={values[station.id] ?? ""}
                     />
-                    <small>{stationUnit(station)}</small>
+                    <small>{stationUnit(content, station)}</small>
                   </div>
                 </label>
                 <p>
-                  Arm {station.armMm.toFixed(0)} mm
-                  {station.minimumMassKg !== undefined ? ` · min ${station.minimumMassKg} kg` : ""}
-                  {station.maxMassKg !== undefined ? ` · max ${station.maxMassKg} kg` : ""}
-                  {station.maxVolumeL !== undefined ? ` · max ${station.maxVolumeL} l` : ""}
+                  Arm {formatWeightBalanceValue(content, "arm", station.armMm)}
+                  {station.minimumMassKg !== undefined ? ` · min ${formatWeightBalanceValue(content, "mass", station.minimumMassKg)}` : ""}
+                  {station.maxMassKg !== undefined ? ` · max ${formatWeightBalanceValue(content, "mass", station.maxMassKg)}` : ""}
+                  {station.maxVolumeL !== undefined ? ` · max ${formatWeightBalanceValue(content, "volume", station.maxVolumeL)}` : ""}
                 </p>
               </div>
             ))}
@@ -114,7 +102,7 @@ export function WeightBalanceCalculator({ content }: Readonly<{ content: Aircraf
                   <span>{fuelStation.label} at landing</span>
                   <div className={styles.inputWithUnit}>
                     <input inputMode="decimal" min="0" onChange={(event) => setLandingFuel(event.target.value)} placeholder="required" step="any" type="number" value={landingFuel} />
-                    <small>{stationUnit(fuelStation)}</small>
+                    <small>{stationUnit(content, fuelStation)}</small>
                   </div>
                 </label>
                 <p>Used to verify the CG after planned fuel burn.</p>
@@ -139,22 +127,22 @@ export function WeightBalanceCalculator({ content }: Readonly<{ content: Aircraf
           <div className={styles.phaseGrid}>
             <section>
               <small>Takeoff</small>
-              <strong>{formatMass(takeoff?.massKg)}</strong>
+              <strong>{formatWeightBalanceValue(content, "mass", takeoff?.massKg)}</strong>
               <dl>
-                <div><dt>CG</dt><dd>{formatCg(takeoff?.cgMm)}</dd></div>
+                <div><dt>CG</dt><dd>{formatWeightBalanceValue(content, "arm", takeoff?.cgMm)}</dd></div>
                 {cgScaleLabel ? <div><dt>{cgScaleLabel}</dt><dd>{takeoff?.cgDisplayValue === undefined ? "—" : `${takeoff.cgDisplayValue.toFixed(1)}%`}</dd></div> : null}
-                <div><dt>Moment</dt><dd>{formatMoment(takeoff?.momentKgMm)}</dd></div>
-                <div><dt>Envelope</dt><dd>{takeoff?.forwardLimitMm === undefined || takeoff.aftLimitMm === undefined ? "—" : `${takeoff.forwardLimitMm.toFixed(0)}–${takeoff.aftLimitMm.toFixed(0)} mm`}</dd></div>
+                <div><dt>Moment</dt><dd>{formatWeightBalanceValue(content, "moment", takeoff?.momentKgMm)}</dd></div>
+                <div><dt>Envelope</dt><dd>{takeoff?.forwardLimitMm === undefined || takeoff.aftLimitMm === undefined ? "—" : `${formatWeightBalanceValue(content, "arm", takeoff.forwardLimitMm)}–${formatWeightBalanceValue(content, "arm", takeoff.aftLimitMm)}`}</dd></div>
               </dl>
             </section>
             {fuelStation ? <section>
               <small>Landing</small>
-              <strong>{formatMass(landing?.massKg)}</strong>
+              <strong>{formatWeightBalanceValue(content, "mass", landing?.massKg)}</strong>
               <dl>
-                <div><dt>CG</dt><dd>{formatCg(landing?.cgMm)}</dd></div>
+                <div><dt>CG</dt><dd>{formatWeightBalanceValue(content, "arm", landing?.cgMm)}</dd></div>
                 {cgScaleLabel ? <div><dt>{cgScaleLabel}</dt><dd>{landing?.cgDisplayValue === undefined ? "—" : `${landing.cgDisplayValue.toFixed(1)}%`}</dd></div> : null}
-                <div><dt>Moment</dt><dd>{formatMoment(landing?.momentKgMm)}</dd></div>
-                <div><dt>CG shift</dt><dd>{calculation.cgShiftMm === undefined ? "—" : `${calculation.cgShiftMm >= 0 ? "+" : ""}${calculation.cgShiftMm.toFixed(1)} mm`}</dd></div>
+                <div><dt>Moment</dt><dd>{formatWeightBalanceValue(content, "moment", landing?.momentKgMm)}</dd></div>
+                <div><dt>CG shift</dt><dd>{calculation.cgShiftMm === undefined ? "—" : `${calculation.cgShiftMm >= 0 ? "+" : ""}${normalizedToWeightBalanceDisplay(content, "arm", calculation.cgShiftMm).toFixed(weightBalanceUnit(content, "arm").decimals ?? 1)} ${weightBalanceUnit(content, "arm").label}`}</dd></div>
               </dl>
             </section> : null}
           </div>

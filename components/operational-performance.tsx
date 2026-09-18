@@ -15,6 +15,7 @@ import {
   type NativeDistanceCalculation,
 } from "@/lib/performance-calculator";
 import { calculateOperationalNativeDistanceGrid } from "@/lib/operational-performance-policy";
+import { DeclarativePerformanceWorkspace } from "./declarative-performance-workspace";
 import type { PerformanceDataset } from "@/lib/universal-aircraft-content";
 import styles from "./operational-performance.module.css";
 
@@ -72,7 +73,7 @@ function calculationMethod(result: NativeDistanceCalculation): string {
   return result.method === "bounded-linear-interpolation" ? "Interpolated between published rows" : "Published table value";
 }
 
-export function OperationalPerformance({
+function LegacyOperationalPerformance({
   aircraftId,
   datasets,
   selectedVariant,
@@ -222,4 +223,23 @@ export function OperationalPerformance({
       </div> : null}
     </section>
   );
+}
+
+
+export function OperationalPerformance({
+  aircraftId,
+  datasets,
+  selectedVariant,
+}: Readonly<{
+  aircraftId: string;
+  datasets: readonly PerformanceDataset[];
+  selectedVariant?: string;
+}>) {
+  const hasDeclaredOperational = datasets.some((dataset) =>
+    dataset.calculator && (dataset.calculator.operation === "takeoff" || dataset.calculator.operation === "landing")
+  );
+  if (hasDeclaredOperational) {
+    return <DeclarativePerformanceWorkspace datasets={datasets} storageKey={`flytally:flight-performance:v2:${aircraftId}:${selectedVariant ?? "common"}`} />;
+  }
+  return <LegacyOperationalPerformance aircraftId={aircraftId} datasets={datasets} selectedVariant={selectedVariant} />;
 }
