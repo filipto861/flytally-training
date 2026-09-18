@@ -44,7 +44,7 @@ Training may use:
 
 These functional mechanisms do not by themselves justify a non-essential-cookie consent banner. Advertising/behavioural tracking must not be introduced without a privacy/consent review.
 
-Authenticated users have a Training-only `/account` privacy surface that can export their server-side learner progress and delete that progress. Deletion writes a minimal privacy-reset barrier so older offline/local progress from another device cannot silently recreate pre-deletion history. Clearing the current device removes Training local/session storage, FlyTally Training caches and the Training service-worker registration. Main FlyTally identity/account deletion remains managed in Logbook; Training progress is a separate persistence boundary and can be erased independently.
+Authenticated users have a Training-only `/account` privacy surface that can export their server-side learner progress and delete that progress. Deletion writes a minimal privacy-reset barrier so older offline/local progress from another device cannot silently recreate pre-deletion history. Progress ingestion and deletion take the same account-scoped PostgreSQL transaction advisory lock, preventing a concurrent old-device sync from racing across the reset boundary. Clearing the current device removes Training local/session storage, FlyTally Training caches and the Training service-worker registration. Main FlyTally identity/account deletion remains managed in Logbook; Training progress is a separate persistence boundary and can be erased independently. Logbook account deletion uses a purpose-bound, short-lived server-to-server erasure assertion and must receive a successful Training erasure response before disabling the main sign-in identity.
 
 Canonical notices: Privacy, Terms, Cookies & Local Storage, Aviation Safety, Providers and Report are linked from the global footer through `NEXT_PUBLIC_FLYTALLY_LEGAL_URL`.
 
@@ -60,9 +60,11 @@ Adding a new production processor/provider requires an update to the canonical p
 ## Security boundary
 
 - Global browser security headers include HSTS in production, clickjacking protection, restrictive Permissions Policy and a Content Security Policy limited to FlyTally-owned runtime resources.
-- State-changing browser requests for Training progress and logout reject cross-site or mismatched-origin requests in addition to the session cookie's SameSite policy.
+- State-changing browser requests for Training progress, privacy deletion and logout reject cross-site or mismatched-origin requests in addition to the session cookie's SameSite policy. The mutation guard fails closed when both Origin and explicit same-origin Fetch Metadata are absent.
 - Mutating responses and authenticated progress responses use no-store caching.
 - Public/user supplied aircraft identifiers accepted by progress endpoints are constrained to the platform aircraft-id grammar rather than arbitrary text.
+- Published Training catalogue/aircraft/reference pages are currently reachable without a mandatory Training session, while learner progress, account data, mutations and administration are authenticated. That access architecture is not proof of publication rights: public-display/licensing permission must be verified for each source-derived content set before broad public/commercial exposure.
+- Training has no user-data public-sharing endpoint; pilot-created public flight sharing remains a Logbook boundary with its own limited public DTO, revocation and disclosure controls.
 - Rate limiting remains a platform-level follow-up where a durable shared limiter is justified; an in-memory serverless limiter must not be treated as a security control.
 
 ## Incident response
@@ -84,7 +86,13 @@ Use the platform v2.8 incident process: contain, scope affected data/users/syste
 - AI drafting remains human-approved and source-rights constrained;
 - source PDFs remain non-hosted in the existing ingestion flow;
 - Training data export/delete routes remain authenticated and non-cacheable;
-- Training data deletion requires the same-origin mutation guard plus explicit typed confirmation;
+- Training data deletion requires the fail-closed same-origin mutation guard plus explicit typed confirmation;
+- Training deletion and progress ingestion serialize on the same account-scoped transaction advisory lock;
+- Logbook account deletion uses the dedicated short-lived `ftp1` privacy-erasure contract and fails closed before local account erasure if Training cannot confirm deletion;
 - progress ingestion respects the privacy-reset timestamp so stale offline events cannot resurrect deleted history;
 - current-device privacy clearing removes Training browser storage, FlyTally caches and service-worker registration;
 - Vercel preview builds remain skipped for ordinary feature branches, with production deployment only after validated merge to `main`.
+
+## C5/C6 release audit
+
+The cross-product release classification, public-access boundary and external/legal blockers are recorded in `V2_8_RELEASE_AUDIT.md`. Technical private-beta readiness must not be described as public/commercial legal clearance.

@@ -28,6 +28,15 @@ test("v2.8 privacy reset prevents stale offline progress resurrection",()=>{
   assert.match(repository,/FROM eligible x/);
 });
 
+test("v2.8 deletion serializes with concurrent progress sync on the same account",()=>{
+  const privacy=read("lib/training-privacy.ts"),repository=read("lib/progress-repository.ts");
+  const lock=/pg_advisory_xact_lock\(hashtextextended\(\$\{accountSubject\},0\)\)/;
+  assert.match(privacy,lock);
+  assert.match(repository,lock);
+  assert.match(repository,/account_guard AS MATERIALIZED/);
+  assert.match(repository,/CROSS JOIN account_guard/);
+});
+
 test("v2.8 current-device privacy clear removes Training browser persistence",()=>{
   const component=read("components/training-data-controls.tsx");
   assert.match(component,/localStorage\.clear/);
