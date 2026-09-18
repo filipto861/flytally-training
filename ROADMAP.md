@@ -240,7 +240,7 @@ The shared sequence is U0 audit → U1 navigation/task hierarchy → U2 Licences
 
 U6 closes v3.0 with keyboard skip navigation, touch-target and safe-area hardening, overflow containment, reduced-motion support and forced-colors fallbacks while preserving the operational Fly deck and the aircraft-agnostic content model.
 
-### v3.1 — Multi-aircraft product scale — current
+### v3.1 — Multi-aircraft product scale ✅
 
 Return to the original post-v1 objective after UX consolidation: prove repeatable no-code multi-aircraft onboarding and product scale without weakening source governance or Flight Deck safety.
 
@@ -251,9 +251,17 @@ The v3.1 sequence is:
 - **M3 — Studio hardening for repeatable aircraft packages ✅**: **M3A ✅** adds common/variant equipment and registered applicability pickers; **M3B ✅** adds guided performance/W&B composition plus exact registered source insertion with automatic provenance linking; **M3C ✅** makes unrestricted applicability valid without raw JSON, introduces one shared package-release readiness gate (contracts, current applicability, source authority/provenance and freshness), wires that gate into Studio and server-side catalogue publication, and extends the disposable no-code acceptance harness to require package readiness before release. **M4 next** onboards the first real structurally different aircraft through Studio/data only.
 - **M4 — real second-aircraft onboarding ✅**: the production BRISTELL LSA package (S/N 809/2025 · OK-EUI 10) is published entirely as governed aircraft/source/configuration/content data. It has 3 controlled source revisions, 42 exact references and 8 approved/source-linked live modules with no open stale-source flags; the learner/core repository contains no BRISTELL/Rotax/KW-21/S/N-specific branch or registration.
 - **M5 — second-aircraft operational acceptance ✅**: **M5A ✅** fixes the generic Flight Deck metadata boundary and routes already-published pre-v3.1 runway grids through one isolated aircraft-neutral declarative compatibility adapter. **M5B ✅** verifies the real production second-aircraft configuration/applicability, exact and bounded runway-grid calculations, W&B loading, sparse capability discovery and per-aircraft progress behavior against source-backed values. Home / Fly / Learn / Reference remain capability-driven with no aircraft-specific learner code. **M6 next** proves the third-aircraft path is now predominantly content/admin work.
-- **M6 — scale closure**: prove a third sparse aircraft remains a content/admin operation and close v3.1 without aircraft-specific learner code.
+- **M6 — scale closure ✅**: a third deliberately sparse aircraft is created entirely through the existing structured-authoring/content/admin contracts with one Systems module. Contract validation, sparse onboarding/readiness, capability discovery and aircraft-scoped behavior pass without any new learner/runtime implementation. The M6 change set contains only acceptance tests and release evidence — no `app/`, `components/` or production `lib/` aircraft logic. **v3.1 is complete.**
 
 The detailed M1 findings and M2 entry criteria are recorded in `V31_M1_MULTI_AIRCRAFT_ARCHITECTURE_AUDIT.md`.
+
+### v3.2 — Learjet Performance — next
+
+Return to the demanding reference aircraft and build the complete source-governed performance experience on top of the generic v3.1 contracts: takeoff/landing, climb/cruise/descent, corrections, limits and transparent calculation detail. Aircraft-specific source data may differ; calculator/runtime architecture must remain generic.
+
+### v3.3 — Learjet Operational Training
+
+Connect performance, systems, procedures, limitations and scenarios into a deeper practical type-training flow after the v3.2 performance foundation is complete.
 
 ## After v1.0
 
