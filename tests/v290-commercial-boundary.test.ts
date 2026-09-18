@@ -22,5 +22,6 @@ test("v2.9 Training separates technical publication from publication rights",()=
   const docs=read("docs/compliance/V2_9_COMMERCIAL_VALIDATION.md");
   assert.match(docs,/neither one proves copyright, NDA, licence or derivative-publication rights/i);
   assert.match(docs,/must therefore not be treated as commercially publishable/i);
-  assert.match(docs,/QES is also a decision gate, not a presumed requirement/i);
+  assert.match(docs,/QES is a reviewed strategy decision, not a presumed requirement/i);
+  assert.match(docs,/must not be relabelled as advanced or qualified electronic signatures/i);
 });

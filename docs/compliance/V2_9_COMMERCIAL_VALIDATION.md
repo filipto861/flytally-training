@@ -35,16 +35,22 @@ Training does not know or care which commercial provider created a durable grant
 
 C3 deliberately does **not** introduce prices, paid aircraft packs, checkout, card storage or a public-content paywall.
 
-## External validation
+## C4 — Signature and regulatory validation boundary
 
-Training must not claim EASA, ÚCL, LAA ČR, manufacturer or operator approval unless an actual approval and its exact scope are recorded and reflected through the shared v2.9 claim/validation process.
+The canonical C4 assurance taxonomy and authority-validation state live in FlyTally Logbook and its public legal centre. Training does not maintain a parallel approval truth source.
 
-QES is also a decision gate, not a presumed requirement. The existing FlyTally attestations must not be relabelled as qualified electronic signatures.
+Training must not claim EASA, ÚCL, LAA ČR, manufacturer or operator approval unless an actual approval and its exact scope are recorded and reflected through the shared v2.9 validation process.
+
+QES is a reviewed strategy decision, not a presumed requirement. Existing FlyTally account attestations, in-person signature captures and server HMAC evidence must not be relabelled as advanced or qualified electronic signatures.
+
+Training-specific manufacturer/source approval remains distinct from aviation-authority acceptance. A manufacturer review of aircraft training content would not automatically make FlyTally an authority-approved training organisation or approved logbook.
+
+C4 remains fail-closed for commercial launch until the shared regulatory evidence version is explicitly committed after external validation.
 
 ## Planned v2.9 continuation
 
 - C2 — consume the final externally reviewed shared legal/commercial surface.
 - C3 ✅ — consume the shared signed entitlement contract without aircraft-specific or provider-specific code.
-- C4 — record the Training-specific regulator/manufacturer validation decision where applicable.
+- C4 ✅ — consume the shared signature assurance / regulatory-validation boundary and keep manufacturer, authority and QES claims separate; external validation evidence remains pending.
 - C5 — keep marketing claims and source-rights evidence aligned with published aircraft content.
 - C6 — participate in the shared commercial release audit.
