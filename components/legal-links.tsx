@@ -5,6 +5,7 @@ const links = [
   ["Terms", "terms"],
   ["Cookies", "cookies"],
   ["Aviation safety", "aviation-safety"],
+  ["Claims", "brand-claims"],
   ["Providers", "subprocessors"],
   ["Report", "report"],
 ] as const;
