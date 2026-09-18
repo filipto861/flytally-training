@@ -216,6 +216,24 @@ FlyTally Training v1.0 is complete only when the Learjet 35/36 demonstrates all 
 
 These may be evaluated after the individual simulator-training product is proven.
 
+## Cross-product release track — authoritative from 18 September 2026
+
+The aircraft-training milestone history below remains valid. For shared FlyTally releases, this track is authoritative.
+
+### v2.8 — Compliance & Safety Foundation ✅
+
+Completed across Training and Logbook, including source-authority/freshness fail-closed behavior, privacy self-service, cross-product erasure, security and release audit controls.
+
+### v2.9 — Commercial & External Validation — current
+
+Training participates in one shared FlyTally launch boundary. C1 keeps the canonical legal/commercial state in Logbook, requires an explicit source/publication-rights review for Training content, and does not add a duplicate Training launch flag.
+
+C2–C6 cover reviewed commercial terms, shared billing/entitlements after the business model is chosen, signature/regulator strategy, brand/claims review and final commercial release audit.
+
+### v3.0 — Multi-aircraft product scale
+
+After v2.9, return to the original post-v1 objective: prove repeatable no-code multi-aircraft onboarding and product scale without weakening source governance or Flight Deck safety.
+
 ## After v1.0
 
 The first post-v1.0 objective is **multi-aircraft scaling**: prove that the same content/admin architecture can bring additional aircraft online efficiently without weakening the Learjet-quality standard.
