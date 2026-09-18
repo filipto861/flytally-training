@@ -1,6 +1,6 @@
 # FlyTally Training v2.9 — Commercial & External Validation Boundary
 
-Status: implementation in progress  
+Status: technical implementation complete; shared commercial clearance remains pending  
 Canonical commercial launch gate: FlyTally Logbook.
 
 ## C1 boundary
@@ -59,10 +59,22 @@ The FlyTally name is used as the product brand, but Training must not add a regi
 
 C5 remains fail-closed for commercial launch until the canonical trademark/brand decision, marketing-claims review and matching external evidence are recorded.
 
-## Planned v2.9 continuation
+## C6 — Final commercial release audit boundary
 
-- C2 — consume the final externally reviewed shared legal/commercial surface.
+The canonical C6 commercial-release audit lives in FlyTally Logbook. Training does not introduce a second launch flag, final-approval switch or parallel commercial verdict.
+
+Training participates through its own production readiness, source-governance, entitlement, identity, privacy and deployment gates while linking users to the shared public Release status surface.
+
+The shared C6 contract distinguishes a blocked release from a fully validated `READY_FOR_TRANSITION` state and from an actually enabled commercial stage. Training must not interpret a healthy `/api/readiness` response as commercial, legal, regulator, trademark or source-rights clearance.
+
+Current commercial launch remains blocked until the canonical Logbook C1–C6 external evidence and commercial-runtime requirements are completed.
+
+## v2.9 conclusion
+
+- C2 ✅ — consume the shared versioned commercial legal boundary; reviewed commercial text remains externally pending.
 - C3 ✅ — consume the shared signed entitlement contract without aircraft-specific or provider-specific code.
 - C4 ✅ — consume the shared signature assurance / regulatory-validation boundary and keep manufacturer, authority and QES claims separate; external validation evidence remains pending.
 - C5 ✅ — consume the shared brand/claims policy, keep source-backed wording scoped and prohibit unsupported trademark/manufacturer/authority claims; external evidence remains pending.
-- C6 — participate in the shared commercial release audit.
+- C6 ✅ — consume the canonical final release-audit boundary without duplicating launch state. Training operational readiness remains distinct from commercial clearance.
+
+The v2.9 technical implementation is complete. External clearance is not implied.
