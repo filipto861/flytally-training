@@ -27,7 +27,15 @@ export default async function NewStructuredModulePage({params,searchParams}:Read
   const variantOptions=variantProfiles.map(profile=>({id:profile.key,label:profile.displayName}));
   const sourceOptions=studio.references.flatMap(reference=>{
     const manual=aircraft.manuals.find(candidate=>candidate.revisionId===reference.revisionId);
-    return manual?[{id:reference.id,label:reference.label,manualId:manual.manualId,pageLabel:reference.pageLabel,chapter:reference.chapter,section:reference.section,note:reference.note}]:[];
+    return manual?[{
+      id:reference.id,
+      label:reference.label,
+      manualId:manual.manualId,
+      pageLabel:reference.pageLabel,
+      ...(reference.chapter?{chapter:reference.chapter}:{}),
+      ...(reference.section?{section:reference.section}:{}),
+      ...(reference.note?{note:reference.note}:{}),
+    }]:[];
   });
 
   return <AdminAircraftWorkspace aircraftId={aircraftId} displayName={aircraft.displayName} status={aircraft.status} active="content">

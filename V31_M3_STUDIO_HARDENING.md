@@ -48,3 +48,48 @@ The next slice will remove the remaining need for raw JSON during normal operati
 ## M3 acceptance direction
 
 Before M4, Studio must be able to create a realistic sparse aircraft package from profile → sources → references → configuration → modules → review → publication with raw JSON and direct database editing unused.
+
+
+## M3B — operational module composer ✅
+
+M3B removes the normal need to shape performance and Weight & Balance payloads in the raw JSON escape hatch.
+
+### Performance dataset behavior
+
+Every performance dataset now has a governed Studio behavior selector:
+
+- **Reference only** — table/reference data without a calculator,
+- **Metric lookup** — exact source-row lookup with generic result outputs,
+- **Runway distance grid** — takeoff/landing altitude + ISA + surface grid,
+- **Distance factor** — source-backed runway correction factors.
+
+Changing behavior creates a valid starter structure while preserving dataset identity, notes, sources and applicability. Calculator `kind` is managed by the behavior selector instead of being an arbitrary text field.
+
+Calculator `operation` is synchronized with dataset `phase`; the user cannot accidentally leave those two governance fields contradictory.
+
+Axis/output bindings use the keys that exist in the current dataset. Metric result outputs are chosen from the current published output inventory. Distance-factor selector behavior can be switched between named correction options and an axis-backed factor table.
+
+Rows still use the existing **Sync row keys** action after axes or outputs change, preserving the explicit source-table authoring boundary.
+
+### Weight & Balance setup
+
+The W&B editor now provides normal controls for:
+
+- station input type (mass vs fuel volume),
+- fuel density field creation/removal when the station type changes,
+- optional separate landing-mass limit,
+- selecting the fuel-burn station from stations configured as fuel.
+
+The normalized kg/mm/kg·mm/l calculation contract from M2 remains unchanged.
+
+### Registered source references
+
+Structured source arrays can now insert an exact reference directly from the aircraft's registered source library. Studio copies the governed manual family / chapter / section / page citation into the payload.
+
+When such an exact registered citation is present in the payload, the builder also emits its reference ID into the governed draft form. This removes the previous two-step failure mode where an author could correctly cite a manual location in the payload but forget to link the same reference as version provenance.
+
+Manual entry remains available as an advanced repair path, and server-side source-family/source-authority validation remains authoritative.
+
+## M3C next
+
+M3C will make package readiness explicit and prove one complete synthetic package through the same Studio-facing contracts: identity, common/variant equipment, source, exact reference, structured operational modules, review, publication and learner discovery — with no raw JSON or direct database authoring step.

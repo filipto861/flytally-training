@@ -27,7 +27,15 @@ export default async function ContentReviewPage({params}:Readonly<{params:Promis
   const equipmentOptions=[...new Set([...(aircraft.equipmentTags??[]),...variantProfiles.flatMap(profile=>profile.equipmentTags)])].sort();
   const sourceOptions=studio.references.flatMap(reference=>{
     const manual=aircraft.manuals.find(candidate=>candidate.revisionId===reference.revisionId);
-    return manual?[{id:reference.id,label:reference.label,manualId:manual.manualId,pageLabel:reference.pageLabel,chapter:reference.chapter,section:reference.section,note:reference.note}]:[];
+    return manual?[{
+      id:reference.id,
+      label:reference.label,
+      manualId:manual.manualId,
+      pageLabel:reference.pageLabel,
+      ...(reference.chapter?{chapter:reference.chapter}:{}),
+      ...(reference.section?{section:reference.section}:{}),
+      ...(reference.note?{note:reference.note}:{}),
+    }]:[];
   });
   const active=version.state==="draft"||version.state==="approved"?"review":"content";
   const stateLabel=version.state==="published"?"Live":version.state==="stale"?"Needs review":version.state.charAt(0).toUpperCase()+version.state.slice(1);
