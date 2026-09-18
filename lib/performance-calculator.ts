@@ -234,10 +234,11 @@ function sourceIsaTemperatureAtAltitude(dataset: PerformanceDataset, altitudeFt:
       && row.inputs[bindings.surfaceAxis] === surface
       && typeof row.inputs[bindings.isaDeviationAxis] === "number"
       && typeof row.outputs[bindings.sourceTemperatureOutput] === "number");
-    if (!candidate
-      || typeof candidate.inputs[bindings.isaDeviationAxis] !== "number"
-      || typeof candidate.outputs[bindings.sourceTemperatureOutput] !== "number") return undefined;
-    return candidate.outputs[bindings.sourceTemperatureOutput] - candidate.inputs[bindings.isaDeviationAxis];
+    if (!candidate) return undefined;
+    const sourceTemperature = candidate.outputs[bindings.sourceTemperatureOutput];
+    const sourceDeviation = candidate.inputs[bindings.isaDeviationAxis];
+    if (typeof sourceTemperature !== "number" || typeof sourceDeviation !== "number") return undefined;
+    return sourceTemperature - sourceDeviation;
   };
 
   const lowTemperature = baseAt(altitudeBracket.low);
