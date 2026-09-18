@@ -77,3 +77,65 @@ M5 still needs final operational acceptance evidence for:
 5. final Home / Fly / Learn / Reference acceptance boundary.
 
 M5 is not closed until those checks are recorded and green.
+
+
+## M5B — real source-backed operational values
+
+Production read-only inspection and the controlled flight-manual source were reduced to a small deterministic acceptance fixture. The fixture is test evidence only and is never imported by learner runtime code.
+
+### Configuration / applicability
+
+The production aircraft has one explicit selectable configuration, `sn809-2025`. With no query parameter, the generic single-variant selection rule selects it automatically. Published performance and W&B data are scoped to that variant.
+
+Acceptance proves:
+
+- the configured aircraft receives the S/N-specific datasets,
+- the stored engine/propeller equipment is present in the resolved configuration,
+- a different configuration receives neither the performance grids nor the W&B payload.
+
+### Runway-grid calculations
+
+Representative effective production rows for a concrete runway at sea level / ISA are:
+
+| Operation | OAT | Ground run | Distance over 50 ft |
+| --- | ---: | ---: | ---: |
+| Takeoff | 15 °C | 140 m | 380 m |
+| Landing | 15 °C | 90 m | 290 m |
+
+Both exact-row calculations are asserted through the generic runtime after the v3.1 compatibility materialization.
+
+The takeoff fixture also carries the 0 / 2,000 ft and ISA / ISA+10 bounding rows. At 1,000 ft and 18 °C, the source-authorized bounded interpolation resolves ISA+5 and produces 155 m ground run / 420 m over 50 ft. A 3,000 ft request against that reduced acceptance envelope is rejected rather than extrapolated.
+
+### Weight & Balance
+
+The effective production W&B data used in the acceptance fixture include:
+
+- empty mass 382 kg,
+- empty arm 744.15 mm,
+- MTOW/MLW 600 kg,
+- CG envelope 750–885 mm,
+- pilot/passenger arm 1,156 mm,
+- rear baggage arm 1,806 mm,
+- wing baggage arm 1,036 mm,
+- fuel arm 606 mm,
+- fuel density 0.725 kg/l.
+
+Representative loading:
+
+- pilot 80 kg,
+- passenger 70 kg,
+- rear baggage 10 kg,
+- takeoff fuel 60 l,
+- landing fuel 30 l.
+
+Generic W&B runtime result:
+
+- takeoff 585.5 kg / 857.534 mm CG,
+- landing 563.75 kg / 867.238 mm CG,
+- both inside mass and CG limits.
+
+This proves the real second-aircraft loading data execute through the same generic normalized W&B engine as the M2 synthetic acceptance aircraft.
+
+## Remaining M5 closure
+
+The numerical/configuration runtime is now covered. M5 closure still records the route/capability acceptance as one explicit matrix and confirms that the merged runtime build/deployment is healthy before advancing to M6.
