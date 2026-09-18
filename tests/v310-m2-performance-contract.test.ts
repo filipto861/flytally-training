@@ -106,7 +106,7 @@ test("v3.1 M2A Studio starter advertises explicit performance semantics", () => 
   const starter = createStructuredStarterPayload("second-aircraft", "performance");
   const dataset = (starter.datasets as Array<Record<string, unknown>>)[0];
   assert.equal(dataset.phase, "reference");
-  assert.deepEqual(dataset.calculator, { kind: "metric-lookup", operation: "reference", axisKey: "axis1", outputKeys: ["output1"] });
+  assert.deepEqual(dataset.calculator, { kind: "metric-lookup", operation: "reference", axisKey: "lookupValue", outputKeys: ["result"] });
 });
 
 test("v3.1 M2A Performance Explorer prefers declared phase metadata before legacy inference", () => {
