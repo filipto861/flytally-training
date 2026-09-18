@@ -5,16 +5,17 @@ import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
 import { CockpitOrientationExplorer } from "@/components/cockpit-orientation-explorer";
 import { LearningCompletionButton } from "@/components/learning-completion-button";
 import { getTrainingContentRepository } from "@/lib/content-store";
+import { resolveSelectedVariant,withVariantQuery } from "@/lib/aircraft-applicability";
 
 export default async function CockpitOrientationPage({
   params,
   searchParams,
 }: Readonly<{
   params: Promise<{ aircraftId: string }>;
-  searchParams: Promise<{ item?: string }>;
+  searchParams: Promise<{ item?: string; variant?: string }>;
 }>) {
   const { aircraftId } = await params;
-  const { item } = await searchParams;
+  const { item,variant } = await searchParams;
   const repository = getTrainingContentRepository();
   const [aircraft, orientation] = await Promise.all([
     repository.getAircraft(aircraftId),
@@ -22,6 +23,8 @@ export default async function CockpitOrientationPage({
   ]);
 
   if (!aircraft || !orientation) notFound();
+  const selectedVariant=resolveSelectedVariant(variant,aircraft.variants);
+  const href=(path:string)=>withVariantQuery(`/aircraft/${aircraft.id}/${path}`,selectedVariant);
 
   const selectedLocation = item
     ? orientation.controls.find((control) => control.checklistItemIds.includes(item))
@@ -29,16 +32,14 @@ export default async function CockpitOrientationPage({
 
   return (
     <main className="shell aircraft-detail">
-      <Link className="back-link" href={`/aircraft/${aircraft.id}/practice`}>← Practice</Link>
-      <AircraftWorkspaceNav aircraftId={aircraft.id} active="practice" />
+      <Link className="back-link" href={href("training")}>← Learn</Link>
+      <AircraftWorkspaceNav aircraftId={aircraft.id} active="training" variants={aircraft.variants} variantProfiles={aircraft.variantProfiles} selectedVariant={selectedVariant} />
 
       <section className="workspace-section-hero">
-        <p className="eyebrow">Cockpit orientation · {aircraft.displayName}</p>
-        <h1>Know which panel to look at before you hunt for a switch.</h1>
-        <p className="lede">
-          This orientation layer deliberately teaches verified cockpit regions rather than pretending to know pixel-perfect switch coordinates.
-          More controls can be added as their locations are confirmed from the source set.
-        </p>
+        <p className="eyebrow">Learn</p>
+        <h1>Cockpit orientation</h1>
+        <p className="lede">Know which panel to look at before you hunt for a control.</p>
+        <details className="pilot-source-details"><summary>Training & source notes</summary><p>This layer teaches verified cockpit regions rather than inventing pixel-perfect switch coordinates. Exact hotspots are added only when the source set supports them.</p></details>
       </section>
 
       {selectedLocation ? (
@@ -58,13 +59,7 @@ export default async function CockpitOrientationPage({
 
       <LearningCompletionButton aircraftId={aircraft.id} kind="orientation" contentId="cockpit-orientation" label="Mark orientation complete" />
 
-      <section className="principle">
-        <div>
-          <p className="eyebrow">Source discipline</p>
-          <h2>Panel-level first. Exact hotspots only when we can prove them.</h2>
-        </div>
-        <p>{orientation.sourceNote}</p>
-      </section>
+      {orientation.sourceNote ? <details className="pilot-source-details orientation-source-note"><summary>Orientation source</summary><p>{orientation.sourceNote}</p></details> : null}
     </main>
   );
 }

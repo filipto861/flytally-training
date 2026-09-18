@@ -52,8 +52,14 @@ export function ProgressPanel({ aircraftId }: Readonly<{ aircraftId: string }>) 
 
   return (
     <section aria-label="Aircraft progress">
-      <section className={styles.referenceGroup}>
-        <h2>{persistence === "account" ? "FlyTally account sync" : persistence === "loading" ? "Checking progress sync…" : "Local progress"}</h2>
+      <div className={styles.progressGrid}>
+        <article className={styles.progressStat}><span>Attempts</span><strong>{summary.attempts}</strong></article>
+        <article className={styles.progressStat}><span>Completed activities</span><strong>{summary.completedActivities}</strong></article>
+        <article className={styles.progressStat}><span>Knowledge accuracy</span><strong>{knowledgeScore === null ? "—" : `${knowledgeScore}%`}</strong></article>
+      </div>
+
+      <details className={styles.referenceGroup}>
+        <summary>{persistence === "account" ? "Progress sync · FlyTally account" : persistence === "loading" ? "Checking progress sync…" : "Progress sync · this device"}</summary>
         {persistence === "account" ? (
           <>
             <p>Your progress is backed by the Training PostgreSQL store and can continue on another signed-in device.</p>
@@ -63,13 +69,7 @@ export function ProgressPanel({ aircraftId }: Readonly<{ aircraftId: string }>) 
           <p>This device keeps working locally. <Link href={`/api/auth/flytally/start?next=${encodeURIComponent(`/aircraft/${aircraftId}/progress-overview`)}`}>Sign in with FlyTally</Link> to migrate these events and enable cross-device continuation.</p>
         ) : <p>Loading the most recent aircraft state.</p>}
         {lastContentId ? <p><strong>Last activity:</strong> {lastContentId.replaceAll("-", " ")}</p> : null}
-      </section>
-
-      <div className={styles.progressGrid}>
-        <article className={styles.progressStat}><span>Attempts</span><strong>{summary.attempts}</strong></article>
-        <article className={styles.progressStat}><span>Completed activities</span><strong>{summary.completedActivities}</strong></article>
-        <article className={styles.progressStat}><span>Knowledge accuracy</span><strong>{knowledgeScore === null ? "—" : `${knowledgeScore}%`}</strong></article>
-      </div>
+      </details>
 
       <section className={styles.referenceGroup}>
         <h2>Weak areas</h2>

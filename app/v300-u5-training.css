@@ -1,0 +1,21 @@
+/* FlyTally Training v3.0 U5 — learner polish and progressive disclosure. */
+.training-continue-card{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:0 0 14px;padding:16px 18px;border:1px solid color-mix(in srgb,var(--accent,#0b946e) 32%,var(--line,#d7e0e8));border-radius:15px;background:color-mix(in srgb,var(--accent,#0b946e) 6%,var(--surface,#fff));color:var(--text,#172033)}
+.training-continue-card>div{display:grid;gap:3px}.training-continue-card .eyebrow{margin:0}.training-continue-card h2{margin:0;font-size:1.08rem;letter-spacing:-.02em}.training-continue-card p:not(.eyebrow){margin:0;color:var(--muted,#66778a);font-size:.78rem;line-height:1.4}
+.training-continue-card>a{flex:0 0 auto;padding:10px 13px;border-radius:9px;background:var(--accent-strong,#087557);color:#fff;text-decoration:none;font-size:.78rem;font-weight:820}
+.training-continue-loading{color:var(--muted,#66778a);letter-spacing:.16em}
+.training-hub-section{display:grid;gap:10px;margin-top:20px}.training-hub-section:first-of-type{margin-top:0}
+.training-hub-heading{display:flex;align-items:end;justify-content:space-between;gap:16px}.training-hub-heading .eyebrow{margin:0}.training-hub-heading h2{margin:2px 0 0;font-size:1.12rem;letter-spacing:-.02em}
+.training-start-grid .pilot-area-card-featured{background:linear-gradient(135deg,color-mix(in srgb,var(--accent,#0b946e) 8%,#fff),#fff)}
+.training-progress-link{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:18px;padding:12px 14px;border-top:1px solid var(--line,#d7e0e8);color:var(--muted,#66778a);font-size:.76rem}
+.training-progress-link a{flex:0 0 auto;color:var(--text,#172033);font-weight:800;text-decoration:none}
+.reference-priority-grid .pilot-area-card-featured,.reference-priority-grid .pilot-area-card-critical{grid-column:auto}
+.orientation-source-note{margin-top:16px}
+@media(max-width:900px){
+  .training-continue-card{margin-bottom:10px}
+  .training-hub-section{margin-top:16px}
+}
+@media(max-width:620px){
+  .training-continue-card{align-items:stretch;flex-direction:column;padding:14px}.training-continue-card>a{width:100%;text-align:center}
+  .training-hub-heading{align-items:start;flex-direction:column;gap:2px}
+  .training-progress-link{align-items:flex-start;flex-direction:column;gap:7px}
+}

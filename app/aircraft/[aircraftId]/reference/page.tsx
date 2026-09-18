@@ -21,14 +21,14 @@ export default async function ReferenceHubPage({
   const href = (section: string) => withVariantQuery(`/aircraft/${aircraft.id}/${section}`, selectedVariant);
 
   const hasQuickReference = capabilities.performance && capabilities.limitations;
+  const emergency = capabilities.abnormalEmergency ? { key: "abnormal", kicker: "Emergency", title: "Abnormal & Emergency", text: "Open source-backed abnormal and emergency material quickly." } : undefined;
   const modules = [
     capabilities.performance ? { key: "performance", kicker: "Plan", title: "Performance", text: "Published performance data and calculator." } : undefined,
     capabilities.weightBalance ? { key: "weight-balance", kicker: "Load", title: "Weight & Balance", text: "Mass, CG and configuration-specific loading limits." } : undefined,
     capabilities.limitations ? { key: "limitations", kicker: "Limits", title: "Limitations", text: "Speeds, weights and operating boundaries." } : undefined,
-    capabilities.abnormalEmergency ? { key: "abnormal", kicker: "Emergency", title: "Abnormal & Emergency", text: "Source-backed abnormal and emergency procedures.", critical: true } : undefined,
-  ].filter((item): item is { key: string; kicker: string; title: string; text: string; critical?: boolean } => Boolean(item));
+  ].filter((item): item is { key: string; kicker: string; title: string; text: string } => Boolean(item));
 
-  if (!modules.length && !hasQuickReference) notFound();
+  if (!modules.length && !hasQuickReference && !emergency) notFound();
 
   return (
     <main className="shell aircraft-detail">
@@ -37,22 +37,21 @@ export default async function ReferenceHubPage({
         <header className="pilot-area-header">
           <p className="eyebrow">Reference</p>
           <h1>Reference</h1>
-          <p className="lede">Numbers and procedures you may need quickly, separate from study content.</p>
+          <p className="lede">Find the number or procedure you need without stepping through training.</p>
         </header>
-        <div className="pilot-area-grid" aria-label="Reference tools">
-          {hasQuickReference ? <Link className="pilot-area-card pilot-area-card-featured" href={href("quick-reference")}>
-            <small>At a glance</small>
-            <strong>Quick Reference</strong>
-            <p>Performance and limitations together for rapid review.</p>
-            <span>Open →</span>
-          </Link> : null}
-          {modules.map((module) => <Link className={`pilot-area-card${module.critical ? " pilot-area-card-critical" : ""}`} href={href(module.key)} key={module.key}>
-            <small>{module.kicker}</small>
-            <strong>{module.title}</strong>
-            <p>{module.text}</p>
-            <span>Open →</span>
-          </Link>)}
-        </div>
+        {(hasQuickReference||emergency) ? <section className="training-hub-section">
+          <div className="training-hub-heading"><p className="eyebrow">QUICK ACCESS</p><h2>Cockpit reference</h2></div>
+          <div className="pilot-area-grid reference-priority-grid" aria-label="Quick reference tools">
+            {hasQuickReference ? <Link className="pilot-area-card pilot-area-card-featured" href={href("quick-reference")}><small>At a glance</small><strong>Quick Reference</strong><p>Published limits and performance in one compact workspace.</p><span>Open →</span></Link> : null}
+            {emergency ? <Link className="pilot-area-card pilot-area-card-critical" href={href(emergency.key)}><small>{emergency.kicker}</small><strong>{emergency.title}</strong><p>{emergency.text}</p><span>Open →</span></Link> : null}
+          </div>
+        </section> : null}
+        {modules.length ? <section className="training-hub-section">
+          <div className="training-hub-heading"><p className="eyebrow">TOOLS</p><h2>Planning & limits</h2></div>
+          <div className="pilot-area-grid" aria-label="Reference tools">
+            {modules.map((module) => <Link className="pilot-area-card" href={href(module.key)} key={module.key}><small>{module.kicker}</small><strong>{module.title}</strong><p>{module.text}</p><span>Open →</span></Link>)}
+          </div>
+        </section> : null}
       </section>
     </main>
   );
