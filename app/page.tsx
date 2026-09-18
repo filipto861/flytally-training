@@ -17,8 +17,6 @@ export default async function HomePage() {
         <p>Select an aircraft to open its training workspace.</p>
       </section>
 
-      <PwaInstallCard />
-
       <section className="pilot-aircraft-list" aria-label="Training aircraft">
         {aircraft.map((item) => <Link className="pilot-aircraft-row" href={`/aircraft/${item.id}`} key={item.id}>
           <div className="pilot-aircraft-row-main">
@@ -29,6 +27,8 @@ export default async function HomePage() {
           <span className="pilot-aircraft-row-action">Open workspace →</span>
         </Link>)}
       </section>
+
+      <PwaInstallCard />
     </main>
   );
 }
