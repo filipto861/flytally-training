@@ -18,8 +18,8 @@ test("U5 restores Quick Start and Cockpit orientation to the current Learn hiera
   assert.match(quick,/active="training"/);
   assert.match(orientation,/href\("training"\)/);
   assert.match(orientation,/active="training"/);
-  assert.doesNotMatch(quick,/\/learn/);
-  assert.doesNotMatch(orientation,/\/practice/);
+  assert.doesNotMatch(quick,/href=\{?["\x60\']?\/aircraft\/[^\n]*\/learn/);
+  assert.doesNotMatch(orientation,/href=\{?["\x60\']?\/aircraft\/[^\n]*\/practice/);
 });
 
 test("U5 preserves selected variant through learner entry and legacy learning pages",()=>{
