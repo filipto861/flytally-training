@@ -32,7 +32,8 @@ Release stage: private beta.
 - The canonical legal centre is owned by Logbook at `https://fly-tally.com/legal`; Training links to it instead of maintaining a second legal text.
 - Training self-service controls cover Training learner progress only.
 - Main identity/account deletion and Logbook aviation-record retention/deletion remain Logbook responsibilities.
-- The canonical Privacy notice must explicitly describe Training learner progress/state and the separate Training deletion surface; this wording is synchronized as part of the v2.8 release audit.
+- Logbook account deletion first sends a purpose-bound, two-minute server-to-server Training erasure assertion. Training verifies that assertion, erases learner progress using the normal reset barrier, and returns a no-store confirmation. If that handoff cannot be confirmed, Logbook must not disable the account, preserving the user's ability to retry or contact support.
+- The canonical Privacy notice explicitly describes Training learner progress/state, independent Training deletion and the cross-product account-deletion handoff; this wording is synchronized by the paired Logbook v2.8 release change.
 
 ### Public and sharing boundaries
 
@@ -53,6 +54,7 @@ The release gate requires:
 - authentication, mutation-origin and security-header tests;
 - Training privacy export/delete/reset/device-clear tests;
 - delete-versus-progress-sync serialization regression;
+- purpose-bound Logbook-to-Training account-erasure contract regression;
 - Vercel feature-branch preview suppression;
 - one production deployment only after validated merge to `main`.
 
