@@ -8,7 +8,7 @@ import {
   performanceScalarFromKey,
   performanceScalarKey,
 } from "@/lib/performance-runtime";
-import type { PerformanceAxis, PerformanceDataset, PerformanceScalar, TrainingSourceReference } from "@/lib/universal-aircraft-content";
+import type { PerformanceAxis, PerformanceDataset, PerformancePhase as PerformancePhaseKey, PerformanceScalar, TrainingSourceReference } from "@/lib/universal-aircraft-content";
 import styles from "./performance-explorer.module.css";
 
 const formatValue = (value: PerformanceScalar | undefined, unit?: string): string => value === undefined ? "—" : `${String(value)}${unit ? ` ${unit}` : ""}`;
@@ -17,8 +17,19 @@ const formatSources = (sources: readonly TrainingSourceReference[] | undefined):
 
 type PerformancePhase = "All" | "Takeoff" | "Climb" | "Cruise" | "Descent" | "Holding" | "Landing" | "Reference";
 const phaseOrder: readonly PerformancePhase[] = ["All", "Takeoff", "Climb", "Cruise", "Descent", "Holding", "Landing", "Reference"];
+const declaredPhaseLabels: Readonly<Record<PerformancePhaseKey, Exclude<PerformancePhase, "All">>> = {
+  takeoff: "Takeoff",
+  climb: "Climb",
+  cruise: "Cruise",
+  descent: "Descent",
+  holding: "Holding",
+  landing: "Landing",
+  reference: "Reference",
+};
 
 function inferPerformancePhase(dataset: PerformanceDataset): Exclude<PerformancePhase, "All"> {
+  const declared = dataset.phase ?? dataset.calculator?.operation;
+  if (declared) return declaredPhaseLabels[declared];
   const value = `${dataset.id} ${dataset.title}`.toLowerCase();
   if (value.includes("takeoff") || value.includes("take-off")) return "Takeoff";
   if (value.includes("holding") || value.includes("hold ")) return "Holding";

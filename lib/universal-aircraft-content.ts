@@ -123,11 +123,113 @@ export type PerformanceRow = {
   readonly outputs: Readonly<Record<string, PerformanceScalar>>;
 };
 
+export const performancePhases = [
+  "takeoff",
+  "climb",
+  "cruise",
+  "descent",
+  "holding",
+  "landing",
+  "reference",
+] as const;
+
+export type PerformancePhase = typeof performancePhases[number];
+
+export type PerformanceExternalInput = {
+  readonly key: string;
+  readonly label: string;
+  readonly unit?: string;
+  readonly optional?: boolean;
+};
+
+export type PerformanceCalculatorConstraint = {
+  readonly when?: {
+    readonly axisKey?: string;
+    readonly values?: readonly PerformanceScalar[];
+    readonly selectorValues?: readonly string[];
+  };
+  readonly input: PerformanceExternalInput;
+  readonly operator: "lte" | "gte";
+  readonly value: number;
+  readonly message?: string;
+};
+
+export type PerformanceRunwayDistanceGridCalculator = {
+  readonly kind: "runway-distance-grid";
+  readonly operation: "takeoff" | "landing";
+  readonly bindings: {
+    readonly altitudeAxis: string;
+    readonly isaDeviationAxis: string;
+    readonly surfaceAxis: string;
+    readonly sourceTemperatureOutput: string;
+    readonly groundRunOutput: string;
+    readonly obstacleDistanceOutput: string;
+  };
+  readonly oatInput: PerformanceExternalInput;
+  readonly runwayAvailableInput: PerformanceExternalInput;
+  readonly obstacleHeight?: {
+    readonly value: number;
+    readonly unit: string;
+  };
+};
+
+export type PerformanceDistanceFactorOption = {
+  readonly value: string;
+  readonly label: string;
+  readonly factorOutputKey?: string;
+  readonly fixedFactor?: number;
+};
+
+export type PerformanceDistanceFactorSelector =
+  | {
+      readonly kind: "output-options";
+      readonly label: string;
+      readonly lookupAxis?: string;
+      readonly baseline: PerformanceDistanceFactorOption;
+      readonly options: readonly PerformanceDistanceFactorOption[];
+    }
+  | {
+      readonly kind: "axis";
+      readonly label: string;
+      readonly axisKey: string;
+      readonly lookupAxis?: string;
+      readonly factorOutput: string;
+      readonly baseline: PerformanceDistanceFactorOption;
+    };
+
+export type PerformanceDistanceFactorCalculator = {
+  readonly kind: "distance-factor";
+  readonly operation: "takeoff" | "landing";
+  readonly baselineDistanceInput: PerformanceExternalInput;
+  readonly runwayAvailableInput: PerformanceExternalInput;
+  readonly selector: PerformanceDistanceFactorSelector;
+  readonly constraints?: readonly PerformanceCalculatorConstraint[];
+};
+
+export type PerformanceMetricLookupCalculator = {
+  readonly kind: "metric-lookup";
+  readonly operation: PerformancePhase;
+  readonly axisKey: string;
+  readonly outputKeys: readonly string[];
+};
+
+export type PerformanceCalculatorContract =
+  | PerformanceRunwayDistanceGridCalculator
+  | PerformanceDistanceFactorCalculator
+  | PerformanceMetricLookupCalculator;
+
 export type PerformanceDataset = {
   readonly id: string;
   readonly title: string;
   readonly description?: string;
   readonly kind: "lookup-table" | "reference-table";
+  /** Explicit flight-phase classification. Older governed payloads may omit it during migration. */
+  readonly phase?: PerformancePhase;
+  /**
+   * Declarative calculator semantics. Dataset axis/output keys remain aircraft-owned data vocabulary;
+   * generic runtime code consumes these bindings instead of inferring meaning from key names.
+   */
+  readonly calculator?: PerformanceCalculatorContract;
   readonly axes: readonly PerformanceAxis[];
   readonly outputs: readonly PerformanceOutput[];
   readonly rows: readonly PerformanceRow[];
@@ -309,6 +411,127 @@ function validateProcedures(payload: RecordValue, errors: string[]): void {
   });
 }
 
+function validPerformancePhase(value: unknown): value is PerformancePhase {
+  return typeof value === "string" && (performancePhases as readonly string[]).includes(value);
+}
+
+function validatePerformanceExternalInput(value: unknown, path: string, errors: string[]): void {
+  if (!object(value) || !text(value.key) || !text(value.label) || (value.unit !== undefined && !text(value.unit)) || (value.optional !== undefined && typeof value.optional !== "boolean")) {
+    errors.push(`${path} does not match the external performance input contract`);
+  }
+}
+
+function validatePerformanceCalculator(
+  dataset: RecordValue,
+  datasetIndex: number,
+  axisKeys: readonly string[],
+  outputKeys: readonly string[],
+  errors: string[],
+): void {
+  const calculator = dataset.calculator;
+  if (calculator === undefined) return;
+  const path = `datasets[${datasetIndex}].calculator`;
+  if (!object(calculator) || !text(calculator.kind) || !validPerformancePhase(calculator.operation)) {
+    errors.push(`${path} does not match the calculator contract`);
+    return;
+  }
+  if (dataset.phase !== undefined && dataset.phase !== calculator.operation) {
+    errors.push(`datasets[${datasetIndex}].phase must match calculator.operation`);
+  }
+
+  const axisExists = (key: unknown): key is string => text(key) && axisKeys.includes(key);
+  const outputExists = (key: unknown): key is string => text(key) && outputKeys.includes(key);
+
+  if (calculator.kind === "runway-distance-grid") {
+    if (calculator.operation !== "takeoff" && calculator.operation !== "landing") {
+      errors.push(`${path}.operation must be takeoff or landing for a runway-distance-grid`);
+    }
+    const bindings = calculator.bindings;
+    if (!object(bindings)
+      || !axisExists(bindings.altitudeAxis)
+      || !axisExists(bindings.isaDeviationAxis)
+      || !axisExists(bindings.surfaceAxis)
+      || !outputExists(bindings.sourceTemperatureOutput)
+      || !outputExists(bindings.groundRunOutput)
+      || !outputExists(bindings.obstacleDistanceOutput)) {
+      errors.push(`${path}.bindings must reference existing dataset axes and outputs`);
+    }
+    validatePerformanceExternalInput(calculator.oatInput, `${path}.oatInput`, errors);
+    validatePerformanceExternalInput(calculator.runwayAvailableInput, `${path}.runwayAvailableInput`, errors);
+    if (calculator.obstacleHeight !== undefined
+      && (!object(calculator.obstacleHeight) || !finiteNumber(calculator.obstacleHeight.value) || Number(calculator.obstacleHeight.value) <= 0 || !text(calculator.obstacleHeight.unit))) {
+      errors.push(`${path}.obstacleHeight must contain a positive value and unit`);
+    }
+    return;
+  }
+
+  if (calculator.kind === "distance-factor") {
+    if (calculator.operation !== "takeoff" && calculator.operation !== "landing") {
+      errors.push(`${path}.operation must be takeoff or landing for a distance-factor calculator`);
+    }
+    validatePerformanceExternalInput(calculator.baselineDistanceInput, `${path}.baselineDistanceInput`, errors);
+    validatePerformanceExternalInput(calculator.runwayAvailableInput, `${path}.runwayAvailableInput`, errors);
+    const selector = calculator.selector;
+    if (!object(selector) || !text(selector.kind) || !text(selector.label) || !object(selector.baseline)
+      || !text(selector.baseline.value) || !text(selector.baseline.label) || !finiteNumber(selector.baseline.fixedFactor)) {
+      errors.push(`${path}.selector does not match the distance-factor selector contract`);
+    } else if (selector.kind === "output-options") {
+      if (selector.lookupAxis !== undefined && !axisExists(selector.lookupAxis)) errors.push(`${path}.selector.lookupAxis must reference an existing axis`);
+      if (!objects(selector.options) || selector.options.length === 0) {
+        errors.push(`${path}.selector.options must contain factor options`);
+      } else {
+        selector.options.forEach((option, optionIndex) => {
+          const hasOutput = outputExists(option.factorOutputKey);
+          const hasFixed = finiteNumber(option.fixedFactor);
+          if (!text(option.value) || !text(option.label) || hasOutput === hasFixed) {
+            errors.push(`${path}.selector.options[${optionIndex}] must declare exactly one valid factor output or fixed factor`);
+          }
+        });
+      }
+    } else if (selector.kind === "axis") {
+      if (!axisExists(selector.axisKey) || !outputExists(selector.factorOutput)) {
+        errors.push(`${path}.selector axis/factor bindings must reference existing dataset fields`);
+      }
+      if (selector.lookupAxis !== undefined && !axisExists(selector.lookupAxis)) errors.push(`${path}.selector.lookupAxis must reference an existing axis`);
+    } else {
+      errors.push(`${path}.selector.kind is unsupported`);
+    }
+
+    if (calculator.constraints !== undefined) {
+      if (!objects(calculator.constraints)) {
+        errors.push(`${path}.constraints must be an array`);
+      } else {
+        calculator.constraints.forEach((constraint, constraintIndex) => {
+          const constraintPath = `${path}.constraints[${constraintIndex}]`;
+          validatePerformanceExternalInput(constraint.input, `${constraintPath}.input`, errors);
+          if ((constraint.operator !== "lte" && constraint.operator !== "gte") || !finiteNumber(constraint.value)) {
+            errors.push(`${constraintPath} must contain a finite lte/gte rule`);
+          }
+          if (constraint.message !== undefined && !text(constraint.message)) errors.push(`${constraintPath}.message must be non-empty text`);
+          if (constraint.when !== undefined) {
+            if (!object(constraint.when)) errors.push(`${constraintPath}.when must be an object`);
+            else {
+              if (constraint.when.axisKey !== undefined && !axisExists(constraint.when.axisKey)) errors.push(`${constraintPath}.when.axisKey must reference an existing axis`);
+              if (constraint.when.values !== undefined && (!Array.isArray(constraint.when.values) || constraint.when.values.length === 0 || !constraint.when.values.every(scalar))) errors.push(`${constraintPath}.when.values must contain scalar values`);
+              if (constraint.when.selectorValues !== undefined && (!strings(constraint.when.selectorValues) || constraint.when.selectorValues.length === 0)) errors.push(`${constraintPath}.when.selectorValues must contain text values`);
+            }
+          }
+        });
+      }
+    }
+    return;
+  }
+
+  if (calculator.kind === "metric-lookup") {
+    if (!axisExists(calculator.axisKey) || !strings(calculator.outputKeys) || calculator.outputKeys.length === 0 || calculator.outputKeys.some((key) => !outputKeys.includes(key))) {
+      errors.push(`${path} metric lookup must reference one existing axis and one or more existing outputs`);
+    }
+    return;
+  }
+
+  errors.push(`${path}.kind is unsupported`);
+}
+
 function validatePerformance(payload: RecordValue, errors: string[]): void {
   if (!text(payload.title)) errors.push("performance title is required");
   if (!objects(payload.datasets) || payload.datasets.length === 0) {
@@ -320,6 +543,7 @@ function validatePerformance(payload: RecordValue, errors: string[]): void {
       errors.push(`datasets[${datasetIndex}] does not match the performance dataset contract`);
       return;
     }
+    if (dataset.phase !== undefined && !validPerformancePhase(dataset.phase)) errors.push(`datasets[${datasetIndex}].phase is unsupported`);
     const axisKeys = dataset.axes.map(axis => text(axis.key) ? axis.key : "");
     const outputKeys = dataset.outputs.map(output => text(output.key) ? output.key : "");
     dataset.axes.forEach((axis, axisIndex) => {
@@ -330,6 +554,7 @@ function validatePerformance(payload: RecordValue, errors: string[]): void {
     dataset.outputs.forEach((output, outputIndex) => {
       if (!text(output.key) || !text(output.label)) errors.push(`datasets[${datasetIndex}].outputs[${outputIndex}] does not match the performance output contract`);
     });
+    validatePerformanceCalculator(dataset, datasetIndex, axisKeys, outputKeys, errors);
     dataset.rows.forEach((row, rowIndex) => {
       const inputs = object(row.inputs) ? row.inputs : undefined;
       const outputs = object(row.outputs) ? row.outputs : undefined;
