@@ -459,10 +459,12 @@ function validatePerformanceCalculator(
     validatePerformanceExternalInput(calculator.oatInput, `${path}.oatInput`, errors);
     validatePerformanceExternalInput(calculator.runwayAvailableInput, `${path}.runwayAvailableInput`, errors);
     if (object(bindings)) {
-      const deviationAxis = dataset.axes.find((candidate) => candidate.key === bindings.isaDeviationAxis);
-      const sourceTemperature = dataset.outputs.find((candidate) => candidate.key === bindings.sourceTemperatureOutput);
-      const groundRun = dataset.outputs.find((candidate) => candidate.key === bindings.groundRunOutput);
-      const obstacleDistance = dataset.outputs.find((candidate) => candidate.key === bindings.obstacleDistanceOutput);
+      const axes = objects(dataset.axes) ? dataset.axes : [];
+      const outputs = objects(dataset.outputs) ? dataset.outputs : [];
+      const deviationAxis = axes.find((candidate) => candidate.key === bindings.isaDeviationAxis);
+      const sourceTemperature = outputs.find((candidate) => candidate.key === bindings.sourceTemperatureOutput);
+      const groundRun = outputs.find((candidate) => candidate.key === bindings.groundRunOutput);
+      const obstacleDistance = outputs.find((candidate) => candidate.key === bindings.obstacleDistanceOutput);
       const temperatureUnits = [
         deviationAxis?.unit,
         sourceTemperature?.unit,
