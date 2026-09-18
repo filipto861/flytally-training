@@ -139,3 +139,64 @@ This proves the real second-aircraft loading data execute through the same gener
 ## Remaining M5 closure
 
 The numerical/configuration runtime is now covered. M5 closure still records the route/capability acceptance as one explicit matrix and confirms that the merged runtime build/deployment is healthy before advancing to M6.
+
+
+## M5C — learner route / sparse capability matrix ✅
+
+The effective production domain set is:
+
+`checklists · procedures · performance · weight-balance · limitations · systems · abnormal · knowledge`
+
+The generic capability model therefore produces the following real-aircraft learner surface without synthesizing absent modules:
+
+| Surface | Available from the production package |
+| --- | --- |
+| **Home** | Fly · Learn · Reference · Abnormal & Emergency |
+| **Fly** | Checklist · Performance · Emergency |
+| **Learn / Start here** | Checklist training |
+| **Learn / Study by area** | Systems · Procedures · Knowledge |
+| **Reference / Quick access** | Quick Reference · Abnormal & Emergency |
+| **Reference / Tools** | Performance · Weight & Balance · Limitations |
+| **Intentionally absent** | Quick Start · Cockpit Orientation · Flows · Avionics |
+
+Quick Reference is available because both Performance and Limitations are published. No placeholder route is created for a missing learner domain.
+
+### Progress
+
+Training progress remains isolated by `aircraftId` in both browser persistence and PostgreSQL state/event queries. The M5 regression suite proves that events from the reference aircraft do not enter the second-aircraft summary or storage namespace.
+
+### Configuration
+
+The real aircraft has one selectable variant. The generic variant resolver therefore auto-selects it when no variant query is supplied. Variant-scoped production content is admitted for that configuration and rejected for an unrelated configuration.
+
+Read-only production inspection found 35 applicability blocks across the current live abnormal, knowledge, limitations, performance, systems and W&B payloads; all are represented as governed data rather than learner code branches.
+
+### Acceptance method
+
+There is no browser automation connector available in this development session, so M5 does not claim a manual click-through session. The operational acceptance evidence is instead composed of:
+
+- read-only inspection of the effective production PostgreSQL package,
+- source-backed real-aircraft fixtures copied from those effective published payloads,
+- the same generic runtime functions used by learner routes,
+- route/capability regression guards,
+- TypeScript, unit/regression and production-build CI.
+
+This is sufficient to verify the architecture/runtime boundary without pretending a browser session occurred.
+
+## Final M5 result
+
+M5 found and fixed one genuine generic runtime defect: the server-to-Fly mapper had been dropping declarative `phase` / `calculator` metadata.
+
+After the fix:
+
+- declared calculator metadata survives the Fly transport boundary,
+- the real pre-v3.1 runway grids enter the declarative workspace through an isolated compatibility adapter,
+- exact and bounded source-backed runway calculations pass,
+- extrapolation remains rejected,
+- the real W&B package calculates correctly,
+- configuration applicability fails closed,
+- sparse Home / Fly / Learn / Reference surfaces derive from published capabilities,
+- progress remains aircraft-scoped,
+- no second-aircraft-specific learner/core branch is introduced.
+
+**M5 acceptance: PASS.**
