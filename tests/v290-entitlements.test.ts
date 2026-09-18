@@ -72,8 +72,9 @@ test("C3 callback and Training session persist the signed entitlement snapshot",
   const callback=fs.readFileSync(path.join(root,"app/api/auth/flytally/callback/route.ts"),"utf8");
   const session=fs.readFileSync(path.join(root,"lib/training-session.ts"),"utf8");
 
+  assert.match(callback,/training_entitlement_required/);
   assert.match(callback,/createTrainingSessionToken\(claims\.sub, claims\.role, claims\.entitlements\)/);
   assert.match(session,/entitlementVersion/);
-  assert.match(session,/hasTrainingAccess/);
+  assert.match(session,/hasTrainingAccess\(session\)/);
   assert.match(session,/legacyBetaEntitlements/);
 });
