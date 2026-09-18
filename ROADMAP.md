@@ -230,13 +230,15 @@ Training participates in one shared FlyTally launch boundary. C1 keeps the canon
 
 C2 covers the versioned commercial legal publication boundary. C3 ✅ adds shared provider-agnostic entitlements: Logbook remains the authority, Training validates signed entitlement-bearing identity assertions and enforces `training.access` without knowing a billing provider. C4 ✅ adds the shared signature-assurance/regulatory-validation boundary without claiming QES, manufacturer or authority approval; external validation evidence remains pending. C5 ✅ adds the shared brand/public-claims boundary and canonical claims link without claiming trademark, manufacturer or authority approval; external evidence remains pending. C6 ✅ binds Training to the canonical final release audit without duplicating launch state. The current commercial verdict remains blocked pending real external evidence and commercial-runtime decisions.
 
-### v3.0 — UX & Product Consolidation — current
+### v3.0 — UX & Product Consolidation ✅
 
 Before adding another aircraft, consolidate the product experience across FlyTally Logbook and Training.
 
 Training keeps the existing aircraft-agnostic `Home / Fly / Learn / Reference` model. v3.0 focuses on task hierarchy, progressive disclosure, terminology, cockpit-use density, mobile behavior and removal of avoidable friction. The first U1 change keeps aircraft selection ahead of the optional PWA install prompt.
 
-The shared sequence is U0 audit → U1 navigation/task hierarchy → U2 Licences & recency → U3 Aircraft/Data/Settings → U4 flight workflow clarity → U5 Training learner polish ✅ → U6 mobile/accessibility acceptance next.
+The shared sequence is U0 audit → U1 navigation/task hierarchy → U2 Licences & recency → U3 Aircraft/Data/Settings → U4 flight workflow clarity → U5 Training learner polish ✅ → U6 mobile/accessibility acceptance ✅.
+
+U6 closes v3.0 with keyboard skip navigation, touch-target and safe-area hardening, overflow containment, reduced-motion support and forced-colors fallbacks while preserving the operational Fly deck and the aircraft-agnostic content model.
 
 ### v3.1 — Multi-aircraft product scale — next after v3.0
 

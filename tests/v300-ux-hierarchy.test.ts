@@ -22,7 +22,7 @@ test("v3.0 preserves the focused Training task model instead of rebuilding navig
 
 test("v3.0 roadmap puts learner UX consolidation before multi-aircraft scale",()=>{
   const roadmap=read("ROADMAP.md");
-  assert.match(roadmap,/v3\.0 — UX & Product Consolidation — current/);
+  assert.match(roadmap,/v3\.0 — UX & Product Consolidation ✅/);
   assert.match(roadmap,/v3\.1 — Multi-aircraft product scale/);
   assert.match(roadmap,/Home \/ Fly \/ Learn \/ Reference/);
 });
@@ -46,5 +46,5 @@ test("v3.0 U5 makes learner continuation discoverable without changing the four-
 test("v3.0 U5 roadmap advances learner polish to mobile/accessibility acceptance",()=>{
   const roadmap=read("ROADMAP.md");
   assert.match(roadmap,/U5 Training learner polish ✅/);
-  assert.match(roadmap,/U6 mobile\/accessibility acceptance next/);
+  assert.match(roadmap,/U6 mobile\/accessibility acceptance ✅/);
 });

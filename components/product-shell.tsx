@@ -9,6 +9,7 @@ const FLYTALLY_MARK = "/pwa-icon";
 export function ProductShell({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <>
+      <a className="skip-link" href="#main-content">Skip to content</a>
       <header className="app-header">
         <div className="app-header-inner">
           <Link className="brand" href="/" aria-label="FlyTally Training home">
@@ -23,7 +24,7 @@ export function ProductShell({ children }: Readonly<{ children: ReactNode }>) {
           <AccountActions />
         </div>
       </header>
-      {children}
+      <div id="main-content" className="app-main-content" tabIndex={-1}>{children}</div>
       <footer className="app-footer">
         <div className="app-footer-inner" style={{alignItems:"flex-start",padding:"18px 0",minHeight:"84px"}}>
           <div>
