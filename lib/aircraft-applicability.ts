@@ -1,4 +1,5 @@
 import type { TrainingAircraft, TrainingAircraftVariantProfile } from "./aircraft-catalog.ts";
+import { mergeAircraftEquipmentTags } from "./aircraft-configuration-profile.ts";
 import type { AircraftAbnormalEmergencyContent } from "./universal-abnormal-emergency.ts";
 import type {
   AircraftApplicability,
@@ -23,7 +24,7 @@ export function resolveSelectedVariant(requestedVariant: string | undefined, var
 }
 
 export function resolveVariantProfile(
-  aircraft: Pick<TrainingAircraft, "variants" | "variantProfiles">,
+  aircraft: Pick<TrainingAircraft, "variants" | "variantProfiles" | "equipmentTags">,
   variant: string | undefined,
 ): TrainingAircraftVariantProfile | undefined {
   if (!variant) return undefined;
@@ -36,13 +37,13 @@ export function resolveVariantProfile(
 }
 
 export function configurationForAircraftVariant(
-  aircraft: Pick<TrainingAircraft, "variants" | "variantProfiles">,
+  aircraft: Pick<TrainingAircraft, "variants" | "variantProfiles" | "equipmentTags">,
   variant: string | undefined,
 ): AircraftConfiguration {
   const profile = resolveVariantProfile(aircraft, variant);
   return {
     variant: profile?.key,
-    equipment: new Set(profile?.equipmentTags ?? []),
+    equipment: new Set(mergeAircraftEquipmentTags(aircraft.equipmentTags, profile?.equipmentTags)),
   };
 }
 

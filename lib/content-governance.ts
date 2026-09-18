@@ -1,5 +1,7 @@
 import "server-only";
 
+import { commonAircraftEquipmentProfileKey } from "./aircraft-configuration-profile";
+
 import { sql } from "./db";
 import { assertValidContentPayload, validateContentPayload } from "./content-contracts";
 import type { TrainingContentDomain } from "./content-admin-types";
@@ -144,7 +146,8 @@ export async function assertEmbeddedSourcesMatchVersionLinks(payload: unknown, r
 export async function assertEmbeddedApplicabilityMatchesAircraft(aircraftId: string, payload: unknown): Promise<void> {
   const rows = await sql`SELECT variant_key,metadata FROM training_aircraft_variants WHERE aircraft_id=${aircraftId}` as Array<{variant_key:string;metadata:unknown}>;
   const equipmentTags = [...new Set(rows.flatMap((row) => stringArray(variantMetadata(row.metadata).equipmentTags)))];
-  assertApplicabilityVariantsRegistered(payload, rows.map((row) => row.variant_key), aircraftId);
+  const variantKeys = rows.filter((row) => row.variant_key !== commonAircraftEquipmentProfileKey).map((row) => row.variant_key);
+  assertApplicabilityVariantsRegistered(payload, variantKeys, aircraftId);
   assertApplicabilityEquipmentRegistered(payload, equipmentTags, aircraftId);
 }
 

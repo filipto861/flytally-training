@@ -44,6 +44,8 @@ export type TrainingAircraft = {
   readonly manufacturer: string;
   readonly model: string;
   readonly variants: readonly string[];
+  /** Equipment common to the aircraft regardless of optional variant selection. */
+  readonly equipmentTags?: readonly string[];
   readonly variantProfiles?: readonly TrainingAircraftVariantProfile[];
   readonly displayName: string;
   readonly manuals: readonly TrainingManualRevision[];

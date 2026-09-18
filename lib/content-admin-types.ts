@@ -85,6 +85,8 @@ export type AdminContentVersion = {
 };
 
 export type AdminAircraftDetail = AdminAircraftSummary & {
+  /** Equipment installed across the aircraft configuration, independent of optional variants. */
+  readonly equipmentTags?: readonly string[];
   readonly variantProfiles?: readonly AdminAircraftVariantProfile[];
   readonly manuals: readonly AdminManualRevision[];
   readonly sourceReferences: readonly AdminSourceReference[];

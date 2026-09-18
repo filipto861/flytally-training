@@ -11,6 +11,7 @@ import {
   type AdminSourceReference,
   type TrainingContentDomain,
 } from "./content-admin-types";
+import { commonAircraftEquipmentProfileKey } from "./aircraft-configuration-profile";
 import { parseSourceAuthorityRole } from "./source-authority";
 
 let contentSchemaReady: Promise<void> | undefined;
@@ -177,6 +178,32 @@ export async function addAircraftVariant(aircraftId: string, variant: string) {
   throw new Error("Variant configuration is frozen after the aircraft catalogue entry is published.");
 }
 
+export async function setAircraftCommonEquipment(aircraftId:string,equipment:readonly string[]){
+  const id=validId(aircraftId,"aircraft id");
+  const equipmentTags=[...new Set(equipment.map(tag=>validId(tag,"equipment tag")))];
+  const metadata=JSON.stringify({equipmentTags});
+
+  if(!equipmentTags.length){
+    const rows=await sql`DELETE FROM training_aircraft_variants v
+      USING training_aircraft_types a
+      WHERE v.aircraft_id=a.aircraft_id AND v.aircraft_id=${id}
+        AND v.variant_key=${commonAircraftEquipmentProfileKey} AND a.status='draft'
+      RETURNING v.variant_key` as Array<{variant_key:string}>;
+    const status=await sql`SELECT status FROM training_aircraft_types WHERE aircraft_id=${id} LIMIT 1` as Array<{status:string}>;
+    if(status[0]?.status==="published")throw new Error("Aircraft equipment configuration can only be changed while the catalogue entry is in draft.");
+    return rows.length;
+  }
+
+  const rows=await sql`INSERT INTO training_aircraft_variants(aircraft_id,variant_key,display_name,metadata)
+    SELECT a.aircraft_id,${commonAircraftEquipmentProfileKey},'Common equipment',${metadata}::jsonb
+    FROM training_aircraft_types a WHERE a.aircraft_id=${id} AND a.status='draft'
+    ON CONFLICT(aircraft_id,variant_key) DO UPDATE SET metadata=EXCLUDED.metadata
+    WHERE EXISTS(SELECT 1 FROM training_aircraft_types a WHERE a.aircraft_id=EXCLUDED.aircraft_id AND a.status='draft')
+    RETURNING variant_key` as Array<{variant_key:string}>;
+  if(!rows[0])throw new Error("Aircraft equipment configuration can only be changed while the catalogue entry is in draft.");
+  return equipmentTags.length;
+}
+
 export async function upsertAircraftVariant(aircraftId:string,input:{key:string;displayName:string;equipmentTags:readonly string[];note?:string}){
   const id=validId(aircraftId,"aircraft id");
   const key=validId(input.key,"variant key");
@@ -205,7 +232,7 @@ export async function resolveStaleFlag(staleId:number,subject:string,note?:strin
 
 async function adminSummaries():Promise<AdminAircraftSummary[]>{
   const rows=await sql`SELECT a.aircraft_id,a.manufacturer,a.model,a.display_name,a.status,
-    COALESCE((SELECT json_agg(v.variant_key ORDER BY v.variant_key) FROM training_aircraft_variants v WHERE v.aircraft_id=a.aircraft_id),'[]'::json) variants,
+    COALESCE((SELECT json_agg(v.variant_key ORDER BY v.variant_key) FROM training_aircraft_variants v WHERE v.aircraft_id=a.aircraft_id AND v.variant_key<>${commonAircraftEquipmentProfileKey}),'[]'::json) variants,
     (SELECT COUNT(*) FROM training_manual_revisions r JOIN training_manuals m ON m.manual_id=r.manual_id WHERE m.aircraft_id=a.aircraft_id)::int manual_count,
     (SELECT COUNT(*) FROM training_content_items i WHERE i.aircraft_id=a.aircraft_id)::int item_count,
     (SELECT COUNT(*) FROM training_content_stale_flags sf JOIN training_content_versions cv ON cv.version_id=sf.version_id JOIN training_content_items ci ON ci.item_id=cv.item_id WHERE ci.aircraft_id=a.aircraft_id AND sf.resolved_at IS NULL)::int stale_count
@@ -221,13 +248,16 @@ export async function getAdminAircraft(aircraftId:string):Promise<AdminAircraftD
   const manuals=await sql`SELECT m.manual_id,r.revision_id,m.title,m.publisher,r.revision_code,r.issue_date,m.source_kind,COALESCE(to_jsonb(r)->>'authority_role','UNCLASSIFIED') AS authority_role,r.source_uri,r.checksum_sha256 FROM training_manuals m JOIN training_manual_revisions r ON r.manual_id=m.manual_id WHERE m.aircraft_id=${aircraftId} ORDER BY r.registered_at DESC` as Array<{manual_id:string;revision_id:string;title:string;publisher:string;revision_code:string;issue_date:string;source_kind:string;authority_role:string;source_uri:string|null;checksum_sha256:string|null}>;
   const refs=await sql`SELECT sr.reference_id,sr.revision_id,sr.chapter,sr.section,sr.page_label,sr.note FROM training_source_references sr JOIN training_manual_revisions r ON r.revision_id=sr.revision_id JOIN training_manuals m ON m.manual_id=r.manual_id WHERE m.aircraft_id=${aircraftId} ORDER BY sr.created_at DESC` as Array<{reference_id:string;revision_id:string;chapter:string|null;section:string|null;page_label:string;note:string|null}>;
   const versions=await sql`SELECT v.version_id,i.domain,i.content_key,v.version_no,v.state,v.origin,v.created_by,v.created_at,a.reviewed_by,p.published_at FROM training_content_items i JOIN training_content_versions v ON v.item_id=i.item_id LEFT JOIN LATERAL(SELECT reviewed_by FROM training_content_approvals aa WHERE aa.version_id=v.version_id AND aa.decision='approved' ORDER BY reviewed_at DESC LIMIT 1)a ON TRUE LEFT JOIN training_content_publications p ON p.version_id=v.version_id WHERE i.aircraft_id=${aircraftId} ORDER BY v.created_at DESC` as Array<{version_id:string;domain:TrainingContentDomain;content_key:string;version_no:number|string;state:AdminContentVersion["state"];origin:AdminContentVersion["origin"];created_by:string;created_at:string|Date;reviewed_by:string|null;published_at:string|Date|null}>;
-  const variantProfiles=variantRows.map((row):AdminAircraftVariantProfile=>{
+  const commonEquipmentRow=variantRows.find(row=>row.variant_key===commonAircraftEquipmentProfileKey);
+  const commonEquipment=commonEquipmentRow?metadataStringArray(metadataObject(commonEquipmentRow.metadata).equipmentTags):[];
+  const variantProfiles=variantRows.filter(row=>row.variant_key!==commonAircraftEquipmentProfileKey).map((row):AdminAircraftVariantProfile=>{
     const metadata=metadataObject(row.metadata);
     const note=typeof metadata.note==="string"&&metadata.note.trim()?metadata.note.trim():undefined;
     return {key:row.variant_key,displayName:row.display_name,equipmentTags:metadataStringArray(metadata.equipmentTags),note};
   });
   return {
     ...summary,
+    equipmentTags:commonEquipment,
     variantProfiles,
     manuals:manuals.map((r):AdminManualRevision=>({manualId:r.manual_id,revisionId:r.revision_id,title:r.title,publisher:r.publisher,revision:r.revision_code,issueDate:r.issue_date,sourceKind:r.source_kind,authorityRole:parseSourceAuthorityRole(r.authority_role||"UNCLASSIFIED"),sourceUri:r.source_uri??undefined,checksumSha256:r.checksum_sha256??undefined})),
     sourceReferences:refs.map((r):AdminSourceReference=>({id:r.reference_id,revisionId:r.revision_id,chapter:r.chapter??undefined,section:r.section??undefined,pageLabel:r.page_label,note:r.note??undefined})),

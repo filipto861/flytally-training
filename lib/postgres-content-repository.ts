@@ -1,6 +1,7 @@
 import "server-only";
 
 import type { AircraftAbnormalTraining } from "./abnormal-scenarios";
+import { commonAircraftEquipmentProfileKey } from "./aircraft-configuration-profile";
 import type { TrainingAircraft, TrainingAircraftVariantProfile, TrainingManualRevision } from "./aircraft-catalog";
 import type { CockpitOrientation } from "./cockpit-orientation";
 import type { TrainingContentDomain } from "./content-admin-types";
@@ -86,13 +87,16 @@ export class PostgresTrainingContentRepository implements TrainingContentReposit
     for(const row of manualRows)addGrouped(manualsByAircraft,row.aircraft_id,mapManual(row));
 
     return aircraftRows.map(row=>{
-      const variantProfiles=variantsByAircraft.get(row.aircraft_id)??[];
+      const configuredProfiles=variantsByAircraft.get(row.aircraft_id)??[];
+      const commonProfile=configuredProfiles.find(profile=>profile.key===commonAircraftEquipmentProfileKey);
+      const variantProfiles=configuredProfiles.filter(profile=>profile.key!==commonAircraftEquipmentProfileKey);
       return{
         id:row.aircraft_id,
         manufacturer:row.manufacturer,
         model:row.model,
         displayName:row.display_name,
         variants:variantProfiles.map(profile=>profile.key),
+        equipmentTags:commonProfile?.equipmentTags??[],
         variantProfiles,
         manuals:manualsByAircraft.get(row.aircraft_id)??[],
       };
@@ -106,7 +110,9 @@ export class PostgresTrainingContentRepository implements TrainingContentReposit
       sql`SELECT aircraft_id,variant_key,display_name,metadata FROM training_aircraft_variants WHERE aircraft_id=${aircraftId} ORDER BY variant_key`,
       sql`SELECT m.aircraft_id,r.revision_id,m.title,m.publisher,r.revision_code,r.issue_date,m.source_kind,COALESCE(to_jsonb(r)->>'authority_role','UNCLASSIFIED') AS authority_role,r.authority_note,r.source_metadata,r.chapters FROM training_manuals m JOIN training_manual_revisions r ON r.manual_id=m.manual_id WHERE m.aircraft_id=${aircraftId} ORDER BY r.registered_at DESC`,
     ]);
-    const variantProfiles=(variantRaw as VariantRow[]).map(mapVariant);
+    const configuredProfiles=(variantRaw as VariantRow[]).map(mapVariant);
+    const commonProfile=configuredProfiles.find(profile=>profile.key===commonAircraftEquipmentProfileKey);
+    const variantProfiles=configuredProfiles.filter(profile=>profile.key!==commonAircraftEquipmentProfileKey);
     const manuals=manualRaw as ManualRow[];
     return{
       id:row.aircraft_id,
@@ -114,6 +120,7 @@ export class PostgresTrainingContentRepository implements TrainingContentReposit
       model:row.model,
       displayName:row.display_name,
       variants:variantProfiles.map(profile=>profile.key),
+      equipmentTags:commonProfile?.equipmentTags??[],
       variantProfiles,
       manuals:manuals.map(mapManual),
     };
