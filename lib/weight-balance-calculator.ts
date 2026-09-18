@@ -58,6 +58,12 @@ export function formatWeightBalanceValue(content: AircraftWeightBalanceContent, 
   return `${normalizedToWeightBalanceDisplay(content, quantity, value).toFixed(decimals)} ${unit.label}`;
 }
 
+function formatWeightBalanceLimitValue(content: AircraftWeightBalanceContent, quantity: WeightBalanceQuantity, value: number): string {
+  const unit = weightBalanceUnit(content, quantity);
+  const decimals = content.units?.[quantity]?.decimals ?? 0;
+  return `${Number(normalizedToWeightBalanceDisplay(content, quantity, value).toFixed(decimals))} ${unit.label}`;
+}
+
 export function stationMassKg(content: AircraftWeightBalanceContent, station: WeightBalanceStation, value: number): number {
   if (station.input === "fuel-litres") {
     const litres = weightBalanceDisplayToNormalized(content, "volume", value);
@@ -126,14 +132,14 @@ function validateStationValue(content: AircraftWeightBalanceContent, station: We
   }
   const mass = stationMassKg(content, station, value);
   if (station.minimumMassKg !== undefined && mass < station.minimumMassKg) {
-    issues.push(`${context}: minimum ${formatWeightBalanceValue(content, "mass", station.minimumMassKg)}.`);
+    issues.push(`${context}: minimum ${formatWeightBalanceLimitValue(content, "mass", station.minimumMassKg)}.`);
   }
   if (station.maxMassKg !== undefined && mass > station.maxMassKg + 1e-9) {
-    issues.push(`${context}: exceeds ${formatWeightBalanceValue(content, "mass", station.maxMassKg)}.`);
+    issues.push(`${context}: exceeds ${formatWeightBalanceLimitValue(content, "mass", station.maxMassKg)}.`);
   }
   if (station.input === "fuel-litres" && station.maxVolumeL !== undefined) {
     const volumeL = weightBalanceDisplayToNormalized(content, "volume", value);
-    if (volumeL > station.maxVolumeL + 1e-9) issues.push(`${context}: exceeds ${formatWeightBalanceValue(content, "volume", station.maxVolumeL)}.`);
+    if (volumeL > station.maxVolumeL + 1e-9) issues.push(`${context}: exceeds ${formatWeightBalanceLimitValue(content, "volume", station.maxVolumeL)}.`);
   }
 }
 
@@ -170,14 +176,14 @@ export function calculateWeightBalance(content: AircraftWeightBalanceContent, in
   const landingMax = content.limits.maxLandingMassKg ?? content.limits.maxTakeoffMassKg;
   const landing = fuelStation ? phaseResult(content, landingValues, landingMax) : undefined;
 
-  if (!takeoff.withinMass) issues.push(`Takeoff mass exceeds ${formatWeightBalanceValue(content, "mass", content.limits.maxTakeoffMassKg)}.`);
+  if (!takeoff.withinMass) issues.push(`Takeoff mass exceeds ${formatWeightBalanceLimitValue(content, "mass", content.limits.maxTakeoffMassKg)}.`);
   if (!takeoff.forwardLimitMm || !takeoff.aftLimitMm) issues.push("Takeoff mass is outside the published CG-envelope mass range.");
-  else if (!takeoff.withinCg) issues.push(`Takeoff CG is outside ${formatWeightBalanceValue(content, "arm", takeoff.forwardLimitMm)}–${formatWeightBalanceValue(content, "arm", takeoff.aftLimitMm)}.`);
+  else if (!takeoff.withinCg) issues.push(`Takeoff CG is outside ${formatWeightBalanceLimitValue(content, "arm", takeoff.forwardLimitMm)}–${formatWeightBalanceLimitValue(content, "arm", takeoff.aftLimitMm)}.`);
 
   if (landing) {
-    if (!landing.withinMass) issues.push(`Landing mass exceeds ${formatWeightBalanceValue(content, "mass", landingMax)}.`);
+    if (!landing.withinMass) issues.push(`Landing mass exceeds ${formatWeightBalanceLimitValue(content, "mass", landingMax)}.`);
     if (!landing.forwardLimitMm || !landing.aftLimitMm) issues.push("Landing mass is outside the published CG-envelope mass range.");
-    else if (!landing.withinCg) issues.push(`Landing CG is outside ${formatWeightBalanceValue(content, "arm", landing.forwardLimitMm)}–${formatWeightBalanceValue(content, "arm", landing.aftLimitMm)}.`);
+    else if (!landing.withinCg) issues.push(`Landing CG is outside ${formatWeightBalanceLimitValue(content, "arm", landing.forwardLimitMm)}–${formatWeightBalanceLimitValue(content, "arm", landing.aftLimitMm)}.`);
   }
 
   return {

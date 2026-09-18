@@ -458,6 +458,24 @@ function validatePerformanceCalculator(
     }
     validatePerformanceExternalInput(calculator.oatInput, `${path}.oatInput`, errors);
     validatePerformanceExternalInput(calculator.runwayAvailableInput, `${path}.runwayAvailableInput`, errors);
+    if (object(bindings)) {
+      const deviationAxis = dataset.axes.find((candidate) => candidate.key === bindings.isaDeviationAxis);
+      const sourceTemperature = dataset.outputs.find((candidate) => candidate.key === bindings.sourceTemperatureOutput);
+      const groundRun = dataset.outputs.find((candidate) => candidate.key === bindings.groundRunOutput);
+      const obstacleDistance = dataset.outputs.find((candidate) => candidate.key === bindings.obstacleDistanceOutput);
+      const temperatureUnits = [
+        deviationAxis?.unit,
+        sourceTemperature?.unit,
+        object(calculator.oatInput) ? calculator.oatInput.unit : undefined,
+      ].filter((value): value is string => typeof value === "string");
+      if (new Set(temperatureUnits).size > 1) errors.push(`${path} temperature/deviation units must agree`);
+      const distanceUnits = [
+        groundRun?.unit,
+        obstacleDistance?.unit,
+        object(calculator.runwayAvailableInput) ? calculator.runwayAvailableInput.unit : undefined,
+      ].filter((value): value is string => typeof value === "string");
+      if (new Set(distanceUnits).size > 1) errors.push(`${path} runway-distance units must agree`);
+    }
     if (calculator.obstacleHeight !== undefined
       && (!object(calculator.obstacleHeight) || !finiteNumber(calculator.obstacleHeight.value) || Number(calculator.obstacleHeight.value) <= 0 || !text(calculator.obstacleHeight.unit))) {
       errors.push(`${path}.obstacleHeight must contain a positive value and unit`);
@@ -471,6 +489,11 @@ function validatePerformanceCalculator(
     }
     validatePerformanceExternalInput(calculator.baselineDistanceInput, `${path}.baselineDistanceInput`, errors);
     validatePerformanceExternalInput(calculator.runwayAvailableInput, `${path}.runwayAvailableInput`, errors);
+    if (object(calculator.baselineDistanceInput) && object(calculator.runwayAvailableInput)
+      && calculator.baselineDistanceInput.unit !== undefined && calculator.runwayAvailableInput.unit !== undefined
+      && calculator.baselineDistanceInput.unit !== calculator.runwayAvailableInput.unit) {
+      errors.push(`${path} baseline and runway-available distance units must agree`);
+    }
     const selector = calculator.selector;
     if (!object(selector) || !text(selector.kind) || !text(selector.label) || !object(selector.baseline)
       || !text(selector.baseline.value) || !text(selector.baseline.label) || !finiteNumber(selector.baseline.fixedFactor)) {
