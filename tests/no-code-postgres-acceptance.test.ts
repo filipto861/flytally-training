@@ -49,7 +49,7 @@ test("a sparse second aircraft can be created, published and read through the ge
   const revisionId = `${aircraftId}-r1`;
   const manualId = `${aircraftId}-manual`;
   const subject = "acceptance-harness";
-  const embeddedSource = { manualId: revisionId, chapter: "1", section: "Synthetic acceptance", pageLabel: "1" } as const;
+  const embeddedSource = { manualId, chapter: "1", section: "Synthetic acceptance", pageLabel: "1" } as const;
 
   const checklists: AircraftChecklistContent = {
     aircraftId,
