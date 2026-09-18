@@ -25,6 +25,17 @@ test("state-changing requests reject cross-site or mismatched origins", () => {
     method:"POST",
     headers:{origin:"https://training.fly-tally.com","sec-fetch-site":"same-origin"},
   })), true);
+  assert.equal(isTrustedMutationRequest(new Request("https://training.fly-tally.com/api/progress", {
+    method:"POST",
+    headers:{"sec-fetch-site":"same-origin"},
+  })), true);
+  assert.equal(isTrustedMutationRequest(new Request("https://training.fly-tally.com/api/progress", {
+    method:"POST",
+  })), false);
+  assert.equal(isTrustedMutationRequest(new Request("https://training.fly-tally.com/api/progress", {
+    method:"POST",
+    headers:{"sec-fetch-site":"same-site"},
+  })), false);
 });
 
 test("progress and logout enforce the shared mutation-origin guard", () => {

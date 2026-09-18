@@ -3,6 +3,12 @@ export function isTrustedMutationRequest(request: Request): boolean {
   if(fetchSite==="cross-site")return false;
 
   const origin=request.headers.get("origin")?.trim();
-  if(!origin)return true;
-  try{return new URL(origin).origin===new URL(request.url).origin;}catch{return false;}
+  if(origin){
+    try{return new URL(origin).origin===new URL(request.url).origin;}catch{return false;}
+  }
+
+  // Browser mutation routes fail closed when Origin is unavailable. Fetch
+  // Metadata is accepted only when the browser explicitly identifies the
+  // request as same-origin; missing/ambiguous metadata is not trusted.
+  return fetchSite==="same-origin";
 }

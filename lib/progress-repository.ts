@@ -71,7 +71,9 @@ export class PostgresTrainingProgressRepository implements TrainingProgressRepos
     // One statement ingests the whole sync batch and then derives each affected
     // aircraft's state from canonical persisted rows. Replaying an event id with
     // different client data therefore cannot rewrite the learning-state pointer.
-    await sql`WITH incoming AS (
+    await sql`WITH account_guard AS MATERIALIZED (
+        SELECT pg_advisory_xact_lock(hashtextextended(${accountSubject},0))
+      ), incoming AS (
         SELECT * FROM jsonb_to_recordset(${eventRows}::jsonb) AS x(
           event_id text,
           aircraft_id text,
@@ -84,6 +86,7 @@ export class PostgresTrainingProgressRepository implements TrainingProgressRepos
         )
       ), eligible AS (
         SELECT x.* FROM incoming x
+        CROSS JOIN account_guard
         WHERE x.occurred_at::timestamptz > COALESCE(
           (SELECT last_activity_at FROM training_aircraft_state
             WHERE account_subject=${accountSubject} AND aircraft_id=${PRIVACY_RESET_AIRCRAFT_ID} LIMIT 1),

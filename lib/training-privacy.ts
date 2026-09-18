@@ -41,6 +41,10 @@ export async function exportTrainingData(accountSubject: string) {
 export async function deleteTrainingProgress(accountSubject: string) {
   const resetAt = new Date().toISOString();
   await sql.transaction([
+    // Serialize privacy reset with progress ingestion for this account. Without
+    // the same advisory lock in appendEvents(), an old-device sync racing this
+    // transaction could observe the pre-reset state and survive the deletion.
+    sql`SELECT pg_advisory_xact_lock(hashtextextended(${accountSubject},0))`,
     sql`DELETE FROM training_progress_events WHERE account_subject=${accountSubject}`,
     sql`DELETE FROM training_aircraft_state WHERE account_subject=${accountSubject}`,
     sql`INSERT INTO training_aircraft_state(account_subject,aircraft_id,last_activity_kind,last_content_id,last_activity_at,updated_at)

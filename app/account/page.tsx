@@ -15,7 +15,7 @@ export default async function AccountPage() {
     <section className="pilot-library-header">
       <p className="eyebrow">ACCOUNT & DATA</p>
       <h1>Training privacy controls</h1>
-      <p>Export or delete learner progress stored by FlyTally Training. Your main FlyTally identity and Logbook account are managed separately in Logbook Settings.</p>
+      <p>Export or delete learner progress stored by FlyTally Training. This does not delete your main FlyTally identity or Logbook records; those are managed separately in Logbook Settings and described by the canonical Privacy notice.</p>
     </section>
     <section style={{background:"#fff",border:"1px solid #d9e0ea",borderRadius:"18px",padding:"20px",display:"grid",gap:"12px"}}>
       <h2 style={{margin:0}}>Server data</h2>
