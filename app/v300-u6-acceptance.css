@@ -1,0 +1,45 @@
+/* FlyTally Training v3.0 U6 — mobile, accessibility and final UX acceptance. */
+.skip-link{
+  position:fixed;top:max(8px,env(safe-area-inset-top));left:12px;z-index:5000;
+  padding:10px 14px;border:2px solid var(--focus-color);border-radius:9px;
+  background:var(--surface);color:var(--text);font-weight:850;text-decoration:none;
+  transform:translateY(calc(-100% - 20px));transition:transform .14s ease;
+}
+.skip-link:focus{transform:translateY(0)}
+.app-main-content{min-inline-size:0;outline:none}
+.app-main-content:focus-visible{outline:none}
+:where(.shell,.shell>*,.pilot-area,.pilot-aircraft-home,.flight-shell,.workspace-section-hero,.pilot-area-grid,.training-hub-section){min-inline-size:0;max-inline-size:100%}
+:where(.tableWrap,[class*="tableWrap"]){overscroll-behavior-inline:contain;-webkit-overflow-scrolling:touch}
+
+@media(max-width:900px){
+  html{
+    scroll-padding-top:calc(var(--mobile-app-header-height) + env(safe-area-inset-top) + 10px);
+    scroll-padding-bottom:calc(var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom) + 12px);
+  }
+  body{min-height:100dvh;overflow-x:clip}
+  .app-main-content{min-height:calc(100dvh - var(--mobile-app-header-height) - env(safe-area-inset-top))}
+  :where(.workspace-section-hero,.pilot-area-header,.pilot-home-header){scroll-margin-top:calc(var(--mobile-app-header-height) + env(safe-area-inset-top) + 10px)}
+  .shell:has(> .learner-pilot-nav){padding-bottom:calc(var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom) + 20px)}
+}
+
+@media(max-width:900px),(pointer:coarse){
+  :where(button,.header-action,.pilot-command-primary,.pilot-area-card,.pilot-aircraft-row,.primary-action,summary){
+    min-height:44px;
+  }
+  :where(input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]),select,textarea){
+    min-height:44px;font-size:16px;
+  }
+  :where(input[type="checkbox"],input[type="radio"]){min-width:20px;min-height:20px}
+  .learner-pilot-nav nav[aria-label="Pilot workspace"] a{min-height:58px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  html:focus-within{scroll-behavior:auto}
+  .skip-link{transition:none}
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+
+@media(forced-colors:active){
+  .skip-link,.header-action,.pilot-command-primary,.pilot-area-card,.pilot-aircraft-row,.primary-action{forced-color-adjust:auto;border:1px solid ButtonText}
+  .learner-pilot-nav nav[aria-label="Pilot workspace"] a[aria-current="page"]{outline:2px solid Highlight;outline-offset:-2px}
+}

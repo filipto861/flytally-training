@@ -9,6 +9,7 @@ import "./learner-shell.css";
 import "./flytally-brand.css";
 import "./mobile-app.css";
 import "./v300-u5-training.css";
+import "./v300-u6-acceptance.css";
 
 export const metadata: Metadata = {
   title: {
