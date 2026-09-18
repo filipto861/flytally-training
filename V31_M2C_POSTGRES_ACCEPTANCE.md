@@ -25,3 +25,16 @@ The synthetic aircraft is removed by cascade in `finally`.
 The ordinary unit suite exercises the identical fixture after a JSON serialize/parse round-trip. This proves the contracts and generic runtime in normal CI.
 
 M2 is **not** considered fully closed until `npm run test:no-code-aircraft` succeeds against an explicitly confirmed disposable PostgreSQL database. This run performs writes and cleanup and therefore remains behind the existing explicit destructive-test confirmation.
+
+
+## Final evidence — 2026-09-18
+
+M2C is closed.
+
+GitHub Actions run **35375263162** completed successfully against the explicitly approved disposable Neon branch `FlyTally Training Acceptance / no-code-acceptance-20260910`.
+
+The final run passed the endpoint pinning guard, installed the locked dependency set, executed `npm run test:no-code-aircraft`, published/read back the synthetic second aircraft through PostgreSQL, executed the generic performance and Weight & Balance runtime from the stored payloads, and completed cleanup.
+
+During closure, the destructive harness also exposed and fixed three fixture-governance defects rather than bypassing them: every referenced variant is registered, operational content uses operational source authority, and embedded payload provenance is bound to the registered manual family. The final read-back also confirms Weight & Balance capability discovery.
+
+**M2 acceptance status: PASS.**
