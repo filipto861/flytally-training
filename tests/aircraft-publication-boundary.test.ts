@@ -34,3 +34,9 @@ test("catalogue gate stays distinct from the stronger source-provenance release 
   assert.match(publication,/does not\s*\n \* depend on hosting the underlying source documents/);
   assert.doesNotMatch(publication,/training_manual_assets|Controlled-Blob/);
 });
+
+
+test("catalogue publication re-evaluates the complete v3.1 package readiness gate",()=>{
+  assert.match(publication,/assertAircraftPackageReadyForCatalogue/);
+  assert.match(publication,/await assertAircraftPackageReadyForCatalogue\(id\)/);
+});

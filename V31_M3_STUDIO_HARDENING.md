@@ -93,3 +93,54 @@ Manual entry remains available as an advanced repair path, and server-side sourc
 ## M3C next
 
 M3C will make package readiness explicit and prove one complete synthetic package through the same Studio-facing contracts: identity, common/variant equipment, source, exact reference, structured operational modules, review, publication and learner discovery — with no raw JSON or direct database authoring step.
+
+
+## M3C — package readiness and Studio-only release gate ✅
+
+M3C closes Studio hardening by making the whole package release boundary explicit and enforceable.
+
+### Unrestricted applicability no longer needs raw JSON
+
+The earlier starter representation used empty applicability arrays. Governance correctly rejects empty arrays when a restriction key is present, which meant common content could display a contract error until the author manually removed those fields.
+
+Studio now represents **no restriction** as an empty applicability object. The four registered pickers are still always visible; selecting a variant/equipment rule adds the corresponding property, and clearing the final selection removes that property again.
+
+This applies to Weight & Balance as well as all other scoped universal modules. Common content can therefore remain common through normal Studio controls.
+
+### Shared package-release readiness
+
+The new package readiness gate evaluates the current governed database state immediately before catalogue release:
+
+1. at least one immutable controlled source revision,
+2. at least one exact source reference,
+3. at least one published genuine learner module,
+4. every effective published payload still matches its current content contract,
+5. every published applicability identifier still exists in the **current** aircraft variant/equipment configuration,
+6. every effective published module has complete classified provenance and operational domains use operational source authority,
+7. no unresolved stale-source review affects the effective package.
+
+Draft/approved work is reported as a warning but does not invalidate an otherwise sound current release.
+
+This matters because aircraft configuration remains editable until catalogue publication. A module that was valid when published can no longer slip into catalogue release after its required equipment tag or variant is removed.
+
+### One gate in UI and server
+
+The same readiness model is visible in:
+
+- **Onboarding → Package gate**, with pass/block/waiting state for each check,
+- **Aircraft Settings → Catalogue**, where the publish action is shown only when the package is ready,
+- **server-side `publishGovernedAircraft`**, which re-evaluates readiness before the existing atomic catalogue update.
+
+The UI is therefore explanatory; the server remains authoritative.
+
+### Studio-only acceptance boundary
+
+The normal Studio path now covers:
+
+`aircraft identity → common/variant equipment → immutable source revision → exact source reference → structured module → applicability → provenance → review/approval → module publication → package readiness → catalogue publication`.
+
+Raw JSON remains hidden under **Advanced tools** as a repair/contract escape hatch, not a required onboarding step. Admin pages do not author through direct SQL.
+
+The disposable PostgreSQL no-code harness is extended so a future acceptance run must assert `packageReadiness.ready === true` before publishing the synthetic aircraft catalogue entry.
+
+**M3 status: complete.**

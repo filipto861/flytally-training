@@ -12,8 +12,9 @@ const moduleLabel=(domain:string)=>domain.split("-").map(word=>word.charAt(0).to
 export default async function AircraftOnboardingPage({params}:Readonly<{params:Promise<{aircraftId:string}>}>){
   await requireTrainingAdmin();
   const {aircraftId}=await params;
-  const [aircraft,packageReadiness]=await Promise.all([getAdminAircraft(aircraftId),getAircraftPackageReadiness(aircraftId)]);
+  const aircraft=await getAdminAircraft(aircraftId);
   if(!aircraft)notFound();
+  const packageReadiness=await getAircraftPackageReadiness(aircraftId);
   const onboarding=deriveAircraftOnboarding(aircraft);
   const variantProfiles=aircraft.variantProfiles??[];
   const equipmentTags=[...new Set([...(aircraft.equipmentTags??[]),...variantProfiles.flatMap(profile=>profile.equipmentTags)])];

@@ -17,8 +17,9 @@ const Hidden=({aircraftId}:{aircraftId:string})=><input type="hidden" name="airc
 export default async function AircraftSettingsPage({params}:Readonly<{params:Promise<{aircraftId:string}>}>){
   await requireTrainingAdmin();
   const {aircraftId}=await params;
-  const [aircraft,packageReadiness]=await Promise.all([getAdminAircraft(aircraftId),getAircraftPackageReadiness(aircraftId)]);
+  const aircraft=await getAdminAircraft(aircraftId);
   if(!aircraft)notFound();
+  const packageReadiness=await getAircraftPackageReadiness(aircraftId);
   const studio=deriveContentStudio(aircraft);
   const nativeUpgradeDomains=listStaticNativeUpgradeDomains(aircraftId);
   const variantProfiles=aircraft.variantProfiles??[];
