@@ -28,6 +28,7 @@ test("a sparse second aircraft can be created, published and read through the ge
     { configurationForAircraftVariant, filterChecklistForConfiguration, filterProceduresForConfiguration, filterPerformanceForConfiguration },
     { buildPerformanceCalculatorProfile, calculateLandingDistance, calculateTakeoffDistance, getMetricLookupResults },
     { calculateWeightBalance },
+    { getAircraftPackageReadiness },
     { sql },
   ] = await Promise.all([
     import("../lib/database-bootstrap.ts"),
@@ -41,6 +42,7 @@ test("a sparse second aircraft can be created, published and read through the ge
     import("../lib/aircraft-applicability.ts"),
     import("../lib/performance-calculator.ts"),
     import("../lib/weight-balance-calculator.ts"),
+    import("../lib/aircraft-package-readiness.ts"),
     import("../lib/db.ts"),
   ]);
   await initializeTrainingDatabase();
@@ -151,6 +153,9 @@ test("a sparse second aircraft can be created, published and read through the ge
       await approveGovernedContentVersion(versionId, subject, "Disposable sparse-aircraft acceptance fixture.");
       await publishGovernedContentVersion(versionId, subject);
     }
+    const packageReadiness = await getAircraftPackageReadiness(aircraftId);
+    assert.equal(packageReadiness.ready, true);
+    assert.equal(packageReadiness.blockers.length, 0);
     await publishGovernedAircraft(aircraftId);
 
     const repository = new PostgresTrainingContentRepository();

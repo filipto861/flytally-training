@@ -16,7 +16,9 @@ export function structuredAuthoringDomainLabel(domain: StructuredAuthoringDomain
 }
 
 function applicabilityStarter() {
-  return { variants: [], equipmentAllOf: [], equipmentAnyOf: [], equipmentNoneOf: [] };
+  // Empty applicability means common content. Restriction keys are added only
+  // when the author selects an actual registered variant/equipment condition.
+  return {};
 }
 
 export function createStructuredStarterPayload(aircraftId: string, domain: StructuredAuthoringDomain): Record<string, unknown> {
@@ -43,6 +45,7 @@ export function createStructuredStarterPayload(aircraftId: string, domain: Struc
       return {
         aircraftId,
         title: "",
+        applicability: applicabilityStarter(),
         units: {
           mass: { label: "kg", fromNormalized: 1, decimals: 1 },
           arm: { label: "mm", fromNormalized: 1, decimals: 1 },

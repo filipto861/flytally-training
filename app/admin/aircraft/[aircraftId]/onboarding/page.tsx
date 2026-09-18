@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireTrainingAdmin } from "@/lib/admin-auth";
 import { deriveAircraftOnboarding } from "@/lib/admin-aircraft-onboarding";
+import { getAircraftPackageReadiness } from "@/lib/aircraft-package-readiness";
 import { getAdminAircraft } from "@/lib/content-admin-repository";
 
 export const dynamic="force-dynamic";
@@ -13,6 +14,7 @@ export default async function AircraftOnboardingPage({params}:Readonly<{params:P
   const {aircraftId}=await params;
   const aircraft=await getAdminAircraft(aircraftId);
   if(!aircraft)notFound();
+  const packageReadiness=await getAircraftPackageReadiness(aircraftId);
   const onboarding=deriveAircraftOnboarding(aircraft);
   const variantProfiles=aircraft.variantProfiles??[];
   const equipmentTags=[...new Set([...(aircraft.equipmentTags??[]),...variantProfiles.flatMap(profile=>profile.equipmentTags)])];
@@ -25,6 +27,16 @@ export default async function AircraftOnboardingPage({params}:Readonly<{params:P
       <p className="lede">{onboarding.completionPercent}% governance readiness · {onboarding.completedSteps}/{onboarding.totalSteps} workflow gates complete</p>
       <p><strong>Next:</strong> {onboarding.nextAction}</p>
       <p><small>This score measures the governed onboarding workflow, not curriculum size. A sparse aircraft can be fully ready with one genuine module.</small></p>
+    </section>
+
+    <section className="reference-library">
+      <div className="section-heading"><div><p className="eyebrow">v3.1 package gate</p><h2>{packageReadiness.ready?"Ready for catalogue release":"Release blockers"}</h2></div><strong>{packageReadiness.completionPercent}%</strong></div>
+      <p>{packageReadiness.ready?"The current source-backed package passes every catalogue-release check.":packageReadiness.nextAction}</p>
+      <div className="workspace-section-grid">
+        {packageReadiness.checks.map(check=><article className="workspace-card" key={check.id}><div className="workspace-card-topline"><span>{check.label}</span><small>{check.status==="pass"?"✓ pass":check.status==="block"?"! block":"… waiting"}</small></div><p>{check.detail}</p></article>)}
+      </div>
+      {packageReadiness.blockers.length?<ul>{packageReadiness.blockers.map(blocker=><li key={blocker.id}>{blocker.detail}</li>)}</ul>:null}
+      {packageReadiness.warnings.map(warning=><p key={warning}><small>{warning}</small></p>)}
     </section>
 
     <section className="reference-library">

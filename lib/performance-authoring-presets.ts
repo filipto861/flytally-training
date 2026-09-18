@@ -122,6 +122,6 @@ export function createPerformanceAuthoringDataset(mode: PerformanceAuthoringMode
     title: "",
     kind: "reference-table",
     ...createPerformanceAuthoringStructure(mode),
-    applicability: { variants: [], equipmentAllOf: [], equipmentAnyOf: [], equipmentNoneOf: [] },
+    applicability: {},
   };
 }
