@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 
+import { materializeLegacyPerformanceContracts } from "@/lib/performance-contract-migration";
 import {
   buildPerformanceCalculatorProfile,
   calculateLandingDistance,
@@ -301,12 +302,13 @@ export function PerformanceCalculator({
   datasets: readonly PerformanceDataset[];
   disclaimer?: string;
 }>) {
-  const hasDeclaredOperational = datasets.some((dataset) =>
+  const runtimeDatasets = materializeLegacyPerformanceContracts(datasets);
+  const hasDeclaredOperational = runtimeDatasets.some((dataset) =>
     dataset.calculator && (dataset.calculator.operation === "takeoff" || dataset.calculator.operation === "landing")
   );
-  if (!hasDeclaredOperational) return <LegacyPerformanceCalculator datasets={datasets} disclaimer={disclaimer} />;
+  if (!hasDeclaredOperational) return <LegacyPerformanceCalculator datasets={runtimeDatasets} disclaimer={disclaimer} />;
 
-  const declared = datasets.filter((dataset) => dataset.calculator && (dataset.calculator.operation === "takeoff" || dataset.calculator.operation === "landing"));
+  const declared = runtimeDatasets.filter((dataset) => dataset.calculator && (dataset.calculator.operation === "takeoff" || dataset.calculator.operation === "landing"));
   return (
     <section className={styles.wrapper} aria-label="Performance calculator">
       <DeclarativePerformanceWorkspace datasets={declared} />

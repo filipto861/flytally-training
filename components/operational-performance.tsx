@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+import { materializeLegacyPerformanceContracts } from "@/lib/performance-contract-migration";
 import {
   buildPerformanceCalculatorProfile,
   calculateLandingDistance,
@@ -235,11 +236,12 @@ export function OperationalPerformance({
   datasets: readonly PerformanceDataset[];
   selectedVariant?: string;
 }>) {
-  const hasDeclaredOperational = datasets.some((dataset) =>
+  const runtimeDatasets = materializeLegacyPerformanceContracts(datasets);
+  const hasDeclaredOperational = runtimeDatasets.some((dataset) =>
     dataset.calculator && (dataset.calculator.operation === "takeoff" || dataset.calculator.operation === "landing")
   );
   if (hasDeclaredOperational) {
-    return <DeclarativePerformanceWorkspace datasets={datasets} storageKey={`flytally:flight-performance:v2:${aircraftId}:${selectedVariant ?? "common"}`} />;
+    return <DeclarativePerformanceWorkspace datasets={runtimeDatasets} storageKey={`flytally:flight-performance:v2:${aircraftId}:${selectedVariant ?? "common"}`} />;
   }
-  return <LegacyOperationalPerformance aircraftId={aircraftId} datasets={datasets} selectedVariant={selectedVariant} />;
+  return <LegacyOperationalPerformance aircraftId={aircraftId} datasets={runtimeDatasets} selectedVariant={selectedVariant} />;
 }
