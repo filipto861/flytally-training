@@ -38,5 +38,5 @@ test("v3.0 U6 is loaded last and closes the Training v3.0 track",()=>{
   assert.ok(layout.indexOf('import "./v300-u6-acceptance.css"')>layout.indexOf('import "./v300-u5-training.css"'));
   assert.match(roadmap,/v3\.0 — UX & Product Consolidation ✅/);
   assert.match(roadmap,/U6 mobile\/accessibility acceptance ✅/);
-  assert.match(roadmap,/v3\.1 — Multi-aircraft product scale — current/);
+  assert.match(roadmap,/v3\.1 — Multi-aircraft product scale ✅/);
 });
