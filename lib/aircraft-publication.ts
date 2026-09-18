@@ -1,5 +1,6 @@
 import "server-only";
 
+import { assertAircraftPackageReadyForCatalogue } from "./aircraft-package-readiness";
 import { sql } from "./db";
 
 function aircraftId(value: string): string {
@@ -23,6 +24,9 @@ function aircraftId(value: string): string {
  */
 export async function publishGovernedAircraft(value: string): Promise<void> {
   const id = aircraftId(value);
+  // Re-evaluate the complete package immediately before catalogue release so
+  // post-publication configuration edits cannot invalidate applicability/source governance.
+  await assertAircraftPackageReadyForCatalogue(id);
   const rows = await sql`WITH eligibility AS (
       SELECT a.aircraft_id,
         EXISTS(

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { AdminAircraftWorkspace } from "@/components/admin-aircraft-workspace";
 import { requireTrainingAdmin } from "@/lib/admin-auth";
 import { deriveContentStudio } from "@/lib/admin-content-studio";
+import { getAircraftPackageReadiness } from "@/lib/aircraft-package-readiness";
 import { getAdminAircraft } from "@/lib/content-admin-repository";
 import { trainingContentDomains } from "@/lib/content-admin-types";
 import { listStaticNativeUpgradeDomains } from "@/lib/governed-static-bootstrap";
@@ -16,7 +17,7 @@ const Hidden=({aircraftId}:{aircraftId:string})=><input type="hidden" name="airc
 export default async function AircraftSettingsPage({params}:Readonly<{params:Promise<{aircraftId:string}>}>){
   await requireTrainingAdmin();
   const {aircraftId}=await params;
-  const aircraft=await getAdminAircraft(aircraftId);
+  const [aircraft,packageReadiness]=await Promise.all([getAdminAircraft(aircraftId),getAircraftPackageReadiness(aircraftId)]);
   if(!aircraft)notFound();
   const studio=deriveContentStudio(aircraft);
   const nativeUpgradeDomains=listStaticNativeUpgradeDomains(aircraftId);
@@ -40,7 +41,7 @@ export default async function AircraftSettingsPage({params}:Readonly<{params:Pro
       </form>
     </section>
 
-    <section className={styles.sectionBlock}><div className={styles.sectionHeader}><div><p className="eyebrow">Catalogue</p><h2>Aircraft status</h2></div></div><div className={styles.settingsCard}><div><strong>{aircraft.status==="published"?"Published in the aircraft catalogue":"Not yet published"}</strong><p>{aircraft.status==="published"?"Learners can discover this aircraft according to the normal catalogue rules.":"Publish the aircraft entry after its first governed learner module is live. Content versions remain governed separately."}</p></div>{aircraft.status!=="published"?<form action={publishAircraftAction}><Hidden aircraftId={aircraftId}/><button type="submit">Publish aircraft entry</button></form>:null}</div><p><Link className={styles.textLink} href={`/admin/aircraft/${aircraftId}/onboarding`}>Open onboarding checklist →</Link></p></section>
+    <section className={styles.sectionBlock}><div className={styles.sectionHeader}><div><p className="eyebrow">Catalogue</p><h2>Aircraft status</h2></div></div><div className={styles.settingsCard}><div><strong>{aircraft.status==="published"?"Published in the aircraft catalogue":packageReadiness.ready?"Package ready for catalogue release":"Package not ready for catalogue release"}</strong><p>{aircraft.status==="published"?"Learners can discover this aircraft according to the normal catalogue rules.":packageReadiness.ready?"Every source, contract, applicability, provenance and freshness gate currently passes.":"Resolve the package blockers before exposing the aircraft to learners."}</p>{aircraft.status!=="published"&&!packageReadiness.ready?<ul>{packageReadiness.blockers.map(blocker=><li key={blocker.id}>{blocker.detail}</li>)}</ul>:null}</div>{aircraft.status!=="published"&&packageReadiness.ready?<form action={publishAircraftAction}><Hidden aircraftId={aircraftId}/><button type="submit">Publish aircraft entry</button></form>:null}</div><p><Link className={styles.textLink} href={`/admin/aircraft/${aircraftId}/onboarding`}>Open package readiness →</Link></p></section>
 
     <section className={styles.sectionBlock}>
       <div className={styles.sectionHeader}><div><p className="eyebrow">Configuration</p><h2>Variants &amp; equipment</h2></div></div>
