@@ -34,6 +34,7 @@ export function AccountActions() {
   }
 
   return <div className="account-actions" aria-label="Account">
+    <Link className="header-action header-action-secondary" href="/account">Account</Link>
     {session.role === "admin" ? <Link className="header-action header-action-secondary" href="/admin">Admin</Link> : null}
     <form action="/api/auth/logout" method="post">
       <button className="header-action header-action-secondary" type="submit">Sign out</button>

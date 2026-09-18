@@ -22,7 +22,8 @@ test("progress sync batches event ingestion instead of sequential INSERT loops",
 });
 
 test("a multi-aircraft sync derives state from canonical persisted rows for every affected aircraft", () => {
-  assert.match(repository, /SELECT DISTINCT aircraft_id FROM incoming/);
+  assert.match(repository, /SELECT DISTINCT aircraft_id FROM eligible/);
+  assert.match(repository, /FROM eligible x/);
   assert.match(repository, /SELECT DISTINCT ON \(e\.aircraft_id\)/);
   assert.match(repository, /JOIN affected a ON a\.aircraft_id=e\.aircraft_id/);
   assert.match(repository, /ON CONFLICT\(account_subject,aircraft_id\) DO UPDATE/);

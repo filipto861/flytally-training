@@ -44,6 +44,8 @@ Training may use:
 
 These functional mechanisms do not by themselves justify a non-essential-cookie consent banner. Advertising/behavioural tracking must not be introduced without a privacy/consent review.
 
+Authenticated users have a Training-only `/account` privacy surface that can export their server-side learner progress and delete that progress. Deletion writes a minimal privacy-reset barrier so older offline/local progress from another device cannot silently recreate pre-deletion history. Clearing the current device removes Training local/session storage, FlyTally Training caches and the Training service-worker registration. Main FlyTally identity/account deletion remains managed in Logbook; Training progress is a separate persistence boundary and can be erased independently.
+
 Canonical notices: Privacy, Terms, Cookies & Local Storage, Aviation Safety, Providers and Report are linked from the global footer through `NEXT_PUBLIC_FLYTALLY_LEGAL_URL`.
 
 ## Processor/service register
@@ -81,4 +83,8 @@ Use the platform v2.8 incident process: contain, scope affected data/users/syste
 - browser security headers retain CSP, frame/object restrictions and cross-origin isolation;
 - AI drafting remains human-approved and source-rights constrained;
 - source PDFs remain non-hosted in the existing ingestion flow;
+- Training data export/delete routes remain authenticated and non-cacheable;
+- Training data deletion requires the same-origin mutation guard plus explicit typed confirmation;
+- progress ingestion respects the privacy-reset timestamp so stale offline events cannot resurrect deleted history;
+- current-device privacy clearing removes Training browser storage, FlyTally caches and service-worker registration;
 - Vercel preview builds remain skipped for ordinary feature branches, with production deployment only after validated merge to `main`.
