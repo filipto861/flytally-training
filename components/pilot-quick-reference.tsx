@@ -52,7 +52,7 @@ export function PilotQuickReference({
                       ))}
                     </div>
                     <b>{String(item.value)}{item.unit ? ` ${item.unit}` : ""}</b>
-                    {item.sources?.length ? <small className={styles.source}>{item.sources.map((source) => sourceText(source, manualLabels)).join(" · ")}</small> : null}
+                    {item.sources?.length ? <details className={styles.sourceDetails}><summary>Source</summary><small className={styles.source}>{item.sources.map((source) => sourceText(source, manualLabels)).join(" · ")}</small></details> : null}
                   </div>
                 ))}
               </div>
@@ -72,7 +72,7 @@ export function PilotQuickReference({
         <p className={styles.boundary}>This view deliberately shows the stored source rows rather than deriving missing values. Use the dedicated Performance workspace for filtered exact-row lookup.</p>
         <div className={styles.datasets}>
           {performance.datasets.map((dataset, index) => (
-            <details className={styles.dataset} key={dataset.id} open={index < 4}>
+            <details className={styles.dataset} key={dataset.id} open={index === 0}>
               <summary>
                 <span><small>{dataset.kind === "lookup-table" ? "LOOKUP" : "REFERENCE"}</small><strong>{dataset.title}</strong></span>
                 <span>{dataset.rows.length} rows</span>
@@ -97,7 +97,7 @@ export function PilotQuickReference({
                 </table>
               </div>
               {dataset.notes?.length ? <ul>{dataset.notes.map((note) => <li key={note}>{note}</li>)}</ul> : null}
-              {dataset.sources?.length ? <p className={styles.source}>Source · {dataset.sources.map((source) => sourceText(source, manualLabels)).join(" · ")}</p> : null}
+              {dataset.sources?.length ? <details className={styles.datasetSource}><summary>Source</summary><p className={styles.source}>{dataset.sources.map((source) => sourceText(source, manualLabels)).join(" · ")}</p></details> : null}
             </details>
           ))}
         </div>

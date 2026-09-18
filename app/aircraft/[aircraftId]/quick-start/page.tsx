@@ -5,12 +5,14 @@ import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
 import { LearningCompletionButton } from "@/components/learning-completion-button";
 import { getQuickStartMinutes } from "@/lib/content-metrics";
 import { getTrainingContentRepository } from "@/lib/content-store";
+import { resolveSelectedVariant,withVariantQuery } from "@/lib/aircraft-applicability";
 import styles from "../learning.module.css";
 
 export default async function QuickStartPage({
   params,
-}: Readonly<{ params: Promise<{ aircraftId: string }> }>) {
-  const { aircraftId } = await params;
+  searchParams,
+}: Readonly<{ params: Promise<{ aircraftId: string }>; searchParams: Promise<{variant?:string}> }>) {
+  const [{ aircraftId },{variant}] = await Promise.all([params,searchParams]);
   const repository = getTrainingContentRepository();
   const [aircraft, content] = await Promise.all([
     repository.getAircraft(aircraftId),
@@ -18,15 +20,17 @@ export default async function QuickStartPage({
   ]);
 
   if (!aircraft || !content) notFound();
+  const selectedVariant=resolveSelectedVariant(variant,aircraft.variants);
+  const href=(path:string)=>withVariantQuery(`/aircraft/${aircraft.id}/${path}`,selectedVariant);
 
   return (
     <main className="shell aircraft-detail">
-      <Link className="back-link" href={`/aircraft/${aircraft.id}/learn`}>← Learn</Link>
-      <AircraftWorkspaceNav aircraftId={aircraft.id} active="learn" />
+      <Link className="back-link" href={href("training")}>← Learn</Link>
+      <AircraftWorkspaceNav aircraftId={aircraft.id} active="training" variants={aircraft.variants} variantProfiles={aircraft.variantProfiles} selectedVariant={selectedVariant} />
 
       <section className="workspace-section-hero">
-        <p className="eyebrow">Quick Start · {aircraft.displayName}</p>
-        <h1>Know enough to start flying — not enough to lose the evening.</h1>
+        <p className="eyebrow">Learn</p>
+        <h1>Quick Start</h1>
         <p className="lede">{content.quickStartDescription}</p>
       </section>
 
@@ -48,9 +52,10 @@ export default async function QuickStartPage({
             <ul className={styles.remember}>
               {topic.remember.map((item) => <li key={item}>{item}</li>)}
             </ul>
-            <small className={styles.sourceLine}>
-              Source · {topic.source.map((item) => `Ch ${item.chapter} · ${item.section} · p. ${item.manualPage}`).join(" · ")}
-            </small>
+            <details className="pilot-source-details">
+              <summary>Source</summary>
+              <p>{topic.source.map((item) => `Ch ${item.chapter} · ${item.section} · p. ${item.manualPage}`).join(" · ")}</p>
+            </details>
           </article>
         ))}
       </div>
@@ -63,8 +68,8 @@ export default async function QuickStartPage({
           <p>Go straight into the complete Cold & Dark First Flight, or open Essential Systems if one area still feels unclear.</p>
         </div>
         <div>
-          <Link href={`/aircraft/${aircraft.id}/cold-dark`}>Start First Flight →</Link>
-          <Link href={`/aircraft/${aircraft.id}/systems`}>Essential Systems →</Link>
+          <Link href={href("checklists")}>Start First Flight →</Link>
+          <Link href={href("systems")}>Essential Systems →</Link>
         </div>
       </section>
     </main>

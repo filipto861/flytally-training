@@ -20,16 +20,21 @@ export default async function TrainingHubPage({
   const selectedVariant = resolveSelectedVariant(variant, aircraft.variants);
   const href = (section: string) => withVariantQuery(`/aircraft/${aircraft.id}/${section}`, selectedVariant);
 
-  const modules = [
-    capabilities.checklists ? { key: "checklists", kicker: "Checklist", title: "Checklist training", text: "Learn, practise flows and use challenge & response." } : undefined,
-    capabilities.systems ? { key: "systems", kicker: "Aircraft", title: "Systems", text: "Understand how systems work and what to monitor." } : undefined,
-    capabilities.procedures ? { key: "procedures", kicker: "Operate", title: "Procedures", text: "Work through normal procedures, expected results and verification." } : undefined,
-    capabilities.knowledge ? { key: "knowledge", kicker: "Recall", title: "Knowledge", text: "Review memory items, details and weak areas." } : undefined,
-    capabilities.avionics ? { key: "avionics", kicker: "Equipment", title: "Avionics", text: "Study avionics installed for the selected configuration." } : undefined,
-    capabilities.flows ? { key: "flows", kicker: "Rehearse", title: "Flows", text: "Build repeatable cockpit flows from published procedures." } : undefined,
+  const startHere = [
+    capabilities.quickStart ? { key: "quick-start", kicker: "Start", title: "Quick Start", text: "Build the minimum mental model before your first cockpit session." } : undefined,
+    capabilities.cockpitOrientation ? { key: "orientation", kicker: "Cockpit", title: "Cockpit orientation", text: "Know which panel to look at before you hunt for a control." } : undefined,
+    capabilities.checklists ? { key: "checklists", kicker: "First flight", title: "Checklist training", text: "Take the aircraft from Cold & Dark through the complete normal flow." } : undefined,
   ].filter((item): item is { key: string; kicker: string; title: string; text: string } => Boolean(item));
 
-  if (!modules.length) notFound();
+  const modules = [
+    capabilities.systems ? { key: "systems", kicker: "Aircraft", title: "Systems", text: "Understand what each system does, what you control and what you monitor." } : undefined,
+    capabilities.procedures ? { key: "procedures", kicker: "Operate", title: "Procedures", text: "Practise published procedures and expected results." } : undefined,
+    capabilities.flows ? { key: "flows", kicker: "Rehearse", title: "Flows", text: "Build repeatable cockpit flows from published procedures." } : undefined,
+    capabilities.avionics ? { key: "avionics", kicker: "Equipment", title: "Avionics", text: "Study avionics installed for the selected configuration." } : undefined,
+    capabilities.knowledge ? { key: "knowledge", kicker: "Recall", title: "Knowledge", text: "Check recall and identify weak areas." } : undefined,
+  ].filter((item): item is { key: string; kicker: string; title: string; text: string } => Boolean(item));
+
+  if (!startHere.length && !modules.length) notFound();
 
   return (
     <main className="shell aircraft-detail">
@@ -38,16 +43,25 @@ export default async function TrainingHubPage({
         <header className="pilot-area-header">
           <p className="eyebrow">Learn</p>
           <h1>Learn</h1>
-          <p className="lede">Study the aircraft away from the cockpit. Pick one area and focus on it.</p>
+          <p className="lede">Start with the practical path, then focus on one area at a time.</p>
         </header>
-        <div className="pilot-area-grid" aria-label="Learning areas">
-          {modules.map((module) => <Link className="pilot-area-card" href={href(module.key)} key={module.key}>
-            <small>{module.kicker}</small>
-            <strong>{module.title}</strong>
-            <p>{module.text}</p>
-            <span>Open →</span>
-          </Link>)}
-        </div>
+        {startHere.length ? <section className="training-hub-section">
+          <div className="training-hub-heading"><p className="eyebrow">START HERE</p><h2>Practical path</h2></div>
+          <div className="pilot-area-grid training-start-grid" aria-label="Start here">
+            {startHere.map((module,index) => <Link className={`pilot-area-card${index===0?" pilot-area-card-featured":""}`} href={href(module.key)} key={module.key}>
+              <small>{module.kicker}</small><strong>{module.title}</strong><p>{module.text}</p><span>{index===0?"Start":"Open"} →</span>
+            </Link>)}
+          </div>
+        </section> : null}
+        {modules.length ? <section className="training-hub-section">
+          <div className="training-hub-heading"><p className="eyebrow">STUDY BY AREA</p><h2>Focused practice</h2></div>
+          <div className="pilot-area-grid" aria-label="Learning areas">
+            {modules.map((module) => <Link className="pilot-area-card" href={href(module.key)} key={module.key}>
+              <small>{module.kicker}</small><strong>{module.title}</strong><p>{module.text}</p><span>Open →</span>
+            </Link>)}
+          </div>
+        </section> : null}
+        <div className="training-progress-link"><span>Want to see what you have completed or what needs another pass?</span><Link href={href("progress-overview")}>View progress →</Link></div>
       </section>
     </main>
   );

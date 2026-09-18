@@ -236,7 +236,7 @@ Before adding another aircraft, consolidate the product experience across FlyTal
 
 Training keeps the existing aircraft-agnostic `Home / Fly / Learn / Reference` model. v3.0 focuses on task hierarchy, progressive disclosure, terminology, cockpit-use density, mobile behavior and removal of avoidable friction. The first U1 change keeps aircraft selection ahead of the optional PWA install prompt.
 
-The shared sequence is U0 audit → U1 navigation/task hierarchy → U2 Licences & recency → U3 Aircraft/Data/Settings → U4 flight workflow clarity → U5 Training learner polish → U6 mobile/accessibility acceptance.
+The shared sequence is U0 audit → U1 navigation/task hierarchy → U2 Licences & recency → U3 Aircraft/Data/Settings → U4 flight workflow clarity → U5 Training learner polish ✅ → U6 mobile/accessibility acceptance next.
 
 ### v3.1 — Multi-aircraft product scale — next after v3.0
 
