@@ -93,5 +93,8 @@ export function hasTrainingAccess(
 export async function getTrainingSession(): Promise<TrainingSession | null> {
   const token = (await cookies()).get(TRAINING_SESSION_COOKIE)?.value;
   if (!token) return null;
-  try { return readTrainingSessionToken(token); } catch { return null; }
+  try {
+    const session = readTrainingSessionToken(token);
+    return session && hasTrainingAccess(session) ? session : null;
+  } catch { return null; }
 }
