@@ -480,6 +480,9 @@ function validatePerformanceCalculator(
       if (!objects(selector.options) || selector.options.length === 0) {
         errors.push(`${path}.selector.options must contain factor options`);
       } else {
+        const hasOutputBackedOption = selector.options.some((option) => text(option.factorOutputKey));
+        if (hasOutputBackedOption && !axisExists(selector.lookupAxis)) errors.push(`${path}.selector.lookupAxis is required for output-backed factor options`);
+        if (selector.lookupAxis && axisKeys.some((key) => key !== selector.lookupAxis)) errors.push(`${path}.selector must bind every dataset axis used by the factor lookup`);
         selector.options.forEach((option, optionIndex) => {
           const hasOutput = outputExists(option.factorOutputKey);
           const hasFixed = finiteNumber(option.fixedFactor);
@@ -493,6 +496,8 @@ function validatePerformanceCalculator(
         errors.push(`${path}.selector axis/factor bindings must reference existing dataset fields`);
       }
       if (selector.lookupAxis !== undefined && !axisExists(selector.lookupAxis)) errors.push(`${path}.selector.lookupAxis must reference an existing axis`);
+      const boundAxes = new Set([selector.axisKey, selector.lookupAxis].filter((value): value is string => typeof value === "string"));
+      if (axisKeys.some((key) => !boundAxes.has(key))) errors.push(`${path}.selector must bind every dataset axis used by the factor lookup`);
     } else {
       errors.push(`${path}.selector.kind is unsupported`);
     }
@@ -523,8 +528,8 @@ function validatePerformanceCalculator(
   }
 
   if (calculator.kind === "metric-lookup") {
-    if (!axisExists(calculator.axisKey) || !strings(calculator.outputKeys) || calculator.outputKeys.length === 0 || calculator.outputKeys.some((key) => !outputKeys.includes(key))) {
-      errors.push(`${path} metric lookup must reference one existing axis and one or more existing outputs`);
+    if (!axisExists(calculator.axisKey) || axisKeys.length !== 1 || !strings(calculator.outputKeys) || calculator.outputKeys.length === 0 || calculator.outputKeys.some((key) => !outputKeys.includes(key))) {
+      errors.push(`${path} metric lookup must bind the dataset's single axis and one or more existing outputs`);
     }
     return;
   }

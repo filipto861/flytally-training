@@ -1,5 +1,5 @@
 import { getPerformanceSelectionState, performanceScalarKey } from "./performance-runtime.ts";
-import type { PerformanceDataset, PerformanceRow, PerformanceScalar } from "./universal-aircraft-content.ts";
+import type { PerformanceDataset, PerformanceDistanceFactorCalculator, PerformanceRow, PerformanceScalar } from "./universal-aircraft-content.ts";
 
 export type PerformanceCalculatorProfile = {
   readonly takeoffGridDataset?: PerformanceDataset;
@@ -13,7 +13,23 @@ export type TakeoffSurfaceOption = {
   readonly value: string;
   readonly label: string;
   readonly outputKey?: string;
+  readonly fixedFactor?: number;
 };
+
+export type MetricLookupResult = {
+  readonly key: string;
+  readonly label: string;
+  readonly unit?: string;
+  readonly value: PerformanceScalar;
+};
+
+export type DistanceFactorInput = Readonly<{
+  baselineDistance?: number;
+  runwayAvailable?: number;
+  selection: string;
+  lookupValue?: PerformanceScalar;
+  constraintInputs?: Readonly<Record<string, number | undefined>>;
+}>;
 
 export type DistanceCalculation = {
   readonly status: "incomplete" | "unsupported" | "ready";
@@ -132,33 +148,80 @@ export function buildPerformanceCalculatorProfile(datasets: readonly Performance
   const nativeGrids = datasets.filter(isNativeDistanceGrid);
   const takeoffGridDataset = nativeGrids.find((dataset) => gridIntent(dataset) === "takeoff");
   const landingGridDataset = nativeGrids.find((dataset) => gridIntent(dataset) === "landing");
+
   const takeoffFactorDataset = datasets.find((dataset) =>
+    dataset.calculator?.kind === "distance-factor" && dataset.calculator.operation === "takeoff",
+  ) ?? datasets.find((dataset) =>
     hasAxis(dataset, "weight")
     && ["wet8", "wet20", "moderate", "heavy", "compactedSnow", "wetIce"].every((key) => hasOutput(dataset, key)),
   );
+
   const landingFactorDataset = datasets.find((dataset) =>
+    dataset.calculator?.kind === "distance-factor" && dataset.calculator.operation === "landing",
+  ) ?? datasets.find((dataset) =>
     hasAxis(dataset, "surface") && hasOutput(dataset, "factor")
     && dataset.rows.some((row) => typeof row.inputs.surface === "string"),
   );
+
   const landingSpeedDataset = datasets.find((dataset) =>
+    dataset.calculator?.kind === "metric-lookup" && dataset.calculator.operation === "landing",
+  ) ?? datasets.find((dataset) =>
     hasAxis(dataset, "weight") && hasOutput(dataset, "vref") && hasOutput(dataset, "vapp"),
   );
+
   return { takeoffGridDataset, landingGridDataset, takeoffFactorDataset, landingFactorDataset, landingSpeedDataset };
 }
 
+function factorContract(dataset: PerformanceDataset | undefined): PerformanceDistanceFactorCalculator | undefined {
+  return dataset?.calculator?.kind === "distance-factor" ? dataset.calculator : undefined;
+}
+
+function declaredFactorOptions(dataset: PerformanceDataset | undefined): readonly TakeoffSurfaceOption[] | undefined {
+  const calculator = factorContract(dataset);
+  if (!calculator) return undefined;
+  const selector = calculator.selector;
+  const baseline: TakeoffSurfaceOption = {
+    value: selector.baseline.value,
+    label: selector.baseline.label,
+    fixedFactor: selector.baseline.fixedFactor,
+  };
+  if (selector.kind === "output-options") {
+    return [
+      baseline,
+      ...selector.options.map((option) => ({
+        value: option.value,
+        label: option.label,
+        outputKey: option.factorOutputKey,
+        fixedFactor: option.fixedFactor,
+      })),
+    ];
+  }
+  const values = stringAxisValues(dataset, selector.axisKey);
+  return [baseline, ...values.map((value) => ({ value, label: value }))];
+}
+
 export function getTakeoffSurfaceOptions(profile: PerformanceCalculatorProfile): readonly TakeoffSurfaceOption[] {
+  const declared = declaredFactorOptions(profile.takeoffFactorDataset);
+  if (declared) return declared;
   return takeoffSurfaceDefinitions.filter((option) => !option.outputKey || (profile.takeoffFactorDataset && hasOutput(profile.takeoffFactorDataset, option.outputKey)));
 }
 
 export function getTakeoffWeights(profile: PerformanceCalculatorProfile): readonly number[] {
-  return numericAxisValues(profile.takeoffFactorDataset, "weight");
+  const dataset = profile.takeoffFactorDataset;
+  const calculator = factorContract(dataset);
+  if (calculator?.selector.lookupAxis) return numericAxisValues(dataset, calculator.selector.lookupAxis);
+  return numericAxisValues(dataset, "weight");
 }
 
 export function getLandingWeights(profile: PerformanceCalculatorProfile): readonly number[] {
-  return numericAxisValues(profile.landingSpeedDataset, "weight");
+  const dataset = profile.landingSpeedDataset;
+  if (dataset?.calculator?.kind === "metric-lookup") return numericAxisValues(dataset, dataset.calculator.axisKey);
+  return numericAxisValues(dataset, "weight");
 }
 
 export function getLandingSurfaceOptions(profile: PerformanceCalculatorProfile): readonly string[] {
+  const declared = declaredFactorOptions(profile.landingFactorDataset);
+  if (declared) return declared.map((option) => option.value);
   const sourceValues = profile.landingFactorDataset?.axes.find((axis) => axis.key === "surface")?.values
     .filter((value): value is string => typeof value === "string") ?? [];
   return ["Dry", ...sourceValues.filter((value, index) => sourceValues.indexOf(value) === index)];
@@ -183,6 +246,94 @@ function distanceResult(dryDistance: number | undefined, runwayAvailable: number
     runwayUsePercent: validRunway === undefined ? undefined : (correctedDistance / validRunway) * 100,
     withinRunway: validRunway === undefined ? undefined : correctedDistance <= validRunway,
   };
+}
+
+function constraintApplies(
+  calculator: PerformanceDistanceFactorCalculator,
+  constraintIndex: number,
+  input: DistanceFactorInput,
+  rowInputs: Readonly<Record<string, PerformanceScalar>>,
+): boolean {
+  const constraint = calculator.constraints?.[constraintIndex];
+  if (!constraint?.when) return true;
+  const when = constraint.when;
+  if (when.selectorValues && !when.selectorValues.includes(input.selection)) return false;
+  if (when.axisKey && when.values) {
+    const value = rowInputs[when.axisKey];
+    if (value === undefined || !when.values.some((candidate) => candidate === value)) return false;
+  }
+  return true;
+}
+
+export function calculateDistanceFactor(
+  dataset: PerformanceDataset | undefined,
+  input: DistanceFactorInput,
+): DistanceCalculation {
+  const calculator = factorContract(dataset);
+  if (!dataset || !calculator) {
+    return { status: "unsupported", reason: "No declarative source-backed distance-factor calculator is published for this operation." };
+  }
+
+  const selector = calculator.selector;
+  const rowInputs: Record<string, PerformanceScalar> = {};
+  let factor: number | undefined;
+
+  if (input.selection === selector.baseline.value) {
+    factor = selector.baseline.fixedFactor;
+  } else if (selector.kind === "output-options") {
+    const option = selector.options.find((candidate) => candidate.value === input.selection);
+    if (!option) return { status: "unsupported", reason: "No published correction factor is available for this selection." };
+    if (option.fixedFactor !== undefined) {
+      factor = option.fixedFactor;
+    } else {
+      if (!selector.lookupAxis) return { status: "unsupported", reason: "This factor requires a governed lookup-axis binding." };
+      if (input.lookupValue === undefined) return { status: "incomplete", reason: "Select an exact source-table lookup value." };
+      rowInputs[selector.lookupAxis] = input.lookupValue;
+      factor = numericOutput(exactRow(dataset, rowInputs), option.factorOutputKey ?? "");
+    }
+  } else {
+    rowInputs[selector.axisKey] = input.selection;
+    if (selector.lookupAxis) {
+      if (input.lookupValue === undefined) return { status: "incomplete", reason: "Select an exact source-table lookup value." };
+      rowInputs[selector.lookupAxis] = input.lookupValue;
+    }
+    factor = numericOutput(exactRow(dataset, rowInputs), selector.factorOutput);
+  }
+
+  for (let index = 0; index < (calculator.constraints?.length ?? 0); index += 1) {
+    if (!constraintApplies(calculator, index, input, rowInputs)) continue;
+    const constraint = calculator.constraints?.[index];
+    if (!constraint) continue;
+    const actual = input.constraintInputs?.[constraint.input.key];
+    if (actual === undefined) {
+      return { status: "incomplete", reason: constraint.message ?? `Enter ${constraint.input.label} for this selection.` };
+    }
+    const allowed = constraint.operator === "lte" ? actual <= constraint.value : actual >= constraint.value;
+    if (!allowed) {
+      return { status: "unsupported", reason: constraint.message ?? `The published source does not authorize this factor for the entered ${constraint.input.label}.` };
+    }
+  }
+
+  if (factor === undefined) {
+    return { status: "unsupported", reason: "No exact stored source-backed factor exists for this selection. FlyTally will not interpolate it." };
+  }
+  return distanceResult(input.baselineDistance, input.runwayAvailable, factor);
+}
+
+export function getMetricLookupResults(
+  dataset: PerformanceDataset | undefined,
+  lookupValue: PerformanceScalar | undefined,
+): readonly MetricLookupResult[] | undefined {
+  if (!dataset || lookupValue === undefined || dataset.calculator?.kind !== "metric-lookup") return undefined;
+  const calculator = dataset.calculator;
+  const row = exactRow(dataset, { [calculator.axisKey]: lookupValue });
+  if (!row) return undefined;
+  return calculator.outputKeys.flatMap((key) => {
+    const output = dataset.outputs.find((candidate) => candidate.key === key);
+    const value = row.outputs[key];
+    if (!output || value === undefined) return [];
+    return [{ key, label: output.label, unit: output.unit, value }];
+  });
 }
 
 type Bracket = { readonly low: number; readonly high: number };
@@ -350,6 +501,15 @@ export function calculateTakeoffDistance(
     surface: string;
   }>,
 ): DistanceCalculation {
+  if (factorContract(profile.takeoffFactorDataset)) {
+    return calculateDistanceFactor(profile.takeoffFactorDataset, {
+      baselineDistance: input.dryDistance,
+      runwayAvailable: input.runwayAvailable,
+      selection: input.surface,
+      lookupValue: input.weight,
+    });
+  }
+
   if (input.surface === "dry") return distanceResult(input.dryDistance, input.runwayAvailable, 1);
   const option = getTakeoffSurfaceOptions(profile).find((candidate) => candidate.value === input.surface);
   if (!option?.outputKey || !profile.takeoffFactorDataset) {
@@ -367,6 +527,19 @@ export function calculateTakeoffDistance(
 
 export function getLandingSpeeds(profile: PerformanceCalculatorProfile, weight: number | undefined): LandingSpeeds | undefined {
   if (weight === undefined || !profile.landingSpeedDataset) return undefined;
+  if (profile.landingSpeedDataset.calculator?.kind === "metric-lookup") {
+    const metrics = getMetricLookupResults(profile.landingSpeedDataset, weight);
+    if (!metrics) return undefined;
+    // Compatibility projection for the pre-v3.1 landing UI. New generic UI
+    // consumes getMetricLookupResults directly and does not require these keys.
+    const byKey = new Map(metrics.map((metric) => [metric.key, metric.value] as const));
+    const vref = byKey.get("vref");
+    const vapp = byKey.get("vapp");
+    return {
+      vref: typeof vref === "number" ? vref : undefined,
+      vapp: typeof vapp === "number" ? vapp : undefined,
+    };
+  }
   const row = exactRow(profile.landingSpeedDataset, { weight });
   if (!row) return undefined;
   return {
@@ -384,6 +557,19 @@ export function calculateLandingDistance(
     oatC?: number;
   }>,
 ): DistanceCalculation {
+  const declared = factorContract(profile.landingFactorDataset);
+  if (declared) {
+    const constraintInputs = input.oatC === undefined
+      ? undefined
+      : Object.fromEntries((declared.constraints ?? []).map((constraint) => [constraint.input.key, input.oatC]));
+    return calculateDistanceFactor(profile.landingFactorDataset, {
+      baselineDistance: input.dryDistance,
+      runwayAvailable: input.runwayAvailable,
+      selection: input.surface,
+      constraintInputs,
+    });
+  }
+
   if (input.surface === "Dry") return distanceResult(input.dryDistance, input.runwayAvailable, 1);
   if (!profile.landingFactorDataset) {
     return { status: "unsupported", reason: "No published landing correction-factor table is available." };
