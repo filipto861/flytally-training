@@ -16,9 +16,12 @@ FlyTally Training is a supplemental training/reference aid. Current approved air
 
 ### Source authority & applicability
 - Operational content is released through the governed content lifecycle; draft AI output cannot publish itself.
+- Safety-critical operational domains (checklists, procedures, performance, weight & balance, limitations and abnormal/emergency) may be approved or published only from sources classified as `CONTROLLING` or `OPERATING_REFERENCE`.
 - Aircraft/variant applicability is filtered before the operational client boundary.
 - Source document identity/revision and content publication status are part of the safety boundary.
-- If applicability, authority or freshness is ambiguous, the operational experience should withhold a result rather than infer one.
+- Flight Deck independently re-checks current publication freshness and source authority for checklists, performance and abnormal/emergency content before exposing it.
+- The legacy normal-flight fallback is not permitted in Flight Deck because it does not carry the same governed publication/source contract.
+- If applicability, authority, freshness or database governance is ambiguous, the operational experience withholds the affected module rather than inferring or serving stale content.
 
 ### Emergency/reference wording
 - FlyTally must not imply that a derived training page is an approved AFM/POH/QRH/MEL/checklist unless the underlying document and approval scope support that statement.
@@ -52,6 +55,14 @@ Canonical notices: Privacy, Terms, Cookies & Local Storage, Aviation Safety, Pro
 
 Adding a new production processor/provider requires an update to the canonical public provider notice, internal data-flow/processor record and DPA/transfer review before launch.
 
+## Security boundary
+
+- Global browser security headers include HSTS in production, clickjacking protection, restrictive Permissions Policy and a Content Security Policy limited to FlyTally-owned runtime resources.
+- State-changing browser requests for Training progress and logout reject cross-site or mismatched-origin requests in addition to the session cookie's SameSite policy.
+- Mutating responses and authenticated progress responses use no-store caching.
+- Public/user supplied aircraft identifiers accepted by progress endpoints are constrained to the platform aircraft-id grammar rather than arbitrary text.
+- Rate limiting remains a platform-level follow-up where a durable shared limiter is justified; an in-memory serverless limiter must not be treated as a security control.
+
 ## Incident response
 
 Use the platform v2.8 incident process: contain, scope affected data/users/systems, rotate credentials or invalidate sessions if required, preserve minimal evidence, document decisions, assess personal-data breach reporting/user notification, remediate and add a regression test/control. Do not place secrets or unnecessary personal/source-confidential data in GitHub/CI incident records.
@@ -59,11 +70,15 @@ Use the platform v2.8 incident process: contain, scope affected data/users/syste
 ## v2.8 Training regression requirements
 
 - runtime does not opt a source into interpolation;
+- safety-critical publication rejects training-only, simulator-only or unclassified source authority;
+- Flight Deck withholds stale, missing-source or non-authoritative operational modules and has no legacy checklist fallback;
 - exact source rows work with interpolation `none`;
 - between-row values fail closed with interpolation `none`;
 - between-row values work only with `linear-explicit` and remain bounded;
 - extrapolation remains blocked;
 - legal/safety links are globally available;
+- state-changing browser routes reject cross-site origins and authenticated mutation responses are not cacheable;
+- browser security headers retain CSP, frame/object restrictions and cross-origin isolation;
 - AI drafting remains human-approved and source-rights constrained;
 - source PDFs remain non-hosted in the existing ingestion flow;
 - Vercel preview builds remain skipped for ordinary feature branches, with production deployment only after validated merge to `main`.

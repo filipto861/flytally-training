@@ -3,6 +3,7 @@ import fs from "node:fs";
 import test from "node:test";
 
 import { calculateOperationalNativeDistanceGrid } from "../lib/operational-performance-policy.ts";
+import { isOperationalSourceAuthority, requiresOperationalSourceAuthority } from "../lib/source-authority.ts";
 import type { PerformanceDataset } from "../lib/universal-aircraft-content.ts";
 
 const read=(path:string)=>fs.readFileSync(new URL(`../${path}`,import.meta.url),"utf8");
@@ -74,4 +75,42 @@ test("v2.8 documents source-rights, AI human approval and no unauthorized operat
   assert.match(docs,/must (?:not|never) rewrite a dataset from `none` to `linear-explicit`/);
   assert.doesNotMatch(policy,/\{ \.\.\.dataset, interpolation: "linear-explicit" \}/);
   assert.match(policy,/honors the governed source dataset interpolation authority exactly/i);
+});
+
+
+test("v2.8 safety-critical domains accept only operational source authority",()=> {
+  assert.equal(isOperationalSourceAuthority("CONTROLLING"),true);
+  assert.equal(isOperationalSourceAuthority("OPERATING_REFERENCE"),true);
+  for(const role of ["TRAINING_REFERENCE","SIMULATOR_IMPLEMENTATION","SIMULATOR_WORKFLOW","UNCLASSIFIED"]) {
+    assert.equal(isOperationalSourceAuthority(role),false);
+  }
+  for(const domain of ["checklists","procedures","performance","weight-balance","limitations","abnormal"]) {
+    assert.equal(requiresOperationalSourceAuthority(domain),true);
+  }
+  assert.equal(requiresOperationalSourceAuthority("knowledge"),false);
+  assert.equal(requiresOperationalSourceAuthority("flows"),false);
+});
+
+test("v2.8 Flight Deck fails closed on stale or non-authoritative operational publications",()=> {
+  const fly=read("app/aircraft/[aircraftId]/fly/page.tsx");
+  const gate=read("lib/operational-content-readiness.ts");
+  const governance=read("lib/content-governance.ts");
+  const provenance=read("lib/source-provenance-readiness.ts");
+
+  assert.match(fly,/getOperationalFlightReadiness\(aircraftId\)/);
+  assert.match(fly,/operationalReadiness\.checklists\.ready/);
+  assert.match(fly,/operationalReadiness\.performance\.ready/);
+  assert.match(fly,/operationalReadiness\.abnormal\.ready/);
+  assert.doesNotMatch(fly,/normalizeLegacyFlightFlow|legacyChecklist/);
+
+  assert.match(gate,/training_content_stale_flags/);
+  assert.match(gate,/resolved_at IS NULL/);
+  assert.match(gate,/CONTROLLING','OPERATING_REFERENCE/);
+  assert.match(gate,/authoritative===linked/);
+  assert.match(gate,/fails closed/i);
+
+  assert.match(governance,/assertOperationalSourceAuthorityForVersion/);
+  assert.match(governance,/requires CONTROLLING or OPERATING_REFERENCE source authority/);
+  assert.match(provenance,/BOOL_AND/);
+  assert.match(provenance,/CONTROLLING','OPERATING_REFERENCE/);
 });
