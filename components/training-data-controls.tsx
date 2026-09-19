@@ -1,47 +1,49 @@
 "use client";
 
-import { useState } from "react";\nimport styles from "./training-data-controls.module.css";
+import { useState } from "react";
+import styles from "./training-data-controls.module.css";
 
-async function clearDeviceData() {
-  try { window.localStorage.clear(); } catch {}
-  try { window.sessionStorage.clear(); } catch {}
-  if ("caches" in window) {
-    try {
-      const names = await window.caches.keys();
-      await Promise.all(names.filter(name => name.startsWith("flytally-")).map(name => window.caches.delete(name)));
-    } catch {}
+async function clearDeviceData(){
+  try{window.localStorage.clear()}catch{}
+  try{window.sessionStorage.clear()}catch{}
+  if("caches" in window){
+    try{
+      const names=await window.caches.keys();
+      await Promise.all(names.filter(name=>name.startsWith("flytally-")).map(name=>window.caches.delete(name)));
+    }catch{}
   }
-  if ("serviceWorker" in navigator) {
-    try {
-      const registrations = await navigator.serviceWorker.getRegistrations();
-      await Promise.all(registrations.map(registration => registration.unregister()));
-    } catch {}
+  if("serviceWorker" in navigator){
+    try{
+      const registrations=await navigator.serviceWorker.getRegistrations();
+      await Promise.all(registrations.map(registration=>registration.unregister()));
+    }catch{}
   }
 }
 
-export function TrainingDataControls() {
-  const [confirm,setConfirm]=useState("");
-  const [busy,setBusy]=useState(false);
-  const [message,setMessage]=useState("");
+export function TrainingDataControls(){
+  const[confirm,setConfirm]=useState("");
+  const[busy,setBusy]=useState(false);
+  const[message,setMessage]=useState("");
 
-  async function deleteProgress() {
-    if (confirm !== "DELETE TRAINING DATA" || busy) return;
+  async function deleteProgress(){
+    if(confirm!=="DELETE TRAINING DATA"||busy)return;
     setBusy(true);setMessage("");
-    try {
+    try{
       const response=await fetch("/api/account/data",{method:"POST",credentials:"same-origin",headers:{"content-type":"application/json"},body:JSON.stringify({confirm})});
       if(!response.ok){setMessage("Training data could not be deleted.");return}
       await clearDeviceData();
       setConfirm("");
       setMessage("Server progress was deleted and FlyTally Training data on this device was cleared.");
-    } catch {
+    }catch{
       setMessage("Training data could not be deleted.");
-    } finally { setBusy(false); }
+    }finally{setBusy(false)}
   }
 
-  async function clearThisDevice() {
+  async function clearThisDevice(){
+    if(busy)return;
     setBusy(true);setMessage("");
-    try { await clearDeviceData();setMessage("FlyTally Training data on this device was cleared."); }
-    finally { setBusy(false); }
+    try{await clearDeviceData();setMessage("FlyTally Training data on this device was cleared.")}
+    finally{setBusy(false)}
   }
 
   return <div className={styles.root}>
