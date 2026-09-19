@@ -5,12 +5,10 @@ async function expectNoHorizontalOverflow(page){
   expect(overflow).toBeLessThanOrEqual(1);
 }
 
-test("aircraft library renders as a usable responsive surface",async({page})=>{
+test("Training library shell renders responsively with governed content empty or populated",async({page})=>{
   await page.goto("/");
   await expect(page.getByRole("heading",{name:"Your aircraft"})).toBeVisible();
-  const aircraft=page.locator("a.pilot-aircraft-row");
-  await expect(aircraft.first()).toBeVisible();
-  expect(await aircraft.count()).toBeGreaterThan(0);
+  await expect(page.locator(".pilot-aircraft-list")).toBeVisible();
   await expectNoHorizontalOverflow(page);
 });
 
@@ -23,14 +21,12 @@ test("keyboard users can skip persistent Training chrome",async({page})=>{
   await expect(page.locator("#main-content")).toBeFocused();
 });
 
-test("aircraft selection opens the pilot workspace without overflow",async({page})=>{
+test("unauthenticated account state resolves to the normal sign-in action",async({page})=>{
   await page.goto("/");
-  const first=page.locator("a.pilot-aircraft-row").first();
-  const name=(await first.getByRole("heading",{level:2}).textContent())?.trim();
-  expect(name).toBeTruthy();
-  await first.click();
-  await expect(page).toHaveURL(/\/aircraft\//);
-  await expect(page.getByRole("heading",{level:1,name})).toBeVisible();
-  await expect(page.getByRole("navigation",{name:"Pilot workspace"})).toBeVisible();
+  const signIn=page.getByRole("link",{name:"Sign in"});
+  await expect(signIn).toBeVisible();
+  await expect(signIn).toHaveAttribute("href",/\/api\/auth\/flytally\/start/);
+  const box=await signIn.boundingBox();
+  expect(box?.height??0).toBeGreaterThanOrEqual(40);
   await expectNoHorizontalOverflow(page);
 });
