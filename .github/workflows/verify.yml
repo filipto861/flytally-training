@@ -13,7 +13,34 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  classify:
+    runs-on: ubuntu-latest
+    outputs:
+      full_tests: ${{ steps.scope.outputs.full_tests }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: scope
+        name: Classify test scope
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          if [[ "$EVENT_NAME" != "pull_request" ]]; then
+            echo "full_tests=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git diff --name-only "$BASE_SHA" "$HEAD_SHA" > changed-files.txt
+          node tooling/ci-scope.mjs --files changed-files.txt --title "$PR_TITLE" >> "$GITHUB_OUTPUT"
+          echo "Changed files:"
+          cat changed-files.txt
+
   application:
+    needs: classify
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -27,7 +54,11 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: TypeScript
         run: npm run typecheck
-      - name: Unit tests
+      - name: Targeted UI regression tests
+        if: needs.classify.outputs.full_tests != 'true'
+        run: npm run test:ui
+      - name: Full unit and regression tests
+        if: needs.classify.outputs.full_tests == 'true'
         run: npm test
       - name: Production build
         run: npm run build
