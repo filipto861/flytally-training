@@ -65,3 +65,44 @@ button[data-loading="true"]::after{
   :where(button,a.header-action,.primary-action){transition:none}
   button[data-loading="true"]::after{animation-duration:1.4s}
 }
+
+/* U2 learner rhythm: one spacing language across library, aircraft home and modules. */
+:root{
+  --ui-page-gap:24px;
+  --ui-card-padding:20px;
+  --ui-card-padding-mobile:16px;
+}
+
+:where(.pilot-library-header,.pilot-home-header,.pilot-area-header,.workspace-section-hero){
+  margin-bottom:var(--ui-section-gap);
+}
+
+:where(.pilot-aircraft-list,.pilot-command-grid,.pilot-area-grid,.workspace-overview,.workspace-section-grid){
+  gap:var(--ui-card-gap);
+}
+
+:where(.pilot-command-panel,.pilot-area-card,.pilot-aircraft-row,.training-continue-card){
+  border-radius:var(--ui-radius-card);
+}
+
+:where(.pilot-command-panel,.pilot-aircraft-row){
+  padding:var(--ui-card-padding);
+}
+
+:where(.training-hub-section){
+  gap:var(--ui-space-3);
+  margin-top:var(--ui-section-gap);
+}
+
+:where(.training-continue-card){
+  margin-bottom:0;
+}
+
+@media(max-width:700px){
+  :where(.pilot-library-header,.pilot-home-header,.pilot-area-header,.workspace-section-hero){
+    margin-bottom:var(--ui-space-5);
+  }
+  :where(.pilot-command-panel,.pilot-aircraft-row){
+    padding:var(--ui-card-padding-mobile);
+  }
+}

@@ -26,9 +26,9 @@ export function ProductShell({ children }: Readonly<{ children: ReactNode }>) {
       </header>
       <div id="main-content" className="app-main-content" tabIndex={-1}>{children}</div>
       <footer className="app-footer">
-        <div className="app-footer-inner" style={{alignItems:"flex-start",padding:"18px 0",minHeight:"84px"}}>
+        <div className="app-footer-inner app-footer-content">
           <div>
-            <strong style={{display:"block",color:"#526277",marginBottom:"4px"}}>FlyTally Training</strong>
+            <strong className="app-footer-title">FlyTally Training</strong>
             <span>Supplemental training/reference aid · current approved aircraft, operator and regulatory documents remain authoritative.</span>
           </div>
           <LegalLinks />
