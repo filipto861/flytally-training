@@ -45,8 +45,8 @@ test("deterministic aircraft exposes checklist and performance in Fly",async({pa
   await expect(page).toHaveURL(/\/aircraft\/browser-ci-aircraft\/fly(?:\?variant=Standard)?$/);
   await expect(page.getByRole("navigation",{name:"Flight tools"})).toBeVisible();
 
-  const checklistTab=page.getByRole("button",{name:"Checklist"});
-  const performanceTab=page.getByRole("button",{name:"Performance"});
+  const checklistTab=page.getByRole("button",{name:"Checklist",exact:true});
+  const performanceTab=page.getByRole("button",{name:"Performance",exact:true});
   await expect(checklistTab).toHaveAttribute("aria-pressed","true");
   const battery=page.getByRole("button",{name:/Battery/});
   await expect(battery).toHaveAttribute("aria-pressed","false");
