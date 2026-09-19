@@ -10,6 +10,7 @@ const fastUiTests=new Set([
   "tests/v321-route-ui-audit.test.ts",
   "tests/v322-browser-smoke.test.ts",
   "tests/v326-deterministic-training-browser.test.ts",
+  "tests/v327-training-state-persistence.test.ts",
 ]);
 
 const presentationOnly=file=>{
