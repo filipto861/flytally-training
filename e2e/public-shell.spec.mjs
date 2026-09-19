@@ -28,17 +28,38 @@ test("keyboard users can skip persistent Training chrome",async({page})=>{
   await expect(page.locator("#main-content")).toBeFocused();
 });
 
-test("published aircraft opens the pilot workspace without overflow when content exists",async({page})=>{
+test("deterministic aircraft opens the pilot workspace without overflow",async({page})=>{
   await page.goto("/");
-  const aircraft=page.locator("a.pilot-aircraft-row");
-  const count=await aircraft.count();
-  test.skip(count===0,"Local browser CI has no published Training content.");
-  const first=aircraft.first();
-  const name=(await first.getByRole("heading",{level:2}).textContent())?.trim();
-  expect(name).toBeTruthy();
-  await first.click();
-  await expect(page).toHaveURL(/\/aircraft\//);
-  await expect(page.getByRole("heading",{level:1,name})).toBeVisible();
+  const aircraft=page.locator("a.pilot-aircraft-row").filter({hasText:"Browser CI Aircraft"});
+  await expect(aircraft).toBeVisible();
+  await aircraft.click();
+  await expect(page).toHaveURL(/\/aircraft\/browser-ci-aircraft$/);
+  await expect(page.getByRole("heading",{level:1,name:"Browser CI Aircraft"})).toBeVisible();
   await expect(page.getByRole("navigation",{name:"Pilot workspace"})).toBeVisible();
+  await expectNoHorizontalOverflow(page);
+});
+
+test("deterministic aircraft exposes checklist and performance in Fly",async({page})=>{
+  await page.goto("/aircraft/browser-ci-aircraft");
+  await page.getByRole("link",{name:/Open Fly/}).click();
+  await expect(page).toHaveURL(/\/aircraft\/browser-ci-aircraft\/fly(?:\?variant=Standard)?$/);
+  await expect(page.getByRole("navigation",{name:"Flight tools"})).toBeVisible();
+
+  const checklistTab=page.getByRole("button",{name:"Checklist",exact:true});
+  const performanceTab=page.getByRole("button",{name:"Performance",exact:true});
+  await expect(checklistTab).toHaveAttribute("aria-pressed","true");
+  const battery=page.getByRole("button",{name:/Battery/});
+  await expect(battery).toHaveAttribute("aria-pressed","false");
+  await battery.click();
+  await expect(battery).toHaveAttribute("aria-pressed","true");
+
+  await performanceTab.click();
+  await expect(performanceTab).toHaveAttribute("aria-pressed","true");
+  await expect(page.getByRole("region",{name:"Declarative operational performance"})).toBeVisible();
+  await page.getByLabel("Airport altitude").fill("0");
+  await page.getByLabel("OAT").fill("15");
+  await page.getByLabel("Runway available").fill("1000");
+  const distanceResult=page.locator("div").filter({hasText:/^50 ft distance500 m$/}).getByRole("strong");
+  await expect(distanceResult).toHaveText("500 m");
   await expectNoHorizontalOverflow(page);
 });

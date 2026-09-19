@@ -32,6 +32,8 @@ jobs:
     name: Chromium desktop + mobile
     runs-on: ubuntu-latest
     timeout-minutes: 12
+    env:
+      FLYTALLY_TRAINING_BROWSER_FIXTURE: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

@@ -1,6 +1,7 @@
 import "server-only";
 
 import { sql } from "./db";
+import { browserTrainingAircraftId,browserTrainingFixtureEnabled } from "./browser-training-fixture";
 
 export const operationalFlightDomains = ["checklists", "performance", "abnormal"] as const;
 export type OperationalFlightDomain = typeof operationalFlightDomains[number];
@@ -37,6 +38,10 @@ export async function getOperationalFlightReadiness(
     performance: unavailable(),
     abnormal: unavailable(),
   };
+  if(browserTrainingFixtureEnabled()&&aircraftId===browserTrainingAircraftId){
+    const ready={published:true,fresh:true,sourceAuthoritative:true,ready:true} as const;
+    return{checklists:ready,performance:ready,abnormal:unavailable()};
+  }
   if (process.env.TRAINING_CONTENT_BACKEND?.trim() !== "postgres") return result;
 
   try {
