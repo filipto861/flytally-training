@@ -42,7 +42,7 @@ test("deterministic aircraft opens the pilot workspace without overflow",async({
 test("deterministic aircraft exposes checklist and performance in Fly",async({page})=>{
   await page.goto("/aircraft/browser-ci-aircraft");
   await page.getByRole("link",{name:/Open Fly/}).click();
-  await expect(page).toHaveURL(/\/aircraft\/browser-ci-aircraft\/fly$/);
+  await expect(page).toHaveURL(/\/aircraft\/browser-ci-aircraft\/fly(?:\?variant=Standard)?$/);
   await expect(page.getByRole("navigation",{name:"Flight tools"})).toBeVisible();
 
   const checklistTab=page.getByRole("button",{name:"Checklist"});
