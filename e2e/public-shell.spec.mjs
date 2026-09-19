@@ -59,6 +59,7 @@ test("deterministic aircraft exposes checklist and performance in Fly",async({pa
   await page.getByLabel("Airport altitude").fill("0");
   await page.getByLabel("OAT").fill("15");
   await page.getByLabel("Runway available").fill("1000");
-  await expect(page.getByText("500 m",{exact:true})).toBeVisible();
+  const distanceResult=page.locator("div").filter({hasText:/^50 ft distance500 m$/}).getByRole("strong");
+  await expect(distanceResult).toHaveText("500 m");
   await expectNoHorizontalOverflow(page);
 });
