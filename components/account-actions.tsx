@@ -8,7 +8,7 @@ type SessionState =
   | { readonly authenticated: true; readonly role: "admin" | "user"; readonly exp: number };
 
 export function AccountActions() {
-  const [session, setSession] = useState<SessionState | null>(null);
+  const [session, setSession] = useState<SessionState | null>(null);\n  const [signingOut,setSigningOut]=useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
