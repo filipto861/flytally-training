@@ -15,7 +15,7 @@
     "db:init": "node --conditions=react-server --import tsx tooling/init-training-database.ts",
     "verify": "npm run typecheck && npm test && npm run build",
     "test:target": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test --experimental-strip-types",
-    "test:ui": "npm run test:target -- tests/m47-pilot-usability-audit.test.ts tests/m56-mobile-app-ui.test.ts tests/v300-u6-acceptance.test.ts tests/v300-ux-hierarchy.test.ts tests/v320-ui-consistency.test.ts tests/v321-route-ui-audit.test.ts tests/v322-browser-smoke.test.ts tests/v326-deterministic-training-browser.test.ts",
+    "test:ui": "npm run test:target -- tests/m47-pilot-usability-audit.test.ts tests/m56-mobile-app-ui.test.ts tests/v300-u6-acceptance.test.ts tests/v300-ux-hierarchy.test.ts tests/v320-ui-consistency.test.ts tests/v321-route-ui-audit.test.ts tests/v322-browser-smoke.test.ts tests/v326-deterministic-training-browser.test.ts tests/v327-training-state-persistence.test.ts",
     "scope:changed": "node tooling/ci-scope.mjs"
   },
   "dependencies": {
