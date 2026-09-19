@@ -12,6 +12,13 @@ test("aircraft library shell renders responsively",async({page})=>{
   await expectNoHorizontalOverflow(page);
 });
 
+test("unauthenticated public shell exposes the sign-in boundary",async({page})=>{
+  await page.goto("/");
+  const signIn=page.getByRole("link",{name:"Sign in"});
+  await expect(signIn).toBeVisible();
+  await expect(signIn).toHaveAttribute("href",/\/api\/auth\/flytally\/start/);
+});
+
 test("keyboard users can skip persistent Training chrome",async({page})=>{
   await page.goto("/");
   await page.keyboard.press("Tab");
