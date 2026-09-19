@@ -27,7 +27,8 @@ test("v3.2 U3 Training runs desktop and mobile Chromium projects",()=>{
 test("v3.2 U3 Training verifies responsive library, keyboard skip and account boundary",()=>{
   const smoke=read("e2e/public-shell.spec.mjs");
   assert.match(smoke,/Your aircraft/);
-  assert.match(smoke,/test[.]skip\(count===0/);
+  assert.match(smoke,/Browser CI Aircraft/);
+  assert.doesNotMatch(smoke,/test[.]skip\(count===0/);
   assert.match(smoke,/Skip to content/);
   assert.match(smoke,/Sign in/);
   assert.match(smoke,/scrollWidth-document[.]documentElement[.]clientWidth/);
