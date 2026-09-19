@@ -284,3 +284,6 @@ a.workspace-card:hover { transform: translateY(-2px); border-color: #bdcbd8; box
   .start-panel { grid-template-columns: 1fr; gap: 24px; padding: 24px; }
   .primary-action { width: 100%; }
 }
+
+.app-footer-content{align-items:flex-start;min-height:84px;padding:18px 0}
+.app-footer-title{display:block;margin-bottom:var(--ui-space-1);color:#526277}
