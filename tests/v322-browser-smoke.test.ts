@@ -31,7 +31,8 @@ test("v3.2 U3 Training verifies responsive library, keyboard skip and account bo
   assert.doesNotMatch(smoke,/test[.]skip\(count===0/);
   assert.match(smoke,/Skip to content/);
   assert.match(smoke,/Sign in/);
-  assert.match(smoke,/scrollWidth-document[.]documentElement[.]clientWidth/);
+  assert.match(smoke,/document[.]documentElement[.]scrollWidth/);
+  assert.match(smoke,/document[.]documentElement[.]clientWidth/);
   assert.match(read("app/page.tsx"),/pilot-library-empty/);
   assert.match(read("app/navigation.css"),/min-height:var\(--ui-touch-min-height\)/);
 });
