@@ -7,6 +7,7 @@ const fastUiTests=new Set([
   "tests/v300-u6-acceptance.test.ts",
   "tests/v300-ux-hierarchy.test.ts",
   "tests/v320-ui-consistency.test.ts",
+  "tests/v321-route-ui-audit.test.ts",
 ]);
 
 const presentationOnly=file=>{
