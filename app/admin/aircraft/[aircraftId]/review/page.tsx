@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AdminAircraftWorkspace } from "@/components/admin-aircraft-workspace";
+import { PendingActionButton } from "@/components/pending-action-button";
 import { requireTrainingAdmin } from "@/lib/admin-auth";
 import { deriveContentStudio } from "@/lib/admin-content-studio";
 import { getAdminAircraft,getOpenStaleFlags } from "@/lib/content-admin-repository";
@@ -33,7 +34,7 @@ export default async function AircraftReviewPage({params}:Readonly<{params:Promi
 
     <section className={styles.sectionBlock}>
       <div className={styles.sectionHeader}><div><p className="eyebrow">Freshness</p><h2>Source changes</h2></div></div>
-      {stale.length?<div className={styles.cleanList}>{stale.map(flag=><details className={styles.reviewItem} key={String(flag.stale_id)}><summary><div><strong>{domainLabel(flag.domain)}</strong><span>{flag.content_key==="bundle"?"Main module":flag.content_key}</span></div><span className={`${styles.statusPill} ${styles.statusNeedsReview}`}>Needs review</span></summary><p>{flag.reason}</p><form action={resolveStaleAction}><input type="hidden" name="aircraftId" value={aircraftId}/><input type="hidden" name="staleId" value={String(flag.stale_id)}/><div className={styles.inlineActions}><input name="note" placeholder="Resolution note" required/><button type="submit">Resolve</button></div></form></details>)}</div>:<div className={styles.emptyState}><strong>No source-change reviews</strong><p>Published content is not currently flagged by a newer source revision.</p></div>}
+      {stale.length?<div className={styles.cleanList}>{stale.map(flag=><details className={styles.reviewItem} key={String(flag.stale_id)}><summary><div><strong>{domainLabel(flag.domain)}</strong><span>{flag.content_key==="bundle"?"Main module":flag.content_key}</span></div><span className={`${styles.statusPill} ${styles.statusNeedsReview}`}>Needs review</span></summary><p>{flag.reason}</p><form action={resolveStaleAction}><input type="hidden" name="aircraftId" value={aircraftId}/><input type="hidden" name="staleId" value={String(flag.stale_id)}/><div className={styles.inlineActions}><input name="note" placeholder="Resolution note" required/><PendingActionButton pendingLabel="Resolving…">Resolve</PendingActionButton></div></form></details>)}</div>:<div className={styles.emptyState}><strong>No source-change reviews</strong><p>Published content is not currently flagged by a newer source revision.</p></div>}
     </section>
   </AdminAircraftWorkspace>;
 }
