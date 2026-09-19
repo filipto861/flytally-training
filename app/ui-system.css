@@ -106,3 +106,17 @@ button[data-loading="true"]::after{
     padding:var(--ui-card-padding-mobile);
   }
 }
+
+.pilot-library-empty{
+  min-height:128px;
+  display:grid;
+  place-content:center;
+  gap:var(--ui-space-2);
+  padding:var(--ui-card-padding);
+  border:1px dashed var(--line,#d7e0e8);
+  border-radius:var(--ui-radius-card);
+  background:var(--surface,#fff);
+  color:var(--muted,#66778a);
+  text-align:center;
+}
+.pilot-library-empty strong{color:var(--text,#172033)}
