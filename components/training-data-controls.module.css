@@ -1,0 +1,9 @@
+.root{display:grid;gap:var(--ui-space-4)}
+.section{display:grid;gap:var(--ui-space-3)}
+.divided{padding-top:var(--ui-space-4);border-top:1px solid var(--line,#d9e0ea)}
+.section h3,.message{margin:0}
+.section p{margin:0;color:var(--muted,#667085)}
+.label{display:grid;gap:var(--ui-space-2)}
+.actions{display:flex;gap:var(--ui-space-2);align-items:center}
+.message{color:var(--muted,#526277)}
+@media(max-width:620px){.actions{display:grid}.actions button{width:100%}}
