@@ -49,6 +49,8 @@ test("global chrome stays minimal while aircraft navigation becomes app-like", (
 
 test("pilot-first navigation is aircraft-agnostic and still publication-driven", () => {
   assert.match(nav, /listPublishedModuleDomains/);
-  assert.match(nav, /aircraftWorkspaceSections\(aircraftId, publishedDomains\)/);
+  assert.match(nav, /getBundledPerformancePackage/);
+  assert.match(nav, /bundledPerformance && !publishedDomains\.includes\("performance"\)/);
+  assert.match(nav, /aircraftWorkspaceSections\(aircraftId, effectiveDomains\)/);
   assert.doesNotMatch(nav + aircraftHome + library, /learjet-35-36|Learjet|Boeing|Cessna|DA40|Rotax/i);
 });
