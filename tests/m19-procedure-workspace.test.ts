@@ -33,13 +33,27 @@ const pageSource = fs.readFileSync(new URL("../app/aircraft/[aircraftId]/procedu
 
 test("procedure session restore rejects stale procedure and step identities", () => {
   const snapshot = normalizeProcedureSessionSnapshot({
-    version: 99,
+    version: 1,
     selectedProcedureId: "removed",
     completedStepKeys: ["start:starter", "start:removed", "start:starter", "removed:step"],
   }, procedures);
   assert.equal(snapshot.version, 1);
   assert.equal(snapshot.selectedProcedureId, "start");
   assert.deepEqual(snapshot.completedStepKeys, ["start:starter"]);
+});
+
+test("procedure session restore rejects an unknown version instead of interpreting it as v1", () => {
+  const snapshot = normalizeProcedureSessionSnapshot({
+    version: 99,
+    selectedProcedureId: "start",
+    completedStepKeys: ["start:starter"],
+  }, procedures);
+
+  assert.deepEqual(snapshot, {
+    version: 1,
+    selectedProcedureId: "start",
+    completedStepKeys: [],
+  });
 });
 
 test("procedure step identity is scoped to its procedure and configuration session", () => {
