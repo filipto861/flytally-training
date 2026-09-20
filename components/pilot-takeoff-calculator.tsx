@@ -61,11 +61,10 @@ export function PilotTakeoffCalculator({
     [antiIce, datasets, definition, flaps, oat, pressureAltitude, takeoffWeight],
   );
 
-  const sourceResults = [summary.n1, summary.vr, summary.v2, summary.vref];
+  const sourceResults = [summary.n1, summary.v1, summary.vr, summary.v2, summary.vref];
   const hasOutOfRange = sourceResults.some((result) => result.status === "out-of-range");
   const hasUnavailable = sourceResults.some((result) => result.status === "unavailable");
 
-  const v1Placeholder = definition.placeholders.find((item) => item.key === "v1");
   const distancePlaceholder = definition.placeholders.find((item) => item.key === "takeoffDistance");
 
   return (
@@ -180,7 +179,7 @@ export function PilotTakeoffCalculator({
             <Metric label="VR" result={summary.vr} />
             <Metric label="V2" result={summary.v2} />
             <Metric label="VREF" result={summary.vref} hint="Landing reference at the entered weight." />
-            <Metric label="V1" result={summary.v1} hint={v1Placeholder ? `Planned for ${v1Placeholder.milestone}.` : undefined} />
+            <Metric label="V1" result={summary.v1} />
             <Metric
               label="Takeoff Distance"
               result={summary.takeoffDistance}
