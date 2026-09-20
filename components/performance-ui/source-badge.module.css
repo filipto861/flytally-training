@@ -1,0 +1,30 @@
+.badge{
+  padding:3px 6px;
+  border-radius:var(--ui-radius-pill);
+  background:#edf1f5;
+  color:#66778a;
+  font-size:.58rem;
+  font-weight:850;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+.badge[data-source="metar"]{
+  background:#eaf1f8;
+  color:var(--ui-info);
+}
+.badge[data-source="manual"]{
+  background:#edf1f5;
+  color:var(--ui-neutral);
+}
+.badge[data-source="airport-db"],
+.badge[data-source="computed"]{
+  background:#edf1f5;
+  color:var(--ui-neutral);
+}
+.badge[data-source="editable"]{
+  padding:2px 7px;
+  background:#edf1f5;
+  color:#66778a;
+  font-size:.6rem;
+  letter-spacing:.035em;
+}

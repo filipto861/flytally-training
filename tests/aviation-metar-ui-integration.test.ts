@@ -14,6 +14,8 @@ import type { SourcedValue } from "../lib/aviation/airport-types.ts";
 const read = (path: string) => fs.readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 const component = read("components/metar-status.tsx");
 const pilot = read("components/pilot-takeoff-calculator.tsx");
+const fieldRow = read("components/performance-ui/field-row.tsx");
+const sourceBadge = read("components/performance-ui/source-badge.tsx");
 const selector = read("components/airport-runway-selector.tsx");
 const css = read("components/metar-status.module.css");
 
@@ -67,8 +69,10 @@ test("B9-B manual edits block METAR autofill until explicit force override", () 
 });
 
 test("B9-B QNH and OAT expose source badges and manual edits become dirty", () => {
-  assert.match(pilot, /data-source=\{qnh\.source\}/);
-  assert.match(pilot, /data-source=\{oat\.source\}/);
+  assert.match(pilot, /label="QNH \/ Altimeter"[\s\S]{0,500}source=\{qnh\.source\}/);
+  assert.match(pilot, /label=\{definition\.inputs\.oat\.label\}[\s\S]{0,300}source=\{oat\.source\}/);
+  assert.match(fieldRow, /source \? <SourceBadge kind=\{source\} \/>/);
+  assert.match(sourceBadge, /data-source=\{kind\}/);
   assert.match(pilot, /setQnh\(manualSourcedValue/);
   assert.match(pilot, /setOat\(manualSourcedValue/);
   assert.match(css, /data-freshness="live"/);

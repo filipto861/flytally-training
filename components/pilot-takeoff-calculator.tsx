@@ -4,6 +4,13 @@ import { useEffect, useMemo, useState } from "react";
 
 import { AirportRunwaySelector } from "./airport-runway-selector";
 import { MetarStatus } from "./metar-status";
+import {
+  FieldRow,
+  InputWithUnit,
+  MetricCard,
+  MetricGrid,
+  SourceBadge,
+} from "./performance-ui";
 
 import {
   airportAutoFill,
@@ -23,7 +30,6 @@ import {
   calculatePilotTakeoffSummary,
   formatPilotTakeoffMetric,
   type PilotTakeoffCalculatorDefinition,
-  type PilotTakeoffMetricResult,
 } from "@/lib/pilot-takeoff-calculator";
 import type { PerformanceDataset } from "@/lib/universal-aircraft-content";
 import { formatThousands, formatThousandsWithUnit } from "@/lib/format/numbers";
@@ -39,25 +45,6 @@ function numberFromInput(value: string): number | undefined {
 
 function altimeterSetting(unit: AltimeterUnit, value: number): AltimeterSetting {
   return unit === "hPa" ? { unit: "hPa", value } : { unit: "inHg", value };
-}
-
-function Metric({
-  label,
-  result,
-  hint,
-}: Readonly<{
-  label: string;
-  result: PilotTakeoffMetricResult;
-  hint?: string;
-}>) {
-  const detail = result.reason ?? hint;
-  return (
-    <div className={styles.metric} data-result={label} data-status={result.status}>
-      <span>{label}</span>
-      <strong>{formatPilotTakeoffMetric(result)}</strong>
-      {detail ? <small>{detail}</small> : null}
-    </div>
-  );
 }
 
 export function PilotTakeoffCalculator({
@@ -243,20 +230,15 @@ export function PilotTakeoffCalculator({
               <div className={styles.availableLength}>
                 <div className={styles.editableLabel}>
                   <span>Available takeoff length</span>
-                  <span className={styles.editableBadge}>Editable</span>
+                  <SourceBadge kind="editable" />
                 </div>
-                <div className={styles.inputWithUnit}>
-                  <input
-                    aria-label="Available takeoff length"
-                    inputMode="decimal"
-                    min="1"
-                    onChange={(event) => setAvailableTakeoffLengthFt(event.target.value)}
-                    step="any"
-                    type="number"
-                    value={availableTakeoffLengthFt}
-                  />
-                  <span className={styles.unitSuffix}>ft</span>
-                </div>
+                <InputWithUnit
+                  ariaLabel="Available takeoff length"
+                  min={1}
+                  onChange={setAvailableTakeoffLengthFt}
+                  unit="ft"
+                  value={availableTakeoffLengthFt}
+                />
                 <div className={styles.availableLengthMeta}>
                   <div className={styles.helperWithInfo}>
                     <small>Defaults to surface length</small>
@@ -291,121 +273,87 @@ export function PilotTakeoffCalculator({
           ) : null}
 
           <div className={styles.fields}>
-            <label className={styles.field}>
-              <div className={styles.fieldLabel}>
-                <span>QNH / Altimeter</span>
-                <span className={styles.sourceBadge} data-source={qnh.source}>{qnh.source}</span>
-              </div>
-              <div className={styles.inputWithUnit}>
-                <input
-                  aria-label="QNH or altimeter setting"
-                  inputMode="decimal"
-                  min="1"
-                  onChange={(event) => setQnh(manualSourcedValue(event.target.value))}
-                  step="any"
-                  type="number"
-                  value={qnh.value}
-                />
-                <select
-                  aria-label="Altimeter unit"
-                  className={styles.unitSelect}
-                  onChange={(event) => handleQnhUnitChange(event.target.value as AltimeterUnit)}
-                  value={qnhUnit}
+            <FieldRow
+              helper={qnh.dirty && metarSnapshot && formatMetarQnh(metarSnapshot) !== undefined ? "Manual override" : undefined}
+              helperAction={qnh.dirty && metarSnapshot && formatMetarQnh(metarSnapshot) !== undefined ? (
+                <button className={styles.inlineButton} onClick={forceMetarQnh} type="button">Use METAR value</button>
+              ) : undefined}
+              label="QNH / Altimeter"
+              source={qnh.source}
+            >
+              <InputWithUnit
+                ariaLabel="QNH or altimeter setting"
+                min={1}
+                onChange={(value) => setQnh(manualSourcedValue(value))}
+                onUnitChange={(value) => handleQnhUnitChange(value as AltimeterUnit)}
+                selectOptions={[
+                  { value: "hPa", label: "hPa" },
+                  { value: "inHg", label: "inHg" },
+                ]}
+                unit={qnhUnit}
+                unitAriaLabel="Altimeter unit"
+                unitKind="select"
+                value={qnh.value}
+              />
+            </FieldRow>
+
+            <FieldRow
+              helper={runwayContext
+                ? pressureAltitude.dirty
+                  ? "Manual override"
+                  : `Auto from ${runwayContext.airportIcao} field elevation + QNH`
+                : undefined}
+              helperAction={runwayContext && pressureAltitude.dirty && calculatedPressureAltitude !== undefined ? (
+                <button
+                  className={styles.inlineButton}
+                  onClick={() => setPressureAltitude({
+                    value: String(calculatedPressureAltitude),
+                    source: "airport-db",
+                    dirty: false,
+                  })}
+                  type="button"
                 >
-                  <option value="hPa">hPa</option>
-                  <option value="inHg">inHg</option>
-                </select>
-              </div>
-              {qnh.dirty && metarSnapshot && formatMetarQnh(metarSnapshot) !== undefined ? (
-                <small className={styles.fieldHint}>
-                  Manual override
-                  <button className={styles.inlineButton} onClick={forceMetarQnh} type="button">Use METAR value</button>
-                </small>
-              ) : null}
-            </label>
+                  Reset
+                </button>
+              ) : undefined}
+              label={definition.inputs.pressureAltitude.label}
+              source={pressureAltitudeBadgeSource}
+            >
+              <InputWithUnit
+                ariaLabel={definition.inputs.pressureAltitude.label}
+                onChange={(value) => setPressureAltitude(manualSourcedValue(value))}
+                unit={definition.inputs.pressureAltitude.unit}
+                value={pressureAltitude.value}
+              />
+            </FieldRow>
 
-            <label className={styles.field}>
-              <div className={styles.fieldLabel}>
-                <span>{definition.inputs.pressureAltitude.label}</span>
-                <span className={styles.sourceBadge} data-source={pressureAltitudeBadgeSource}>
-                  {pressureAltitudeBadgeSource}
-                </span>
-              </div>
-              <div className={styles.inputWithUnit}>
-                <input
-                  aria-label={definition.inputs.pressureAltitude.label}
-                  inputMode="decimal"
-                  onChange={(event) => setPressureAltitude(manualSourcedValue(event.target.value))}
-                  step="any"
-                  type="number"
-                  value={pressureAltitude.value}
-                />
-                <span className={styles.unitSuffix}>{definition.inputs.pressureAltitude.unit}</span>
-              </div>
-              {runwayContext ? (
-                <small className={styles.fieldHint}>
-                  {pressureAltitude.dirty
-                    ? "Manual override"
-                    : `Auto from ${runwayContext.airportIcao} field elevation + QNH`}
-                  {pressureAltitude.dirty && calculatedPressureAltitude !== undefined ? (
-                    <button
-                      className={styles.inlineButton}
-                      onClick={() => setPressureAltitude({
-                        value: String(calculatedPressureAltitude),
-                        source: "airport-db",
-                        dirty: false,
-                      })}
-                      type="button"
-                    >
-                      Reset
-                    </button>
-                  ) : null}
-                </small>
-              ) : null}
-            </label>
+            <FieldRow
+              helper={oat.dirty && metarSnapshot?.temperatureC !== undefined ? "Manual override" : undefined}
+              helperAction={oat.dirty && metarSnapshot?.temperatureC !== undefined ? (
+                <button className={styles.inlineButton} onClick={forceMetarOat} type="button">Use METAR value</button>
+              ) : undefined}
+              label={definition.inputs.oat.label}
+              source={oat.source}
+            >
+              <InputWithUnit
+                ariaLabel={definition.inputs.oat.label}
+                onChange={(value) => setOat(manualSourcedValue(value))}
+                unit={definition.inputs.oat.unit}
+                value={oat.value}
+              />
+            </FieldRow>
 
-            <label className={styles.field}>
-              <div className={styles.fieldLabel}>
-                <span>{definition.inputs.oat.label}</span>
-                <span className={styles.sourceBadge} data-source={oat.source}>{oat.source}</span>
-              </div>
-              <div className={styles.inputWithUnit}>
-                <input
-                  aria-label={definition.inputs.oat.label}
-                  inputMode="decimal"
-                  onChange={(event) => setOat(manualSourcedValue(event.target.value))}
-                  step="any"
-                  type="number"
-                  value={oat.value}
-                />
-                <span className={styles.unitSuffix}>{definition.inputs.oat.unit}</span>
-              </div>
-              {oat.dirty && metarSnapshot?.temperatureC !== undefined ? (
-                <small className={styles.fieldHint}>
-                  Manual override
-                  <button className={styles.inlineButton} onClick={forceMetarOat} type="button">Use METAR value</button>
-                </small>
-              ) : null}
-            </label>
+            <FieldRow label={definition.inputs.takeoffWeight.label}>
+              <InputWithUnit
+                ariaLabel={definition.inputs.takeoffWeight.label}
+                min={0}
+                onChange={setTakeoffWeight}
+                unit={definition.inputs.takeoffWeight.unit}
+                value={takeoffWeight}
+              />
+            </FieldRow>
 
-            <label className={styles.field}>
-              <span>{definition.inputs.takeoffWeight.label}</span>
-              <div className={styles.inputWithUnit}>
-                <input
-                  aria-label={definition.inputs.takeoffWeight.label}
-                  inputMode="decimal"
-                  min="0"
-                  onChange={(event) => setTakeoffWeight(event.target.value)}
-                  step="any"
-                  type="number"
-                  value={takeoffWeight}
-                />
-                <span className={styles.unitSuffix}>{definition.inputs.takeoffWeight.unit}</span>
-              </div>
-            </label>
-
-            <label className={styles.field}>
-              <span>{definition.inputs.flaps.label}</span>
+            <FieldRow label={definition.inputs.flaps.label}>
               <select
                 aria-label={definition.inputs.flaps.label}
                 className={styles.select}
@@ -416,10 +364,9 @@ export function PilotTakeoffCalculator({
                   <option key={option.value} value={option.value}>{option.label}</option>
                 ))}
               </select>
-            </label>
+            </FieldRow>
 
-            <div className={styles.field}>
-              <span className={styles.toggleLabel}>{definition.inputs.antiIce.label}</span>
+            <FieldRow as="div" label={definition.inputs.antiIce.label}>
               <div className={styles.toggleField}>
                 <span className={styles.toggleLabel}>Engine anti-ice</span>
                 <label className={styles.switch}>
@@ -433,7 +380,7 @@ export function PilotTakeoffCalculator({
                   <span className={styles.switchState}>{antiIce ? "ON" : "OFF"}</span>
                 </label>
               </div>
-            </div>
+            </FieldRow>
           </div>
         </section>
 
@@ -451,14 +398,44 @@ export function PilotTakeoffCalculator({
             ) : null}
           </div>
 
-          <div className={styles.metricGrid}>
-            <Metric label="N1" result={summary.n1} />
-            <Metric label="VR" result={summary.vr} />
-            <Metric label="V2" result={summary.v2} />
-            <Metric label="VREF" result={summary.vref} hint="Landing reference at the entered weight." />
-            <Metric label="V1" result={summary.v1} />
-            <Metric label="Takeoff Distance" result={summary.takeoffDistance} />
-          </div>
+          <MetricGrid>
+            <MetricCard
+              hint={summary.n1.reason}
+              label="N1"
+              status={summary.n1.status}
+              value={formatPilotTakeoffMetric(summary.n1)}
+            />
+            <MetricCard
+              hint={summary.vr.reason}
+              label="VR"
+              status={summary.vr.status}
+              value={formatPilotTakeoffMetric(summary.vr)}
+            />
+            <MetricCard
+              hint={summary.v2.reason}
+              label="V2"
+              status={summary.v2.status}
+              value={formatPilotTakeoffMetric(summary.v2)}
+            />
+            <MetricCard
+              hint={summary.vref.reason ?? "Landing reference at the entered weight."}
+              label="VREF"
+              status={summary.vref.status}
+              value={formatPilotTakeoffMetric(summary.vref)}
+            />
+            <MetricCard
+              hint={summary.v1.reason}
+              label="V1"
+              status={summary.v1.status}
+              value={formatPilotTakeoffMetric(summary.v1)}
+            />
+            <MetricCard
+              hint={summary.takeoffDistance.reason}
+              label="Takeoff Distance"
+              status={summary.takeoffDistance.status}
+              value={formatPilotTakeoffMetric(summary.takeoffDistance)}
+            />
+          </MetricGrid>
 
           {runwayMargin && runwayContext && availableLength !== undefined ? (
             <div
