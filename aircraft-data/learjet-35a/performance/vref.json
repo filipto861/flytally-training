@@ -1,0 +1,129 @@
+{
+  "id": "learjet-35a-vref",
+  "title": "Landing Approach Speed VREF · Flaps 40°",
+  "description": "Source-backed VREF lookup for the standard Learjet 35A/36A landing configuration with flaps 40°.",
+  "kind": "lookup-table",
+  "phase": "landing",
+  "calculator": {
+    "kind": "multi-axis-metric-grid",
+    "operation": "landing",
+    "inputAxes": [
+      "grossWeight"
+    ],
+    "outputKeys": [
+      "vref"
+    ]
+  },
+  "axes": [
+    {
+      "key": "grossWeight",
+      "label": "Landing gross weight",
+      "unit": "lb",
+      "values": [
+        10000,
+        11000,
+        12000,
+        13000,
+        14000,
+        15000,
+        15300
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "key": "vref",
+      "label": "VREF",
+      "unit": "KIAS"
+    }
+  ],
+  "rows": [
+    {
+      "inputs": {
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "vref": 105
+      }
+    },
+    {
+      "inputs": {
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "vref": 110
+      }
+    },
+    {
+      "inputs": {
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "vref": 115
+      }
+    },
+    {
+      "inputs": {
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "vref": 119
+      }
+    },
+    {
+      "inputs": {
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "vref": 123
+      }
+    },
+    {
+      "inputs": {
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "vref": 127
+      }
+    },
+    {
+      "inputs": {
+        "grossWeight": 15300
+      },
+      "outputs": {
+        "vref": 129
+      }
+    }
+  ],
+  "interpolation": "linear-explicit",
+  "notes": [
+    "Standard landing configuration: flaps 40°.",
+    "FlightSafety states that VREF is determined strictly by airplane gross weight and that the tabular values in the Pilot's Manual and Checklist may be used with equal accuracy to the AFM chart.",
+    "Source nodes are the Bombardier CL-102B landing-speed table through the certified maximum landing weight of 15,300 lb.",
+    "The AFM Figure 5-57 graph is a continuous weight-to-VREF relationship; bounded linear software interpolation is therefore used between stored source rows.",
+    "Values below 10,000 lb or above 15,300 lb are intentionally rejected rather than extrapolated for this standard landing dataset."
+  ],
+  "sources": [
+    {
+      "manualId": "CL-102B",
+      "chapter": "Performance Data",
+      "section": "Landing Speeds",
+      "pageLabel": "N-13",
+      "note": "Bombardier Crew Checklist & Quick Reference Handbook · April 2001 · VREF & landing-climb speed row"
+    },
+    {
+      "manualId": "FM-102",
+      "chapter": "Section V — Performance",
+      "section": "Landing Approach Speed VREF",
+      "pageLabel": "5-72",
+      "note": "Figure 5-57; AFM graph cross-check"
+    },
+    {
+      "manualId": "LJ30 PTM V1r02",
+      "chapter": "Performance",
+      "section": "Landing Approach Speed (VREF)",
+      "pageLabel": "PER-33",
+      "note": "FlightSafety worked example: 12,466 lb → 117 KIAS"
+    }
+  ]
+}
