@@ -76,8 +76,9 @@
 .inputWithUnit{
   display:grid;
   grid-template-columns:minmax(0,1fr) auto;
-  align-items:center;
+  align-items:stretch;
   min-height:52px;
+  overflow:hidden;
   border:1px solid #cbd7e1;
   border-radius:var(--ui-radius-control);
   background:#fff;
@@ -85,6 +86,9 @@
 .inputWithUnit:focus-within{
   border-color:#6686a6;
   box-shadow:0 0 0 3px rgba(50,93,139,.1);
+}
+.unitSelect:focus-visible{
+  background:#f8fafb;
 }
 .inputWithUnit input{
   width:100%;
@@ -100,11 +104,28 @@
   font-weight:720;
   font-variant-numeric:tabular-nums;
 }
-.inputWithUnit small{
-  padding-right:12px;
+.unitSuffix{
+  display:flex;
+  align-items:center;
+  min-height:50px;
+  padding:0 12px 0 8px;
   color:#718196;
   font-size:.72rem;
   font-weight:800;
+  white-space:nowrap;
+}
+.unitSelect{
+  min-width:68px;
+  min-height:50px;
+  padding:0 10px;
+  border:0;
+  border-left:1px solid var(--ui-border-subtle);
+  outline:0;
+  background:#fff;
+  color:#5f7082;
+  font:inherit;
+  font-size:.75rem;
+  font-weight:720;
 }
 .select{
   width:100%;
@@ -325,29 +346,6 @@
   font-size:.66rem;
   font-weight:800;
   cursor:pointer;
-}
-.altimeterControl{
-  display:grid;
-  grid-template-columns:minmax(0,1fr) auto;
-  min-height:52px;
-  border:1px solid #cbd7e1;
-  border-radius:var(--ui-radius-control);
-  background:#fff;
-  overflow:hidden;
-}
-.altimeterControl:focus-within{
-  border-color:#6686a6;
-  box-shadow:0 0 0 3px rgba(50,93,139,.1);
-}
-.altimeterControl input,.altimeterControl select{
-  min-width:0;
-  min-height:50px;
-  border:0;
-  outline:0;
-  background:#fff;
-  color:var(--text,#172033);
-  font:inherit;
-  font-weight:720;
 }
 .altimeterControl input{width:100%;padding:10px 12px;font-size:1rem}
 .altimeterControl select{

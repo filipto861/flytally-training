@@ -249,7 +249,7 @@ export function PilotTakeoffCalculator({
                     type="number"
                     value={availableTakeoffLengthFt}
                   />
-                  <small>ft</small>
+                  <span className={styles.unitSuffix}>ft</span>
                 </div>
                 <div className={styles.availableLengthMeta}>
                   <small>Default from runway surface length</small>
@@ -276,7 +276,7 @@ export function PilotTakeoffCalculator({
                 <span>QNH / Altimeter</span>
                 <span className={styles.sourceBadge} data-source={qnh.source}>{qnh.source}</span>
               </div>
-              <div className={styles.altimeterControl}>
+              <div className={styles.inputWithUnit}>
                 <input
                   aria-label="QNH or altimeter setting"
                   inputMode="decimal"
@@ -288,6 +288,7 @@ export function PilotTakeoffCalculator({
                 />
                 <select
                   aria-label="Altimeter unit"
+                  className={styles.unitSelect}
                   onChange={(event) => handleQnhUnitChange(event.target.value as AltimeterUnit)}
                   value={qnhUnit}
                 >
