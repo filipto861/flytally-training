@@ -3,7 +3,12 @@ import fs from "node:fs";
 import test from "node:test";
 
 import { calculateOperationalNativeDistanceGrid } from "../lib/operational-performance-policy.ts";
-import { isOperationalSourceAuthority, requiresOperationalSourceAuthority } from "../lib/source-authority.ts";
+import {
+  isOperationalSourceAuthority,
+  requiresOperationalSourceAuthority,
+  resolveContentSourcePolicy,
+  sourcePolicyAllowsAuthority,
+} from "../lib/source-authority.ts";
 import type { PerformanceDataset } from "../lib/universal-aircraft-content.ts";
 
 const read=(path:string)=>fs.readFileSync(new URL(`../${path}`,import.meta.url),"utf8");
@@ -78,7 +83,7 @@ test("v2.8 documents source-rights, AI human approval and no unauthorized operat
 });
 
 
-test("v2.8 safety-critical domains accept only operational source authority",()=> {
+test("v2.8 safety-critical domains stay strict by default and widen authority only through available-sources",()=> {
   assert.equal(isOperationalSourceAuthority("CONTROLLING"),true);
   assert.equal(isOperationalSourceAuthority("OPERATING_REFERENCE"),true);
   for(const role of ["TRAINING_REFERENCE","SIMULATOR_IMPLEMENTATION","SIMULATOR_WORKFLOW","UNCLASSIFIED"]) {
@@ -89,6 +94,17 @@ test("v2.8 safety-critical domains accept only operational source authority",()=
   }
   assert.equal(requiresOperationalSourceAuthority("knowledge"),false);
   assert.equal(requiresOperationalSourceAuthority("flows"),false);
+
+  assert.equal(resolveContentSourcePolicy(undefined),"faa-approved");
+  assert.equal(sourcePolicyAllowsAuthority("faa-approved","CONTROLLING"),true);
+  assert.equal(sourcePolicyAllowsAuthority("faa-approved","OPERATING_REFERENCE"),true);
+  assert.equal(sourcePolicyAllowsAuthority("faa-approved","TRAINING_REFERENCE"),false);
+  assert.equal(sourcePolicyAllowsAuthority("faa-approved","SIMULATOR_WORKFLOW"),false);
+
+  assert.equal(sourcePolicyAllowsAuthority("available-sources","TRAINING_REFERENCE"),true);
+  assert.equal(sourcePolicyAllowsAuthority("available-sources","SIMULATOR_WORKFLOW"),true);
+  assert.equal(sourcePolicyAllowsAuthority("available-sources","SIMULATOR_IMPLEMENTATION"),false);
+  assert.equal(sourcePolicyAllowsAuthority("available-sources","UNCLASSIFIED"),false);
 });
 
 test("v2.8 Flight Deck fails closed on stale or non-authoritative operational publications",()=> {
@@ -111,6 +127,9 @@ test("v2.8 Flight Deck fails closed on stale or non-authoritative operational pu
 
   assert.match(governance,/assertOperationalSourceAuthorityForVersion/);
   assert.match(governance,/requires CONTROLLING or OPERATING_REFERENCE source authority/);
-  assert.match(provenance,/BOOL_AND/);
-  assert.match(provenance,/CONTROLLING','OPERATING_REFERENCE/);
+  assert.match(provenance,/JOIN training_content_versions v ON v\.version_id=p\.version_id/);
+  assert.match(provenance,/resolveContentSourcePolicy/);
+  assert.match(provenance,/sourcePolicyAllowsAuthority/);
+  assert.match(provenance,/requiresOperationalSourceAuthority/);
+  assert.doesNotMatch(provenance,/BOOL_AND/);
 });
