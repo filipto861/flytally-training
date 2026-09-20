@@ -3,8 +3,10 @@ import { notFound } from "next/navigation";
 import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
 import { PerformanceCalculator } from "@/components/performance-calculator";
 import { configurationForAircraftVariant, filterPerformanceForConfiguration, resolveSelectedVariant } from "@/lib/aircraft-applicability";
+import { getBundledPerformancePackage } from "@/lib/bundled-performance-content";
 import { getPublishedAircraftModule } from "@/lib/content-repository";
 import { getTrainingContentRepository } from "@/lib/content-store";
+import { mergePerformanceDatasets } from "@/lib/performance-package";
 import type { AircraftPerformanceContent } from "@/lib/universal-aircraft-content";
 
 export default async function PerformancePage({
@@ -16,15 +18,26 @@ export default async function PerformancePage({
 }>) {
   const [{ aircraftId }, { variant }] = await Promise.all([params, searchParams]);
   const repository = getTrainingContentRepository();
+  const bundledPackage = getBundledPerformancePackage(aircraftId);
   const [aircraft, content] = await Promise.all([
     repository.getAircraft(aircraftId),
     getPublishedAircraftModule<AircraftPerformanceContent>(repository, aircraftId, "performance"),
   ]);
-  if (!aircraft || !content) notFound();
+  if (!aircraft || (!content && !bundledPackage)) notFound();
 
   const selectedVariant = resolveSelectedVariant(variant, aircraft.variants);
-  const configuredContent = filterPerformanceForConfiguration(content, configurationForAircraftVariant(aircraft, selectedVariant));
-  if (!configuredContent.datasets.length) notFound();
+  const configuration = configurationForAircraftVariant(aircraft, selectedVariant);
+  const configuredPublished = content
+    ? filterPerformanceForConfiguration(content, configuration)
+    : undefined;
+  const configuredBundled = bundledPackage
+    ? filterPerformanceForConfiguration(bundledPackage.content, configuration)
+    : undefined;
+  const datasets = mergePerformanceDatasets(
+    configuredPublished?.datasets ?? [],
+    configuredBundled?.datasets ?? [],
+  );
+  if (!datasets.length) notFound();
 
   return (
     <main className="shell aircraft-detail">
@@ -34,7 +47,11 @@ export default async function PerformancePage({
         <h1>Performance</h1>
         <p className="lede">Calculate takeoff and landing performance from published aircraft data.</p>
       </section>
-      <PerformanceCalculator datasets={configuredContent.datasets} disclaimer={configuredContent.disclaimer} />
+      <PerformanceCalculator
+        datasets={datasets}
+        disclaimer={configuredPublished?.disclaimer ?? configuredBundled?.disclaimer}
+        takeoffCalculator={bundledPackage?.takeoffCalculator}
+      />
     </main>
   );
 }
