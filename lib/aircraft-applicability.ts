@@ -1,5 +1,10 @@
 import type { TrainingAircraft, TrainingAircraftVariantProfile } from "./aircraft-catalog.ts";
-import { mergeAircraftEquipmentTags } from "./aircraft-configuration-profile.ts";
+import {
+  mergeAircraftEquipmentTags,
+  type AircraftConfigurationEquipmentState,
+  type AircraftConfigurationModificationState,
+} from "./aircraft-configuration-profile.ts";
+import { resolveEffectiveAircraftConfigurationForProfile } from "./effective-aircraft-configuration.ts";
 import type { AircraftAbnormalEmergencyContent } from "./universal-abnormal-emergency.ts";
 import type {
   AircraftApplicability,
@@ -15,7 +20,24 @@ import type {
 
 export type AircraftConfiguration = {
   readonly variant?: string;
+  readonly baseVariant?: string;
   readonly equipment: ReadonlySet<string>;
+
+  /**
+   * Undefined means the capability inventory is not declared.
+   * An empty set means it is explicitly declared as empty.
+   */
+  readonly capabilityTags?: ReadonlySet<string>;
+
+  readonly modifications?: ReadonlyMap<
+    string,
+    AircraftConfigurationModificationState
+  >;
+
+  readonly configurationEquipment?: ReadonlyMap<
+    string,
+    AircraftConfigurationEquipmentState
+  >;
 };
 
 export function resolveSelectedVariant(requestedVariant: string | undefined, variants: readonly string[]): string | undefined {
@@ -37,14 +59,142 @@ export function resolveVariantProfile(
 }
 
 export function configurationForAircraftVariant(
-  aircraft: Pick<TrainingAircraft, "variants" | "variantProfiles" | "equipmentTags">,
+  aircraft: Pick<TrainingAircraft, "id" | "variants" | "variantProfiles" | "equipmentTags">,
   variant: string | undefined,
 ): AircraftConfiguration {
   const profile = resolveVariantProfile(aircraft, variant);
+
+  if (!profile) {
+    return {
+      variant: undefined,
+      equipment: new Set(
+        mergeAircraftEquipmentTags(
+          aircraft.equipmentTags,
+          undefined,
+        ),
+      ),
+    };
+  }
+
+  const effective = resolveEffectiveAircraftConfigurationForProfile(
+    aircraft,
+    profile,
+  );
+
   return {
-    variant: profile?.key,
-    equipment: new Set(mergeAircraftEquipmentTags(aircraft.equipmentTags, profile?.equipmentTags)),
+    variant: effective.variantKey,
+    baseVariant: effective.baseVariantKey,
+    equipment: new Set(effective.equipmentTags),
+
+    ...(profile.configuration?.capabilityTags !== undefined
+      ? {
+          capabilityTags: new Set(effective.capabilityTags),
+        }
+      : {}),
+
+    ...(profile.configuration?.modifications !== undefined
+      ? {
+          modifications: new Map(
+            effective.modifications.map(
+              (item) => [item.key, item.state] as const,
+            ),
+          ),
+        }
+      : {}),
+
+    ...(profile.configuration?.equipment !== undefined
+      ? {
+          configurationEquipment: new Map(
+            effective.configurationEquipment.map(
+              (item) => [item.key, item.state] as const,
+            ),
+          ),
+        }
+      : {}),
   };
+}
+
+function matchesSetApplicability(
+  values: ReadonlySet<string> | undefined,
+  allOf: readonly string[] | undefined,
+  anyOf: readonly string[] | undefined,
+  noneOf: readonly string[] | undefined,
+): boolean {
+  const hasRule =
+    Boolean(allOf?.length) ||
+    Boolean(anyOf?.length) ||
+    Boolean(noneOf?.length);
+
+  if (!hasRule) return true;
+
+  // No declared inventory means unknown, not empty.
+  if (!values) return false;
+
+  if (allOf?.some((key) => !values.has(key))) {
+    return false;
+  }
+
+  if (
+    anyOf?.length &&
+    !anyOf.some((key) => values.has(key))
+  ) {
+    return false;
+  }
+
+  if (noneOf?.some((key) => values.has(key))) {
+    return false;
+  }
+
+  return true;
+}
+
+function matchesStateApplicability<
+  State extends "installed" | "not-installed" | "unknown",
+>(
+  states: ReadonlyMap<string, State> | undefined,
+  allOf: readonly string[] | undefined,
+  anyOf: readonly string[] | undefined,
+  noneOf: readonly string[] | undefined,
+): boolean {
+  const hasRule =
+    Boolean(allOf?.length) ||
+    Boolean(anyOf?.length) ||
+    Boolean(noneOf?.length);
+
+  if (!hasRule) return true;
+
+  if (!states) return false;
+
+  if (
+    allOf?.some(
+      (key) => states.get(key) !== "installed",
+    )
+  ) {
+    return false;
+  }
+
+  if (
+    anyOf?.length &&
+    !anyOf.some(
+      (key) => states.get(key) === "installed",
+    )
+  ) {
+    return false;
+  }
+
+  /*
+   * "None of" requires explicit known absence.
+   * Unknown or missing state fails closed.
+   */
+  if (
+    noneOf?.some(
+      (key) => states.get(key) !== "not-installed",
+    )
+  ) {
+    return false;
+  }
+
+  return true;
 }
 
 export function matchesAircraftApplicability(
@@ -62,11 +212,53 @@ export function matchesAircraftApplicability(
   if (applicability.equipmentAnyOf?.length && !applicability.equipmentAnyOf.some((tag) => equipment.has(tag))) return false;
   if (applicability.equipmentNoneOf?.some((tag) => equipment.has(tag))) return false;
 
+  if (applicability.baseVariants?.length) {
+    if (
+      !configuration.baseVariant ||
+      !applicability.baseVariants.includes(configuration.baseVariant)
+    ) {
+      return false;
+    }
+  }
+
+  if (
+    !matchesSetApplicability(
+      configuration.capabilityTags,
+      applicability.capabilityTagsAllOf,
+      applicability.capabilityTagsAnyOf,
+      applicability.capabilityTagsNoneOf,
+    )
+  ) {
+    return false;
+  }
+
+  if (
+    !matchesStateApplicability(
+      configuration.modifications,
+      applicability.modificationsAllOf,
+      applicability.modificationsAnyOf,
+      applicability.modificationsNoneOf,
+    )
+  ) {
+    return false;
+  }
+
+  if (
+    !matchesStateApplicability(
+      configuration.configurationEquipment,
+      applicability.configurationEquipmentAllOf,
+      applicability.configurationEquipmentAnyOf,
+      applicability.configurationEquipmentNoneOf,
+    )
+  ) {
+    return false;
+  }
+
   return true;
 }
 
 export function configurationForVariant(variant: string | undefined, equipment: readonly string[] = []): AircraftConfiguration {
-  return { variant, equipment: new Set(equipment) };
+  return { variant, baseVariant: variant, equipment: new Set(equipment) };
 }
 
 export function filterChecklistForConfiguration(

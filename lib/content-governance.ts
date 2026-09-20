@@ -1,6 +1,9 @@
 import "server-only";
 
-import { commonAircraftEquipmentProfileKey } from "./aircraft-configuration-profile";
+import {
+  commonAircraftEquipmentProfileKey,
+  parseAircraftConfigurationMetadata,
+} from "./aircraft-configuration-profile";
 
 import { sql } from "./db";
 import { assertValidContentPayload, validateContentPayload } from "./content-contracts";
@@ -8,7 +11,11 @@ import type { TrainingContentDomain } from "./content-admin-types";
 import { collectEmbeddedManualIds } from "./content-source-binding";
 import { isOperationalSourceAuthority, requiresOperationalSourceAuthority } from "./source-authority";
 import {
+  assertApplicabilityBaseVariantsRegistered,
+  assertApplicabilityCapabilitiesRegistered,
+  assertApplicabilityConfigurationEquipmentRegistered,
   assertApplicabilityEquipmentRegistered,
+  assertApplicabilityModificationsRegistered,
   assertApplicabilityVariantsRegistered,
 } from "./content-applicability-binding";
 
@@ -146,9 +153,37 @@ export async function assertEmbeddedSourcesMatchVersionLinks(payload: unknown, r
 export async function assertEmbeddedApplicabilityMatchesAircraft(aircraftId: string, payload: unknown): Promise<void> {
   const rows = await sql`SELECT variant_key,metadata FROM training_aircraft_variants WHERE aircraft_id=${aircraftId}` as Array<{variant_key:string;metadata:unknown}>;
   const equipmentTags = [...new Set(rows.flatMap((row) => stringArray(variantMetadata(row.metadata).equipmentTags)))];
-  const variantKeys = rows.filter((row) => row.variant_key !== commonAircraftEquipmentProfileKey).map((row) => row.variant_key);
+
+  const profiles = rows
+    .filter((row) => row.variant_key !== commonAircraftEquipmentProfileKey)
+    .map((row) => {
+      const metadata = variantMetadata(row.metadata);
+      return {
+        key: row.variant_key,
+        configuration: parseAircraftConfigurationMetadata(metadata.configuration),
+      };
+    });
+
+  const variantKeys = profiles.map((profile) => profile.key);
+  const baseVariantKeys = [...new Set(
+    profiles.map((profile) => profile.configuration?.baseVariant ?? profile.key),
+  )];
+  const capabilityTags = [...new Set(
+    profiles.flatMap((profile) => profile.configuration?.capabilityTags ?? []),
+  )];
+  const modificationKeys = [...new Set(
+    profiles.flatMap((profile) => profile.configuration?.modifications?.map((item) => item.key) ?? []),
+  )];
+  const configurationEquipmentKeys = [...new Set(
+    profiles.flatMap((profile) => profile.configuration?.equipment?.map((item) => item.key) ?? []),
+  )];
+
   assertApplicabilityVariantsRegistered(payload, variantKeys, aircraftId);
   assertApplicabilityEquipmentRegistered(payload, equipmentTags, aircraftId);
+  assertApplicabilityBaseVariantsRegistered(payload, baseVariantKeys, aircraftId);
+  assertApplicabilityCapabilitiesRegistered(payload, capabilityTags, aircraftId);
+  assertApplicabilityModificationsRegistered(payload, modificationKeys, aircraftId);
+  assertApplicabilityConfigurationEquipmentRegistered(payload, configurationEquipmentKeys, aircraftId);
 }
 
 export async function assertContentVersionValidForApprovalOrPublication(versionId: string): Promise<ContentVersionReviewRecord> {
