@@ -3,6 +3,7 @@ import test from "node:test";
 
 import {
   resolveEffectiveAircraftConfiguration,
+  resolveEffectiveAircraftConfigurationForProfile,
 } from "../lib/effective-aircraft-configuration.ts";
 import { realSecondAircraft } from "./fixtures/v31-real-second-aircraft.ts";
 
@@ -161,4 +162,33 @@ test("snapshot id changes when technical configuration changes", () => {
 
   assert.notEqual(original.snapshotId, changedApproval.snapshotId);
   assert.notEqual(original.snapshotId, changedModel.snapshotId);
+});
+
+test("persisted profile configuration feeds the effective resolver without a second metadata path", () => {
+  const variantProfile = {
+    key: "35a-zr-lite",
+    displayName: "Configured aircraft",
+    equipmentTags: ["fc-200"],
+    configuration: {
+      baseVariant: "35a",
+      capabilityTags: ["rvsm"],
+      modifications: [{
+        key: "zr-lite",
+        state: "installed" as const,
+        approvalRef: "ST01468SE",
+      }],
+    },
+  };
+
+  const result = resolveEffectiveAircraftConfigurationForProfile(
+    {
+      id: "complex-aircraft",
+      equipmentTags: [],
+    },
+    variantProfile,
+  );
+
+  assert.equal(result.baseVariantKey, "35a");
+  assert.deepEqual(result.capabilityTags, ["rvsm"]);
+  assert.equal(result.modifications[0]?.key, "zr-lite");
 });

@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createAiAssistedDraft } from "@/lib/ai-draft-workflow";
 import { requireTrainingAdmin } from "@/lib/admin-auth";
+import { parseAircraftConfigurationMetadata, type AircraftConfigurationMetadata } from "@/lib/aircraft-configuration-profile";
 import { publishGovernedAircraft } from "@/lib/aircraft-publication";
 import { isModernStructuredDomain } from "@/lib/content-authoring-templates";
 import { addAircraftVariant,createAircraft,createSourceReference,getAdminAircraft,resolveStaleFlag,setAircraftCommonEquipment,updateAircraftProfile,upsertAircraftVariant } from "@/lib/content-admin-repository";
@@ -22,6 +23,15 @@ const selected=(form:FormData,key:string)=>form.getAll(key).map(value=>String(va
 const refs=(form:FormData)=>[...new Set([...selected(form,"sourceReferenceId"),...text(form,"sourceReferenceIds").split(",").map(v=>v.trim()).filter(Boolean)])];
 const fingerprintRefs=(form:FormData)=>selected(form,"fingerprintSourceReferenceId");
 const equipmentTags=(form:FormData)=>[...new Set(text(form,"equipmentTags").split(/[\n,]/).map(value=>value.trim()).filter(Boolean))];
+const variantConfiguration=(form:FormData):AircraftConfigurationMetadata|null|undefined=>{
+  if(!form.has("configurationJson"))return undefined;
+  const raw=text(form,"configurationJson");
+  if(!raw)return null;
+  let parsed:unknown;
+  try{parsed=JSON.parse(raw);}catch{throw new Error("Structured configuration metadata is not valid JSON.");}
+  if(parsed===null)return null;
+  return parseAircraftConfigurationMetadata(parsed);
+};
 const payload=(form:FormData)=>{try{return JSON.parse(text(form,"payload"));}catch{throw new Error("Draft payload is not valid JSON.");}};
 const domain=(form:FormData):TrainingContentDomain=>{const value=text(form,"domain");if(!(trainingContentDomains as readonly string[]).includes(value))throw new Error("Unsupported content domain.");return value as TrainingContentDomain;};
 const refreshAircraftAdmin=(aircraftId:string)=>{
@@ -37,7 +47,7 @@ export async function createAircraftAction(form:FormData){const session=await re
 export async function updateAircraftProfileAction(form:FormData){await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");await updateAircraftProfile(aircraftId,{manufacturer:text(form,"manufacturer"),model:text(form,"model"),displayName:text(form,"displayName")});refreshAircraftAdmin(aircraftId);refreshAircraftRuntime(aircraftId);}
 export async function addVariantAction(form:FormData){await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");await addAircraftVariant(aircraftId,text(form,"variant"));refreshAircraftAdmin(aircraftId);refreshAircraftRuntime(aircraftId);}
 export async function saveCommonEquipmentAction(form:FormData){await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");await setAircraftCommonEquipment(aircraftId,equipmentTags(form));refreshAircraftAdmin(aircraftId);refreshAircraftRuntime(aircraftId);}
-export async function saveVariantProfileAction(form:FormData){await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");await upsertAircraftVariant(aircraftId,{key:text(form,"variantKey"),displayName:text(form,"variantDisplayName"),equipmentTags:equipmentTags(form),note:text(form,"variantNote")||undefined});refreshAircraftAdmin(aircraftId);refreshAircraftRuntime(aircraftId);}
+export async function saveVariantProfileAction(form:FormData){await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");await upsertAircraftVariant(aircraftId,{key:text(form,"variantKey"),displayName:text(form,"variantDisplayName"),equipmentTags:equipmentTags(form),note:text(form,"variantNote")||undefined,configuration:variantConfiguration(form)});refreshAircraftAdmin(aircraftId);refreshAircraftRuntime(aircraftId);}
 export async function publishAircraftAction(form:FormData){await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");await publishGovernedAircraft(aircraftId);refreshAircraftRuntime(aircraftId);refreshAircraftAdmin(aircraftId);}
 export async function registerRevisionAction(form:FormData){
   const session=await requireTrainingAdmin();const aircraftId=text(form,"aircraftId");const requestedManualId=text(form,"manualId");

@@ -48,8 +48,12 @@ test("v3.1 M3A Studio manages common and variant-only equipment as configuration
   const onboarding=read("app/admin/aircraft/[aircraftId]/onboarding/page.tsx");
   assert.match(settings,/Common equipment/);
   assert.match(settings,/Variant-only equipment tags/);
+  assert.match(settings,/Structured configuration metadata/);
+  assert.match(settings,/configurationJson/);
   assert.match(settings,/saveCommonEquipmentAction/);
   assert.match(actions,/setAircraftCommonEquipment/);
+  assert.match(actions,/parseAircraftConfigurationMetadata/);
+  assert.match(actions,/variantConfiguration\(form\)/);
   assert.match(onboarding,/aircraft\.equipmentTags/);
 });
 

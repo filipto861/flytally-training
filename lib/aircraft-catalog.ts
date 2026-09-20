@@ -1,3 +1,4 @@
+import type { AircraftConfigurationMetadata } from "./aircraft-configuration-profile.ts";
 import type { SourceAuthorityRole } from "./source-authority.ts";
 
 export type CurriculumStatus = "READY_TO_DRAFT" | "PLANNED";
@@ -31,6 +32,7 @@ export type TrainingAircraftVariantProfile = {
   readonly displayName: string;
   readonly equipmentTags: readonly string[];
   readonly note?: string;
+  readonly configuration?: AircraftConfigurationMetadata;
 };
 
 export type TrainingAircraftWorkspaceProfile = {

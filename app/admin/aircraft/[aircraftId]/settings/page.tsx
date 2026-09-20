@@ -46,7 +46,7 @@ export default async function AircraftSettingsPage({params}:Readonly<{params:Pro
 
     <section className={styles.sectionBlock}>
       <div className={styles.sectionHeader}><div><p className="eyebrow">Configuration</p><h2>Variants &amp; equipment</h2></div></div>
-      <p>Variants are optional. Equipment tags are exact configuration identifiers used by content applicability; FlyTally never infers equipment from an aircraft or variant name.</p>
+      <p>Variants are optional. Equipment tags are exact configuration identifiers used by content applicability; FlyTally never infers equipment from an aircraft or variant name.</p><p>Structured configuration metadata is optional. Use it only for explicitly verified base variants, capabilities, modifications and installed equipment.</p>
       <div className={styles.settingsCard}>
         <div><strong>Common equipment</strong><p>{commonEquipment.length?`${commonEquipment.length} tag${commonEquipment.length===1?"":"s"} apply to every configuration`:"No equipment tags apply globally. Add only equipment that is genuinely installed across the aircraft configuration."}</p>{commonEquipment.length?<p>{commonEquipment.map(tag=><code key={tag}>{tag} </code>)}</p>:null}</div>
         {configurationEditable?<form action={saveCommonEquipmentAction} className={styles.editorForm}>
@@ -62,7 +62,7 @@ export default async function AircraftSettingsPage({params}:Readonly<{params:Pro
           <div className={styles.formGrid}>
             <label>Display name<input name="variantDisplayName" defaultValue={profile.displayName} required/></label>
             <label className={styles.full}>Variant-only equipment tags<textarea name="equipmentTags" defaultValue={profile.equipmentTags.join(", ")} placeholder="equipment installed only in this variant"/></label>
-            <label className={styles.full}>Configuration note<textarea name="variantNote" defaultValue={profile.note??""}/></label>
+            <label className={styles.full}>Configuration note<textarea name="variantNote" defaultValue={profile.note??""}/></label><label className={styles.full}>Structured configuration metadata<textarea name="configurationJson" defaultValue={profile.configuration?JSON.stringify(profile.configuration,null,2):""} placeholder={'{"baseVariant":"base-model","capabilityTags":["capability-tag"],"modifications":[],"equipment":[]}' } rows={10} spellCheck={false}/></label>
           </div><button type="submit">Save configuration</button>
         </form>:null}
       </div>):<div className={styles.settingsCard}><div><strong>Common configuration</strong><p>No variants are required when all published content applies to the aircraft generally.</p></div></div>}
@@ -72,7 +72,7 @@ export default async function AircraftSettingsPage({params}:Readonly<{params:Pro
           <label>Variant key<input name="variantKey" placeholder="sn-001" required/></label>
           <label>Display name<input name="variantDisplayName" placeholder="S/N 001 · Registration" required/></label>
           <label className={styles.full}>Variant-only equipment tags<textarea name="equipmentTags" placeholder="equipment installed only in this variant"/></label>
-          <label className={styles.full}>Configuration note<textarea name="variantNote" placeholder="Optional source-backed configuration context"/></label>
+          <label className={styles.full}>Configuration note<textarea name="variantNote" placeholder="Optional source-backed configuration context"/></label><label className={styles.full}>Structured configuration metadata<textarea name="configurationJson" placeholder={'{"baseVariant":"base-model","capabilityTags":["capability-tag"],"modifications":[],"equipment":[]}' } rows={10} spellCheck={false}/></label>
         </div><button type="submit">Add variant</button>
       </form></div>:<div className={styles.settingsCard}><div><strong>Configuration locked for this release</strong><p>Published aircraft keep their variant/equipment profile stable so applicability cannot change outside the governed release boundary. Configure variants before catalogue publication.</p></div></div>}
     </section>
