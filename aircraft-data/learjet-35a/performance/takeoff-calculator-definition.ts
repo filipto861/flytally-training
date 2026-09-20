@@ -25,6 +25,17 @@ export const learjet35aTakeoffCalculatorDefinition: PilotTakeoffCalculatorDefini
     {
       value: "8",
       label: "8°",
+      takeoffDistance: {
+        antiIceOff: {
+          datasetId: "learjet-35a-takeoff-distance-flaps8",
+          outputKey: "distance",
+          inputs: [
+            { input: "pressureAltitude", axisKey: "pressureAltitude" },
+            { input: "oat", axisKey: "oat" },
+            { input: "takeoffWeight", axisKey: "grossWeight" },
+          ],
+        },
+      },
       v1: {
         antiIceOff: {
           datasetId: "learjet-35a-v1-flaps8",
@@ -50,6 +61,17 @@ export const learjet35aTakeoffCalculatorDefinition: PilotTakeoffCalculatorDefini
     {
       value: "20",
       label: "20°",
+      takeoffDistance: {
+        antiIceOff: {
+          datasetId: "learjet-35a-takeoff-distance-flaps20",
+          outputKey: "distance",
+          inputs: [
+            { input: "pressureAltitude", axisKey: "pressureAltitude" },
+            { input: "oat", axisKey: "oat" },
+            { input: "takeoffWeight", axisKey: "grossWeight" },
+          ],
+        },
+      },
       v1: {
         antiIceOff: {
           datasetId: "learjet-35a-v1-flaps20",
@@ -78,8 +100,6 @@ export const learjet35aTakeoffCalculatorDefinition: PilotTakeoffCalculatorDefini
     outputKey: "vref",
     inputs: [{ input: "takeoffWeight", axisKey: "grossWeight" }],
   },
-  placeholders: [
-    { key: "takeoffDistance", label: "Takeoff Distance", milestone: "B8" },
-  ],
+  placeholders: [],
   disclaimer: "Sources: available training material. Not FAA-approved.",
 };
