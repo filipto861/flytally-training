@@ -230,9 +230,13 @@ export function PilotTakeoffCalculator({
 
           {runwayContext ? (
             <div className={styles.runwayContext}>
-              <div>
-                <span>Runway surface length</span>
-                <strong>{formatThousandsWithUnit(runwayContext.surfaceLengthFt, "ft")}</strong>
+              <div className={styles.runwaySurface}>
+                <div className={styles.contextLabel}>
+                  <span>Runway surface length</span>
+                </div>
+                <div className={styles.readOnlyControl}>
+                  <strong>{formatThousandsWithUnit(runwayContext.surfaceLengthFt, "ft")}</strong>
+                </div>
               </div>
               <div className={styles.availableLength}>
                 <div className={styles.editableLabel}>
@@ -252,7 +256,7 @@ export function PilotTakeoffCalculator({
                   <span className={styles.unitSuffix}>ft</span>
                 </div>
                 <div className={styles.availableLengthMeta}>
-                  <small>Default from runway surface length</small>
+                  <small>Defaults to surface length</small>
                   {!usingSurfaceLength ? (
                     <button
                       className={styles.resetLengthButton}
@@ -264,9 +268,6 @@ export function PilotTakeoffCalculator({
                   ) : null}
                 </div>
               </div>
-              <small>
-                Defaults to runway surface length from the airport database. This is not declared TORA; verify current published runway data.
-              </small>
             </div>
           ) : null}
 
