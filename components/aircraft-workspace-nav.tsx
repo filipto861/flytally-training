@@ -3,6 +3,7 @@ import Link from "next/link";
 import { AircraftVariantSelector } from "@/components/aircraft-variant-selector";
 import { withVariantQuery } from "@/lib/aircraft-applicability";
 import type { TrainingAircraftVariantProfile } from "@/lib/aircraft-catalog";
+import { getBundledPerformancePackage } from "@/lib/bundled-performance-content";
 import { aircraftWorkspaceSections, type AircraftModuleNavKey } from "@/lib/aircraft-workspace-navigation";
 import { getTrainingContentRepository } from "@/lib/content-store";
 import styles from "./aircraft-workspace-nav.module.css";
@@ -49,7 +50,11 @@ export async function AircraftWorkspaceNav({
     repository.listPublishedModuleDomains ? repository.listPublishedModuleDomains(aircraftId) : Promise.resolve([]),
     repository.getAircraft(aircraftId),
   ]);
-  const sections = aircraftWorkspaceSections(aircraftId, publishedDomains);
+  const bundledPerformance = Boolean(getBundledPerformancePackage(aircraftId));
+  const effectiveDomains = bundledPerformance && !publishedDomains.includes("performance")
+    ? [...publishedDomains, "performance" as const]
+    : publishedDomains;
+  const sections = aircraftWorkspaceSections(aircraftId, effectiveDomains);
   const overview = sections.find((section) => section.key === "overview");
   const progress = sections.find((section) => section.key === "progress");
   const checklist = sections.find((section) => section.key === "checklists");
@@ -61,7 +66,7 @@ export async function AircraftWorkspaceNav({
   const reference: readonly NavEntry[] = hasQuickReference
     ? [{ key: "quick-reference", label: "Quick Reference", href: `/aircraft/${aircraftId}/quick-reference` }, ...referenceBase]
     : referenceBase;
-  const hasFly = Boolean(checklist || performance);
+  const hasFly = Boolean(checklist || (performance && publishedDomains.includes("performance")));
 
   const activeArea: PilotArea | undefined =
     active === "fly" ? "fly"
