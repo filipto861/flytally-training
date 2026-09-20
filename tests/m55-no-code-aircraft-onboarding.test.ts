@@ -65,7 +65,11 @@ test("M55 structured starters expose no-code configuration applicability for eve
 test("M55 aircraft settings persist rich draft configuration data without source-code registration",()=>{
   assert.match(repository,/export async function updateAircraftProfile/);
   assert.match(repository,/export async function upsertAircraftVariant/);
-  assert.match(repository,/display_name=EXCLUDED\.display_name,metadata=EXCLUDED\.metadata/);
+  assert.match(repository,/display_name=EXCLUDED\.display_name/);
+  assert.match(repository,/metadata=CASE/);
+  assert.match(repository,/preserveConfiguration/);
+  assert.match(repository,/current_variant\.metadata\s*\?\s*'configuration'/);
+  assert.match(repository,/jsonb_build_object\('configuration',current_variant\.metadata->'configuration'\)/);
   assert.match(repository,/equipmentTags/);
   assert.match(repository,/variantProfiles/);
   assert.match(repository,/a\.status='draft'/);

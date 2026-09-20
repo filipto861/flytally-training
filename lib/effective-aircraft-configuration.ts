@@ -246,3 +246,14 @@ function buildSnapshotId(args: {
     JSON.stringify(canonical),
   )}`;
 }
+
+export function resolveEffectiveAircraftConfigurationForProfile(
+  aircraft: Pick<TrainingAircraft, "id" | "equipmentTags">,
+  variantProfile: TrainingAircraftVariantProfile,
+): EffectiveAircraftConfiguration {
+  return resolveEffectiveAircraftConfiguration({
+    aircraft,
+    variantProfile,
+    configuration: variantProfile.configuration,
+  });
+}

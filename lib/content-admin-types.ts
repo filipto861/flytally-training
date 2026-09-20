@@ -1,3 +1,4 @@
+import type { AircraftConfigurationMetadata } from "./aircraft-configuration-profile.ts";
 import type { SourceAuthorityRole } from "./source-authority.ts";
 import { universalTrainingContentDomains } from "./universal-aircraft-content.ts";
 
@@ -35,6 +36,7 @@ export type AdminAircraftVariantProfile = {
   readonly displayName: string;
   readonly equipmentTags: readonly string[];
   readonly note?: string;
+  readonly configuration?: AircraftConfigurationMetadata;
 };
 
 export type AdminAircraftSummary = {

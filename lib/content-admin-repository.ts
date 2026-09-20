@@ -11,7 +11,11 @@ import {
   type AdminSourceReference,
   type TrainingContentDomain,
 } from "./content-admin-types";
-import { commonAircraftEquipmentProfileKey } from "./aircraft-configuration-profile";
+import {
+  commonAircraftEquipmentProfileKey,
+  parseAircraftConfigurationMetadata,
+  type AircraftConfigurationMetadata,
+} from "./aircraft-configuration-profile";
 import { parseSourceAuthorityRole } from "./source-authority";
 
 let contentSchemaReady: Promise<void> | undefined;
@@ -204,17 +208,50 @@ export async function setAircraftCommonEquipment(aircraftId:string,equipment:rea
   return equipmentTags.length;
 }
 
-export async function upsertAircraftVariant(aircraftId:string,input:{key:string;displayName:string;equipmentTags:readonly string[];note?:string}){
+export type UpsertAircraftVariantInput = {
+  readonly key: string;
+  readonly displayName: string;
+  readonly equipmentTags: readonly string[];
+  readonly note?: string;
+  /** undefined = preserve, null = remove, object = replace. */
+  readonly configuration?: AircraftConfigurationMetadata | null;
+};
+
+export async function upsertAircraftVariant(aircraftId:string,input:UpsertAircraftVariantInput){
   const id=validId(aircraftId,"aircraft id");
   const key=validId(input.key,"variant key");
   const displayName=requiredText(input.displayName,"variant display name");
   const equipmentTags=[...new Set(input.equipmentTags.map(tag=>validId(tag,"equipment tag")))];
   const note=input.note?.trim()||undefined;
   if(note && note.length>2000)throw new Error("Variant note is too long.");
-  const metadata=JSON.stringify({equipmentTags,...(note?{note}:{})});
-  const rows=await sql`INSERT INTO training_aircraft_variants(aircraft_id,variant_key,display_name,metadata)
+  const configuration=
+    input.configuration===undefined
+      ?undefined
+      :input.configuration===null
+        ?null
+        :parseAircraftConfigurationMetadata(input.configuration);
+  const preserveConfiguration=input.configuration===undefined;
+  const metadata=JSON.stringify({
+    equipmentTags,
+    ...(note?{note}:{}),
+    ...(configuration?{configuration}:{}),
+  });
+  const rows=await sql`INSERT INTO training_aircraft_variants AS current_variant(aircraft_id,variant_key,display_name,metadata)
     SELECT a.aircraft_id,${key},${displayName},${metadata}::jsonb FROM training_aircraft_types a WHERE a.aircraft_id=${id} AND a.status='draft'
-    ON CONFLICT(aircraft_id,variant_key) DO UPDATE SET display_name=EXCLUDED.display_name,metadata=EXCLUDED.metadata
+    ON CONFLICT(aircraft_id,variant_key) DO UPDATE SET
+      display_name=EXCLUDED.display_name,
+      metadata=CASE
+        WHEN ${preserveConfiguration}
+        THEN
+          (EXCLUDED.metadata - 'configuration')
+          ||
+          CASE
+            WHEN current_variant.metadata ? 'configuration'
+            THEN jsonb_build_object('configuration',current_variant.metadata->'configuration')
+            ELSE '{}'::jsonb
+          END
+        ELSE EXCLUDED.metadata
+      END
     WHERE EXISTS(SELECT 1 FROM training_aircraft_types a WHERE a.aircraft_id=EXCLUDED.aircraft_id AND a.status='draft')
     RETURNING variant_key` as Array<{variant_key:string}>;
   if(!rows[0])throw new Error("Variant configuration can only be changed while the aircraft catalogue entry is in draft.");
@@ -253,7 +290,8 @@ export async function getAdminAircraft(aircraftId:string):Promise<AdminAircraftD
   const variantProfiles=variantRows.filter(row=>row.variant_key!==commonAircraftEquipmentProfileKey).map((row):AdminAircraftVariantProfile=>{
     const metadata=metadataObject(row.metadata);
     const note=typeof metadata.note==="string"&&metadata.note.trim()?metadata.note.trim():undefined;
-    return {key:row.variant_key,displayName:row.display_name,equipmentTags:metadataStringArray(metadata.equipmentTags),note};
+    const configuration=parseAircraftConfigurationMetadata(metadata.configuration);
+    return {key:row.variant_key,displayName:row.display_name,equipmentTags:metadataStringArray(metadata.equipmentTags),note,...(configuration?{configuration}:{})};
   });
   return {
     ...summary,

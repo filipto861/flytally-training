@@ -1,7 +1,7 @@
 import "server-only";
 
 import type { AircraftAbnormalTraining } from "./abnormal-scenarios";
-import { commonAircraftEquipmentProfileKey } from "./aircraft-configuration-profile";
+import { commonAircraftEquipmentProfileKey, parseAircraftConfigurationMetadata } from "./aircraft-configuration-profile";
 import type { TrainingAircraft, TrainingAircraftVariantProfile, TrainingManualRevision } from "./aircraft-catalog";
 import type { CockpitOrientation } from "./cockpit-orientation";
 import type { TrainingContentDomain } from "./content-admin-types";
@@ -45,11 +45,13 @@ function mapManual(row:ManualRow):TrainingManualRevision{
 function mapVariant(row:VariantRow):TrainingAircraftVariantProfile{
   const metadata=asObject(row.metadata);
   const note=typeof metadata.note==="string"&&metadata.note.trim()?metadata.note.trim():undefined;
+  const configuration=parseAircraftConfigurationMetadata(metadata.configuration);
   return{
     key:row.variant_key,
     displayName:row.display_name||row.variant_key,
     equipmentTags:stringArray(metadata.equipmentTags),
     ...(note?{note}:{}),
+    ...(configuration?{configuration}:{}),
   };
 }
 

@@ -18,7 +18,7 @@ test("a sparse second aircraft can be created, published and read through the ge
   process.env.TRAINING_DATABASE_URL = acceptanceUrl;
   const [
     { initializeTrainingDatabase },
-    { createAircraft, addAircraftVariant, createSourceReference },
+    { createAircraft, addAircraftVariant, createSourceReference, getAdminAircraft, upsertAircraftVariant },
     { registerGovernedManualRevision },
     { publishGovernedAircraft },
     { createGovernedDraftVersion, approveGovernedContentVersion, publishGovernedContentVersion },
@@ -29,6 +29,7 @@ test("a sparse second aircraft can be created, published and read through the ge
     { buildPerformanceCalculatorProfile, calculateLandingDistance, calculateTakeoffDistance, getMetricLookupResults },
     { calculateWeightBalance },
     { getAircraftPackageReadiness },
+    { resolveEffectiveAircraftConfigurationForProfile },
     { sql },
   ] = await Promise.all([
     import("../lib/database-bootstrap.ts"),
@@ -43,6 +44,7 @@ test("a sparse second aircraft can be created, published and read through the ge
     import("../lib/performance-calculator.ts"),
     import("../lib/weight-balance-calculator.ts"),
     import("../lib/aircraft-package-readiness.ts"),
+    import("../lib/effective-aircraft-configuration.ts"),
     import("../lib/db.ts"),
   ]);
   await initializeTrainingDatabase();
@@ -52,6 +54,20 @@ test("a sparse second aircraft can be created, published and read through the ge
   const manualId = `${aircraftId}-manual`;
   const subject = "acceptance-harness";
   const embeddedSource = { manualId, chapter: "1", section: "Synthetic acceptance", pageLabel: "1" } as const;
+  const variantConfiguration = {
+    baseVariant: "A",
+    capabilityTags: ["acceptance.capability"],
+    modifications: [{
+      key: "acceptance-mod",
+      state: "installed" as const,
+      approvalRef: "ACCEPTANCE-APPROVAL",
+    }],
+    equipment: [{
+      key: "acceptance-equipment",
+      state: "installed" as const,
+      model: "Acceptance Model",
+    }],
+  } as const;
 
   const checklists: AircraftChecklistContent = {
     aircraftId,
@@ -122,8 +138,25 @@ test("a sparse second aircraft can be created, published and read through the ge
       model: "Light SEP",
       displayName: "Acceptance Light SEP",
     }, subject);
-    await addAircraftVariant(aircraftId, "A");
+    await upsertAircraftVariant(aircraftId, {
+      key: "A",
+      displayName: "Variant A",
+      equipmentTags: ["acceptance-equipment-tag"],
+      configuration: variantConfiguration,
+    });
+    await upsertAircraftVariant(aircraftId, {
+      key: "A",
+      displayName: "Variant A",
+      equipmentTags: ["acceptance-equipment-tag"],
+      note: "Second write intentionally omits structured configuration.",
+    });
     await addAircraftVariant(aircraftId, "B");
+
+    const adminAircraft = await getAdminAircraft(aircraftId);
+    assert.ok(adminAircraft);
+    const adminVariantA = adminAircraft.variantProfiles?.find((profile) => profile.key === "A");
+    assert.ok(adminVariantA);
+    assert.deepEqual(adminVariantA.configuration, variantConfiguration);
     await registerGovernedManualRevision({
       aircraftId,
       manualId,
@@ -181,6 +214,18 @@ test("a sparse second aircraft can be created, published and read through the ge
       quickReference: false,
     });
     assert.ok((await repository.listAircraft()).some((aircraft) => aircraft.id === aircraftId));
+
+    const learnerVariantA = bundle.aircraft.variantProfiles?.find((profile) => profile.key === "A");
+    assert.ok(learnerVariantA);
+    assert.deepEqual(learnerVariantA.configuration, variantConfiguration);
+
+    const effective = resolveEffectiveAircraftConfigurationForProfile(
+      bundle.aircraft,
+      learnerVariantA,
+    );
+    assert.equal(effective.baseVariantKey, "A");
+    assert.deepEqual(effective.capabilityTags, ["acceptance.capability"]);
+    assert.equal(effective.modifications[0]?.key, "acceptance-mod");
 
     const storedChecklists = await repository.getPublishedModule<AircraftChecklistContent>(aircraftId, "checklists");
     const storedProcedures = await repository.getPublishedModule<AircraftProcedureContent>(aircraftId, "procedures");
