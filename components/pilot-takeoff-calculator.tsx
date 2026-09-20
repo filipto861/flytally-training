@@ -26,6 +26,7 @@ import {
   type PilotTakeoffMetricResult,
 } from "@/lib/pilot-takeoff-calculator";
 import type { PerformanceDataset } from "@/lib/universal-aircraft-content";
+import { formatThousands, formatThousandsWithUnit } from "@/lib/format/numbers";
 import type { MetarSnapshot } from "@/lib/weather/metar-types";
 
 import styles from "./pilot-takeoff-calculator.module.css";
@@ -218,7 +219,7 @@ export function PilotTakeoffCalculator({
             <div className={styles.runwayContext}>
               <div>
                 <span>Runway surface length</span>
-                <strong>{runwayContext.surfaceLengthFt.toLocaleString("en-US")} ft</strong>
+                <strong>{formatThousandsWithUnit(runwayContext.surfaceLengthFt, "ft")}</strong>
               </div>
               <label className={styles.availableLength}>
                 <span>Available takeoff length</span>
@@ -409,17 +410,17 @@ export function PilotTakeoffCalculator({
             <div className={styles.runwayMargin} data-within={runwayMargin.withinLength}>
               <div>
                 <span>Required distance</span>
-                <strong>{Math.round(summary.takeoffDistance.value ?? 0).toLocaleString("en-US")} ft</strong>
+                <strong>{formatThousandsWithUnit(Math.round(summary.takeoffDistance.value ?? 0), "ft")}</strong>
               </div>
               <div>
                 <span>Available</span>
-                <strong>{Math.round(availableLength).toLocaleString("en-US")} ft</strong>
+                <strong>{formatThousandsWithUnit(Math.round(availableLength), "ft")}</strong>
               </div>
               <div>
                 <span>Margin</span>
                 <strong>
                   {runwayMargin.marginFt >= 0 ? "+" : ""}
-                  {Math.round(runwayMargin.marginFt).toLocaleString("en-US")} ft
+                  {formatThousands(Math.round(runwayMargin.marginFt))} ft
                 </strong>
               </div>
               <div>
