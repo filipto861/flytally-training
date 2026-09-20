@@ -83,6 +83,10 @@
   gap:var(--ui-space-2);
 }
 .actions button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:var(--ui-space-2);
   min-height:44px;
   padding:9px 13px;
   border:1px solid #bfcdd9;
@@ -93,6 +97,16 @@
   font-size:.74rem;
   font-weight:820;
   cursor:pointer;
+}
+.buttonIcon{
+  width:16px;
+  height:16px;
+  flex:0 0 16px;
+  fill:none;
+  stroke:currentColor;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  stroke-width:1.8;
 }
 .actions button:focus-visible{
   outline:3px solid rgba(50,93,139,.24);
