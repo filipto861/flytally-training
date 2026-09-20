@@ -2,7 +2,12 @@ import { SourceBadge, type PerformanceUiSource } from "./source-badge";
 
 import styles from "./metric-card.module.css";
 
-export type MetricStatus = "ready" | "out-of-range" | "unavailable" | "pending";
+export type MetricStatus =
+  | "ready"
+  | "missing"
+  | "out-of-range"
+  | "unavailable"
+  | "pending";
 
 export interface MetricCardProps {
   readonly label: string;
