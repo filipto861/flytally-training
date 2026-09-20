@@ -37,3 +37,22 @@ test("independent checklist, procedure and performance modules validate without 
     }],
   }, aircraftId), []);
 });
+
+
+test("procedure contract rejects unsupported step-level applicability instead of silently ignoring it", () => {
+  const errors = validateContentPayload("procedures", {
+    aircraftId,
+    title: "Scoped step",
+    procedures: [{
+      id: "scoped",
+      title: "Scoped",
+      steps: [{
+        id: "step",
+        action: "Action",
+        applicability: { equipmentAllOf: ["option-x"] },
+      }],
+    }],
+  }, aircraftId);
+
+  assert.ok(errors.some((error) => error.includes("steps[0].applicability") && error.includes("not supported")));
+});

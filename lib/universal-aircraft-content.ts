@@ -1,3 +1,5 @@
+import { validateProcedureGraph } from "./procedure-graph.ts";
+
 export const universalTrainingContentDomains = [
   "checklists",
   "procedures",
@@ -100,17 +102,118 @@ export type AircraftProcedureStep = {
   readonly sources?: readonly TrainingSourceReference[];
 };
 
-export type AircraftProcedure = {
+export type ProcedureGraphNodeBase = {
+  readonly id: string;
+  readonly sources?: readonly TrainingSourceReference[];
+};
+
+export type ProcedureExecutableNodeBase = ProcedureGraphNodeBase & {
+  /** Explicit semantic marker. Never infer memory items from labels or styling. */
+  readonly memoryItem?: boolean;
+  /** Optional display/training metadata. Absence means no crew-role distinction. */
+  readonly crewRole?: string;
+};
+
+export type ProcedureActionNode = ProcedureExecutableNodeBase & {
+  readonly kind: "action";
+  readonly action: string;
+  readonly expectedResult?: string;
+  readonly verification?: string;
+  readonly rationale?: string;
+  readonly notices?: readonly TrainingNotice[];
+  /**
+   * Source-defined qualifier displayed to the user. It is not evaluated by the
+   * runtime and is not AircraftApplicability.
+   *
+   * TODO(M1-E4/E5): once node-level applicability is supported, configuration
+   * qualifiers such as "if installed" may migrate to explicit rules such as
+   * equipmentAnyOf: ["drag-chute", "thrust-reverser"] instead of conditionText.
+   */
+  readonly conditionText?: string;
+  readonly nextNodeId: string;
+};
+
+export type ProcedureDecisionOption = {
+  readonly id: string;
+  readonly label: string;
+  readonly targetNodeId: string;
+};
+
+export type ProcedureDecisionNode = ProcedureGraphNodeBase & {
+  readonly kind: "decision";
+  /** Human choice only in M1-E1/E2; there is no automatic predicate evaluator. */
+  readonly prompt: string;
+  readonly options: readonly ProcedureDecisionOption[];
+};
+
+export type ProcedureNoteNode = ProcedureGraphNodeBase & {
+  readonly kind: "note";
+  readonly text: string;
+  readonly nextNodeId: string;
+};
+
+export type ProcedureReferenceTarget = {
+  readonly title: string;
+  readonly procedureId?: string;
+  readonly sourceLocationText?: string;
+};
+
+export type ProcedureReferenceNode = ProcedureExecutableNodeBase & {
+  readonly kind: "reference";
+  readonly instruction: string;
+  readonly targets: readonly ProcedureReferenceTarget[];
+  readonly nextNodeId: string;
+};
+
+export type ProcedureEndNode = ProcedureGraphNodeBase & {
+  readonly kind: "end";
+  readonly label?: string;
+};
+
+export type ProcedureNode =
+  | ProcedureActionNode
+  | ProcedureDecisionNode
+  | ProcedureNoteNode
+  | ProcedureReferenceNode
+  | ProcedureEndNode;
+
+export type AircraftProcedureGraph = {
+  readonly version: 1;
+  readonly entryNodeId: string;
+  readonly nodes: readonly ProcedureNode[];
+};
+
+export type AircraftProcedureBase = {
   readonly id: string;
   readonly title: string;
   readonly phase?: string;
   readonly summary?: string;
   readonly prerequisites?: readonly string[];
-  readonly steps: readonly AircraftProcedureStep[];
   readonly completionCriteria?: readonly string[];
+  /** Procedure-level applicability remains governed by the M1-D matcher. */
   readonly applicability?: AircraftApplicability;
   readonly sources?: readonly TrainingSourceReference[];
 };
+
+/**
+ * Runtime-facing legacy linear procedure. M1-E1 deliberately keeps this exact
+ * execution model so current learner runtime and Bristell need no migration.
+ */
+export type AircraftProcedure = AircraftProcedureBase & {
+  readonly steps: readonly AircraftProcedureStep[];
+  readonly graph?: never;
+};
+
+/**
+ * Governed graph procedure contract. M1-E1 validates/drafts this shape, while
+ * approval/publication remains blocked until the M1-E2 learner runtime lands.
+ */
+export type AircraftGraphProcedure = AircraftProcedureBase & {
+  readonly graph: AircraftProcedureGraph;
+  readonly steps?: never;
+};
+
+export type AircraftProcedureDefinition = AircraftProcedure | AircraftGraphProcedure;
 
 export type AircraftProcedureContent = UniversalModuleMetadata & {
   readonly aircraftId: string;
@@ -414,15 +517,38 @@ function validateProcedures(payload: RecordValue, errors: string[]): void {
     return;
   }
   payload.procedures.forEach((procedure, procedureIndex) => {
-    if (!idTitle(procedure) || !objects(procedure.steps) || procedure.steps.length === 0 || !validateSources(procedure.sources)) {
+    if (!idTitle(procedure) || !validateSources(procedure.sources)) {
       errors.push(`procedures[${procedureIndex}] does not match the procedure contract`);
       return;
     }
-    procedure.steps.forEach((step, stepIndex) => {
-      if (!text(step.id) || !text(step.action) || !validateNotices(step.notices) || !validateSources(step.sources)) {
-        errors.push(`procedures[${procedureIndex}].steps[${stepIndex}] does not match the procedure step contract`);
+
+    const hasSteps = procedure.steps !== undefined;
+    const hasGraph = procedure.graph !== undefined;
+    if (hasSteps === hasGraph) {
+      errors.push(`procedures[${procedureIndex}] must define exactly one execution model: steps or graph`);
+      return;
+    }
+
+    if (hasSteps) {
+      if (!objects(procedure.steps) || procedure.steps.length === 0) {
+        errors.push(`procedures[${procedureIndex}] does not match the linear procedure contract`);
+        return;
       }
-    });
+      procedure.steps.forEach((step, stepIndex) => {
+        if (!text(step.id) || !text(step.action) || !validateNotices(step.notices) || !validateSources(step.sources)) {
+          errors.push(`procedures[${procedureIndex}].steps[${stepIndex}] does not match the procedure step contract`);
+        }
+        if (step.applicability !== undefined) {
+          errors.push(
+            `procedures[${procedureIndex}].steps[${stepIndex}].applicability is not supported by the current procedure runtime; scope applicability at procedure level instead`,
+          );
+        }
+      });
+      return;
+    }
+
+    const graphValidation = validateProcedureGraph(procedure.graph);
+    errors.push(...graphValidation.errors.map((error) => `procedures[${procedureIndex}].${error}`));
   });
 }
 
