@@ -107,11 +107,10 @@ export async function assertOperationalSourceAuthorityForVersion(
   const roles = new Map(rows.map((row) => [row.reference_id, row.authority_role]));
   const invalid = unique.filter((id) => !sourcePolicyAllowsAuthority(sourcePolicy, roles.get(id) ?? ""));
   if (invalid.length) {
-    const requirement = sourcePolicy === "available-sources"
-      ? "CONTROLLING, OPERATING_REFERENCE, TRAINING_REFERENCE, or SIMULATOR_WORKFLOW"
-      : "CONTROLLING or OPERATING_REFERENCE";
     throw new Error(
-      `Operational ${domain} content under sourcePolicy=${sourcePolicy} requires ${requirement} source authority: ${invalid.join(", ")}`,
+      sourcePolicy === "available-sources"
+        ? `Operational ${domain} content under sourcePolicy=available-sources requires CONTROLLING, OPERATING_REFERENCE, TRAINING_REFERENCE, or SIMULATOR_WORKFLOW source authority: ${invalid.join(", ")}`
+        : `Operational ${domain} content requires CONTROLLING or OPERATING_REFERENCE source authority: ${invalid.join(", ")}`,
     );
   }
 }
