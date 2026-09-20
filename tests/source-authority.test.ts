@@ -46,6 +46,7 @@ test("source policy defaults to faa-approved and available-sources widens only t
   assert.equal(resolveContentSourcePolicy(undefined), "faa-approved");
   assert.equal(resolveContentSourcePolicy("faa-approved"), "faa-approved");
   assert.equal(resolveContentSourcePolicy("available-sources"), "available-sources");
+  assert.equal(resolveContentSourcePolicy("unexpected-policy"), "faa-approved");
 
   assert.equal(sourcePolicyAllowsAuthority("faa-approved", "CONTROLLING"), true);
   assert.equal(sourcePolicyAllowsAuthority("faa-approved", "OPERATING_REFERENCE"), true);
