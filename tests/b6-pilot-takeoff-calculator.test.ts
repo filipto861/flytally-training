@@ -15,6 +15,8 @@ const load = (file: string): PerformanceDataset => JSON.parse(
 
 const datasets = [
   load("takeoff-n1.json"),
+  load("takeoff-distance-flaps8.json"),
+  load("takeoff-distance-flaps20.json"),
   load("v1-flaps8.json"),
   load("v1-flaps20.json"),
   load("vr-flaps8.json"),
@@ -35,7 +37,7 @@ test("B6 registers the pilot calculator as data instead of branching the UI on a
   assert.doesNotMatch(calculator, /Learjet|learjet-35a|vr-flaps8|v2-flaps8/i);
 });
 
-test("B6 exact source inputs return N1, V1, VR, V2 and VREF together", () => {
+test("B6 exact source inputs return N1, V1, VR, V2, VREF and takeoff distance together", () => {
   const result = calculatePilotTakeoffSummary(datasets, definition, {
     pressureAltitude: 1000,
     oat: 16,
@@ -59,7 +61,9 @@ test("B6 exact source inputs return N1, V1, VR, V2 and VREF together", () => {
   assert.equal(result.v1.status, "ready");
   assert.equal(result.v1.value, 116);
   assert.equal(formatPilotTakeoffMetric(result.v1), "116 KIAS");
-  assert.equal(result.takeoffDistance.status, "pending");
+  assert.equal(result.takeoffDistance.status, "ready");
+  assert.equal(result.takeoffDistance.value, 3632);
+  assert.equal(formatPilotTakeoffMetric(result.takeoffDistance), "3,632 FT");
 });
 
 test("B6 flap selection switches the source-backed VR and V2 datasets live", () => {
@@ -72,6 +76,7 @@ test("B6 flap selection switches the source-backed VR and V2 datasets live", () 
   });
 
   assert.equal(result.v1.value, 111);
+  assert.equal(result.takeoffDistance.value, 3500);
   assert.equal(result.vr.value, 127);
   assert.equal(result.v2.value, 126);
   assert.equal(result.vref.value, 127);
@@ -88,6 +93,8 @@ test("B6 fails closed per metric when an input is outside that dataset envelope"
 
   assert.equal(highTakeoffWeight.v1.status, "ready");
   assert.equal(highTakeoffWeight.v1.value, 123);
+  assert.equal(highTakeoffWeight.takeoffDistance.status, "ready");
+  assert.equal(highTakeoffWeight.takeoffDistance.value, 4168);
   assert.equal(highTakeoffWeight.vr.status, "ready");
   assert.equal(highTakeoffWeight.vr.value, 134);
   assert.equal(highTakeoffWeight.v2.status, "ready");
@@ -103,6 +110,7 @@ test("B6 fails closed per metric when an input is outside that dataset envelope"
     antiIce: false,
   });
   assert.equal(belowAllSpeedTables.v1.status, "out-of-range");
+  assert.equal(belowAllSpeedTables.takeoffDistance.status, "out-of-range");
   assert.equal(belowAllSpeedTables.vr.status, "out-of-range");
   assert.equal(belowAllSpeedTables.v2.status, "out-of-range");
   assert.equal(belowAllSpeedTables.vref.status, "out-of-range");
@@ -123,6 +131,9 @@ test("B6 anti-ice ON does not reuse the anti-ice OFF N1 grid", () => {
   assert.equal(result.v1.status, "unavailable");
   assert.match(result.v1.reason ?? "", /Anti-ice ON V1 data is not available/i);
   assert.equal(formatPilotTakeoffMetric(result.v1), "Unavailable");
+  assert.equal(result.takeoffDistance.status, "unavailable");
+  assert.match(result.takeoffDistance.reason ?? "", /Anti-ice ON takeoff distance data is not available/i);
+  assert.equal(formatPilotTakeoffMetric(result.takeoffDistance), "Unavailable");
   assert.equal(result.vr.value, 130);
   assert.equal(result.v2.value, 133);
 });

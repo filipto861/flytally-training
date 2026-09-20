@@ -1,0 +1,5266 @@
+{
+  "id": "learjet-35a-takeoff-distance-flaps20",
+  "title": "Takeoff Distance · Flaps 20°",
+  "description": "Source-backed takeoff distance lookup for the standard Learjet 35A/36A 20° takeoff-flap configuration.",
+  "kind": "lookup-table",
+  "phase": "takeoff",
+  "calculator": {
+    "kind": "multi-axis-metric-grid",
+    "operation": "takeoff",
+    "inputAxes": [
+      "pressureAltitude",
+      "oat",
+      "grossWeight"
+    ],
+    "outputKeys": [
+      "distance"
+    ]
+  },
+  "axes": [
+    {
+      "key": "pressureAltitude",
+      "label": "Pressure altitude",
+      "unit": "ft",
+      "values": [
+        0,
+        1000,
+        2000,
+        3000,
+        4000,
+        5000,
+        6000,
+        7000,
+        8000,
+        9000,
+        10000
+      ]
+    },
+    {
+      "key": "oat",
+      "label": "Outside air temperature",
+      "unit": "°C",
+      "values": [
+        -18,
+        -7,
+        4,
+        16,
+        27,
+        38
+      ]
+    },
+    {
+      "key": "grossWeight",
+      "label": "Gross weight",
+      "unit": "lb",
+      "values": [
+        10000,
+        11000,
+        12000,
+        13000,
+        14000,
+        15000,
+        16000,
+        17000,
+        18000,
+        18300
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "key": "distance",
+      "label": "Takeoff Distance",
+      "unit": "FT"
+    }
+  ],
+  "rows": [
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -18,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 2115
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -18,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 2218
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -18,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 2288
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -18,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 2431
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -18,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 2603
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -18,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 2964
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -18,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 3396
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -18,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 3866
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -18,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "distance": 4361
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -18,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "distance": 4509
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -7,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 2185
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -7,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 2289
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -7,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 2370
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -7,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 2521
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -7,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 2704
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -7,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 3084
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -7,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 3531
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -7,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 4024
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -7,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "distance": 4528
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -7,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "distance": 4680
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 4,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 2255
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 4,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 2361
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 4,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 2452
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 4,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 2612
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 4,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 2805
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 4,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 3204
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 4,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 3667
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 4,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 4182
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 4,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "distance": 4696
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 4,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "distance": 4850
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 16,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 2325
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 16,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 2432
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 16,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 2534
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 16,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 2702
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 16,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 2907
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 16,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 3324
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 16,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 3802
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 16,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 4340
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 16,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "distance": 4864
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 16,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "distance": 5021
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 27,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 2511
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 27,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 2621
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 27,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 2750
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 27,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 2942
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 27,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 3175
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 27,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 3640
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 27,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 4161
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 27,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 4758
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 27,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "distance": 5375
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 27,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "distance": 5560
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 38,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 2918
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 38,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 3080
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 38,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 3275
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 38,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 3523
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 38,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 3826
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 38,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 4410
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 38,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 5084
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -18,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 2184
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -18,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 2288
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -18,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 2369
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -18,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 2520
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -18,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 2702
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -18,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 3082
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -18,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 3529
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -18,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 4021
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -18,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "distance": 4525
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -18,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "distance": 4676
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -7,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 2256
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -7,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 2362
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -7,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 2453
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -7,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 2613
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -7,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 2807
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -7,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 3205
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -7,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 3669
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -7,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 4184
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -7,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "distance": 4698
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -7,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "distance": 4853
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 4,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 2328
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 4,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 2435
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 4,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 2537
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 4,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 2706
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 4,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 2911
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 4,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 3329
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 4,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 3808
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 4,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 4347
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 4,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "distance": 4871
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 4,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "distance": 5029
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 16,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 2429
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 16,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 2537
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 16,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 2654
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 16,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 2836
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 16,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 3056
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 16,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 3500
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 16,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 4002
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 16,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 4573
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 16,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "distance": 5136
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 16,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "distance": 5305
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 27,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 2693
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 27,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 2807
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 27,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 2963
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 27,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 3177
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 27,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 3439
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 27,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 3952
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 27,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 4513
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 27,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 5201
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 27,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "distance": 5906
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 38,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 3113
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 38,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 3331
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 38,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 3563
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 38,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 3841
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 38,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 4183
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 38,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 4831
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -18,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 2253
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -18,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 2358
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -18,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 2449
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -18,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 2608
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -18,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 2802
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -18,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 3199
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -18,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 3662
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -18,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 4176
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -18,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "distance": 4690
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -18,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "distance": 4844
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -7,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 2327
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -7,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 2434
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -7,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 2536
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -7,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 2705
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -7,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 2909
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -7,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 3327
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -7,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 3806
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -7,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 4344
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -7,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "distance": 4868
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -7,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "distance": 5026
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 4,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 2402
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 4,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 2510
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 4,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 2623
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 4,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 2801
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 4,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 3017
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 4,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 3454
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 4,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 3950
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 4,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 4512
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 4,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "distance": 5057
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 4,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "distance": 5220
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 16,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 2532
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 16,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 2643
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 16,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 2775
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 16,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 2969
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 16,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 3206
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 16,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 3677
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 16,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 4202
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 16,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 4807
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 16,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "distance": 5438
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 16,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "distance": 5627
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 27,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 2848
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 27,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 2992
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 27,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 3175
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 27,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 3412
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 27,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 3702
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 27,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 4263
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 27,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 4899
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 27,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 5688
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 38,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 3285
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 38,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 3582
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 38,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 3850
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 38,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 4159
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 38,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 4539
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 38,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 5252
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -18,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 2331
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -18,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 2438
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -18,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 2541
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -18,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 2710
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -18,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 2915
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -18,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 3334
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -18,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 3814
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -18,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 4354
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -18,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "distance": 4878
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -18,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "distance": 5035
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -7,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 2413
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -7,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 2521
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -7,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 2636
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -7,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 2815
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -7,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 3034
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -7,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 3473
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -7,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 3972
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -7,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 4538
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -7,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "distance": 5090
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -7,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "distance": 5255
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 4,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 2495
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 4,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 2605
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 4,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 2731
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 4,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 2921
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 4,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 3152
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 4,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 3613
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 4,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 4130
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 4,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 4722
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 4,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "distance": 5328
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 4,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "distance": 5510
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 16,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 2682
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 16,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 2796
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 16,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 2950
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 16,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 3163
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 16,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 3423
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 16,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 3933
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 16,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 4492
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 16,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 5172
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 16,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "distance": 5875
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 16,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "distance": 6086
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 27,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 3023
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 27,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 3211
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 27,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 3425
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 27,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 3689
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 27,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 4012
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 27,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 4629
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 27,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 5361
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 38,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 3515
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 38,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 3866
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 38,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 4175
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 38,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 4535
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 38,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 5058
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -18,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 2410
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -18,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 2518
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -18,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 2632
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -18,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 2811
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -18,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 3029
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -18,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 3468
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -18,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 3966
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -18,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 4531
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -18,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "distance": 5081
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -18,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "distance": 5246
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -7,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 2499
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -7,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 2609
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -7,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 2736
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -7,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 2926
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -7,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 3158
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -7,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 3620
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -7,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 4137
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -7,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 4731
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -7,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "distance": 5340
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -7,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "distance": 5523
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 4,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 2588
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 4,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 2699
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 4,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 2840
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 4,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 3041
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 4,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 3286
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 4,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 3772
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 4,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 4309
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 4,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 4932
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 4,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "distance": 5599
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 4,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "distance": 5799
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 16,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 2813
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 16,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 2949
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 16,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 3125
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 16,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 3357
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 16,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 3640
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 16,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 4190
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 16,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 4806
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 16,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 5573
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 16,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "distance": 6438
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 16,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "distance": 6697
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 27,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 3180
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 27,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 3429
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 27,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 3675
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 27,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 3965
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 27,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 4322
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 27,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 4995
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 27,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 5894
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 38,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 3775
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 38,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 4150
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 38,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 4500
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 38,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 4925
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 38,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 5675
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -18,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 2517
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -18,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 2627
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -18,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 2757
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -18,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 2949
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -18,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 3184
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -18,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 3651
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -18,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 4172
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -18,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 4772
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -18,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "distance": 5393
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -18,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "distance": 5579
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -7,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 2616
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -7,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 2729
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -7,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 2873
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -7,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 3078
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -7,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 3328
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -7,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 3821
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -7,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 4365
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -7,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 4996
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -7,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "distance": 5683
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -7,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "distance": 5889
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 4,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 2737
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 4,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 2854
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 4,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 3017
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 4,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 3237
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 4,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 3506
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 4,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 4031
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 4,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 4606
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 4,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 5325
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 4,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "distance": 6058
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 4,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "distance": 6279
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 16,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 2992
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 16,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 3173
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 16,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 3381
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 16,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 3640
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 16,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 3958
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 16,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 4565
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 16,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 5280
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 16,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 6160
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 27,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 3380
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 27,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 3719
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 27,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 4006
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 27,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 4333
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 27,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 4737
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 27,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 5586
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 38,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 4098
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 38,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 4508
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 38,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 4904
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 38,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 5410
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -18,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 2624
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -18,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 2736
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -18,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 2882
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -18,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 3087
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -18,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 3338
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -18,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 3833
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -18,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 4379
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -18,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 5015
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -18,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "distance": 5704
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -18,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "distance": 5911
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -7,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 2732
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -7,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 2848
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -7,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 3010
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -7,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 3230
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -7,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 3498
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -7,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 4022
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -7,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 4594
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -7,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 5310
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -7,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "distance": 6035
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -7,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "distance": 6253
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 4,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 2861
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 4,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 3009
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 4,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 3194
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 4,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 3433
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 4,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 3725
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 4,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 4290
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 4,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 4933
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 4,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 5730
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 4,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "distance": 6678
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 4,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "distance": 6962
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 16,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 3158
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 16,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 3396
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 16,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 3638
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 16,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 3924
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 16,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 4276
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 16,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 4940
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 16,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 5809
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 16,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 6747
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 27,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 3645
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 27,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 4008
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 27,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 4338
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 27,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 4730
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 27,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 5366
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 27,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 6565
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 38,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 4421
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 38,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 4867
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 38,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 5308
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 38,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 5894
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -18,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 2724
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -18,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 2839
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -18,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 2999
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -18,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 3217
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -18,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 3484
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -18,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 4006
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -18,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 4574
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -18,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 5285
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -18,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "distance": 5998
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -18,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "distance": 6212
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -7,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 2816
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -7,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 2953
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -7,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 3130
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -7,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 3362
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -7,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 3646
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -7,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 4197
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -7,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 4816
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -7,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 5585
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -7,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "distance": 6455
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -7,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "distance": 6716
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 4,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 2994
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 4,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 3175
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 4,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 3384
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 4,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 3644
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 4,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 3962
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 4,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 4570
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 4,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 5286
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 4,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 6167
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 4,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "distance": 7345
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 4,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "distance": 7699
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 16,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 3319
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 16,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 3631
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 16,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 3906
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 16,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 4221
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 16,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 4609
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 16,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 5340
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 16,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 6420
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 27,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 3930
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 27,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 4322
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 27,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 4694
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 27,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 5158
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 27,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 6024
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -18,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 2807
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -18,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 2941
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -18,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 3117
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -18,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 3347
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -18,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 3630
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -18,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 4178
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -18,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 4791
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -18,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 5554
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -18,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "distance": 6408
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -18,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "distance": 6665
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -7,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 2900
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -7,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 3058
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -7,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 3250
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -7,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 3495
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -7,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 3795
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -7,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 4373
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -7,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 5038
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -7,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 5859
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -7,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "distance": 6875
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -7,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "distance": 7180
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 4,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 3120
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 4,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 3342
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 4,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 3575
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 4,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 3855
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 4,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 4198
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 4,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 4849
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 4,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 5669
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 4,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 6604
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 16,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 3515
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 16,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 3866
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 16,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 4175
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 16,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 4535
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 16,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 5058
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 16,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 6000
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 27,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 4215
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 27,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 4638
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 27,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 5050
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 27,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 5585
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 27,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 6822
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -18,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 2906
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -18,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 3065
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -18,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 3258
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -18,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 3504
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -18,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 3805
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -18,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 4385
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -18,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 5053
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -18,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 5878
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -18,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "distance": 6904
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -18,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "distance": 7212
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -7,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 3066
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -7,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 3265
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -7,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 3488
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -7,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 3758
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -7,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 4090
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -7,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 4721
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -7,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 5477
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -7,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 6404
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -7,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "distance": 7706
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -7,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "distance": 8097
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": 4,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 3323
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": 4,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 3637
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": 4,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 3913
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": 4,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 4228
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": 4,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 4617
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": 4,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 5356
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": 4,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 6439
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": 16,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 3845
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": 16,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 4228
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": 16,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 4588
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": 16,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 5030
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": 16,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 5833
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": 16,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 7435
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": 27,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 4615
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": 27,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 5082
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": 27,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 5550
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": 27,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 6200
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -18,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 3005
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -18,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 3189
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -18,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 3400
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -18,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 3661
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -18,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 3981
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -18,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 4593
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -18,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 5315
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -18,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 6203
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -18,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "distance": 7400
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -18,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "distance": 7759
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -7,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 3210
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -7,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 3473
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -7,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 3725
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -7,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 4021
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -7,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 4384
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -7,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 5069
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -7,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 6006
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -7,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "distance": 6948
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 4,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 3575
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 4,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 3932
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 4,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 4250
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 4,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 4625
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 4,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 5200
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 4,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "distance": 6261
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 4,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "distance": 7500
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 16,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 4175
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 16,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 4594
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 16,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 5000
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 16,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "distance": 5525
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 16,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "distance": 6675
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 27,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "distance": 5011
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 27,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "distance": 5526
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 27,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "distance": 6050
+      }
+    }
+  ],
+  "interpolation": "linear-explicit",
+  "notes": [
+    "Standard takeoff flap setting: 20°.",
+    "The source table states the tabulated takeoff data were determined for dry runway, zero wind, zero runway gradient, anti-ice off and anti-skid on.",
+    "Anti-ice ON takeoff distance is not encoded in this dataset and must not fall through to the anti-ice OFF source grid.",
+    "Sparse high/hot source regions are intentionally absent. Requests requiring an unavailable source corner fail closed rather than extrapolating or using a nearest row.",
+    "Intermediate values use bounded linear software interpolation only when every required source corner exists.",
+    "Distance values were transcribed directly from the Dist column paired with each published V1 cell in CL-102B."
+  ],
+  "sources": [
+    {
+      "manualId": "CL-102B",
+      "chapter": "Performance Data",
+      "section": "Takeoff Speeds and Distances · Flaps 20°",
+      "pageLabel": "P-14 thru P-17",
+      "note": "Bombardier Crew Checklist & Quick Reference Handbook · April 2001"
+    }
+  ]
+}
