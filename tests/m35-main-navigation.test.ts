@@ -7,10 +7,13 @@ const variant=fs.readFileSync(new URL("../components/aircraft-variant-selector.t
 const productShell=fs.readFileSync(new URL("../components/product-shell.tsx",import.meta.url),"utf8");
 const navigationCss=fs.readFileSync(new URL("../app/navigation.css",import.meta.url),"utf8");
 
-test("learner navigation remains one publication-driven aircraft navigation surface",()=>{
+test("learner navigation remains publication-driven with the bundled performance override layered on top",()=>{
   assert.match(nav,/Aircraft navigation/);
   assert.match(nav,/listPublishedModuleDomains/);
-  assert.match(nav,/aircraftWorkspaceSections\(aircraftId, publishedDomains\)/);
+  assert.match(nav,/getBundledPerformancePackage/);
+  assert.match(nav,/bundledPerformance && !publishedDomains\.includes\("performance"\)/);
+  assert.match(nav,/\[\.\.\.publishedDomains, "performance" as const\]/);
+  assert.match(nav,/aircraftWorkspaceSections\(aircraftId, effectiveDomains\)/);
   assert.match(nav,/primaryDestinations/);
   assert.doesNotMatch(nav,/workspace-nav-primary|workspace-nav-secondary|contextualSections|topLinks/);
 });
