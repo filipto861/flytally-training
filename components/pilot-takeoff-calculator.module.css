@@ -40,6 +40,8 @@
   align-items:start;
 }
 .inputs,.results{
+  min-width:0;
+  max-width:100%;
   border:1px solid var(--line,#d7e0e8);
   border-radius:var(--ui-radius-card);
   background:var(--surface,#fff);
@@ -56,11 +58,13 @@
 }
 .inputsTitle{color:var(--muted,#66778a)}
 .fields{
+  min-width:0;
   display:grid;
   grid-template-columns:repeat(2,minmax(0,1fr));
   gap:var(--ui-space-3);
 }
 .field{
+  min-width:0;
   display:grid;
   gap:6px;
 }
@@ -132,6 +136,7 @@
 .switch{
   position:relative;
   display:inline-flex;
+  min-height:var(--ui-touch-min-height);
   align-items:center;
   gap:8px;
   cursor:pointer;
@@ -260,6 +265,8 @@
 }
 
 .runwayContext{
+  min-width:0;
+  max-width:100%;
   display:grid;
   grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);
   gap:var(--ui-space-3);
@@ -354,6 +361,9 @@
   align-items:center;
   justify-content:space-between;
   gap:var(--ui-space-2);
+  min-width:0;
+  flex-wrap:wrap;
+  overflow-wrap:anywhere;
 }
 .inlineButton{
   min-height:30px;
@@ -369,6 +379,8 @@
 }
 .runwayMargin{
   --runway-margin-color:var(--ui-info);
+  min-width:0;
+  max-width:100%;
   display:grid;
   grid-template-columns:repeat(4,minmax(0,1fr));
   gap:1px;
@@ -432,6 +444,19 @@
   .runwayContext{grid-template-columns:1fr}
   .runwayContext>small{grid-column:auto}
   .runwayMargin{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .availableLengthMeta{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+  .inlineButton,.resetLengthButton{
+    min-height:var(--ui-touch-min-height);
+  }
+  .resetLengthButton{
+    width:100%;
+  }
+  .altimeterControl select{
+    min-width:68px;
+  }
 }
 
 .fieldLabel{
