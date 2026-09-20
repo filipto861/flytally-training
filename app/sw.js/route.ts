@@ -92,6 +92,9 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
+  // Live weather must never enter any service-worker cache.
+  if (url.pathname.startsWith("/api/weather/")) return;
+
   if (FLIGHT_SUPPORT_ASSETS.includes(url.pathname)) {
     event.respondWith((async () => {
       const cache = await caches.open(FLIGHT_DATA_CACHE);

@@ -46,7 +46,7 @@ export type SelectedRunwayContext = {
   readonly surface?: string;
 };
 
-export type InputSource = "manual" | "airport-db";
+export type InputSource = "manual" | "airport-db" | "metar";
 
 export type SourcedValue<T> = {
   readonly value: T;

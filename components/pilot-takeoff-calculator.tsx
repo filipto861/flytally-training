@@ -3,11 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { AirportRunwaySelector } from "./airport-runway-selector";
+import { MetarStatus } from "./metar-status";
 
 import {
   airportAutoFill,
   calculateRunwayMarginFt,
   manualSourcedValue,
+  metarAutoFill,
 } from "@/lib/aviation/runway-context";
 import {
   altimeterToHpa,
@@ -24,6 +26,7 @@ import {
   type PilotTakeoffMetricResult,
 } from "@/lib/pilot-takeoff-calculator";
 import type { PerformanceDataset } from "@/lib/universal-aircraft-content";
+import type { MetarSnapshot } from "@/lib/weather/metar-types";
 
 import styles from "./pilot-takeoff-calculator.module.css";
 
@@ -69,17 +72,19 @@ export function PilotTakeoffCalculator({
     dirty: false,
   });
   const [runwayContext, setRunwayContext] = useState<SelectedRunwayContext>();
+  const [selectedIcao, setSelectedIcao] = useState<string | null>(null);
+  const [metarSnapshot, setMetarSnapshot] = useState<MetarSnapshot | null>(null);
   const [availableTakeoffLengthFt, setAvailableTakeoffLengthFt] = useState("");
-  const [qnh, setQnh] = useState("1013.25");
+  const [qnh, setQnh] = useState<SourcedValue<string>>({ value: "1013.25", source: "manual", dirty: false });
   const [qnhUnit, setQnhUnit] = useState<AltimeterUnit>("hPa");
-  const [oat, setOat] = useState("");
+  const [oat, setOat] = useState<SourcedValue<string>>({ value: "", source: "manual", dirty: false });
   const [takeoffWeight, setTakeoffWeight] = useState("");
   const [flaps, setFlaps] = useState(definition.flapOptions[0]?.value ?? "");
   const [antiIce, setAntiIce] = useState(false);
 
   const calculatedPressureAltitude = useMemo(() => {
     if (!runwayContext) return undefined;
-    const value = numberFromInput(qnh);
+    const value = numberFromInput(qnh.value);
     if (value === undefined) return undefined;
     try {
       return Math.round(calculatePressureAltitudeFt(
@@ -89,7 +94,7 @@ export function PilotTakeoffCalculator({
     } catch {
       return undefined;
     }
-  }, [qnh, qnhUnit, runwayContext]);
+  }, [qnh.value, qnhUnit, runwayContext]);
 
   useEffect(() => {
     if (calculatedPressureAltitude === undefined) return;
@@ -99,12 +104,12 @@ export function PilotTakeoffCalculator({
   const summary = useMemo(
     () => calculatePilotTakeoffSummary(datasets, definition, {
       pressureAltitude: numberFromInput(pressureAltitude.value),
-      oat: numberFromInput(oat),
+      oat: numberFromInput(oat.value),
       takeoffWeight: numberFromInput(takeoffWeight),
       flaps,
       antiIce,
     }),
-    [antiIce, datasets, definition, flaps, oat, pressureAltitude.value, takeoffWeight],
+    [antiIce, datasets, definition, flaps, oat.value, pressureAltitude.value, takeoffWeight],
   );
 
   const handleRunwayContext = (context: SelectedRunwayContext | undefined) => {
@@ -119,13 +124,46 @@ export function PilotTakeoffCalculator({
 
   const handleQnhUnitChange = (nextUnit: AltimeterUnit) => {
     if (nextUnit === qnhUnit) return;
-    const numeric = numberFromInput(qnh);
+    const numeric = numberFromInput(qnh.value);
     if (numeric !== undefined) {
       const hpa = altimeterToHpa(altimeterSetting(qnhUnit, numeric));
       const converted = nextUnit === "hPa" ? hpa : hpaToInHg(hpa);
-      setQnh(converted.toFixed(2));
+      setQnh((current) => ({ ...current, value: converted.toFixed(2) }));
     }
     setQnhUnit(nextUnit);
+  };
+
+  const formatMetarQnh = (snapshot: MetarSnapshot): string | undefined => {
+    if (qnhUnit === "hPa") return snapshot.qnhHpa === undefined ? undefined : String(Math.round(snapshot.qnhHpa * 100) / 100);
+    return snapshot.altimeterInHg === undefined ? undefined : snapshot.altimeterInHg.toFixed(2);
+  };
+
+  const handleMetarApply = (snapshot: MetarSnapshot) => {
+    setMetarSnapshot(snapshot);
+    if (snapshot.temperatureC !== undefined) {
+      setOat((current) => metarAutoFill(current, String(snapshot.temperatureC)));
+    }
+    const metarQnh = formatMetarQnh(snapshot);
+    if (metarQnh !== undefined) {
+      setQnh((current) => metarAutoFill(current, metarQnh));
+    }
+  };
+
+  const forceMetarOat = () => {
+    if (metarSnapshot?.temperatureC === undefined) return;
+    setOat((current) => metarAutoFill(current, String(metarSnapshot.temperatureC), true));
+  };
+
+  const forceMetarQnh = () => {
+    if (!metarSnapshot) return;
+    const metarQnh = formatMetarQnh(metarSnapshot);
+    if (metarQnh === undefined) return;
+    setQnh((current) => metarAutoFill(current, metarQnh, true));
+  };
+
+  const handleAirportSelection = (icao: string | null) => {
+    setSelectedIcao(icao);
+    setMetarSnapshot(null);
   };
 
   const runwayMargin = useMemo(() => {
@@ -169,7 +207,12 @@ export function PilotTakeoffCalculator({
         <section className={styles.inputs} aria-label="Takeoff inputs">
           <h3 className={styles.inputsTitle}>Inputs</h3>
 
-          <AirportRunwaySelector onChange={handleRunwayContext} />
+          <MetarStatus icao={selectedIcao} onApply={handleMetarApply} />
+
+          <AirportRunwaySelector
+            onAirportChange={handleAirportSelection}
+            onChange={handleRunwayContext}
+          />
 
           {runwayContext ? (
             <div className={styles.runwayContext}>
@@ -200,16 +243,19 @@ export function PilotTakeoffCalculator({
 
           <div className={styles.fields}>
             <label className={styles.field}>
-              <span>QNH / Altimeter</span>
+              <div className={styles.fieldLabel}>
+                <span>QNH / Altimeter</span>
+                <span className={styles.sourceBadge} data-source={qnh.source}>{qnh.source}</span>
+              </div>
               <div className={styles.altimeterControl}>
                 <input
                   aria-label="QNH or altimeter setting"
                   inputMode="decimal"
                   min="1"
-                  onChange={(event) => setQnh(event.target.value)}
+                  onChange={(event) => setQnh(manualSourcedValue(event.target.value))}
                   step="any"
                   type="number"
-                  value={qnh}
+                  value={qnh.value}
                 />
                 <select
                   aria-label="Altimeter unit"
@@ -220,6 +266,12 @@ export function PilotTakeoffCalculator({
                   <option value="inHg">inHg</option>
                 </select>
               </div>
+              {qnh.dirty && metarSnapshot && formatMetarQnh(metarSnapshot) !== undefined ? (
+                <small className={styles.fieldHint}>
+                  Manual override
+                  <button className={styles.inlineButton} onClick={forceMetarQnh} type="button">Use METAR value</button>
+                </small>
+              ) : null}
             </label>
 
             <label className={styles.field}>
@@ -258,18 +310,27 @@ export function PilotTakeoffCalculator({
             </label>
 
             <label className={styles.field}>
-              <span>{definition.inputs.oat.label}</span>
+              <div className={styles.fieldLabel}>
+                <span>{definition.inputs.oat.label}</span>
+                <span className={styles.sourceBadge} data-source={oat.source}>{oat.source}</span>
+              </div>
               <div className={styles.inputWithUnit}>
                 <input
                   aria-label={definition.inputs.oat.label}
                   inputMode="decimal"
-                  onChange={(event) => setOat(event.target.value)}
+                  onChange={(event) => setOat(manualSourcedValue(event.target.value))}
                   step="any"
                   type="number"
-                  value={oat}
+                  value={oat.value}
                 />
                 <small>{definition.inputs.oat.unit}</small>
               </div>
+              {oat.dirty && metarSnapshot?.temperatureC !== undefined ? (
+                <small className={styles.fieldHint}>
+                  Manual override
+                  <button className={styles.inlineButton} onClick={forceMetarOat} type="button">Use METAR value</button>
+                </small>
+              ) : null}
             </label>
 
             <label className={styles.field}>
@@ -373,7 +434,9 @@ export function PilotTakeoffCalculator({
             </div>
           ) : null}
 
-          <p className={styles.disclaimer}>{definition.disclaimer}</p>
+          <p className={styles.legalDisclaimer}>
+            Sources: available training material. Not approved for operational use. Weather and airport data are provided for training/simulation convenience and may be delayed, incomplete, or outdated. Always verify current weather, runway data, NOTAMs and declared distances using approved official sources before flight.
+          </p>
         </section>
       </div>
     </section>

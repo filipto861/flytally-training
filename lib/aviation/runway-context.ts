@@ -70,3 +70,13 @@ export function airportAutoFill<T>(
 ): SourcedValue<T> {
   return current.dirty ? current : { value, source: "airport-db", dirty: false };
 }
+
+export function metarAutoFill<T>(
+  current: SourcedValue<T>,
+  value: T,
+  force = false,
+): SourcedValue<T> {
+  return current.dirty && !force
+    ? current
+    : { value, source: "metar", dirty: false };
+}
