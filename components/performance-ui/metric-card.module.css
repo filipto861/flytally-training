@@ -1,0 +1,50 @@
+.card{
+  display:grid;
+  align-content:start;
+  gap:5px;
+  min-height:112px;
+  padding:16px;
+  background:#fff;
+}
+.labelRail{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:var(--ui-space-2);
+}
+.label{
+  color:var(--muted,#66778a);
+  font-size:.68rem;
+  font-weight:850;
+  letter-spacing:.055em;
+  text-transform:uppercase;
+}
+.card strong{
+  color:var(--text,#172033);
+  font-size:1.28rem;
+  letter-spacing:-.025em;
+  font-variant-numeric:tabular-nums;
+}
+.card small{
+  color:#8290a0;
+  font-size:.68rem;
+  line-height:1.35;
+}
+.card[data-status="out-of-range"] strong,
+.card[data-status="unavailable"] strong{
+  color:#95522b;
+  font-size:.9rem;
+  letter-spacing:0;
+}
+.card[data-status="pending"]{
+  background:#f8fafb;
+}
+.card[data-status="pending"] strong{
+  color:#7c8b9a;
+}
+@media(max-width:620px){
+  .card{
+    min-height:104px;
+    padding:14px;
+  }
+}
