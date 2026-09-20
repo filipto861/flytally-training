@@ -234,8 +234,11 @@ export function PilotTakeoffCalculator({
                 <span>Runway surface length</span>
                 <strong>{formatThousandsWithUnit(runwayContext.surfaceLengthFt, "ft")}</strong>
               </div>
-              <label className={styles.availableLength}>
-                <span>Available takeoff length</span>
+              <div className={styles.availableLength}>
+                <div className={styles.editableLabel}>
+                  <span>Available takeoff length</span>
+                  <span className={styles.editableBadge}>Editable</span>
+                </div>
                 <div className={styles.inputWithUnit}>
                   <input
                     aria-label="Available takeoff length"
@@ -248,7 +251,19 @@ export function PilotTakeoffCalculator({
                   />
                   <small>ft</small>
                 </div>
-              </label>
+                <div className={styles.availableLengthMeta}>
+                  <small>Default from runway surface length</small>
+                  {!usingSurfaceLength ? (
+                    <button
+                      className={styles.resetLengthButton}
+                      onClick={() => setAvailableTakeoffLengthFt(String(runwayContext.surfaceLengthFt))}
+                      type="button"
+                    >
+                      Reset to surface length
+                    </button>
+                  ) : null}
+                </div>
+              </div>
               <small>
                 Defaults to runway surface length from the airport database. This is not declared TORA; verify current published runway data.
               </small>
@@ -316,7 +331,7 @@ export function PilotTakeoffCalculator({
                       })}
                       type="button"
                     >
-                      Use calculated
+                      Reset
                     </button>
                   ) : null}
                 </small>

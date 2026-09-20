@@ -286,6 +286,39 @@
 }
 .runwayContext>small{grid-column:1/-1}
 .availableLength{display:grid;gap:6px}
+.editableLabel,.availableLengthMeta{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:var(--ui-space-2);
+}
+.editableBadge{
+  padding:2px 7px;
+  border-radius:var(--ui-radius-pill);
+  background:#edf1f5;
+  color:#66778a!important;
+  font-size:.6rem!important;
+  font-weight:850;
+  letter-spacing:.035em;
+  text-transform:uppercase;
+}
+.availableLengthMeta small{
+  color:var(--muted,#66778a);
+  font-size:.66rem;
+  line-height:1.35;
+}
+.resetLengthButton{
+  min-height:32px;
+  padding:4px 8px;
+  border:1px solid #cbd7e1;
+  border-radius:8px;
+  background:#fff;
+  color:var(--ui-info);
+  font:inherit;
+  font-size:.66rem;
+  font-weight:800;
+  cursor:pointer;
+}
 .altimeterControl{
   display:grid;
   grid-template-columns:minmax(0,1fr) auto;
