@@ -52,9 +52,10 @@ export function calculateRunwayMarginFt(
   if (!Number.isFinite(availableLengthFt) || availableLengthFt <= 0) {
     throw new RangeError("Available runway length must be a positive finite number.");
   }
+  const rawUsePercent = (requiredDistanceFt / availableLengthFt) * 100;
   return {
     marginFt: availableLengthFt - requiredDistanceFt,
-    usePercent: (requiredDistanceFt / availableLengthFt) * 100,
+    usePercent: Number(rawUsePercent.toFixed(6)),
     withinLength: requiredDistanceFt <= availableLengthFt,
   };
 }
