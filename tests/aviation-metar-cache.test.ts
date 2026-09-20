@@ -53,7 +53,7 @@ function installWindow(storage = new MemoryStorage()): MemoryStorage {
 }
 
 function removeWindow(): void {
-  delete (globalThis as typeof globalThis & { window?: unknown }).window;
+  Reflect.deleteProperty(globalThis, "window");
 }
 
 test("B9-B server cache returns a hit inside its TTL", () => {
