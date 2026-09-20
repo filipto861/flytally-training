@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 
 import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
 import { resolveSelectedVariant, withVariantQuery } from "@/lib/aircraft-applicability";
+import { getBundledPerformancePackage } from "@/lib/bundled-performance-content";
 import { getAircraftContentBundle } from "@/lib/content-repository";
 import { getTrainingContentRepository } from "@/lib/content-store";
 
@@ -17,13 +18,14 @@ export default async function ReferenceHubPage({
   const bundle = await getAircraftContentBundle(getTrainingContentRepository(), aircraftId);
   if (!bundle) notFound();
   const { aircraft, capabilities } = bundle;
+  const hasPerformance = capabilities.performance || Boolean(getBundledPerformancePackage(aircraftId));
   const selectedVariant = resolveSelectedVariant(variant, aircraft.variants);
   const href = (section: string) => withVariantQuery(`/aircraft/${aircraft.id}/${section}`, selectedVariant);
 
-  const hasQuickReference = capabilities.performance && capabilities.limitations;
+  const hasQuickReference = hasPerformance && capabilities.limitations;
   const emergency = capabilities.abnormalEmergency ? { key: "abnormal", kicker: "Emergency", title: "Abnormal & Emergency", text: "Open source-backed abnormal and emergency material quickly." } : undefined;
   const modules = [
-    capabilities.performance ? { key: "performance", kicker: "Plan", title: "Performance", text: "Published performance data and calculator." } : undefined,
+    hasPerformance ? { key: "performance", kicker: "Plan", title: "Performance", text: "Source-backed performance data and calculator." } : undefined,
     capabilities.weightBalance ? { key: "weight-balance", kicker: "Load", title: "Weight & Balance", text: "Mass, CG and configuration-specific loading limits." } : undefined,
     capabilities.limitations ? { key: "limitations", kicker: "Limits", title: "Limitations", text: "Speeds, weights and operating boundaries." } : undefined,
   ].filter((item): item is { key: string; kicker: string; title: string; text: string } => Boolean(item));
