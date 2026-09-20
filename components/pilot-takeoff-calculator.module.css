@@ -486,8 +486,12 @@
   text-transform:uppercase;
 }
 .sourceBadge[data-source="metar"]{
-  background:#e8f5ed;
-  color:#24613b;
+  background:#eaf1f8;
+  color:var(--ui-info);
+}
+.sourceBadge[data-source="manual"]{
+  background:#edf1f5;
+  color:var(--ui-neutral);
 }
 .sourceBadge[data-source="airport-db"]{
   background:#eaf1f8;

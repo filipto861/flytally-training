@@ -190,6 +190,8 @@ export function PilotTakeoffCalculator({
     && Math.abs(availableLength - runwayContext.surfaceLengthFt) < 0.5,
   );
 
+  const pressureAltitudeBadgeSource = pressureAltitude.dirty ? "manual" : qnh.source === "metar" ? "metar" : "manual";
+
   const marginTone = runwayMargin
     ? runwayMargin.usePercent <= 50
       ? "safe"
@@ -306,7 +308,12 @@ export function PilotTakeoffCalculator({
             </label>
 
             <label className={styles.field}>
-              <span>{definition.inputs.pressureAltitude.label}</span>
+              <div className={styles.fieldLabel}>
+                <span>{definition.inputs.pressureAltitude.label}</span>
+                <span className={styles.sourceBadge} data-source={pressureAltitudeBadgeSource}>
+                  {pressureAltitudeBadgeSource}
+                </span>
+              </div>
               <div className={styles.inputWithUnit}>
                 <input
                   aria-label={definition.inputs.pressureAltitude.label}
