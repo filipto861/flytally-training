@@ -2,7 +2,6 @@
 
 import {
   getActiveProcedureGraphNode,
-  isProcedureGraphComplete,
   type ProcedureGraphExecutionState,
 } from "@/lib/procedure-graph-runtime";
 import type {
@@ -96,11 +95,11 @@ export function ProcedureGraphRunner({
     );
   }
 
-  if (isProcedureGraphComplete(procedure.graph, state)) {
+  if (active.kind === "end") {
     return (
       <section className={styles.completeCard}>
         <strong>Procedure complete ✓</strong>
-        {active.kind === "end" && active.label ? <p>{active.label}</p> : null}
+        {active.label ? <p>{active.label}</p> : null}
         <SourceLabel sources={active.sources} />
       </section>
     );

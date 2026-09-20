@@ -202,13 +202,11 @@ function walkBranch(optionId: "below-v1" | "above-v1") {
     optionId,
   );
   assert.equal(selected.ok, true);
-  if (!selected.ok) throw new Error(selected.error);
 
   let state = selected.value;
   while (!isProcedureGraphComplete(procedure.graph, state)) {
     const next = advanceProcedureGraph(procedure.graph, state);
     assert.equal(next.ok, true);
-    if (!next.ok) throw new Error(next.error);
     state = next.value;
   }
   return state;
