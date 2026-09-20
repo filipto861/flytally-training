@@ -57,6 +57,20 @@ function sha256(value) {
   return createHash("sha256").update(value).digest("hex");
 }
 
+function normalizeDatasetText(value) {
+  return value
+    .replace(/^\uFEFF/, "")
+    .replace(/\r\n/g, "\n");
+}
+
+function computeDatasetHash(value) {
+  const normalized = normalizeDatasetText(value);
+  return {
+    sha256: sha256(normalized),
+    rawBytes: Buffer.byteLength(normalized, "utf8"),
+  };
+}
+
 const [airportResponse, runwayResponse] = await Promise.all([fetch(AIRPORTS_URL), fetch(RUNWAYS_URL)]);
 if (!airportResponse.ok || !runwayResponse.ok) {
   throw new Error(`OurAirports download failed: airports=${airportResponse.status}, runways=${runwayResponse.status}`);
@@ -116,8 +130,9 @@ const dataset = {
   source: { id: "ourairports", snapshotDate },
   airports: records,
 };
-const datasetText = `${JSON.stringify(dataset)}\n`;
+const datasetText = normalizeDatasetText(`${JSON.stringify(dataset)}\n`);
 const datasetBuffer = Buffer.from(datasetText, "utf8");
+const datasetHash = computeDatasetHash(datasetText);
 const manifest = {
   schemaVersion: 1,
   generatedAt,
@@ -131,8 +146,8 @@ const manifest = {
   },
   dataset: {
     path: "eu-na.v1.json",
-    sha256: sha256(datasetBuffer),
-    rawBytes: datasetBuffer.byteLength,
+    sha256: datasetHash.sha256,
+    rawBytes: datasetHash.rawBytes,
     airportCount: records.length,
     filter: "Europe/North America; four-letter ICAO gps_code; active runway; scheduled service or large/medium airport",
   },

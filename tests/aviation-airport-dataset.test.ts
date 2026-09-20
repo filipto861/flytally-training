@@ -14,7 +14,13 @@ import type { AirportDatasetV1 } from "../lib/aviation/airport-types.ts";
 const datasetUrl = new URL("../public/data/aviation/airports/eu-na.v1.json", import.meta.url);
 const manifestUrl = new URL("../public/data/aviation/airports/manifest.v1.json", import.meta.url);
 const raw = fs.readFileSync(datasetUrl);
-const dataset = JSON.parse(raw.toString("utf8")) as AirportDatasetV1;
+const normalizedRaw = Buffer.from(
+  raw.toString("utf8")
+    .replace(/^\uFEFF/, "")
+    .replace(/\r\n/g, "\n"),
+  "utf8",
+);
+const dataset = JSON.parse(normalizedRaw.toString("utf8")) as AirportDatasetV1;
 const manifest = JSON.parse(fs.readFileSync(manifestUrl, "utf8")) as {
   dataset: { sha256: string; rawBytes: number; airportCount: number };
 };
@@ -33,8 +39,8 @@ test("B9-A airport dataset has unique ICAO codes", () => {
 });
 
 test("B9-A manifest checksum and byte count match the committed dataset", () => {
-  assert.equal(createHash("sha256").update(raw).digest("hex"), manifest.dataset.sha256);
-  assert.equal(raw.byteLength, manifest.dataset.rawBytes);
+  assert.equal(createHash("sha256").update(normalizedRaw).digest("hex"), manifest.dataset.sha256);
+  assert.equal(normalizedRaw.byteLength, manifest.dataset.rawBytes);
   assert.equal(dataset.airports.length, manifest.dataset.airportCount);
 });
 
