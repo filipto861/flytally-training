@@ -8,6 +8,8 @@ test("v3.1 M4 keeps real second-aircraft identity out of learner/core code",()=>
   const core=[
     "lib/aircraft-catalog.ts",
     "lib/aircraft-applicability.ts",
+    "lib/effective-aircraft-configuration.ts",
+    "lib/aircraft-configuration-profile.ts",
     "lib/postgres-content-repository.ts",
     "lib/content-repository.ts",
     "lib/performance-calculator.ts",

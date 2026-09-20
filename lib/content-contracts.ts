@@ -61,7 +61,22 @@ function validateReferenceKnowledge(payload:RecordValue,errors:string[]){
   else payload.questions.forEach((question,index)=>{const choices=question.choices;if(!text(question.id)||!text(question.area)||!text(question.prompt)||!strings(choices)||choices.length<2||!Number.isInteger(question.correctIndex)||Number(question.correctIndex)<0||Number(question.correctIndex)>=choices.length||!text(question.explanation)||!sources(question.source))errors.push(`questions[${index}] does not match the knowledge question contract`);});
 }
 
-const applicabilityArrayKeys=["variants","equipmentAllOf","equipmentAnyOf","equipmentNoneOf"] as const;
+const applicabilityArrayKeys=[
+  "variants",
+  "equipmentAllOf",
+  "equipmentAnyOf",
+  "equipmentNoneOf",
+  "baseVariants",
+  "capabilityTagsAllOf",
+  "capabilityTagsAnyOf",
+  "capabilityTagsNoneOf",
+  "modificationsAllOf",
+  "modificationsAnyOf",
+  "modificationsNoneOf",
+  "configurationEquipmentAllOf",
+  "configurationEquipmentAnyOf",
+  "configurationEquipmentNoneOf",
+] as const;
 function validateApplicability(value:unknown,path:string,errors:string[]):void{
   if(!object(value)){errors.push(`${path} must be an applicability object`);return;}
   for(const key of applicabilityArrayKeys){

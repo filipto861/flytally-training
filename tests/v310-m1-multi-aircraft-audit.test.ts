@@ -17,6 +17,8 @@ const genericLearnerRuntime = [
   read("lib/content-repository.ts"),
   read("lib/postgres-content-repository.ts"),
   read("lib/aircraft-applicability.ts"),
+  read("lib/effective-aircraft-configuration.ts"),
+  read("lib/aircraft-configuration-profile.ts"),
 ].join("\n");
 
 test("v3.1 M1 keeps learner runtime free of named-aircraft branches", () => {

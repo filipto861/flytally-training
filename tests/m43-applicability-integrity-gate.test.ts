@@ -3,9 +3,18 @@ import fs from "node:fs";
 import test from "node:test";
 
 import {
+  assertApplicabilityBaseVariantsRegistered,
+  assertApplicabilityCapabilitiesRegistered,
+  assertApplicabilityConfigurationEquipmentRegistered,
+  assertApplicabilityModificationsRegistered,
   assertApplicabilityVariantsRegistered,
+  collectEmbeddedBaseVariantKeys,
+  collectEmbeddedCapabilityTags,
+  collectEmbeddedConfigurationEquipmentKeys,
+  collectEmbeddedModificationKeys,
   collectEmbeddedVariantKeys,
 } from "../lib/content-applicability-binding.ts";
+import { validateContentPayload } from "../lib/content-contracts.ts";
 
 test("M43 collects variant applicability across nested and top-level content", () => {
   const payload = {
@@ -41,4 +50,88 @@ test("M43 approval/publication governance invokes the applicability integrity ga
   const governance = fs.readFileSync(new URL("../lib/content-governance.ts", import.meta.url), "utf8");
   assert.match(governance, /assertEmbeddedApplicabilityMatchesAircraft/);
   assert.match(governance, /await assertEmbeddedApplicabilityMatchesAircraft\(version\.aircraftId, version\.payload\)/);
+});
+
+
+test("M1-D2 collects complex applicability identifiers only from applicability blocks", () => {
+  const payload = {
+    modificationsAllOf: ["not-an-applicability-reference"],
+    items: [{
+      applicability: {
+        baseVariants: ["35a"],
+        capabilityTagsAllOf: ["rvsm"],
+        modificationsAllOf: ["zr-lite"],
+        configurationEquipmentAnyOf: ["fc-200", "alternate-ap"],
+      },
+    }],
+  };
+
+  assert.deepEqual(collectEmbeddedBaseVariantKeys(payload), ["35a"]);
+  assert.deepEqual(collectEmbeddedCapabilityTags(payload), ["rvsm"]);
+  assert.deepEqual(collectEmbeddedModificationKeys(payload), ["zr-lite"]);
+  assert.deepEqual(
+    collectEmbeddedConfigurationEquipmentKeys(payload),
+    ["fc-200", "alternate-ap"],
+  );
+});
+
+test("M1-D2 accepts only aircraft-registered complex applicability identifiers", () => {
+  const payload = {
+    applicability: {
+      baseVariants: ["35a"],
+      capabilityTagsAllOf: ["rvsm"],
+      modificationsAllOf: ["zr-lite"],
+      configurationEquipmentAllOf: ["fc-200"],
+    },
+  };
+
+  assert.doesNotThrow(() =>
+    assertApplicabilityBaseVariantsRegistered(payload, ["35a"], "test-aircraft"),
+  );
+  assert.doesNotThrow(() =>
+    assertApplicabilityCapabilitiesRegistered(payload, ["rvsm"], "test-aircraft"),
+  );
+  assert.doesNotThrow(() =>
+    assertApplicabilityModificationsRegistered(payload, ["zr-lite"], "test-aircraft"),
+  );
+  assert.doesNotThrow(() =>
+    assertApplicabilityConfigurationEquipmentRegistered(payload, ["fc-200"], "test-aircraft"),
+  );
+
+  assert.throws(
+    () => assertApplicabilityModificationsRegistered(payload, [], "test-aircraft"),
+    /unregistered modification\(s\).*test-aircraft.*zr-lite/i,
+  );
+});
+
+test("M1-D2 publication validation rejects malformed complex applicability arrays", () => {
+  const malformed = {
+    aircraftId: "generic-aircraft",
+    title: "Procedures",
+    procedures: [{
+      id: "test",
+      title: "Test",
+      applicability: {
+        modificationsAllOf: [],
+      },
+      steps: [{
+        id: "step",
+        action: "Action",
+      }],
+    }],
+  };
+
+  assert.match(
+    validateContentPayload("procedures", malformed, "generic-aircraft").join("\n"),
+    /applicability\.modificationsAllOf/,
+  );
+});
+
+test("M1-D2 governance validates every structured configuration namespace", () => {
+  const governance = fs.readFileSync(new URL("../lib/content-governance.ts", import.meta.url), "utf8");
+  assert.match(governance, /parseAircraftConfigurationMetadata\(metadata\.configuration\)/);
+  assert.match(governance, /assertApplicabilityBaseVariantsRegistered/);
+  assert.match(governance, /assertApplicabilityCapabilitiesRegistered/);
+  assert.match(governance, /assertApplicabilityModificationsRegistered/);
+  assert.match(governance, /assertApplicabilityConfigurationEquipmentRegistered/);
 });
