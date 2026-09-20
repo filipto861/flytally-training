@@ -48,7 +48,7 @@
 }
 .field small,.status{
   margin:0;
-  color:#758598;
+  color:var(--muted,#66778a);
   font-size:.69rem;
   line-height:1.4;
 }
