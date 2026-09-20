@@ -15,7 +15,7 @@
 }
 .header>div{
   display:grid;
-  gap:3px;
+  gap:var(--ui-space-1);
 }
 .header strong{
   color:var(--text,#172033);
@@ -27,18 +27,20 @@
 }
 .badge{
   flex:0 0 auto;
-  padding:4px 8px;
-  border-radius:999px;
-  font-size:.64rem!important;
+  padding:2px 8px;
+  border-radius:var(--ui-radius-pill);
+  color:#fff!important;
+  font-size:.75rem!important;
   font-weight:850;
-  letter-spacing:.04em;
+  letter-spacing:.045em;
+  line-height:1.5;
   text-transform:uppercase;
 }
-.badge[data-freshness="live"]{background:#e8f5ed;color:#24613b}
-.badge[data-freshness="cached"]{background:#eaf1f8;color:#325d8b}
-.badge[data-freshness="stale"]{background:#fff1dd;color:#8a5718}
-.badge[data-freshness="expired"]{background:#fbe8e8;color:#8e3434}
-.badge[data-freshness="offline"]{background:#edf0f3;color:#657382}
+.badge[data-freshness="live"]{background:var(--ui-success)}
+.badge[data-freshness="cached"]{background:var(--ui-info)}
+.badge[data-freshness="stale"]{background:var(--ui-warning)}
+.badge[data-freshness="expired"]{background:var(--ui-danger)}
+.badge[data-freshness="offline"]{background:var(--ui-neutral)}
 .status{
   min-height:1em;
   color:var(--muted,#66778a);
@@ -48,16 +50,16 @@
 .weather{
   display:grid;
   grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:1px;
+  gap:var(--ui-space-1);
   overflow:hidden;
-  border:1px solid #dce4eb;
+  border:1px solid var(--ui-border-subtle);
   border-radius:var(--ui-radius-control);
-  background:#dce4eb;
+  background:var(--ui-border-subtle);
 }
 .weather>div{
   display:grid;
-  gap:3px;
-  padding:10px 12px;
+  gap:var(--ui-space-2);
+  padding:var(--ui-space-3);
   background:#fff;
 }
 .weather span{
