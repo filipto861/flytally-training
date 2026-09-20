@@ -6,8 +6,6 @@
     "snapshotDate": "2026-09-20",
     "airportsUrl": "https://davidmegginson.github.io/ourairports-data/airports.csv",
     "runwaysUrl": "https://davidmegginson.github.io/ourairports-data/runways.csv",
-    "airportsGitBlobSha": "d84d6fcda2f4796309de2969c81e9bf708f704ee",
-    "runwaysGitBlobSha": "b2b629a7d4f9b326293a5d4203aa1d7c06808031",
     "airportsSha256": "37269cb09c52ed53800aecd2361f679695c6efe7e20b158643300399d449ff0f",
     "runwaysSha256": "7387dab04c5b42b0c4839fc6ea8c5e367a97d411e75c8e0f91f57f91a34a5d6d"
   },

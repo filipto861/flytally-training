@@ -28,8 +28,8 @@ export function validateAirportDataset(value: unknown): string[] {
       return;
     }
     const icao = candidate.icao;
-    if (typeof icao !== "string" || !/^[A-Z0-9]{4}$/.test(icao)) {
-      errors.push(`airports[${airportIndex}].icao must be a four-character code.`);
+    if (typeof icao !== "string" || !/^[A-Z]{4}$/.test(icao)) {
+      errors.push(`airports[${airportIndex}].icao must be a four-letter ICAO code.`);
     } else if (seen.has(icao)) {
       errors.push(`Duplicate ICAO ${icao}.`);
     } else {

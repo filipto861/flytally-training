@@ -24,6 +24,7 @@ test("B9-A bundled airport dataset satisfies the generic schema", () => {
   assert.equal(dataset.schemaVersion, 1);
   assert.equal(dataset.source.id, "ourairports");
   assert.ok(dataset.airports.length > 2000);
+  assert.ok(dataset.airports.every((airport) => /^[A-Z]{4}$/.test(airport.icao)));
 });
 
 test("B9-A airport dataset has unique ICAO codes", () => {

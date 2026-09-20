@@ -193,7 +193,7 @@ export function PilotTakeoffCalculator({
                 </div>
               </label>
               <small>
-                Defaults to runway surface length from the airport database. This is not declared TORA.
+                Defaults to runway surface length from the airport database. This is not declared TORA; verify current published runway data.
               </small>
             </div>
           ) : null}

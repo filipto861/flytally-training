@@ -128,6 +128,7 @@ export function AirportRunwaySelector({
             <small>
               {selectedRunway.runway.surface ?? "Surface n/a"} · {selectedRunway.runway.surfaceLengthFt.toLocaleString("en-US")} ft
               {selectedRunway.runway.widthFt ? ` × ${selectedRunway.runway.widthFt.toLocaleString("en-US")} ft` : ""}
+              {selectedRunway.end.headingTrueDeg !== undefined ? ` · ${Math.round(selectedRunway.end.headingTrueDeg)}°T` : ""}
             </small>
           ) : null}
         </label>
