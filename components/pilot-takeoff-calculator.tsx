@@ -190,6 +190,19 @@ export function PilotTakeoffCalculator({
     && Math.abs(availableLength - runwayContext.surfaceLengthFt) < 0.5,
   );
 
+  const marginTone = runwayMargin
+    ? runwayMargin.usePercent <= 50
+      ? "safe"
+      : runwayMargin.usePercent <= 70
+        ? "neutral"
+        : runwayMargin.usePercent <= 90
+          ? "caution"
+          : "critical"
+    : undefined;
+  const runwayProgressPercent = runwayMargin
+    ? Math.min(Math.max(runwayMargin.usePercent, 0), 100)
+    : 0;
+
   const sourceResults = [summary.n1, summary.v1, summary.vr, summary.v2, summary.vref, summary.takeoffDistance];
   const hasOutOfRange = sourceResults.some((result) => result.status === "out-of-range");
   const hasUnavailable = sourceResults.some((result) => result.status === "unavailable");
@@ -407,7 +420,11 @@ export function PilotTakeoffCalculator({
           </div>
 
           {runwayMargin && runwayContext && availableLength !== undefined ? (
-            <div className={styles.runwayMargin} data-within={runwayMargin.withinLength}>
+            <div
+              className={styles.runwayMargin}
+              data-margin-tone={marginTone}
+              data-within={runwayMargin.withinLength}
+            >
               <div>
                 <span>Required distance</span>
                 <strong>{formatThousandsWithUnit(Math.round(summary.takeoffDistance.value ?? 0), "ft")}</strong>
@@ -418,14 +435,20 @@ export function PilotTakeoffCalculator({
               </div>
               <div>
                 <span>Margin</span>
-                <strong>
+                <strong className={styles.semanticValue}>
                   {runwayMargin.marginFt >= 0 ? "+" : ""}
                   {formatThousands(Math.round(runwayMargin.marginFt))} ft
                 </strong>
               </div>
-              <div>
+              <div className={styles.runwayUsed}>
                 <span>Runway used</span>
-                <strong>{Math.round(runwayMargin.usePercent)}%</strong>
+                <strong className={styles.semanticValue}>{Math.round(runwayMargin.usePercent)}%</strong>
+                <div className={styles.runwayProgress} aria-hidden="true">
+                  <span
+                    className={styles.runwayProgressFill}
+                    style={{ width: `${runwayProgressPercent}%` }}
+                  />
+                </div>
               </div>
               <small>
                 {usingSurfaceLength
