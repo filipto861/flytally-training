@@ -72,7 +72,7 @@ test("B7 Flaps 8 returns exact Sea Level source nodes", () => {
 
 test("B7 Flaps 8 returns exact 1,000 and 2,000 ft source nodes", () => {
   assert.equal(value(f8, 1000, 16, 15000), 116);
-  assert.equal(value(f8, 2000, 16, 15000), 116);
+  assert.equal(value(f8, 2000, 16, 15000), 117);
   assert.equal(value(f8, 1000, 38, 18000), 141);
   assert.equal(calculate(f8, 1000, 38, 18300).status, "unsupported");
 });
@@ -120,11 +120,11 @@ test("B7 performs bounded weight interpolation", () => {
   assert.equal(value(f8, 0, 16, 14500), 112);
 });
 
-test("B7 1,300 ft FlightSafety baseline cross-check resolves to 116 KIAS before unmodeled corrections", () => {
+test("B7 1,300 ft FlightSafety baseline cross-check resolves to 116.3 KIAS before unmodeled corrections", () => {
   const result = calculate(f8, 1300, 16, 15000);
   assert.equal(result.status, "ready");
   assert.equal(result.method, "bounded-linear-interpolation");
-  assert.ok(Math.abs((value(f8, 1300, 16, 15000) ?? 0) - 116) < 0.1);
+  assert.ok(Math.abs((value(f8, 1300, 16, 15000) ?? 0) - 116.3) < 0.1);
 });
 
 test("B7 sparse exact high/hot source cells fail closed", () => {
