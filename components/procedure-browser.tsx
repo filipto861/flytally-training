@@ -28,6 +28,7 @@ import type {
   AircraftProcedureDefinition,
   TrainingSourceReference,
 } from "@/lib/universal-aircraft-content";
+import type { ContentSourcePolicy } from "@/lib/source-authority";
 import { ProcedureGraphRunner } from "./procedure-graph-runner";
 import { ProcedureLinearRunner } from "./procedure-linear-runner";
 import styles from "./procedure-browser.module.css";
@@ -229,12 +230,14 @@ export function ProcedureBrowser({
   selectedVariant,
   effectiveSnapshotId,
   graphFingerprints,
+  sourcePolicy,
 }: Readonly<{
   aircraftId: string;
   procedures: readonly AircraftProcedureDefinition[];
   selectedVariant?: string;
   effectiveSnapshotId: string;
   graphFingerprints: Readonly<Record<string, string>>;
+  sourcePolicy: ContentSourcePolicy;
 }>) {
   const [query, setQuery] = useState("");
   const [phase, setPhase] = useState(ALL_PHASES);
@@ -476,6 +479,11 @@ export function ProcedureBrowser({
 
   return (
     <section className={styles.browser} aria-label="Procedure workspace">
+      {sourcePolicy === "available-sources" ? (
+        <p className={styles.sourcePolicyNote}>
+          Sources: available training material. Not FAA-approved.
+        </p>
+      ) : null}
       <div className={styles.toolbar}>
         <label className={styles.search}>
           <span>Search</span>

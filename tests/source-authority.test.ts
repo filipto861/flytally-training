@@ -2,7 +2,13 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
 
-import { isSimulatorOnlyAuthority, parseSourceAuthorityRole, sourceAuthorityRoles } from "../lib/source-authority.ts";
+import {
+  isSimulatorOnlyAuthority,
+  parseSourceAuthorityRole,
+  resolveContentSourcePolicy,
+  sourceAuthorityRoles,
+  sourcePolicyAllowsAuthority,
+} from "../lib/source-authority.ts";
 import { staticTrainingContentSeed } from "../lib/static-content-repository.ts";
 
 const governance = fs.readFileSync(new URL("../lib/content-governance.ts", import.meta.url), "utf8");
@@ -33,4 +39,26 @@ test("publication and bootstrap enforce module-to-source identity instead of air
 test("admin source registration retains explicit authority classification as provenance metadata", () => {
   assert.match(sourcesPage, /name="authorityRole"/);
   assert.match(sourcesPage, /sourceAuthorityRoles\.map/);
+});
+
+
+test("source policy defaults to faa-approved and available-sources widens only the intended training roles", () => {
+  assert.equal(resolveContentSourcePolicy(undefined), "faa-approved");
+  assert.equal(resolveContentSourcePolicy("faa-approved"), "faa-approved");
+  assert.equal(resolveContentSourcePolicy("available-sources"), "available-sources");
+
+  assert.equal(sourcePolicyAllowsAuthority("faa-approved", "CONTROLLING"), true);
+  assert.equal(sourcePolicyAllowsAuthority("faa-approved", "OPERATING_REFERENCE"), true);
+  assert.equal(sourcePolicyAllowsAuthority("faa-approved", "TRAINING_REFERENCE"), false);
+  assert.equal(sourcePolicyAllowsAuthority("faa-approved", "SIMULATOR_WORKFLOW"), false);
+
+  assert.equal(sourcePolicyAllowsAuthority("available-sources", "CONTROLLING"), true);
+  assert.equal(sourcePolicyAllowsAuthority("available-sources", "OPERATING_REFERENCE"), true);
+  assert.equal(sourcePolicyAllowsAuthority("available-sources", "TRAINING_REFERENCE"), true);
+  assert.equal(sourcePolicyAllowsAuthority("available-sources", "SIMULATOR_WORKFLOW"), true);
+  assert.equal(sourcePolicyAllowsAuthority("available-sources", "SIMULATOR_IMPLEMENTATION"), false);
+  assert.equal(sourcePolicyAllowsAuthority("available-sources", "UNCLASSIFIED"), false);
+
+  assert.match(governance, /resolveContentSourcePolicy\(payloadRecord\.sourcePolicy\)/);
+  assert.match(governance, /sourcePolicyAllowsAuthority\(sourcePolicy,/);
 });

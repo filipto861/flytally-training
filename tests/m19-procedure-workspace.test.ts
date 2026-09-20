@@ -80,6 +80,8 @@ test("procedure workspace preserves deep links, v2 session state and split rende
   assert.match(browserSource, /ProcedureGraphRunner/);
   assert.match(browserSource, /emittedCompletionRef/);
   assert.match(browserSource, /shouldEmitProcedureGraphCompletion/);
+  assert.match(browserSource, /sourcePolicy === "available-sources"/);
+  assert.match(browserSource, /Sources: available training material\. Not FAA-approved\./);
   assert.match(browserSource, /Reset procedure/);
   assert.doesNotMatch(browserSource, /learjet-35-36|Learjet/);
 });
@@ -89,5 +91,6 @@ test("procedure route passes configuration snapshot and server-side graph finger
   assert.match(pageSource, /fingerprintGraphProcedure/);
   assert.match(pageSource, /key=\{effectiveSnapshotId\}/);
   assert.match(pageSource, /graphFingerprints=\{graphFingerprints\}/);
+  assert.match(pageSource, /sourcePolicy=\{configuredUniversal\?\.sourcePolicy \?\? "faa-approved"\}/);
   assert.doesNotMatch(pageSource, /aircraft\.id ===|aircraftId ===/);
 });

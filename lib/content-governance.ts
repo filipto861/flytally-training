@@ -9,7 +9,12 @@ import { sql } from "./db";
 import { assertValidContentPayload, validateContentPayload } from "./content-contracts";
 import type { TrainingContentDomain } from "./content-admin-types";
 import { collectEmbeddedManualIds } from "./content-source-binding";
-import { isOperationalSourceAuthority, requiresOperationalSourceAuthority } from "./source-authority";
+import {
+  requiresOperationalSourceAuthority,
+  resolveContentSourcePolicy,
+  sourcePolicyAllowsAuthority,
+  type ContentSourcePolicy,
+} from "./source-authority";
 import {
   assertApplicabilityBaseVariantsRegistered,
   assertApplicabilityCapabilitiesRegistered,
@@ -86,6 +91,7 @@ export async function assertSourceReferencesBelongToAircraft(aircraftId: string,
 export async function assertOperationalSourceAuthorityForVersion(
   domain: TrainingContentDomain,
   referenceIds: readonly string[],
+  sourcePolicy: ContentSourcePolicy = "faa-approved",
 ): Promise<void> {
   if (!requiresOperationalSourceAuthority(domain)) return;
   const unique = [...new Set(referenceIds.filter(Boolean))];
@@ -99,10 +105,12 @@ export async function assertOperationalSourceAuthorityForVersion(
     JOIN training_source_references sr ON sr.reference_id=ir.reference_id
     JOIN training_manual_revisions r ON r.revision_id=sr.revision_id` as Array<{reference_id:string;authority_role:string}>;
   const roles = new Map(rows.map((row) => [row.reference_id, row.authority_role]));
-  const invalid = unique.filter((id) => !isOperationalSourceAuthority(roles.get(id) ?? ""));
+  const invalid = unique.filter((id) => !sourcePolicyAllowsAuthority(sourcePolicy, roles.get(id) ?? ""));
   if (invalid.length) {
     throw new Error(
-      `Operational ${domain} content requires CONTROLLING or OPERATING_REFERENCE source authority: ${invalid.join(", ")}`,
+      sourcePolicy === "available-sources"
+        ? `Operational ${domain} content under sourcePolicy=available-sources requires CONTROLLING, OPERATING_REFERENCE, TRAINING_REFERENCE, or SIMULATOR_WORKFLOW source authority: ${invalid.join(", ")}`
+        : `Operational ${domain} content requires CONTROLLING or OPERATING_REFERENCE source authority: ${invalid.join(", ")}`,
     );
   }
 }
@@ -192,7 +200,14 @@ export async function assertContentVersionValidForApprovalOrPublication(versionI
   assertValidContentPayload(version.domain,version.payload,version.aircraftId);
   await assertEmbeddedApplicabilityMatchesAircraft(version.aircraftId, version.payload);
   await assertSourceReferencesBelongToAircraft(version.aircraftId,version.sourceReferenceIds);
-  await assertOperationalSourceAuthorityForVersion(version.domain, version.sourceReferenceIds);
+  const payloadRecord = version.payload && typeof version.payload === "object" && !Array.isArray(version.payload)
+    ? version.payload as Record<string, unknown>
+    : {};
+  await assertOperationalSourceAuthorityForVersion(
+    version.domain,
+    version.sourceReferenceIds,
+    resolveContentSourcePolicy(payloadRecord.sourcePolicy),
+  );
   await assertEmbeddedSourcesMatchVersionLinks(version.payload, version.sourceReferenceIds);
   return version;
 }
