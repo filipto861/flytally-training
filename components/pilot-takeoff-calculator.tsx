@@ -61,9 +61,9 @@ export function PilotTakeoffCalculator({
     [antiIce, datasets, definition, flaps, oat, pressureAltitude, takeoffWeight],
   );
 
-  const unavailableCount = [summary.n1, summary.vr, summary.v2, summary.vref]
-    .filter((result) => result.status === "out-of-range" || result.status === "unavailable")
-    .length;
+  const sourceResults = [summary.n1, summary.vr, summary.v2, summary.vref];
+  const hasOutOfRange = sourceResults.some((result) => result.status === "out-of-range");
+  const hasUnavailable = sourceResults.some((result) => result.status === "unavailable");
 
   const v1Placeholder = definition.placeholders.find((item) => item.key === "v1");
   const distancePlaceholder = definition.placeholders.find((item) => item.key === "takeoffDistance");
@@ -164,9 +164,13 @@ export function PilotTakeoffCalculator({
         <section className={styles.results} aria-label="Takeoff results">
           <div className={styles.resultsHeader}>
             <h3 className={styles.resultsTitle}>Takeoff result</h3>
-            {unavailableCount > 0 ? (
+            {hasOutOfRange ? (
               <div className={styles.notice} role="status">
-                One or more values are outside the encoded source envelope or unavailable for the selected configuration.
+                <strong>Out of range.</strong> One or more values are outside the encoded source envelope.
+              </div>
+            ) : hasUnavailable ? (
+              <div className={styles.notice} role="status">
+                <strong>Source data unavailable.</strong> One or more values are not encoded for the selected configuration.
               </div>
             ) : null}
           </div>
