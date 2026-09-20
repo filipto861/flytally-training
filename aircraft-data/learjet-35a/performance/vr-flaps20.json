@@ -1,0 +1,142 @@
+{
+  "id": "learjet-35a-vr-flaps20",
+  "title": "Rotation Speed VR · Flaps 20°",
+  "description": "Source-backed VR lookup for the standard Learjet 35A/36A 20° takeoff-flap configuration.",
+  "kind": "lookup-table",
+  "phase": "takeoff",
+  "calculator": {
+    "kind": "multi-axis-metric-grid",
+    "operation": "takeoff",
+    "inputAxes": [
+      "grossWeight"
+    ],
+    "outputKeys": [
+      "vr"
+    ]
+  },
+  "axes": [
+    {
+      "key": "grossWeight",
+      "label": "Gross weight",
+      "unit": "lb",
+      "values": [
+        10000,
+        11000,
+        12000,
+        13000,
+        14000,
+        15000,
+        16000,
+        17000,
+        18000,
+        18300
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "key": "vr",
+      "label": "VR",
+      "unit": "KIAS"
+    }
+  ],
+  "rows": [
+    {
+      "inputs": {
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "vr": 125
+      }
+    },
+    {
+      "inputs": {
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "vr": 125
+      }
+    },
+    {
+      "inputs": {
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "vr": 125
+      }
+    },
+    {
+      "inputs": {
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "vr": 125
+      }
+    },
+    {
+      "inputs": {
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "vr": 125
+      }
+    },
+    {
+      "inputs": {
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "vr": 127
+      }
+    },
+    {
+      "inputs": {
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "vr": 130
+      }
+    },
+    {
+      "inputs": {
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "vr": 133
+      }
+    },
+    {
+      "inputs": {
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "vr": 136
+      }
+    },
+    {
+      "inputs": {
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "vr": 137
+      }
+    }
+  ],
+  "interpolation": "linear-explicit",
+  "notes": [
+    "Standard takeoff flap setting: 20°.",
+    "FlightSafety states that VR and V2 are affected only by airplane gross weight and flap setting.",
+    "The Bombardier CL-102B source table also includes V1 and takeoff distance; this dataset intentionally encodes only the published VR/V2 weight row.",
+    "The source page states the tabulated takeoff data were determined for dry runway, zero wind, zero runway gradient, anti-ice off and anti-skid on.",
+    "Intermediate gross weights use bounded linear software interpolation; values outside the published 10,000-18,300 lb grid are rejected rather than extrapolated."
+  ],
+  "sources": [
+    {
+      "manualId": "CL-102B",
+      "chapter": "Performance Data",
+      "section": "Takeoff Speeds and Distances · Flaps 20°",
+      "pageLabel": "P-14",
+      "note": "Bombardier Crew Checklist & Quick Reference Handbook · April 2001"
+    }
+  ]
+}
