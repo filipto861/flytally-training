@@ -31,10 +31,13 @@ test("every performance UI primitive owns a CSS module", () => {
   }
 });
 
-test("performance UI barrel exports every generic primitive", () => {
+test("performance UI barrel exports every primitive and the pilot consumer uses the shared layer", () => {
   const index = read("index.ts");
+  const pilot = fs.readFileSync(path.join(root, "components", "pilot-takeoff-calculator.tsx"), "utf8");
   for (const symbol of ["FieldRow", "InputWithUnit", "SourceBadge", "MetricCard", "MetricGrid"]) {
     assert.match(index, new RegExp(`export \\{ ${symbol} \\}`), `${symbol} export missing`);
+    assert.match(pilot, new RegExp(`<${symbol}\\b`), `${symbol} consumer missing`);
   }
   assert.doesNotMatch(index, /aircraft|variant|dataset|calculator binding/i);
+  assert.doesNotMatch(pilot, /function Metric\(/);
 });
