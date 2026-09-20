@@ -1,0 +1,107 @@
+.card{
+  display:grid;
+  gap:var(--ui-space-3);
+  margin-bottom:var(--ui-space-4);
+  padding:var(--ui-space-4);
+  border:1px solid var(--line,#d7e0e8);
+  border-radius:var(--ui-radius-card);
+  background:#f8fafb;
+}
+.header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:var(--ui-space-3);
+}
+.header>div{
+  display:grid;
+  gap:3px;
+}
+.header strong{
+  color:var(--text,#172033);
+  font-size:.84rem;
+}
+.header span{
+  color:var(--muted,#66778a);
+  font-size:.7rem;
+}
+.badge{
+  flex:0 0 auto;
+  padding:4px 8px;
+  border-radius:999px;
+  font-size:.64rem!important;
+  font-weight:850;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+.badge[data-freshness="live"]{background:#e8f5ed;color:#24613b}
+.badge[data-freshness="cached"]{background:#eaf1f8;color:#325d8b}
+.badge[data-freshness="stale"]{background:#fff1dd;color:#8a5718}
+.badge[data-freshness="expired"]{background:#fbe8e8;color:#8e3434}
+.badge[data-freshness="offline"]{background:#edf0f3;color:#657382}
+.status{
+  min-height:1em;
+  color:var(--muted,#66778a);
+  font-size:.72rem;
+  line-height:1.4;
+}
+.weather{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:1px;
+  overflow:hidden;
+  border:1px solid #dce4eb;
+  border-radius:var(--ui-radius-control);
+  background:#dce4eb;
+}
+.weather>div{
+  display:grid;
+  gap:3px;
+  padding:10px 12px;
+  background:#fff;
+}
+.weather span{
+  color:var(--muted,#66778a);
+  font-size:.64rem;
+  font-weight:800;
+  text-transform:uppercase;
+}
+.weather strong{
+  color:var(--text,#172033);
+  font-size:.86rem;
+  font-variant-numeric:tabular-nums;
+}
+.actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:var(--ui-space-2);
+}
+.actions button{
+  min-height:44px;
+  padding:9px 13px;
+  border:1px solid #bfcdd9;
+  border-radius:var(--ui-radius-control);
+  background:#fff;
+  color:#325d8b;
+  font:inherit;
+  font-size:.74rem;
+  font-weight:820;
+  cursor:pointer;
+}
+.actions button:focus-visible{
+  outline:3px solid rgba(50,93,139,.24);
+  outline-offset:2px;
+}
+.actions button:disabled{
+  cursor:not-allowed;
+  opacity:.5;
+}
+.expired{
+  margin:0;
+  color:#8e3434;
+  font-size:.7rem;
+  line-height:1.4;
+}
+@media(max-width:620px){
+  .weather{grid-template-columns:1fr}
+}

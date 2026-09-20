@@ -53,10 +53,12 @@ test("B9-A obsolete flytally cache versions are still removed on activation", ()
   assert.match(serviceWorker, /names\.filter\(\(name\) => name\.startsWith\("flytally-"\)/);
 });
 
-test("B9-A does not cache or introduce a METAR endpoint", () => {
-  assert.doesNotMatch(serviceWorker, /metar|aviationweather/i);
-  assert.doesNotMatch(pilot, /metar|aviationweather/i);
-  assert.doesNotMatch(selector, /metar|aviationweather/i);
+test("B9-B service worker explicitly bypasses live weather requests", () => {
+  assert.match(serviceWorker, /url\.pathname\.startsWith\("\/api\/weather\/"\)/);
+  assert.doesNotMatch(serviceWorker.match(/const SHELL_ASSETS = \[[^\n]+/s)?.[0] ?? "", /api\/weather|metar/i);
+  assert.doesNotMatch(serviceWorker.match(/const FLIGHT_SUPPORT_ASSETS = \[[\s\S]*?\];/)?.[0] ?? "", /api\/weather|metar/i);
+  assert.doesNotMatch(serviceWorker, /aviationweather/i);
+  assert.match(pilot, /MetarStatus/);
 });
 
 test("B9-A aviation runtime and selector remain aircraft-agnostic", () => {

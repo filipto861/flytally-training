@@ -373,3 +373,43 @@
   .runwayContext>small{grid-column:auto}
   .runwayMargin{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+
+.fieldLabel{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:var(--ui-space-2);
+}
+.fieldLabel>span:first-child{
+  color:var(--muted,#66778a);
+  font-size:.72rem;
+  font-weight:820;
+}
+.sourceBadge{
+  padding:3px 6px;
+  border-radius:999px;
+  background:#edf1f5;
+  color:#66778a;
+  font-size:.58rem;
+  font-weight:850;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+.sourceBadge[data-source="metar"]{
+  background:#e8f5ed;
+  color:#24613b;
+}
+.sourceBadge[data-source="airport-db"]{
+  background:#eaf1f8;
+  color:#325d8b;
+}
+.legalDisclaimer{
+  margin:0;
+  padding:14px var(--ui-card-padding,20px);
+  border-top:1px solid #e1e8ee;
+  background:#fff8ea;
+  color:#6f5632;
+  font-size:.76rem;
+  font-weight:650;
+  line-height:1.5;
+}

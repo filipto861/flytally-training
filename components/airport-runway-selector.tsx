@@ -23,9 +23,11 @@ type LoadState = "loading" | "ready" | "error";
 export function AirportRunwaySelector({
   dataset,
   onChange,
+  onAirportChange,
 }: Readonly<{
   dataset?: AirportDatasetV1;
   onChange: (context: SelectedRunwayContext | undefined) => void;
+  onAirportChange?: (icao: string | null) => void;
 }>) {
   const [loadedDataset, setLoadedDataset] = useState<AirportDatasetV1 | undefined>(dataset);
   const [loadState, setLoadState] = useState<LoadState>(dataset ? "ready" : "loading");
@@ -73,9 +75,11 @@ export function AirportRunwaySelector({
   const selectedRunway = runwayOptions.find((option) => option.ident === runwayIdent);
 
   const handleAirportChange = (value: string) => {
-    setQuery(value.toUpperCase());
+    const normalized = value.toUpperCase();
+    setQuery(normalized);
     setRunwayIdent("");
     onChange(undefined);
+    onAirportChange?.(loadedDataset ? (findAirport(loadedDataset, normalized)?.icao ?? null) : null);
   };
 
   const handleRunwayChange = (value: string) => {
