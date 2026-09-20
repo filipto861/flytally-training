@@ -412,7 +412,7 @@
 .semanticValue{
   color:var(--runway-margin-color)!important;
 }
-.runwayMargin[data-margin-tone="critical"] .semanticValue{
+.runwayMargin[data-overrun="true"] .semanticValue{
   font-weight:800;
 }
 .runwayUsed{

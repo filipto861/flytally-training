@@ -438,6 +438,7 @@ export function PilotTakeoffCalculator({
             <div
               className={styles.runwayMargin}
               data-margin-tone={marginTone}
+              data-overrun={runwayMargin.usePercent > 100}
               data-within={runwayMargin.withinLength}
             >
               <div>
