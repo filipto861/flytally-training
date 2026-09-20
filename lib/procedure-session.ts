@@ -1,3 +1,4 @@
+import { createProcedureGraphExecutionState } from "./procedure-graph-runtime.ts";
 import type {
   AircraftGraphProcedure,
   AircraftProcedure,
@@ -15,6 +16,7 @@ export type ProcedureGraphSessionStateV2 = {
   readonly activeNodeId: string;
   readonly completedNodeIds: readonly string[];
   readonly branchSelections: Readonly<Record<string, string>>;
+  readonly completionEmittedAt?: string;
 };
 
 export type ProcedureSessionSnapshotV2 = {
@@ -42,6 +44,16 @@ export type ProcedureProgress = {
   readonly totalSteps: number;
   readonly complete: boolean;
 };
+
+export function shouldEmitProcedureGraphCompletion(
+  previousCompletionEmittedAt: string | undefined,
+  currentCompletionEmittedAt: string | undefined,
+): boolean {
+  return Boolean(
+    currentCompletionEmittedAt &&
+    currentCompletionEmittedAt !== previousCompletionEmittedAt,
+  );
+}
 
 export function procedureStepKey(procedureId: string, stepId: string): string {
   return `${procedureId}:${stepId}`;
@@ -128,6 +140,24 @@ export function createFreshProcedureSessionSnapshotV2(
   };
 }
 
+export function createFreshProcedureGraphSessionState(
+  procedure: AircraftGraphProcedure,
+  definitionFingerprint: string,
+): ProcedureGraphSessionStateV2 {
+  return {
+    definitionFingerprint,
+    ...createProcedureGraphExecutionState(procedure.graph),
+  };
+}
+
+function canonicalIsoTimestamp(value: unknown): string | undefined {
+  if (typeof value !== "string" || Number.isNaN(Date.parse(value))) {
+    return undefined;
+  }
+  const canonical = new Date(value).toISOString();
+  return canonical === value ? value : undefined;
+}
+
 function normalizeGraphStateV2(
   value: unknown,
   procedure: AircraftGraphProcedure,
@@ -142,7 +172,8 @@ function normalizeGraphStateV2(
   const nodes = new Map(
     procedure.graph.nodes.map((node) => [node.id, node] as const),
   );
-  if (!nodes.has(value.activeNodeId)) return undefined;
+  const activeNode = nodes.get(value.activeNodeId);
+  if (!activeNode) return undefined;
 
   const completedNodeIds: string[] = [];
   for (const nodeId of value.completedNodeIds) {
@@ -161,11 +192,18 @@ function normalizeGraphStateV2(
     branchSelectionEntries.push([decisionId, optionId]);
   }
 
+  let completionEmittedAt: string | undefined;
+  if (value.completionEmittedAt !== undefined) {
+    completionEmittedAt = canonicalIsoTimestamp(value.completionEmittedAt);
+    if (!completionEmittedAt || activeNode.kind !== "end") return undefined;
+  }
+
   return {
     definitionFingerprint: expectedFingerprint,
     activeNodeId: value.activeNodeId,
     completedNodeIds,
     branchSelections: Object.fromEntries(branchSelectionEntries),
+    ...(completionEmittedAt ? { completionEmittedAt } : {}),
   };
 }
 

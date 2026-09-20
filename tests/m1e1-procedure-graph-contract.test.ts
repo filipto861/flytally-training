@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import fs from "node:fs";
 import test from "node:test";
 
 import {
@@ -242,15 +241,11 @@ test("M1-E1 procedure definitions must choose exactly one authoritative executio
   );
 });
 
-test("M1-E1 detects graph payloads for the temporary approval/publication gate", () => {
+test("M1-E1 detects graph payloads independently of learner runtime support", () => {
   assert.equal(containsProcedureGraphPayload(fixture), true);
   assert.equal(containsProcedureGraphPayload({
     aircraftId: "linear",
     title: "Linear",
     procedures: [{ id: "linear", title: "Linear", steps: [{ id: "a", action: "A" }] }],
   }), false);
-
-  const governance = fs.readFileSync(new URL("../lib/content-governance.ts", import.meta.url), "utf8");
-  assert.match(governance, /containsProcedureGraphPayload\(version\.payload\)/);
-  assert.match(governance, /requires the M1-E2 runtime before approval or publication/);
 });

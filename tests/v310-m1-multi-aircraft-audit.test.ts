@@ -20,6 +20,13 @@ const genericLearnerRuntime = [
   read("lib/effective-aircraft-configuration.ts"),
   read("lib/aircraft-configuration-profile.ts"),
   read("lib/procedure-graph.ts"),
+  read("lib/procedure-graph-runtime.ts"),
+  read("lib/procedure-runtime.ts"),
+  read("lib/procedure-session.ts"),
+  read("components/procedure-browser.tsx"),
+  read("components/procedure-linear-runner.tsx"),
+  read("components/procedure-graph-runner.tsx"),
+  read("app/aircraft/[aircraftId]/procedures/page.tsx"),
 ].join("\n");
 
 test("v3.1 M1 keeps learner runtime free of named-aircraft branches", () => {

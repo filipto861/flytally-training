@@ -205,8 +205,9 @@ export type AircraftProcedure = AircraftProcedureBase & {
 };
 
 /**
- * Governed graph procedure contract. M1-E1 validates/drafts this shape, while
- * approval/publication remains blocked until the M1-E2 learner runtime lands.
+ * Governed graph procedure contract. Graph and legacy linear procedures share
+ * the learner/runtime boundary while retaining mutually exclusive execution
+ * models.
  */
 export type AircraftGraphProcedure = AircraftProcedureBase & {
   readonly graph: AircraftProcedureGraph;
@@ -218,14 +219,10 @@ export type AircraftProcedureDefinition = AircraftProcedure | AircraftGraphProce
 export type AircraftProcedureContent = UniversalModuleMetadata & {
   readonly aircraftId: string;
   readonly title: string;
-  readonly procedures: readonly AircraftProcedure[];
-};
-
-export type AircraftProcedureDefinitionContent = UniversalModuleMetadata & {
-  readonly aircraftId: string;
-  readonly title: string;
   readonly procedures: readonly AircraftProcedureDefinition[];
 };
+
+export type AircraftProcedureDefinitionContent = AircraftProcedureContent;
 
 export type PerformanceScalar = string | number | boolean;
 

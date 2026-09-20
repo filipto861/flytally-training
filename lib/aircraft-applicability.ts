@@ -15,7 +15,7 @@ import type {
   AircraftKnowledgeContent,
   AircraftLimitationsContent,
   AircraftPerformanceContent,
-  AircraftProcedureContent,
+  AircraftProcedureDefinitionContent,
   AircraftSystemsContent,
 } from "./universal-aircraft-content.ts";
 
@@ -310,9 +310,9 @@ export function filterChecklistForConfiguration(
 }
 
 export function filterProceduresForConfiguration(
-  content: AircraftProcedureContent,
+  content: AircraftProcedureDefinitionContent,
   configuration: AircraftConfiguration,
-): AircraftProcedureContent {
+): AircraftProcedureDefinitionContent {
   return {
     ...content,
     procedures: content.procedures.filter((procedure) => matchesAircraftApplicability(procedure.applicability, configuration)),

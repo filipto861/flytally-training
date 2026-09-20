@@ -8,6 +8,7 @@ import {
   procedureSessionStorageKey,
   procedureSessionStorageKeyV2,
   readProcedureSessionV2,
+  shouldEmitProcedureGraphCompletion,
   writeProcedureSessionV2,
   type ProcedureSessionContextV2,
   type ProcedureSessionSnapshotV2,
@@ -445,5 +446,110 @@ test("M1-E2B write persists matching v2 state and rejects the wrong configuratio
       snapshot,
     ),
     /does not match the active configuration/i,
+  );
+});
+
+
+test("M1-E2C completion timestamp restores only on an END node and must be canonical ISO", () => {
+  const timestamp = "2026-09-20T12:00:00.000Z";
+  const valid = normalizeProcedureSessionSnapshotV2(
+    {
+      ...validSnapshot(),
+      graphStates: {
+        ...validGraphStates(),
+        "graph-b": {
+          ...validGraphStates()["graph-b"],
+          completionEmittedAt: timestamp,
+        },
+      },
+    },
+    "effective:v1:snapshot-a",
+    context,
+  );
+  assert.equal(valid.graphStates["graph-b"]?.completionEmittedAt, timestamp);
+
+  for (const graphBState of [
+    {
+      ...validGraphStates()["graph-b"],
+      activeNodeId: "action",
+      completionEmittedAt: timestamp,
+    },
+    {
+      ...validGraphStates()["graph-b"],
+      completionEmittedAt: "not-an-iso-timestamp",
+    },
+  ]) {
+    const restored = normalizeProcedureSessionSnapshotV2(
+      {
+        ...validSnapshot(),
+        graphStates: {
+          ...validGraphStates(),
+          "graph-b": graphBState,
+        },
+      },
+      "effective:v1:snapshot-a",
+      context,
+    );
+    assert.equal(restored.graphStates["graph-b"], undefined);
+    assert.deepEqual(restored.completedStepKeys, ["linear:one"]);
+  }
+});
+
+test("M1-E2C completion event dedup covers restore, reset and first END transition", () => {
+  const first = "2026-09-20T12:00:00.000Z";
+  const second = "2026-09-20T12:05:00.000Z";
+
+  // (A) Restore on END: the ref is initialized from the stored timestamp.
+  assert.equal(shouldEmitProcedureGraphCompletion(first, first), false);
+
+  // (B) Reset removes the marker; reaching END again gets a new timestamp.
+  assert.equal(shouldEmitProcedureGraphCompletion(undefined, second), true);
+  assert.equal(shouldEmitProcedureGraphCompletion(second, second), false);
+
+  // (C) First-ever transition to END emits exactly once.
+  assert.equal(shouldEmitProcedureGraphCompletion(undefined, first), true);
+  assert.equal(shouldEmitProcedureGraphCompletion(first, first), false);
+});
+
+test("M1-E2C changing effectiveSnapshotId after completed graph state restores a fresh session", () => {
+  const storage = memoryStorage();
+  const completed: ProcedureSessionSnapshotV2 = {
+    version: 2,
+    selectedProcedureId: "graph-b",
+    configurationSnapshotId: "effective:v1:snapshot-a",
+    completedStepKeys: ["linear:one"],
+    graphStates: {
+      "graph-b": {
+        definitionFingerprint: "procedure:v1:fingerprint-b",
+        activeNodeId: "end",
+        completedNodeIds: ["action"],
+        branchSelections: {},
+        completionEmittedAt: "2026-09-20T12:00:00.000Z",
+      },
+    },
+  };
+
+  writeProcedureSessionV2(
+    storage,
+    "aircraft",
+    "variant",
+    "effective:v1:snapshot-a",
+    completed,
+  );
+
+  const restored = readProcedureSessionV2(
+    storage,
+    "aircraft",
+    "variant",
+    "effective:v1:snapshot-b",
+    context,
+  );
+
+  assert.deepEqual(
+    restored,
+    createFreshProcedureSessionSnapshotV2(
+      "effective:v1:snapshot-b",
+      procedures,
+    ),
   );
 });
