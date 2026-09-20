@@ -1,5 +1,6 @@
 import type { TrainingAircraft, TrainingAircraftVariantProfile } from "./aircraft-catalog.ts";
 import {
+  commonAircraftEquipmentProfileKey,
   mergeAircraftEquipmentTags,
   type AircraftConfigurationEquipmentState,
   type AircraftConfigurationModificationState,
@@ -112,6 +113,37 @@ export function configurationForAircraftVariant(
         }
       : {}),
   };
+}
+
+export function effectiveConfigurationSnapshotIdForAircraftVariant(
+  aircraft: Pick<TrainingAircraft, "id" | "variants" | "variantProfiles" | "equipmentTags">,
+  variant: string | undefined,
+): string {
+  const profile = resolveVariantProfile(aircraft, variant);
+
+  if (profile) {
+    return resolveEffectiveAircraftConfigurationForProfile(
+      aircraft,
+      profile,
+    ).snapshotId;
+  }
+
+  if (variant !== undefined) {
+    throw new Error(
+      `Cannot resolve effective configuration snapshot for unknown variant "${variant}".`,
+    );
+  }
+
+  const commonProfile: TrainingAircraftVariantProfile = {
+    key: commonAircraftEquipmentProfileKey,
+    displayName: "Common",
+    equipmentTags: aircraft.equipmentTags ?? [],
+  };
+
+  return resolveEffectiveAircraftConfigurationForProfile(
+    aircraft,
+    commonProfile,
+  ).snapshotId;
 }
 
 function matchesSetApplicability(

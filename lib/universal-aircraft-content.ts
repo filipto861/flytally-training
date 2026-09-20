@@ -221,6 +221,12 @@ export type AircraftProcedureContent = UniversalModuleMetadata & {
   readonly procedures: readonly AircraftProcedure[];
 };
 
+export type AircraftProcedureDefinitionContent = UniversalModuleMetadata & {
+  readonly aircraftId: string;
+  readonly title: string;
+  readonly procedures: readonly AircraftProcedureDefinition[];
+};
+
 export type PerformanceScalar = string | number | boolean;
 
 export type PerformanceAxis = {
