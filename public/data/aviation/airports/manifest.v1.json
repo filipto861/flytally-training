@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-20T18:20:00.000Z",
+  "source": {
+    "id": "ourairports",
+    "snapshotDate": "2026-09-20",
+    "airportsUrl": "https://davidmegginson.github.io/ourairports-data/airports.csv",
+    "runwaysUrl": "https://davidmegginson.github.io/ourairports-data/runways.csv",
+    "airportsSha256": "37269cb09c52ed53800aecd2361f679695c6efe7e20b158643300399d449ff0f",
+    "runwaysSha256": "7387dab04c5b42b0c4839fc6ea8c5e367a97d411e75c8e0f91f57f91a34a5d6d"
+  },
+  "dataset": {
+    "path": "eu-na.v1.json",
+    "sha256": "8508a323ca9c188b2098e4f21dfe79924e229c7d859379abf699504be9d11ba1",
+    "rawBytes": 1590591,
+    "airportCount": 2593,
+    "filter": "Europe/North America; four-letter ICAO gps_code; active runway; scheduled service or large/medium airport"
+  }
+}
