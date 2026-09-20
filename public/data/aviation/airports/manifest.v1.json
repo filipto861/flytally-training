@@ -13,9 +13,9 @@
   },
   "dataset": {
     "path": "eu-na.v1.json",
-    "sha256": "412e3def28ea0899facb604a9ded07218639208dd501ccdce5ccfc840a51c3c7",
-    "rawBytes": 1606790,
-    "airportCount": 2642,
-    "filter": "Europe/North America; ICAO-like gps_code; active runway; scheduled service or large/medium airport"
+    "sha256": "cabbec5be79f1b3c76b44ea44b261f53d9ca97e8ec8a93728fdbf90a15d5a1e6",
+    "rawBytes": 1590591,
+    "airportCount": 2593,
+    "filter": "Europe/North America; four-letter ICAO gps_code; active runway; scheduled service or large/medium airport"
   }
 }

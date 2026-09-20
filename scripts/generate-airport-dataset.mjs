@@ -77,7 +77,7 @@ const records = [];
 for (const airport of airports) {
   if (!(airport.continent === "EU" || airport.continent === "NA")) continue;
   if (!COUNTRY_CODES.has(airport.iso_country)) continue;
-  if (!/^[A-Z0-9]{4}$/.test(airport.gps_code ?? "")) continue;
+  if (!/^[A-Z]{4}$/.test(airport.gps_code ?? "")) continue;
   if (!(airport.scheduled_service === "yes" || ["large_airport", "medium_airport"].includes(airport.type))) continue;
   const elevationFt = finite(airport.elevation_ft);
   if (elevationFt === undefined) continue;
@@ -134,7 +134,7 @@ const manifest = {
     sha256: sha256(datasetBuffer),
     rawBytes: datasetBuffer.byteLength,
     airportCount: records.length,
-    filter: "Europe/North America; ICAO-like gps_code; active runway; scheduled service or large/medium airport",
+    filter: "Europe/North America; four-letter ICAO gps_code; active runway; scheduled service or large/medium airport",
   },
 };
 
