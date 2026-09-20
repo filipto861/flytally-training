@@ -17,9 +17,11 @@ import {
   type DistanceCalculation,
   type NativeDistanceCalculation,
 } from "@/lib/performance-calculator";
+import type { PilotTakeoffCalculatorDefinition } from "@/lib/pilot-takeoff-calculator";
 import type { PerformanceDataset, TrainingSourceReference } from "@/lib/universal-aircraft-content";
 import { DeclarativePerformanceWorkspace } from "./declarative-performance-workspace";
 import { PerformanceExplorer } from "./performance-explorer";
+import { PilotTakeoffCalculator } from "./pilot-takeoff-calculator";
 import styles from "./performance-calculator.module.css";
 
 type Mode = "takeoff" | "landing";
@@ -298,24 +300,31 @@ function LegacyPerformanceCalculator({
 export function PerformanceCalculator({
   datasets,
   disclaimer,
+  takeoffCalculator,
 }: Readonly<{
   datasets: readonly PerformanceDataset[];
   disclaimer?: string;
+  takeoffCalculator?: PilotTakeoffCalculatorDefinition;
 }>) {
   const runtimeDatasets = materializeLegacyPerformanceContracts(datasets);
   const hasDeclaredOperational = runtimeDatasets.some((dataset) =>
     dataset.calculator && (dataset.calculator.operation === "takeoff" || dataset.calculator.operation === "landing")
   );
-  if (!hasDeclaredOperational) return <LegacyPerformanceCalculator datasets={runtimeDatasets} disclaimer={disclaimer} />;
+  if (!hasDeclaredOperational && !takeoffCalculator) {
+    return <LegacyPerformanceCalculator datasets={runtimeDatasets} disclaimer={disclaimer} />;
+  }
 
-  const declared = runtimeDatasets.filter((dataset) => dataset.calculator && (dataset.calculator.operation === "takeoff" || dataset.calculator.operation === "landing"));
+  const declared = runtimeDatasets.filter((dataset) =>
+    dataset.calculator && (dataset.calculator.operation === "takeoff" || dataset.calculator.operation === "landing")
+  );
   return (
     <section className={styles.wrapper} aria-label="Performance calculator">
+      {takeoffCalculator ? <PilotTakeoffCalculator datasets={runtimeDatasets} definition={takeoffCalculator} /> : null}
       <DeclarativePerformanceWorkspace datasets={declared} />
       <details className={styles.methodDetails}>
         <summary>Calculation method & sources</summary>
         <div className={styles.methodBody}>
-          <p><strong>Governed calculator contract.</strong> Input labels, units, calculator bindings, exact lookup rules and constraints come from the published aircraft dataset. Interpolation is used only where that dataset explicitly permits bounded interpolation; extrapolation is never performed.</p>
+          <p><strong>Declarative calculator contract.</strong> Input labels, units, calculator bindings, exact lookup rules and constraints come from the active source-backed datasets. Interpolation is used only where a dataset explicitly permits bounded interpolation; extrapolation is never performed.</p>
           {declared.map((dataset) => <div className={styles.sourceItem} key={dataset.id}><strong>{dataset.title}</strong>{sourceLine(dataset.sources) ? <span>{sourceLine(dataset.sources)}</span> : null}{dataset.notes?.length ? <ul>{dataset.notes.map((note) => <li key={note}>{note}</li>)}</ul> : null}</div>)}
           <p className={styles.disclaimer}>{disclaimer ?? "Training aid only. Verify performance using the applicable approved aircraft/operator documentation."}</p>
         </div>
