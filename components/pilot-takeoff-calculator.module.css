@@ -66,9 +66,12 @@
 .field{
   min-width:0;
   display:grid;
+  grid-template-rows:auto 52px auto;
+  align-content:start;
   gap:6px;
 }
 .field>span,.toggleLabel{
+  min-height:18px;
   color:var(--muted,#66778a);
   font-size:.72rem;
   font-weight:820;
@@ -77,6 +80,7 @@
   display:grid;
   grid-template-columns:minmax(0,1fr) auto;
   align-items:stretch;
+  height:52px;
   min-height:52px;
   overflow:hidden;
   border:1px solid #cbd7e1;
@@ -129,6 +133,7 @@
 }
 .select{
   width:100%;
+  height:52px;
   min-height:52px;
   padding:10px 12px;
   border:1px solid #cbd7e1;
@@ -148,6 +153,7 @@
   align-items:center;
   justify-content:space-between;
   gap:var(--ui-space-3);
+  height:52px;
   min-height:52px;
   padding:8px 12px;
   border:1px solid #cbd7e1;
@@ -521,6 +527,7 @@
 
 .fieldLabel{
   display:flex;
+  min-height:18px;
   align-items:center;
   justify-content:space-between;
   gap:var(--ui-space-2);
