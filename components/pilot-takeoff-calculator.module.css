@@ -349,8 +349,63 @@
 }
 .availableLengthMeta small{
   color:var(--muted,#66778a);
-  font-size:.66rem;
-  line-height:1.35;
+  font-size:.69rem;
+  line-height:1.4;
+}
+.helperWithInfo{
+  display:inline-flex;
+  align-items:center;
+  gap:var(--ui-space-1);
+  min-width:0;
+}
+.infoButton{
+  position:relative;
+  display:inline-grid;
+  width:20px;
+  height:20px;
+  flex:0 0 20px;
+  place-items:center;
+  padding:0;
+  border:1px solid #cbd7e1;
+  border-radius:50%;
+  background:#fff;
+  color:var(--ui-neutral);
+  font:inherit;
+  font-size:.68rem;
+  font-weight:850;
+  line-height:1;
+  cursor:help;
+}
+.infoButton:focus-visible{
+  outline:3px solid rgba(50,93,139,.18);
+  outline-offset:2px;
+}
+.infoTooltip{
+  position:absolute;
+  z-index:5;
+  right:0;
+  bottom:calc(100% + var(--ui-space-2));
+  width:min(280px,70vw);
+  padding:var(--ui-space-2) var(--ui-space-3);
+  border:1px solid var(--ui-border-subtle);
+  border-radius:var(--ui-radius-control);
+  background:#172033;
+  color:#fff!important;
+  font-size:.68rem!important;
+  font-weight:600;
+  line-height:1.4!important;
+  text-align:left;
+  text-transform:none;
+  box-shadow:0 8px 24px rgba(23,32,51,.18);
+  opacity:0;
+  pointer-events:none;
+  transform:translateY(2px);
+  transition:opacity .12s ease,transform .12s ease;
+}
+.infoButton:hover .infoTooltip,
+.infoButton:focus-visible .infoTooltip{
+  opacity:1;
+  transform:translateY(0);
 }
 .resetLengthButton{
   min-height:32px;

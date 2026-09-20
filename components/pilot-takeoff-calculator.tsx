@@ -258,7 +258,24 @@ export function PilotTakeoffCalculator({
                   <span className={styles.unitSuffix}>ft</span>
                 </div>
                 <div className={styles.availableLengthMeta}>
-                  <small>Defaults to surface length</small>
+                  <div className={styles.helperWithInfo}>
+                    <small>Defaults to surface length</small>
+                    <button
+                      aria-describedby="available-takeoff-length-tooltip"
+                      aria-label="Available takeoff length information"
+                      className={styles.infoButton}
+                      type="button"
+                    >
+                      <span aria-hidden="true">i</span>
+                      <span
+                        className={styles.infoTooltip}
+                        id="available-takeoff-length-tooltip"
+                        role="tooltip"
+                      >
+                        Defaults to runway surface length from the airport database. This is not declared TORA; verify current published runway data.
+                      </span>
+                    </button>
+                  </div>
                   {!usingSurfaceLength ? (
                     <button
                       className={styles.resetLengthButton}
