@@ -21,6 +21,25 @@ export const operationalSafetyDomains = [
 
 export type OperationalSourceAuthorityRole = typeof operationalSourceAuthorityRoles[number];
 
+export const contentSourcePolicies = ["faa-approved", "available-sources"] as const;
+export type ContentSourcePolicy = typeof contentSourcePolicies[number];
+
+export function resolveContentSourcePolicy(value: unknown): ContentSourcePolicy {
+  return value === "available-sources" ? "available-sources" : "faa-approved";
+}
+
+export function sourcePolicyAllowsAuthority(
+  policy: ContentSourcePolicy,
+  role: string,
+): boolean {
+  if (policy === "available-sources") {
+    return isOperationalSourceAuthority(role)
+      || role === "TRAINING_REFERENCE"
+      || role === "SIMULATOR_WORKFLOW";
+  }
+  return isOperationalSourceAuthority(role);
+}
+
 export function isOperationalSourceAuthority(role: string): role is OperationalSourceAuthorityRole {
   return (operationalSourceAuthorityRoles as readonly string[]).includes(role);
 }

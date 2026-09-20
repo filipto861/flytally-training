@@ -121,6 +121,7 @@ export default async function ProceduresPage({
         selectedVariant={selectedVariant}
         effectiveSnapshotId={effectiveSnapshotId}
         graphFingerprints={graphFingerprints}
+        sourcePolicy={configuredUniversal?.sourcePolicy ?? "faa-approved"}
       />
     </main>
   );

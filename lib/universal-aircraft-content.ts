@@ -1,4 +1,5 @@
 import { validateProcedureGraph } from "./procedure-graph.ts";
+import type { ContentSourcePolicy } from "./source-authority.ts";
 
 export const universalTrainingContentDomains = [
   "checklists",
@@ -61,6 +62,11 @@ export type TrainingSourceReference = {
 export type UniversalModuleMetadata = {
   readonly sourceNote?: string;
   readonly disclaimer?: string;
+  /**
+   * Governs which registered source-authority roles may support approval and
+   * publication. Omission preserves the historic FAA/operational policy.
+   */
+  readonly sourcePolicy?: ContentSourcePolicy;
 };
 
 export type AircraftChecklistItem = {
@@ -491,6 +497,13 @@ function validateSources(value: unknown): boolean {
 function validateMetadata(payload: RecordValue, errors: string[]): void {
   if (payload.sourceNote !== undefined && !text(payload.sourceNote)) errors.push("sourceNote must be non-empty text when supplied");
   if (payload.disclaimer !== undefined && !text(payload.disclaimer)) errors.push("disclaimer must be non-empty text when supplied");
+  if (
+    payload.sourcePolicy !== undefined
+    && payload.sourcePolicy !== "faa-approved"
+    && payload.sourcePolicy !== "available-sources"
+  ) {
+    errors.push('sourcePolicy must be "faa-approved" or "available-sources" when supplied');
+  }
 }
 
 function validateChecklists(payload: RecordValue, errors: string[]): void {

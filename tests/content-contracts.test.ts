@@ -56,3 +56,32 @@ test("procedure contract rejects unsupported step-level applicability instead of
 
   assert.ok(errors.some((error) => error.includes("steps[0].applicability") && error.includes("not supported")));
 });
+
+
+test("universal sourcePolicy accepts the two governed values and rejects unknown policy strings", () => {
+  for (const sourcePolicy of ["faa-approved", "available-sources"] as const) {
+    assert.deepEqual(validateContentPayload("procedures", {
+      aircraftId,
+      title: "Policy procedures",
+      sourcePolicy,
+      procedures: [{
+        id: "policy-procedure",
+        title: "Policy procedure",
+        steps: [{ id: "step", action: "Action" }],
+      }],
+    }, aircraftId), []);
+  }
+
+  const errors = validateContentPayload("procedures", {
+    aircraftId,
+    title: "Bad policy",
+    sourcePolicy: "anything-goes",
+    procedures: [{
+      id: "policy-procedure",
+      title: "Policy procedure",
+      steps: [{ id: "step", action: "Action" }],
+    }],
+  }, aircraftId);
+
+  assert.ok(errors.some((error) => error.includes("sourcePolicy")));
+});
