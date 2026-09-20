@@ -1,4 +1,6 @@
 .selector{
+  min-width:0;
+  max-width:100%;
   display:grid;
   gap:var(--ui-space-2);
   margin-bottom:var(--ui-space-4);
@@ -6,11 +8,13 @@
   border-bottom:1px solid var(--line,#d7e0e8);
 }
 .fields{
+  min-width:0;
   display:grid;
   grid-template-columns:minmax(0,1.3fr) minmax(0,.7fr);
   gap:var(--ui-space-3);
 }
 .field{
+  min-width:0;
   display:grid;
   gap:6px;
 }

@@ -183,14 +183,23 @@ export function MetarStatus({ icao, onApply }: MetarStatusProps) {
               onClick={() => void requestLive(icao, getClientCachedMetar(icao))}
               type="button"
             >
-              Refresh
+              <svg className={styles.buttonIcon} viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M20 7v5h-5" />
+                <path d="M19 12a7 7 0 1 0-2.1 5" />
+              </svg>
+              <span>Refresh</span>
             </button>
             <button
               disabled={!canApply}
               onClick={() => snapshot && onApply(snapshot)}
               type="button"
             >
-              {displayFreshness === "offline" ? "Apply cached values" : "Apply to inputs"}
+              <svg className={styles.buttonIcon} viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 4v11" />
+                <path d="m8 11 4 4 4-4" />
+                <path d="M5 19h14" />
+              </svg>
+              <span>{displayFreshness === "offline" ? "Apply cached values" : "Apply to inputs"}</span>
             </button>
           </div>
           {expired ? <p className={styles.expired}>Cached METAR is more than 12 hours old and cannot be applied.</p> : null}

@@ -26,6 +26,7 @@ import {
   type PilotTakeoffMetricResult,
 } from "@/lib/pilot-takeoff-calculator";
 import type { PerformanceDataset } from "@/lib/universal-aircraft-content";
+import { formatThousands, formatThousandsWithUnit } from "@/lib/format/numbers";
 import type { MetarSnapshot } from "@/lib/weather/metar-types";
 
 import styles from "./pilot-takeoff-calculator.module.css";
@@ -189,6 +190,19 @@ export function PilotTakeoffCalculator({
     && Math.abs(availableLength - runwayContext.surfaceLengthFt) < 0.5,
   );
 
+  const marginTone = runwayMargin
+    ? runwayMargin.usePercent <= 50
+      ? "safe"
+      : runwayMargin.usePercent <= 70
+        ? "neutral"
+        : runwayMargin.usePercent <= 90
+          ? "caution"
+          : "critical"
+    : undefined;
+  const runwayProgressPercent = runwayMargin
+    ? Math.min(Math.max(runwayMargin.usePercent, 0), 100)
+    : 0;
+
   const sourceResults = [summary.n1, summary.v1, summary.vr, summary.v2, summary.vref, summary.takeoffDistance];
   const hasOutOfRange = sourceResults.some((result) => result.status === "out-of-range");
   const hasUnavailable = sourceResults.some((result) => result.status === "unavailable");
@@ -218,10 +232,13 @@ export function PilotTakeoffCalculator({
             <div className={styles.runwayContext}>
               <div>
                 <span>Runway surface length</span>
-                <strong>{runwayContext.surfaceLengthFt.toLocaleString("en-US")} ft</strong>
+                <strong>{formatThousandsWithUnit(runwayContext.surfaceLengthFt, "ft")}</strong>
               </div>
-              <label className={styles.availableLength}>
-                <span>Available takeoff length</span>
+              <div className={styles.availableLength}>
+                <div className={styles.editableLabel}>
+                  <span>Available takeoff length</span>
+                  <span className={styles.editableBadge}>Editable</span>
+                </div>
                 <div className={styles.inputWithUnit}>
                   <input
                     aria-label="Available takeoff length"
@@ -234,7 +251,19 @@ export function PilotTakeoffCalculator({
                   />
                   <small>ft</small>
                 </div>
-              </label>
+                <div className={styles.availableLengthMeta}>
+                  <small>Default from runway surface length</small>
+                  {!usingSurfaceLength ? (
+                    <button
+                      className={styles.resetLengthButton}
+                      onClick={() => setAvailableTakeoffLengthFt(String(runwayContext.surfaceLengthFt))}
+                      type="button"
+                    >
+                      Reset to surface length
+                    </button>
+                  ) : null}
+                </div>
+              </div>
               <small>
                 Defaults to runway surface length from the airport database. This is not declared TORA; verify current published runway data.
               </small>
@@ -302,7 +331,7 @@ export function PilotTakeoffCalculator({
                       })}
                       type="button"
                     >
-                      Use calculated
+                      Reset
                     </button>
                   ) : null}
                 </small>
@@ -406,25 +435,36 @@ export function PilotTakeoffCalculator({
           </div>
 
           {runwayMargin && runwayContext && availableLength !== undefined ? (
-            <div className={styles.runwayMargin} data-within={runwayMargin.withinLength}>
+            <div
+              className={styles.runwayMargin}
+              data-margin-tone={marginTone}
+              data-overrun={runwayMargin.usePercent > 100}
+              data-within={runwayMargin.withinLength}
+            >
               <div>
                 <span>Required distance</span>
-                <strong>{Math.round(summary.takeoffDistance.value ?? 0).toLocaleString("en-US")} ft</strong>
+                <strong>{formatThousandsWithUnit(Math.round(summary.takeoffDistance.value ?? 0), "ft")}</strong>
               </div>
               <div>
                 <span>Available</span>
-                <strong>{Math.round(availableLength).toLocaleString("en-US")} ft</strong>
+                <strong>{formatThousandsWithUnit(Math.round(availableLength), "ft")}</strong>
               </div>
               <div>
                 <span>Margin</span>
-                <strong>
+                <strong className={styles.semanticValue}>
                   {runwayMargin.marginFt >= 0 ? "+" : ""}
-                  {Math.round(runwayMargin.marginFt).toLocaleString("en-US")} ft
+                  {formatThousands(Math.round(runwayMargin.marginFt))} ft
                 </strong>
               </div>
-              <div>
+              <div className={styles.runwayUsed}>
                 <span>Runway used</span>
-                <strong>{Math.round(runwayMargin.usePercent)}%</strong>
+                <strong className={styles.semanticValue}>{Math.round(runwayMargin.usePercent)}%</strong>
+                <div className={styles.runwayProgress} aria-hidden="true">
+                  <span
+                    className={styles.runwayProgressFill}
+                    style={{ width: `${runwayProgressPercent}%` }}
+                  />
+                </div>
               </div>
               <small>
                 {usingSurfaceLength

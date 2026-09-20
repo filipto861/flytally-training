@@ -81,5 +81,5 @@ test("B9-A Reference pilot calculator integrates airport context without changin
 test("B9-A manual pressure-altitude override has an explicit reset path", () => {
   assert.match(pilot, /current\.dirty \? current/);
   assert.match(pilot, /Manual override/);
-  assert.match(pilot, /Use calculated/);
+  assert.match(pilot, /Reset/);
 });
