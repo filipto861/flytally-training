@@ -25,6 +25,17 @@ export const learjet35aTakeoffCalculatorDefinition: PilotTakeoffCalculatorDefini
     {
       value: "8",
       label: "8°",
+      v1: {
+        antiIceOff: {
+          datasetId: "learjet-35a-v1-flaps8",
+          outputKey: "v1",
+          inputs: [
+            { input: "pressureAltitude", axisKey: "pressureAltitude" },
+            { input: "oat", axisKey: "oat" },
+            { input: "takeoffWeight", axisKey: "grossWeight" },
+          ],
+        },
+      },
       vr: {
         datasetId: "learjet-35a-vr-flaps8",
         outputKey: "vr",
@@ -39,6 +50,17 @@ export const learjet35aTakeoffCalculatorDefinition: PilotTakeoffCalculatorDefini
     {
       value: "20",
       label: "20°",
+      v1: {
+        antiIceOff: {
+          datasetId: "learjet-35a-v1-flaps20",
+          outputKey: "v1",
+          inputs: [
+            { input: "pressureAltitude", axisKey: "pressureAltitude" },
+            { input: "oat", axisKey: "oat" },
+            { input: "takeoffWeight", axisKey: "grossWeight" },
+          ],
+        },
+      },
       vr: {
         datasetId: "learjet-35a-vr-flaps20",
         outputKey: "vr",
@@ -57,7 +79,6 @@ export const learjet35aTakeoffCalculatorDefinition: PilotTakeoffCalculatorDefini
     inputs: [{ input: "takeoffWeight", axisKey: "grossWeight" }],
   },
   placeholders: [
-    { key: "v1", label: "V1", unit: "KIAS", milestone: "B7" },
     { key: "takeoffDistance", label: "Takeoff Distance", milestone: "B8" },
   ],
   disclaimer: "Sources: available training material. Not FAA-approved.",

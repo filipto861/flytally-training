@@ -1,0 +1,5265 @@
+{
+  "id": "learjet-35a-v1-flaps20",
+  "title": "Decision Speed V1 · Flaps 20°",
+  "description": "Source-backed V1 lookup for the standard Learjet 35A/36A 20° takeoff-flap configuration.",
+  "kind": "lookup-table",
+  "phase": "takeoff",
+  "calculator": {
+    "kind": "multi-axis-metric-grid",
+    "operation": "takeoff",
+    "inputAxes": [
+      "pressureAltitude",
+      "oat",
+      "grossWeight"
+    ],
+    "outputKeys": [
+      "v1"
+    ]
+  },
+  "axes": [
+    {
+      "key": "pressureAltitude",
+      "label": "Pressure altitude",
+      "unit": "ft",
+      "values": [
+        0,
+        1000,
+        2000,
+        3000,
+        4000,
+        5000,
+        6000,
+        7000,
+        8000,
+        9000,
+        10000
+      ]
+    },
+    {
+      "key": "oat",
+      "label": "Outside air temperature",
+      "unit": "°C",
+      "values": [
+        -18,
+        -7,
+        4,
+        16,
+        27,
+        38
+      ]
+    },
+    {
+      "key": "grossWeight",
+      "label": "Gross weight",
+      "unit": "lb",
+      "values": [
+        10000,
+        11000,
+        12000,
+        13000,
+        14000,
+        15000,
+        16000,
+        17000,
+        18000,
+        18300
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "key": "v1",
+      "label": "V1",
+      "unit": "KIAS"
+    }
+  ],
+  "rows": [
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -18,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -18,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -18,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -18,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -18,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -18,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 111
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -18,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 117
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -18,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 123
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -18,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "v1": 129
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -18,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "v1": 131
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -7,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -7,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -7,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -7,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -7,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -7,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 111
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -7,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 117
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -7,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 123
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -7,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "v1": 129
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -7,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "v1": 131
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 4,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 4,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 4,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 4,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 4,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 4,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 111
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 4,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 117
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 4,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 123
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 4,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "v1": 129
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 4,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "v1": 131
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 16,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 16,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 16,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 16,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 16,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 16,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 111
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 16,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 117
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 16,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 123
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 16,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "v1": 129
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 16,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "v1": 131
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 27,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 27,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 27,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 105
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 27,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 105
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 27,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 107
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 27,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 112
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 27,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 118
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 27,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 124
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 27,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "v1": 131
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 27,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "v1": 133
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 38,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 38,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 38,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 108
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 38,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 110
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 38,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 111
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 38,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 118
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 38,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 125
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -18,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -18,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -18,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -18,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -18,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -18,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 111
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -18,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 117
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -18,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 123
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -18,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "v1": 129
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -18,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "v1": 131
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -7,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -7,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -7,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -7,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -7,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -7,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 111
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -7,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 117
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -7,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 123
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -7,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "v1": 129
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -7,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "v1": 131
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 4,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 4,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 4,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 4,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 4,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 4,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 111
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 4,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 117
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 4,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 123
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 4,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "v1": 129
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 4,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "v1": 131
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 16,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 16,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 16,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 16,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 16,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 16,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 111
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 16,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 117
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 16,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 123
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 16,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "v1": 129
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 16,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "v1": 131
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 27,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 27,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 27,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 105
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 27,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 27,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 108
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 27,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 114
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 27,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 120
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 27,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 126
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 27,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "v1": 133
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 38,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 105
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 38,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 107
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 38,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 109
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 38,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 111
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 38,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 113
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 38,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 120
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -18,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -18,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -18,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -18,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -18,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -18,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 111
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -18,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 117
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -18,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 123
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -18,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "v1": 129
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -18,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "v1": 131
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -7,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -7,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -7,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -7,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -7,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -7,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 111
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -7,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 117
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -7,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 123
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -7,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "v1": 129
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -7,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "v1": 131
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 4,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 4,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 4,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 4,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 4,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 4,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 111
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 4,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 117
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 4,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 123
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 4,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "v1": 129
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 4,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "v1": 131
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 16,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 16,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 16,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 16,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 16,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 16,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 111
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 16,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 117
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 16,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 123
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 16,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "v1": 129
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 16,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "v1": 131
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 27,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 27,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 27,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 27,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 108
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 27,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 109
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 27,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 115
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 27,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 122
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 27,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 128
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 38,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 38,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 108
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 38,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 111
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 38,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 113
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 38,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 114
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 38,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 123
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -18,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -18,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -18,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -18,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -18,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -18,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 111
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -18,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 117
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -18,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 123
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -18,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "v1": 129
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -18,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "v1": 131
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -7,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -7,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -7,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -7,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -7,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -7,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 111
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -7,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 117
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -7,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 123
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -7,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "v1": 129
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -7,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "v1": 131
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 4,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 4,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 4,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 4,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 4,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 4,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 111
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 4,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 117
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 4,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 123
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 4,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "v1": 129
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 4,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "v1": 131
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 16,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 16,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 16,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 16,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 105
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 16,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 107
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 16,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 112
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 16,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 118
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 16,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 125
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 16,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "v1": 131
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 16,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "v1": 133
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 27,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 27,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 105
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 27,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 107
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 27,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 109
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 27,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 111
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 27,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 117
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 27,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 124
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 38,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 107
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 38,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 109
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 38,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 112
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 38,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 114
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 38,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 116
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -18,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -18,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -18,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -18,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -18,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -18,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 111
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -18,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 117
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -18,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 123
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -18,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "v1": 129
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -18,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "v1": 131
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -7,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -7,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -7,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -7,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -7,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -7,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 111
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -7,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 117
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -7,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 123
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -7,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "v1": 129
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -7,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "v1": 131
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 4,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 4,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 4,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 4,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 4,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 4,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 111
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 4,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 117
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 4,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 123
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 4,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "v1": 129
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 4,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "v1": 131
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 16,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 16,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 16,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 16,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 107
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 16,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 108
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 16,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 114
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 16,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 120
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 16,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 127
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 16,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "v1": 133
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 16,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "v1": 135
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 27,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 105
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 27,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 107
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 27,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 109
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 27,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 111
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 27,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 112
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 27,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 119
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 27,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 127
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 38,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 109
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 38,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 111
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 38,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 113
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 38,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 115
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 38,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 118
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -18,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -18,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -18,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -18,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -18,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -18,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 111
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -18,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 117
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -18,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 123
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -18,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "v1": 129
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -18,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "v1": 131
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -7,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -7,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -7,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -7,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -7,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -7,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 111
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -7,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 117
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -7,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 123
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -7,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "v1": 129
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -7,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "v1": 131
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 4,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 4,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 4,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 4,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 4,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 4,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 111
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 4,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 117
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 4,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 123
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 4,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "v1": 129
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 4,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "v1": 131
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 16,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 16,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 16,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 16,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 108
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 16,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 109
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 16,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 115
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 16,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 122
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 16,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 128
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 27,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 27,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 108
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 27,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 110
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 27,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 112
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 27,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 113
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 27,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 121
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 38,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 110
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 38,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 112
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 38,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 114
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 38,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 117
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -18,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -18,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -18,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -18,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -18,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -18,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 111
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -18,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 117
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -18,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 123
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -18,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "v1": 129
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -18,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "v1": 131
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -7,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -7,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -7,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -7,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -7,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -7,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 111
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -7,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 117
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -7,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 123
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -7,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "v1": 129
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -7,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "v1": 131
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 4,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 4,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 4,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 4,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 105
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 4,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 4,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 112
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 4,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 117
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 4,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 123
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 4,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "v1": 130
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 4,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "v1": 132
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 16,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 16,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 105
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 16,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 107
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 16,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 109
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 16,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 110
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 16,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 116
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 16,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 123
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 16,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 130
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 27,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 107
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 27,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 109
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 27,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 111
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 27,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 113
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 27,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 115
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 27,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 123
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 38,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 111
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 38,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 113
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 38,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 115
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 38,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 119
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -18,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -18,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -18,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -18,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -18,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -18,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 111
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -18,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 117
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -18,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 123
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -18,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "v1": 129
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -18,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "v1": 131
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -7,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -7,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -7,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -7,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -7,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -7,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 111
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -7,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 117
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -7,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 123
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -7,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "v1": 129
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -7,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "v1": 131
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 4,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 4,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 4,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 4,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 4,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 108
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 4,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 113
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 4,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 119
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 4,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 126
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 4,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "v1": 132
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 4,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "v1": 134
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 16,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 16,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 16,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 108
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 16,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 110
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 16,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 111
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 16,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 118
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 16,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 125
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 27,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 108
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 27,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 110
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 27,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 112
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 27,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 114
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 27,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 116
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -18,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -18,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -18,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -18,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 105
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -18,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -18,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 112
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -18,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 117
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -18,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 123
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -18,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "v1": 130
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -18,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "v1": 132
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -7,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -7,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -7,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -7,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 105
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -7,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -7,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 112
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -7,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 117
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -7,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 123
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -7,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "v1": 130
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -7,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "v1": 132
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 4,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 4,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 4,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 4,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 107
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 4,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 109
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 4,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 115
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 4,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 121
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 4,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 128
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 16,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 105
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 16,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 107
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 16,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 109
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 16,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 111
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 16,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 112
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 16,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 119
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 27,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 109
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 27,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 111
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 27,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 113
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 27,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 116
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 27,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 118
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -18,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -18,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -18,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -18,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 105
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -18,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -18,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 112
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -18,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 118
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -18,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 124
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -18,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "v1": 130
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -18,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "v1": 132
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -7,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -7,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -7,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 105
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -7,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -7,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 108
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -7,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 114
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -7,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 120
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -7,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 126
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -7,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "v1": 133
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -7,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "v1": 134
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": 4,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": 4,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 105
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": 4,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 107
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": 4,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 109
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": 4,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 110
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": 4,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 117
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": 4,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 124
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": 16,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": 16,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 108
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": 16,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 110
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": 16,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 112
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": 16,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 114
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": 16,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 122
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": 27,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 110
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": 27,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 112
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": 27,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 115
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": 27,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 118
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -18,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -18,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -18,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -18,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 105
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -18,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 107
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -18,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 112
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -18,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 118
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -18,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 124
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -18,
+        "grossWeight": 18000
+      },
+      "outputs": {
+        "v1": 131
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -18,
+        "grossWeight": 18300
+      },
+      "outputs": {
+        "v1": 133
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -7,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 103
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -7,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -7,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -7,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 108
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -7,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 109
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -7,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 116
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -7,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 122
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -7,
+        "grossWeight": 17000
+      },
+      "outputs": {
+        "v1": 129
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 4,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 104
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 4,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 106
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 4,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 109
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 4,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 110
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 4,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 112
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 4,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "v1": 119
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 4,
+        "grossWeight": 16000
+      },
+      "outputs": {
+        "v1": 126
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 16,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 107
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 16,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 109
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 16,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 112
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 16,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "v1": 114
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 16,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "v1": 116
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 27,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "v1": 112
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 27,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "v1": 114
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 27,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "v1": 116
+      }
+    }
+  ],
+  "interpolation": "linear-explicit",
+  "notes": [
+    "Standard takeoff flap setting: 20°.",
+    "The source table states the tabulated takeoff data were determined for dry runway, zero wind, zero runway gradient, anti-ice off and anti-skid on.",
+    "Anti-ice ON V1 is not encoded in this dataset and must not fall through to the anti-ice OFF source grid.",
+    "Sparse high/hot source regions are intentionally absent. Requests requiring an unavailable source corner fail closed rather than extrapolating or using a nearest row.",
+    "Intermediate values use bounded linear software interpolation only when every required source corner exists."
+  ],
+  "sources": [
+    {
+      "manualId": "CL-102B",
+      "chapter": "Performance Data",
+      "section": "Takeoff Speeds and Distances · Flaps 20°",
+      "pageLabel": "P-14 thru P-17",
+      "note": "Bombardier Crew Checklist & Quick Reference Handbook · April 2001"
+    }
+  ]
+}

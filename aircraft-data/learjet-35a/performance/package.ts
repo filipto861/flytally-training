@@ -1,4 +1,6 @@
 import takeoffN1Json from "./takeoff-n1.json";
+import v1Flaps20Json from "./v1-flaps20.json";
+import v1Flaps8Json from "./v1-flaps8.json";
 import v2Flaps20Json from "./v2-flaps20.json";
 import v2Flaps8Json from "./v2-flaps8.json";
 import vrFlaps20Json from "./vr-flaps20.json";
@@ -10,6 +12,8 @@ import type { BundledPerformancePackage } from "../../../lib/performance-package
 import type { PerformanceDataset } from "../../../lib/universal-aircraft-content.ts";
 
 const takeoffN1 = takeoffN1Json as unknown as PerformanceDataset;
+const v1Flaps8 = v1Flaps8Json as unknown as PerformanceDataset;
+const v1Flaps20 = v1Flaps20Json as unknown as PerformanceDataset;
 const vrFlaps8 = vrFlaps8Json as unknown as PerformanceDataset;
 const vrFlaps20 = vrFlaps20Json as unknown as PerformanceDataset;
 const v2Flaps8 = v2Flaps8Json as unknown as PerformanceDataset;
@@ -26,6 +30,8 @@ export const learjet35aPerformancePackage: BundledPerformancePackage = {
     disclaimer: "Sources: available training material. Not FAA-approved.",
     datasets: [
       takeoffN1,
+      v1Flaps8,
+      v1Flaps20,
       vrFlaps8,
       vrFlaps20,
       v2Flaps8,

@@ -16,6 +16,10 @@ export type PilotTakeoffMetricBinding = {
 export type PilotTakeoffFlapOption = {
   readonly value: string;
   readonly label: string;
+  readonly v1?: {
+    readonly antiIceOff: PilotTakeoffMetricBinding;
+    readonly antiIceOn?: PilotTakeoffMetricBinding;
+  };
   readonly vr: PilotTakeoffMetricBinding;
   readonly v2: PilotTakeoffMetricBinding;
 };
@@ -151,6 +155,20 @@ export function calculatePilotTakeoffSummary(
           : "N1 source data is unavailable.",
       };
 
+  const v1Binding = flap?.v1
+    ? (inputs.antiIce ? flap.v1.antiIceOn : flap.v1.antiIceOff)
+    : undefined;
+  const v1 = flap?.v1
+    ? v1Binding
+      ? evaluateMetric(datasets, v1Binding, inputs)
+      : {
+          status: "unavailable" as const,
+          reason: inputs.antiIce
+            ? "Anti-ice ON V1 data is not available in the current source package."
+            : "V1 source data is unavailable.",
+        }
+    : pending(definition.placeholders.find((item) => item.key === "v1")?.milestone ?? "Not yet implemented.");
+
   return {
     n1,
     vr: flap
@@ -160,7 +178,7 @@ export function calculatePilotTakeoffSummary(
       ? evaluateMetric(datasets, flap.v2, inputs)
       : { status: "unavailable", reason: "No flap configuration is available." },
     vref: evaluateMetric(datasets, definition.vref, inputs),
-    v1: pending(definition.placeholders.find((item) => item.key === "v1")?.milestone ?? "Not yet implemented."),
+    v1,
     takeoffDistance: pending(
       definition.placeholders.find((item) => item.key === "takeoffDistance")?.milestone ?? "Not yet implemented.",
     ),
