@@ -23,6 +23,13 @@ export type MetricLookupResult = {
   readonly value: PerformanceScalar;
 };
 
+export type MultiAxisMetricGridCalculation = {
+  readonly status: "incomplete" | "unsupported" | "ready";
+  readonly reason?: string;
+  readonly method?: "exact-source-row" | "bounded-linear-interpolation";
+  readonly metrics?: readonly MetricLookupResult[];
+};
+
 export type DistanceFactorInput = Readonly<{
   baselineDistance?: number;
   runwayAvailable?: number;
@@ -334,6 +341,48 @@ export function getMetricLookupResults(
     if (!output || value === undefined) return [];
     return [{ key, label: output.label, unit: output.unit, value }];
   });
+}
+
+export function calculateMultiAxisMetricGrid(
+  dataset: PerformanceDataset | undefined,
+  inputs: Readonly<Record<string, PerformanceScalar | undefined>>,
+): MultiAxisMetricGridCalculation {
+  if (!dataset || dataset.calculator?.kind !== "multi-axis-metric-grid") {
+    return { status: "unsupported", reason: "No multi-axis metric grid is available." };
+  }
+  const calculator = dataset.calculator;
+  const missingAxis = calculator.inputAxes.find((key) => inputs[key] === undefined);
+  if (missingAxis) {
+    const sourceAxis = dataset.axes.find((candidate) => candidate.key === missingAxis);
+    return { status: "incomplete", reason: `Enter ${sourceAxis?.label ?? missingAxis}.` };
+  }
+
+  const filters = Object.fromEntries(
+    calculator.inputAxes.map((key) => [key, performanceScalarKey(inputs[key] as PerformanceScalar)]),
+  );
+  const selection = getPerformanceSelectionState(dataset, filters);
+  if (!selection.resultRow || (selection.status !== "exact" && selection.status !== "interpolated")) {
+    return {
+      status: "unsupported",
+      reason: "The entered values are outside the published source grid or require unavailable source corners. FlyTally will not extrapolate.",
+    };
+  }
+
+  const metrics = calculator.outputKeys.flatMap((key) => {
+    const declaredOutput = dataset.outputs.find((candidate) => candidate.key === key);
+    const value = selection.resultRow?.outputs[key];
+    if (!declaredOutput || value === undefined) return [];
+    return [{ key, label: declaredOutput.label, unit: declaredOutput.unit, value }];
+  });
+  if (metrics.length !== calculator.outputKeys.length) {
+    return { status: "unsupported", reason: "The source grid does not contain every declared output for this result." };
+  }
+
+  return {
+    status: "ready",
+    method: selection.status === "exact" ? "exact-source-row" : "bounded-linear-interpolation",
+    metrics,
+  };
 }
 
 type Bracket = { readonly low: number; readonly high: number };
