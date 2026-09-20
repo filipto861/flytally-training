@@ -340,10 +340,18 @@ export type PerformanceMetricLookupCalculator = {
   readonly outputKeys: readonly string[];
 };
 
+export type PerformanceMultiAxisMetricGridCalculator = {
+  readonly kind: "multi-axis-metric-grid";
+  readonly operation: PerformancePhase;
+  readonly inputAxes: readonly string[];
+  readonly outputKeys: readonly string[];
+};
+
 export type PerformanceCalculatorContract =
   | PerformanceRunwayDistanceGridCalculator
   | PerformanceDistanceFactorCalculator
-  | PerformanceMetricLookupCalculator;
+  | PerformanceMetricLookupCalculator
+  | PerformanceMultiAxisMetricGridCalculator;
 
 export type PerformanceDataset = {
   readonly id: string;
@@ -712,6 +720,25 @@ function validatePerformanceCalculator(
   if (calculator.kind === "metric-lookup") {
     if (!axisExists(calculator.axisKey) || axisKeys.length !== 1 || !strings(calculator.outputKeys) || calculator.outputKeys.length === 0 || calculator.outputKeys.some((key) => !outputKeys.includes(key))) {
       errors.push(`${path} metric lookup must bind the dataset's single axis and one or more existing outputs`);
+    }
+    return;
+  }
+
+  if (calculator.kind === "multi-axis-metric-grid") {
+    const inputAxes = calculator.inputAxes;
+    const selectedOutputs = calculator.outputKeys;
+    const inputAxesValid = strings(inputAxes)
+      && inputAxes.length > 0
+      && new Set(inputAxes).size === inputAxes.length
+      && inputAxes.length === axisKeys.length
+      && inputAxes.every((key) => axisKeys.includes(key))
+      && axisKeys.every((key) => inputAxes.includes(key));
+    const outputKeysValid = strings(selectedOutputs)
+      && selectedOutputs.length > 0
+      && new Set(selectedOutputs).size === selectedOutputs.length
+      && selectedOutputs.every((key) => outputKeys.includes(key));
+    if (!inputAxesValid || !outputKeysValid) {
+      errors.push(`${path} multi-axis metric grid must bind every dataset axis and one or more existing outputs`);
     }
     return;
   }
