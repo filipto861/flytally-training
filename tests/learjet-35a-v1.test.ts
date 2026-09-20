@@ -64,6 +64,26 @@ test("B7 V1 datasets satisfy the governed multi-axis metric-grid contract", () =
   }
 });
 
+test("B7 V1 source axes include the complete CL-102B pressure-altitude grid", () => {
+  for (const dataset of [f8, f20]) {
+    assert.deepEqual(dataset.axes.find((axis) => axis.key === "pressureAltitude")?.values, [
+      0, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000,
+    ]);
+    assert.deepEqual(dataset.axes.find((axis) => axis.key === "oat")?.values, [-18, -7, 4, 16, 27, 38]);
+    assert.deepEqual(dataset.axes.find((axis) => axis.key === "grossWeight")?.values, [
+      10000, 11000, 12000, 13000, 14000, 15000, 16000, 17000, 18000, 18300,
+    ]);
+  }
+});
+
+test("B7 V1 datasets preserve CL-102B provenance and baseline conditions", () => {
+  for (const dataset of [f8, f20]) {
+    assert.ok(dataset.sources?.some((source) => source.manualId === "CL-102B"));
+    assert.ok(dataset.notes?.some((note) => /dry runway, zero wind, zero runway gradient, anti-ice off and anti-skid on/i.test(note)));
+    assert.ok(dataset.notes?.some((note) => /Sparse high\/hot source regions are intentionally absent/i.test(note)));
+  }
+});
+
 test("B7 Flaps 8 returns exact Sea Level source nodes", () => {
   assert.equal(value(f8, 0, -18, 18300), 136);
   assert.equal(value(f8, 0, 16, 15000), 115);
@@ -77,7 +97,8 @@ test("B7 Flaps 8 returns exact 1,000 and 2,000 ft source nodes", () => {
   assert.equal(calculate(f8, 1000, 38, 18300).status, "unsupported");
 });
 
-test("B7 Flaps 8 returns an exact mid-altitude source node", () => {
+test("B7 Flaps 8 returns exact published nodes beyond the low-altitude blocks", () => {
+  assert.equal(value(f8, 3000, -18, 18300), 136);
   const result = calculate(f8, 6000, 16, 15000);
   assert.equal(result.status, "ready");
   assert.equal(result.method, "exact-source-row");
@@ -87,6 +108,7 @@ test("B7 Flaps 8 returns an exact mid-altitude source node", () => {
 test("B7 Flaps 20 returns exact source nodes including the published Sea Level 38°C row", () => {
   assert.equal(value(f20, 0, 16, 15000), 111);
   assert.equal(value(f20, 0, 16, 10000), 103);
+  assert.equal(value(f20, 0, 16, 18300), 131);
   assert.equal(value(f20, 0, 38, 15000), 118);
   assert.equal(value(f20, 0, 38, 16000), 125);
   assert.equal(calculate(f20, 0, 38, 17000).status, "unsupported");
@@ -132,6 +154,12 @@ test("B7 sparse exact high/hot source cells fail closed", () => {
   assert.equal(result.status, "unsupported");
   assert.equal(result.metrics, undefined);
   assert.match(result.reason ?? "", /unavailable source corners|will not extrapolate/i);
+});
+
+test("B7 Flaps 20 sparse high/hot source cells fail closed", () => {
+  const result = calculate(f20, 7000, 38, 15000);
+  assert.equal(result.status, "unsupported");
+  assert.equal(result.metrics, undefined);
 });
 
 test("B7 interpolation fails closed when any required sparse source corner is missing", () => {
@@ -206,6 +234,17 @@ test("B7 anti-ice ON does not fall through to the anti-ice OFF V1 grid", () => {
     assert.equal(result.v1.value, undefined);
     assert.match(result.v1.reason ?? "", /Anti-ice ON V1 data is not available/i);
   }
+});
+
+test("B7 bundled performance package registers both V1 source grids", () => {
+  const pkg = fs.readFileSync(
+    new URL("../aircraft-data/learjet-35a/performance/package.ts", import.meta.url),
+    "utf8",
+  );
+  assert.match(pkg, /v1-flaps8\.json/);
+  assert.match(pkg, /v1-flaps20\.json/);
+  assert.match(pkg, /v1Flaps8/);
+  assert.match(pkg, /v1Flaps20/);
 });
 
 test("B7 V1 bindings live in aircraft data while the generic performance engine stays aircraft-agnostic", () => {
