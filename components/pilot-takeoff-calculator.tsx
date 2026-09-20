@@ -190,6 +190,8 @@ export function PilotTakeoffCalculator({
     && Math.abs(availableLength - runwayContext.surfaceLengthFt) < 0.5,
   );
 
+  const pressureAltitudeBadgeSource = pressureAltitude.dirty ? "manual" : qnh.source === "metar" ? "metar" : "manual";
+
   const marginTone = runwayMargin
     ? runwayMargin.usePercent <= 50
       ? "safe"
@@ -230,9 +232,13 @@ export function PilotTakeoffCalculator({
 
           {runwayContext ? (
             <div className={styles.runwayContext}>
-              <div>
-                <span>Runway surface length</span>
-                <strong>{formatThousandsWithUnit(runwayContext.surfaceLengthFt, "ft")}</strong>
+              <div className={styles.runwaySurface}>
+                <div className={styles.contextLabel}>
+                  <span>Runway surface length</span>
+                </div>
+                <div className={styles.readOnlyControl}>
+                  <strong>{formatThousandsWithUnit(runwayContext.surfaceLengthFt, "ft")}</strong>
+                </div>
               </div>
               <div className={styles.availableLength}>
                 <div className={styles.editableLabel}>
@@ -249,10 +255,27 @@ export function PilotTakeoffCalculator({
                     type="number"
                     value={availableTakeoffLengthFt}
                   />
-                  <small>ft</small>
+                  <span className={styles.unitSuffix}>ft</span>
                 </div>
                 <div className={styles.availableLengthMeta}>
-                  <small>Default from runway surface length</small>
+                  <div className={styles.helperWithInfo}>
+                    <small>Defaults to surface length</small>
+                    <button
+                      aria-describedby="available-takeoff-length-tooltip"
+                      aria-label="Available takeoff length information"
+                      className={styles.infoButton}
+                      type="button"
+                    >
+                      <span aria-hidden="true">i</span>
+                      <span
+                        className={styles.infoTooltip}
+                        id="available-takeoff-length-tooltip"
+                        role="tooltip"
+                      >
+                        Defaults to runway surface length from the airport database. This is not declared TORA; verify current published runway data.
+                      </span>
+                    </button>
+                  </div>
                   {!usingSurfaceLength ? (
                     <button
                       className={styles.resetLengthButton}
@@ -264,9 +287,6 @@ export function PilotTakeoffCalculator({
                   ) : null}
                 </div>
               </div>
-              <small>
-                Defaults to runway surface length from the airport database. This is not declared TORA; verify current published runway data.
-              </small>
             </div>
           ) : null}
 
@@ -276,7 +296,7 @@ export function PilotTakeoffCalculator({
                 <span>QNH / Altimeter</span>
                 <span className={styles.sourceBadge} data-source={qnh.source}>{qnh.source}</span>
               </div>
-              <div className={styles.altimeterControl}>
+              <div className={styles.inputWithUnit}>
                 <input
                   aria-label="QNH or altimeter setting"
                   inputMode="decimal"
@@ -288,6 +308,7 @@ export function PilotTakeoffCalculator({
                 />
                 <select
                   aria-label="Altimeter unit"
+                  className={styles.unitSelect}
                   onChange={(event) => handleQnhUnitChange(event.target.value as AltimeterUnit)}
                   value={qnhUnit}
                 >
@@ -304,7 +325,12 @@ export function PilotTakeoffCalculator({
             </label>
 
             <label className={styles.field}>
-              <span>{definition.inputs.pressureAltitude.label}</span>
+              <div className={styles.fieldLabel}>
+                <span>{definition.inputs.pressureAltitude.label}</span>
+                <span className={styles.sourceBadge} data-source={pressureAltitudeBadgeSource}>
+                  {pressureAltitudeBadgeSource}
+                </span>
+              </div>
               <div className={styles.inputWithUnit}>
                 <input
                   aria-label={definition.inputs.pressureAltitude.label}
@@ -314,7 +340,7 @@ export function PilotTakeoffCalculator({
                   type="number"
                   value={pressureAltitude.value}
                 />
-                <small>{definition.inputs.pressureAltitude.unit}</small>
+                <span className={styles.unitSuffix}>{definition.inputs.pressureAltitude.unit}</span>
               </div>
               {runwayContext ? (
                 <small className={styles.fieldHint}>
@@ -352,7 +378,7 @@ export function PilotTakeoffCalculator({
                   type="number"
                   value={oat.value}
                 />
-                <small>{definition.inputs.oat.unit}</small>
+                <span className={styles.unitSuffix}>{definition.inputs.oat.unit}</span>
               </div>
               {oat.dirty && metarSnapshot?.temperatureC !== undefined ? (
                 <small className={styles.fieldHint}>
@@ -374,7 +400,7 @@ export function PilotTakeoffCalculator({
                   type="number"
                   value={takeoffWeight}
                 />
-                <small>{definition.inputs.takeoffWeight.unit}</small>
+                <span className={styles.unitSuffix}>{definition.inputs.takeoffWeight.unit}</span>
               </div>
             </label>
 

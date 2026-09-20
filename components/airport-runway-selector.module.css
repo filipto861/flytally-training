@@ -10,7 +10,7 @@
 .fields{
   min-width:0;
   display:grid;
-  grid-template-columns:minmax(0,1.3fr) minmax(0,.7fr);
+  grid-template-columns:minmax(0,3fr) minmax(0,2fr);
   gap:var(--ui-space-3);
 }
 .field{
@@ -26,6 +26,7 @@
 .field input,.field select{
   width:100%;
   min-width:0;
+  height:52px;
   min-height:52px;
   padding:10px 12px;
   border:1px solid #cbd7e1;
@@ -47,7 +48,7 @@
 }
 .field small,.status{
   margin:0;
-  color:#758598;
+  color:var(--muted,#66778a);
   font-size:.69rem;
   line-height:1.4;
 }
