@@ -1,7 +1,22 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
+import { AirportRunwaySelector } from "./airport-runway-selector";
+
+import {
+  airportAutoFill,
+  calculateRunwayMarginFt,
+  manualSourcedValue,
+} from "@/lib/aviation/runway-context";
+import {
+  altimeterToHpa,
+  calculatePressureAltitudeFt,
+  hpaToInHg,
+  type AltimeterSetting,
+  type AltimeterUnit,
+} from "@/lib/aviation/pressure-altitude";
+import type { SelectedRunwayContext, SourcedValue } from "@/lib/aviation/airport-types";
 import {
   calculatePilotTakeoffSummary,
   formatPilotTakeoffMetric,
@@ -16,6 +31,10 @@ function numberFromInput(value: string): number | undefined {
   if (!value.trim()) return undefined;
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+function altimeterSetting(unit: AltimeterUnit, value: number): AltimeterSetting {
+  return unit === "hPa" ? { unit: "hPa", value } : { unit: "inHg", value };
 }
 
 function Metric({
@@ -44,21 +63,92 @@ export function PilotTakeoffCalculator({
   datasets: readonly PerformanceDataset[];
   definition: PilotTakeoffCalculatorDefinition;
 }>) {
-  const [pressureAltitude, setPressureAltitude] = useState("");
+  const [pressureAltitude, setPressureAltitude] = useState<SourcedValue<string>>({
+    value: "",
+    source: "manual",
+    dirty: false,
+  });
+  const [runwayContext, setRunwayContext] = useState<SelectedRunwayContext>();
+  const [availableTakeoffLengthFt, setAvailableTakeoffLengthFt] = useState("");
+  const [qnh, setQnh] = useState("1013.25");
+  const [qnhUnit, setQnhUnit] = useState<AltimeterUnit>("hPa");
   const [oat, setOat] = useState("");
   const [takeoffWeight, setTakeoffWeight] = useState("");
   const [flaps, setFlaps] = useState(definition.flapOptions[0]?.value ?? "");
   const [antiIce, setAntiIce] = useState(false);
 
+  const calculatedPressureAltitude = useMemo(() => {
+    if (!runwayContext) return undefined;
+    const value = numberFromInput(qnh);
+    if (value === undefined) return undefined;
+    try {
+      return Math.round(calculatePressureAltitudeFt(
+        runwayContext.airportElevationFt,
+        altimeterSetting(qnhUnit, value),
+      ));
+    } catch {
+      return undefined;
+    }
+  }, [qnh, qnhUnit, runwayContext]);
+
+  useEffect(() => {
+    if (calculatedPressureAltitude === undefined) return;
+    setPressureAltitude((current) => airportAutoFill(current, String(calculatedPressureAltitude)));
+  }, [calculatedPressureAltitude]);
+
   const summary = useMemo(
     () => calculatePilotTakeoffSummary(datasets, definition, {
-      pressureAltitude: numberFromInput(pressureAltitude),
+      pressureAltitude: numberFromInput(pressureAltitude.value),
       oat: numberFromInput(oat),
       takeoffWeight: numberFromInput(takeoffWeight),
       flaps,
       antiIce,
     }),
-    [antiIce, datasets, definition, flaps, oat, pressureAltitude, takeoffWeight],
+    [antiIce, datasets, definition, flaps, oat, pressureAltitude.value, takeoffWeight],
+  );
+
+  const handleRunwayContext = (context: SelectedRunwayContext | undefined) => {
+    setRunwayContext(context);
+    setAvailableTakeoffLengthFt(context ? String(context.surfaceLengthFt) : "");
+    if (!context) {
+      setPressureAltitude((current) =>
+        current.dirty ? current : { value: "", source: "airport-db", dirty: false },
+      );
+    }
+  };
+
+  const handleQnhUnitChange = (nextUnit: AltimeterUnit) => {
+    if (nextUnit === qnhUnit) return;
+    const numeric = numberFromInput(qnh);
+    if (numeric !== undefined) {
+      const hpa = altimeterToHpa(altimeterSetting(qnhUnit, numeric));
+      const converted = nextUnit === "hPa" ? hpa : hpaToInHg(hpa);
+      setQnh(converted.toFixed(2));
+    }
+    setQnhUnit(nextUnit);
+  };
+
+  const runwayMargin = useMemo(() => {
+    const available = numberFromInput(availableTakeoffLengthFt);
+    if (
+      !runwayContext
+      || available === undefined
+      || available <= 0
+      || summary.takeoffDistance.status !== "ready"
+      || summary.takeoffDistance.value === undefined
+    ) return undefined;
+    try {
+      return calculateRunwayMarginFt(summary.takeoffDistance.value, available);
+    } catch {
+      return undefined;
+    }
+  }, [availableTakeoffLengthFt, runwayContext, summary.takeoffDistance]);
+
+  const availableLength = numberFromInput(availableTakeoffLengthFt);
+  const usingSurfaceLength = Boolean(
+    runwayContext
+    && availableLength !== undefined
+    && Math.abs(availableLength - runwayContext.surfaceLengthFt) < 0.5,
   );
 
   const sourceResults = [summary.n1, summary.v1, summary.vr, summary.v2, summary.vref, summary.takeoffDistance];
@@ -78,20 +168,93 @@ export function PilotTakeoffCalculator({
       <div className={styles.layout}>
         <section className={styles.inputs} aria-label="Takeoff inputs">
           <h3 className={styles.inputsTitle}>Inputs</h3>
+
+          <AirportRunwaySelector onChange={handleRunwayContext} />
+
+          {runwayContext ? (
+            <div className={styles.runwayContext}>
+              <div>
+                <span>Runway surface length</span>
+                <strong>{runwayContext.surfaceLengthFt.toLocaleString("en-US")} ft</strong>
+              </div>
+              <label className={styles.availableLength}>
+                <span>Available takeoff length</span>
+                <div className={styles.inputWithUnit}>
+                  <input
+                    aria-label="Available takeoff length"
+                    inputMode="decimal"
+                    min="1"
+                    onChange={(event) => setAvailableTakeoffLengthFt(event.target.value)}
+                    step="any"
+                    type="number"
+                    value={availableTakeoffLengthFt}
+                  />
+                  <small>ft</small>
+                </div>
+              </label>
+              <small>
+                Defaults to runway surface length from the airport database. This is not declared TORA.
+              </small>
+            </div>
+          ) : null}
+
           <div className={styles.fields}>
+            <label className={styles.field}>
+              <span>QNH / Altimeter</span>
+              <div className={styles.altimeterControl}>
+                <input
+                  aria-label="QNH or altimeter setting"
+                  inputMode="decimal"
+                  min="1"
+                  onChange={(event) => setQnh(event.target.value)}
+                  step="any"
+                  type="number"
+                  value={qnh}
+                />
+                <select
+                  aria-label="Altimeter unit"
+                  onChange={(event) => handleQnhUnitChange(event.target.value as AltimeterUnit)}
+                  value={qnhUnit}
+                >
+                  <option value="hPa">hPa</option>
+                  <option value="inHg">inHg</option>
+                </select>
+              </div>
+            </label>
+
             <label className={styles.field}>
               <span>{definition.inputs.pressureAltitude.label}</span>
               <div className={styles.inputWithUnit}>
                 <input
                   aria-label={definition.inputs.pressureAltitude.label}
                   inputMode="decimal"
-                  onChange={(event) => setPressureAltitude(event.target.value)}
+                  onChange={(event) => setPressureAltitude(manualSourcedValue(event.target.value))}
                   step="any"
                   type="number"
-                  value={pressureAltitude}
+                  value={pressureAltitude.value}
                 />
                 <small>{definition.inputs.pressureAltitude.unit}</small>
               </div>
+              {runwayContext ? (
+                <small className={styles.fieldHint}>
+                  {pressureAltitude.dirty
+                    ? "Manual override"
+                    : `Auto from ${runwayContext.airportIcao} field elevation + QNH`}
+                  {pressureAltitude.dirty && calculatedPressureAltitude !== undefined ? (
+                    <button
+                      className={styles.inlineButton}
+                      onClick={() => setPressureAltitude({
+                        value: String(calculatedPressureAltitude),
+                        source: "airport-db",
+                        dirty: false,
+                      })}
+                      type="button"
+                    >
+                      Use calculated
+                    </button>
+                  ) : null}
+                </small>
+              ) : null}
             </label>
 
             <label className={styles.field}>
@@ -180,6 +343,35 @@ export function PilotTakeoffCalculator({
             <Metric label="V1" result={summary.v1} />
             <Metric label="Takeoff Distance" result={summary.takeoffDistance} />
           </div>
+
+          {runwayMargin && runwayContext && availableLength !== undefined ? (
+            <div className={styles.runwayMargin} data-within={runwayMargin.withinLength}>
+              <div>
+                <span>Required distance</span>
+                <strong>{Math.round(summary.takeoffDistance.value ?? 0).toLocaleString("en-US")} ft</strong>
+              </div>
+              <div>
+                <span>Available</span>
+                <strong>{Math.round(availableLength).toLocaleString("en-US")} ft</strong>
+              </div>
+              <div>
+                <span>Margin</span>
+                <strong>
+                  {runwayMargin.marginFt >= 0 ? "+" : ""}
+                  {Math.round(runwayMargin.marginFt).toLocaleString("en-US")} ft
+                </strong>
+              </div>
+              <div>
+                <span>Runway used</span>
+                <strong>{Math.round(runwayMargin.usePercent)}%</strong>
+              </div>
+              <small>
+                {usingSurfaceLength
+                  ? "Based on runway surface length from the airport database, not declared TORA."
+                  : "Based on manually entered available takeoff length."}
+              </small>
+            </div>
+          ) : null}
 
           <p className={styles.disclaimer}>{definition.disclaimer}</p>
         </section>

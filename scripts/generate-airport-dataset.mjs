@@ -133,7 +133,6 @@ const manifest = {
     path: "eu-na.v1.json",
     sha256: sha256(datasetBuffer),
     rawBytes: datasetBuffer.byteLength,
-    gzipBytes: gzipSync(datasetBuffer).byteLength,
     airportCount: records.length,
     filter: "Europe/North America; ICAO-like gps_code; active runway; scheduled service or large/medium airport",
   },
@@ -145,4 +144,5 @@ await Promise.all([
   writeFile(new URL("manifest.v1.json", OUT_DIR), `${JSON.stringify(manifest, null, 2)}\n`, "utf8"),
 ]);
 
-console.log(`Generated ${records.length} airports: ${datasetBuffer.byteLength} raw bytes, ${manifest.dataset.gzipBytes} gzip bytes.`);
+const gzipBytes = gzipSync(datasetBuffer).byteLength;
+console.log(`Generated ${records.length} airports: ${datasetBuffer.byteLength} raw bytes, ${gzipBytes} gzip bytes.`);

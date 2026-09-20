@@ -2,7 +2,12 @@ const serviceWorker = String.raw`
 const FLIGHT_CACHE = "flytally-flight-v2";
 const STATIC_CACHE = "flytally-static-v3";
 const SHELL_CACHE = "flytally-shell-v1";
+const FLIGHT_DATA_CACHE = "flytally-flight-data-v1";
 const SHELL_ASSETS = ["/manifest.webmanifest", "/pwa-icon"];
+const FLIGHT_SUPPORT_ASSETS = [
+  "/data/aviation/airports/manifest.v1.json",
+  "/data/aviation/airports/eu-na.v1.json",
+];
 const FLIGHT_PATH = /\/aircraft\/[^/]+\/fly\/?$/;
 
 async function cacheShell() {
@@ -20,7 +25,7 @@ self.addEventListener("install", (event) => {
 self.addEventListener("activate", (event) => {
   event.waitUntil((async () => {
     const names = await caches.keys();
-    await Promise.all(names.filter((name) => name.startsWith("flytally-") && ![FLIGHT_CACHE, STATIC_CACHE, SHELL_CACHE].includes(name)).map((name) => caches.delete(name)));
+    await Promise.all(names.filter((name) => name.startsWith("flytally-") && ![FLIGHT_CACHE, STATIC_CACHE, SHELL_CACHE, FLIGHT_DATA_CACHE].includes(name)).map((name) => caches.delete(name)));
     await self.clients.claim();
   })());
 });
@@ -42,6 +47,16 @@ async function cacheAsset(url) {
   } catch {}
 }
 
+async function cacheFlightSupportAssets() {
+  const cache = await caches.open(FLIGHT_DATA_CACHE);
+  await Promise.allSettled(FLIGHT_SUPPORT_ASSETS.map(async (path) => {
+    const url = new URL(path, self.location.origin);
+    if (url.origin !== self.location.origin || !url.pathname.startsWith("/data/aviation/")) return;
+    const response = await fetch(url.toString(), { credentials: "same-origin" });
+    if (response.ok) await cache.put(path, response.clone());
+  }));
+}
+
 async function cacheFlightPage(rawUrl) {
   try {
     const source = new URL(rawUrl, self.location.origin);
@@ -55,6 +70,7 @@ async function cacheFlightPage(rawUrl) {
     const html = await response.text();
     const assets = [...html.matchAll(/(?:src|href)="(\/_next\/static\/[^"?#]+(?:\?[^"#]*)?)"/g)].map((match) => new URL(match[1], self.location.origin).toString());
     await Promise.all([...new Set(assets)].map(cacheAsset));
+    await cacheFlightSupportAssets();
     return true;
   } catch {
     return false;
@@ -75,6 +91,16 @@ self.addEventListener("fetch", (event) => {
   if (request.method !== "GET") return;
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
+
+  if (FLIGHT_SUPPORT_ASSETS.includes(url.pathname)) {
+    event.respondWith((async () => {
+      const cache = await caches.open(FLIGHT_DATA_CACHE);
+      const cached = await cache.match(url.pathname);
+      if (cached) return cached;
+      return fetch(request);
+    })());
+    return;
+  }
 
   if (SHELL_ASSETS.includes(url.pathname)) {
     event.respondWith((async () => {
