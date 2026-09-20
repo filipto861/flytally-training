@@ -9,6 +9,7 @@ const read=(path:string)=>fs.readFileSync(new URL(`../${path}`,import.meta.url),
 
 test("v3.1 M3A common aircraft equipment is active without requiring a variant",()=>{
   const aircraft={
+    id:"common-equipment-aircraft",
     variants:[],
     equipmentTags:["constant-speed-prop","autopilot"],
     variantProfiles:[],
@@ -20,6 +21,7 @@ test("v3.1 M3A common aircraft equipment is active without requiring a variant",
 
 test("v3.1 M3A selected variant adds equipment to common aircraft equipment",()=>{
   const aircraft={
+    id:"variant-equipment-aircraft",
     variants:["A","B"],
     equipmentTags:["engine-common"],
     variantProfiles:[

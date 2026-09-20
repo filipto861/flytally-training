@@ -20,6 +20,21 @@ export type AircraftApplicability = {
   readonly equipmentAllOf?: readonly string[];
   readonly equipmentAnyOf?: readonly string[];
   readonly equipmentNoneOf?: readonly string[];
+
+  readonly baseVariants?: readonly string[];
+
+  readonly capabilityTagsAllOf?: readonly string[];
+  readonly capabilityTagsAnyOf?: readonly string[];
+  readonly capabilityTagsNoneOf?: readonly string[];
+
+  readonly modificationsAllOf?: readonly string[];
+  readonly modificationsAnyOf?: readonly string[];
+  readonly modificationsNoneOf?: readonly string[];
+
+  readonly configurationEquipmentAllOf?: readonly string[];
+  readonly configurationEquipmentAnyOf?: readonly string[];
+  readonly configurationEquipmentNoneOf?: readonly string[];
+
   readonly note?: string;
 };
 
