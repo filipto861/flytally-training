@@ -10,7 +10,6 @@ import { assertValidContentPayload, validateContentPayload } from "./content-con
 import type { TrainingContentDomain } from "./content-admin-types";
 import { collectEmbeddedManualIds } from "./content-source-binding";
 import { isOperationalSourceAuthority, requiresOperationalSourceAuthority } from "./source-authority";
-import { containsProcedureGraphPayload } from "./procedure-graph";
 import {
   assertApplicabilityBaseVariantsRegistered,
   assertApplicabilityCapabilitiesRegistered,
@@ -195,8 +194,5 @@ export async function assertContentVersionValidForApprovalOrPublication(versionI
   await assertSourceReferencesBelongToAircraft(version.aircraftId,version.sourceReferenceIds);
   await assertOperationalSourceAuthorityForVersion(version.domain, version.sourceReferenceIds);
   await assertEmbeddedSourcesMatchVersionLinks(version.payload, version.sourceReferenceIds);
-  if (version.domain === "procedures" && containsProcedureGraphPayload(version.payload)) {
-    throw new Error("Procedure graph content is valid but requires the M1-E2 runtime before approval or publication.");
-  }
   return version;
 }

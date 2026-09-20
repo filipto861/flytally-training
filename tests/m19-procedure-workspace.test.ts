@@ -33,13 +33,27 @@ const pageSource = fs.readFileSync(new URL("../app/aircraft/[aircraftId]/procedu
 
 test("procedure session restore rejects stale procedure and step identities", () => {
   const snapshot = normalizeProcedureSessionSnapshot({
-    version: 99,
+    version: 1,
     selectedProcedureId: "removed",
     completedStepKeys: ["start:starter", "start:removed", "start:starter", "removed:step"],
   }, procedures);
   assert.equal(snapshot.version, 1);
   assert.equal(snapshot.selectedProcedureId, "start");
   assert.deepEqual(snapshot.completedStepKeys, ["start:starter"]);
+});
+
+test("procedure session restore rejects an unknown version instead of interpreting it as v1", () => {
+  const snapshot = normalizeProcedureSessionSnapshot({
+    version: 99,
+    selectedProcedureId: "start",
+    completedStepKeys: ["start:starter"],
+  }, procedures);
+
+  assert.deepEqual(snapshot, {
+    version: 1,
+    selectedProcedureId: "start",
+    completedStepKeys: [],
+  });
 });
 
 test("procedure step identity is scoped to its procedure and configuration session", () => {
@@ -58,20 +72,22 @@ test("procedure completion is derived from current source-defined steps", () => 
   ]);
 });
 
-test("procedure workspace preserves deep links, step progress and source detail without aircraft-specific branches", () => {
+test("procedure workspace preserves deep links, v2 session state and split renderers without aircraft-specific branches", () => {
   assert.match(browserSource, /window\.location\.hash/);
-  assert.match(browserSource, /window\.sessionStorage\.setItem\(storageKey/);
-  assert.match(browserSource, /kind: "procedure"/);
-  assert.match(browserSource, /step\.expectedResult/);
-  assert.match(browserSource, /step\.verification/);
-  assert.match(browserSource, /step\.rationale/);
-  assert.match(browserSource, /step\.notices/);
-  assert.match(browserSource, /Source · \{sourceLabel\}/);
+  assert.match(browserSource, /readProcedureSessionV2/);
+  assert.match(browserSource, /writeProcedureSessionV2/);
+  assert.match(browserSource, /ProcedureLinearRunner/);
+  assert.match(browserSource, /ProcedureGraphRunner/);
+  assert.match(browserSource, /emittedCompletionRef/);
+  assert.match(browserSource, /shouldEmitProcedureGraphCompletion/);
   assert.match(browserSource, /Reset procedure/);
   assert.doesNotMatch(browserSource, /learjet-35-36|Learjet/);
 });
 
-test("procedure route passes resolved aircraft configuration into the generic workspace", () => {
-  assert.match(pageSource, /<ProcedureBrowser aircraftId=\{aircraft\.id\} procedures=\{procedures\} selectedVariant=\{selectedVariant\} \/>/);
+test("procedure route passes configuration snapshot and server-side graph fingerprints into the generic workspace", () => {
+  assert.match(pageSource, /effectiveConfigurationSnapshotIdForAircraftVariant/);
+  assert.match(pageSource, /fingerprintGraphProcedure/);
+  assert.match(pageSource, /key=\{effectiveSnapshotId\}/);
+  assert.match(pageSource, /graphFingerprints=\{graphFingerprints\}/);
   assert.doesNotMatch(pageSource, /aircraft\.id ===|aircraftId ===/);
 });
