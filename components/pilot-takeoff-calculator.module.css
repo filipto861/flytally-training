@@ -347,13 +347,6 @@
   font-weight:800;
   cursor:pointer;
 }
-.altimeterControl input{width:100%;padding:10px 12px;font-size:1rem}
-.altimeterControl select{
-  padding:0 10px;
-  border-left:1px solid #e1e8ee;
-  color:#5f7082;
-  font-size:.75rem;
-}
 .fieldHint{
   display:flex;
   align-items:center;
@@ -451,9 +444,6 @@
   }
   .resetLengthButton{
     width:100%;
-  }
-  .altimeterControl select{
-    min-width:68px;
   }
 }
 

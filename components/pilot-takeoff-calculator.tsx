@@ -315,7 +315,7 @@ export function PilotTakeoffCalculator({
                   type="number"
                   value={pressureAltitude.value}
                 />
-                <small>{definition.inputs.pressureAltitude.unit}</small>
+                <span className={styles.unitSuffix}>{definition.inputs.pressureAltitude.unit}</span>
               </div>
               {runwayContext ? (
                 <small className={styles.fieldHint}>
@@ -353,7 +353,7 @@ export function PilotTakeoffCalculator({
                   type="number"
                   value={oat.value}
                 />
-                <small>{definition.inputs.oat.unit}</small>
+                <span className={styles.unitSuffix}>{definition.inputs.oat.unit}</span>
               </div>
               {oat.dirty && metarSnapshot?.temperatureC !== undefined ? (
                 <small className={styles.fieldHint}>
@@ -375,7 +375,7 @@ export function PilotTakeoffCalculator({
                   type="number"
                   value={takeoffWeight}
                 />
-                <small>{definition.inputs.takeoffWeight.unit}</small>
+                <span className={styles.unitSuffix}>{definition.inputs.takeoffWeight.unit}</span>
               </div>
             </label>
 
