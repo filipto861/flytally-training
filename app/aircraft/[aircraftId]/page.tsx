@@ -5,6 +5,7 @@ import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
 import { ContinueLearningCard } from "@/components/continue-learning-card";
 import { FtLaunchSurface } from "@/components/ft-launch/FtLaunchSurface";
 import { resolveSelectedVariant, withVariantQuery } from "@/lib/aircraft-applicability";
+import type { TrainingAircraftVariantProfile } from "@/lib/aircraft-catalog";
 import { getAircraftContentBundle } from "@/lib/content-repository";
 import { getTrainingContentRepository } from "@/lib/content-store";
 import { isNewShellEnabled } from "@/lib/feature-flags";
@@ -27,7 +28,7 @@ function LegacyAircraftHome({
   aircraftId: string;
   aircraftName: string;
   variants: readonly string[];
-  variantProfiles?: Parameters<typeof AircraftWorkspaceNav>[0]["variantProfiles"];
+  variantProfiles?: readonly TrainingAircraftVariantProfile[];
   selectedVariant?: string;
   hasTraining: boolean;
   hasFly: boolean;
