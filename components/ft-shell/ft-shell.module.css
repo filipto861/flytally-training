@@ -1,0 +1,229 @@
+.shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  background: var(--ft-bg-shell);
+  color: var(--ft-text-primary);
+  font-family: var(--ft-font-ui);
+}
+
+.topBar {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--ft-space-4);
+  padding: var(--ft-space-3) var(--ft-space-4);
+  border-bottom: var(--ft-rule-default);
+  background: var(--ft-bg-panel);
+}
+
+.topBarNavControl {
+  display: none;
+}
+
+.aircraftIdentity {
+  min-width: 0;
+  display: grid;
+  gap: var(--ft-space-1);
+}
+
+.aircraftIdentity strong {
+  font-weight: 600;
+}
+
+.aircraftIdentity span,
+.flightPlaceholder {
+  color: var(--ft-text-metadata);
+  font-family: var(--ft-font-data);
+}
+
+.topBarActions {
+  display: flex;
+  align-items: center;
+  gap: var(--ft-space-2);
+}
+
+.searchTrigger,
+.drawerTrigger,
+.drawerClose {
+  min-width: var(--ft-touch-target-min);
+  min-height: var(--ft-touch-target-min);
+  border: var(--ft-rule-default);
+  border-radius: var(--ft-radius-2);
+  background: var(--ft-bg-inset);
+  color: var(--ft-text-primary);
+  font: inherit;
+}
+
+.searchTrigger {
+  padding-inline: var(--ft-space-3);
+  color: var(--ft-text-metadata);
+}
+
+.flightPlaceholder {
+  min-height: var(--ft-touch-target-min);
+  display: inline-flex;
+  align-items: center;
+  padding-inline: var(--ft-space-3);
+  border: var(--ft-rule-default);
+  background: var(--ft-bg-operational);
+}
+
+.workspace {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: calc(var(--ft-space-7) * 5) minmax(0, 1fr);
+}
+
+.sideNav {
+  display: flex;
+  flex-direction: column;
+  padding-block: var(--ft-space-3);
+  border-right: var(--ft-rule-default);
+  background: var(--ft-bg-panel);
+}
+
+.sideNavLink,
+.drawerLink {
+  min-height: var(--ft-touch-target-min);
+  display: flex;
+  align-items: center;
+  padding-inline: var(--ft-space-4);
+  border-inline-start: var(--ft-focus-width) solid transparent;
+  color: var(--ft-text-secondary);
+  font-family: var(--ft-font-data);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.sideNavLink[aria-current="page"],
+.drawerLink[aria-current="page"] {
+  border-inline-start-color: var(--ft-text-primary);
+  color: var(--ft-text-primary);
+  font-weight: 600;
+}
+
+.content {
+  min-width: 0;
+}
+
+.fastPathRail {
+  position: sticky;
+  bottom: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  min-height: var(--ft-fast-path-height-desktop);
+  border-top: var(--ft-rule-default);
+  background: var(--ft-bg-inset);
+}
+
+.fastPathLink {
+  min-height: var(--ft-fast-path-height-desktop);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-inline: var(--ft-space-2);
+  border-inline-end: var(--ft-rule-default);
+  color: var(--ft-text-primary);
+  font-family: var(--ft-font-data);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.fastPathLink:last-child {
+  border-inline-end: none;
+}
+
+.drawerRoot {
+  display: none;
+}
+
+.drawerLayer {
+  position: fixed;
+  inset: 0;
+  display: grid;
+}
+
+.drawerBackdrop {
+  position: absolute;
+  inset: 0;
+  border: none;
+  background: transparent;
+}
+
+.drawerPanel {
+  position: relative;
+  width: calc(var(--ft-space-7) * 5);
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  border-right: var(--ft-rule-strong);
+  background: var(--ft-bg-panel);
+}
+
+.drawerHeader {
+  min-height: var(--ft-touch-target-min);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ft-space-2);
+  padding: var(--ft-space-2) var(--ft-space-3);
+  border-bottom: var(--ft-rule-default);
+}
+
+.drawerHeader strong {
+  font-family: var(--ft-font-data);
+  font-weight: 600;
+}
+
+.drawerNav {
+  display: flex;
+  flex-direction: column;
+  padding-block: var(--ft-space-2);
+}
+
+.sideNavLink:focus-visible,
+.drawerLink:focus-visible,
+.fastPathLink:focus-visible,
+.searchTrigger:focus-visible,
+.drawerTrigger:focus-visible,
+.drawerClose:focus-visible {
+  outline: var(--ft-focus-width) solid var(--ft-text-primary);
+  outline-offset: var(--ft-focus-offset);
+}
+
+@media (max-width: 1024px) {
+  .topBarNavControl,
+  .drawerRoot {
+    display: block;
+  }
+
+  .workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sideNav {
+    display: none;
+  }
+
+  .fastPathRail {
+    min-height: var(--ft-fast-path-height-ipad);
+    background: var(--ft-bg-operational);
+  }
+
+  .fastPathLink {
+    min-height: var(--ft-fast-path-height-ipad);
+    font-family: var(--ft-font-ui);
+  }
+}
+
+@media (max-width: 1024px) and (orientation: portrait) {
+  .topBar {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .topBarActions {
+    grid-column: 1 / -1;
+    justify-content: space-between;
+  }
+}
