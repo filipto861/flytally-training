@@ -6,7 +6,7 @@ import { trainingContentDomains } from "../lib/content-admin-types.ts";
 import { validateContentPayload } from "../lib/content-contracts.ts";
 import { universalTrainingContentDomains } from "../lib/universal-aircraft-content.ts";
 
-const aircraftPage = fs.readFileSync(new URL("../app/aircraft/[aircraftId]/page.tsx", import.meta.url), "utf8");
+const aircraftPage = fs.readFileSync(new URL("../components/legacy-aircraft-home.tsx", import.meta.url), "utf8");
 const trainingHub = fs.readFileSync(new URL("../app/aircraft/[aircraftId]/training/page.tsx", import.meta.url), "utf8");
 const referenceHub = fs.readFileSync(new URL("../app/aircraft/[aircraftId]/reference/page.tsx", import.meta.url), "utf8");
 const workspacePage = fs.readFileSync(new URL("../app/aircraft/[aircraftId]/[section]/page.tsx", import.meta.url), "utf8");
