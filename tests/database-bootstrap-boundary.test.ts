@@ -11,8 +11,8 @@ const acceptance = fs.readFileSync(new URL("./no-code-postgres-acceptance.test.t
 const packageJson = JSON.parse(fs.readFileSync(new URL("../package.json", import.meta.url), "utf8")) as {scripts:Record<string,string>;dependencies:Record<string,string>;devDependencies:Record<string,string>};
 
 test("deployment bootstrap owns every active Training persistence boundary and verifies relations", () => {
-  for (const fn of ["ensureContentSchema","ensureTrainingProgressSchema","ensureTrainingIdentitySchema","ensureTrainingAiDraftSchema"]) assert.match(bootstrap,new RegExp(fn));
-  for (const table of ["training_aircraft_types","training_progress_events","training_aircraft_state","training_identity_assertions","training_ai_draft_runs"]) assert.match(bootstrap,new RegExp(table));
+  for (const fn of ["ensureContentSchema","ensureTrainingProgressSchema","ensureTrainingIdentitySchema","ensureTrainingAiDraftSchema","ensureTrainingActiveFlightSchema"]) assert.match(bootstrap,new RegExp(fn));
+  for (const table of ["training_aircraft_types","training_progress_events","training_aircraft_state","training_identity_assertions","training_ai_draft_runs","training_active_flights"]) assert.match(bootstrap,new RegExp(table));
   assert.doesNotMatch(bootstrap,/ensureManualAssetSchema|training_manual_assets/);
   assert.match(bootstrap,/to_regclass/);
   assert.match(bootstrap,/verifyTrainingDatabaseSchema/);
