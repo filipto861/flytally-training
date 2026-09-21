@@ -11,6 +11,7 @@ import {
   deactivateClientActiveFlight,
 } from "@/lib/active-flight/client";
 import type { ActiveFlight, ActiveFlightInput } from "@/lib/active-flight/types";
+import { parseActiveFlightInput } from "@/lib/active-flight/validation";
 import { useActiveFlightState } from "./use-active-flight";
 
 import styles from "./ft-flight.module.css";
@@ -57,8 +58,15 @@ export function FtActiveFlight({
       brief: null,
     };
 
+    const validated = parseActiveFlightInput(input);
+    if (!validated) {
+      setError("Check the flight setup fields.");
+      setBusy(false);
+      return;
+    }
+
     try {
-      const created = await createClientActiveFlight(input);
+      const created = await createClientActiveFlight(validated);
       setFlight(created);
       setDialogOpen(false);
       formElement.reset();
