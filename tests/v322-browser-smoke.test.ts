@@ -17,8 +17,9 @@ test("v3.2 U3 Training browser smoke is selective and pinned",()=>{
   assert.match(workflow,/npm ci --no-audit --no-fund/);
   assert.equal(packageJson.devDependencies?.["@playwright/test"],"1.55.0");
   assert.doesNotMatch(workflow,/npm install --no-save[^\n]*@playwright\/test/);
-  assert.match(workflow,/playwright install --with-deps chromium webkit/);
-  assert.match(workflow,/Desktop \+ mobile Chromium \+ iPad WebKit/);
+  assert.match(workflow,/playwright install --with-deps chromium/);
+  assert.doesNotMatch(workflow,/playwright install --with-deps chromium webkit/);
+  assert.match(workflow,/Desktop \+ mobile Chromium \+ iPad Chromium/);
 });
 
 test("v3.2 U3 Training runs desktop and mobile Chromium projects",()=>{
