@@ -8,6 +8,7 @@ import {
   transitionActiveFlight,
   type ActiveFlight,
   type ActiveFlightInput,
+  type ActiveFlightPatch,
 } from "./types";
 import {
   activeFlightDependencyReference,
@@ -43,6 +44,27 @@ function localCreate(input: ActiveFlightInput): ActiveFlight {
   );
 }
 
+function localPatch(flight: ActiveFlight, patch: ActiveFlightPatch): ActiveFlight {
+  const merged = {
+    departure: patch.departure ?? flight.departure,
+    destination: patch.destination ?? flight.destination,
+    runway: patch.runway ?? flight.runway,
+    weight: patch.weight ?? flight.weight,
+    configuration: patch.configuration ?? flight.configuration,
+  };
+  const timestamp = new Date().toISOString();
+
+  return {
+    ...flight,
+    ...merged,
+    brief: patch.brief !== undefined ? patch.brief : flight.brief,
+    performanceDependency: {
+      snapshotId: activeFlightDependencyReference(merged),
+    },
+    updatedAt: timestamp,
+  };
+}
+
 async function responseFlight(response: Response): Promise<ActiveFlight> {
   const body: unknown = await response.json();
   const flight = body && typeof body === "object" && !Array.isArray(body)
@@ -75,6 +97,33 @@ export async function createClientActiveFlight(
     throw new ActiveFlightClientError("create_failed");
   } catch (error) {
     if (shouldUseLocalFallback(error)) return localCreate(input);
+    throw error;
+  }
+}
+
+export async function patchClientActiveFlight(
+  flight: ActiveFlight,
+  patch: ActiveFlightPatch,
+): Promise<ActiveFlight> {
+  if (flight.lifecycle !== "ACTIVE") throw new ActiveFlightClientError("invalid_lifecycle");
+  if (flight.accountSubject === LOCAL_ACTIVE_FLIGHT_SUBJECT) {
+    return localPatch(flight, patch);
+  }
+
+  try {
+    const response = await fetch("/api/active-flight", {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        aircraftId: flight.aircraftId,
+        patch,
+      }),
+    });
+    if (response.ok) return responseFlight(response);
+    if (response.status === 401) return localPatch(flight, patch);
+    throw new ActiveFlightClientError("update_failed");
+  } catch (error) {
+    if (shouldUseLocalFallback(error)) return localPatch(flight, patch);
     throw error;
   }
 }
