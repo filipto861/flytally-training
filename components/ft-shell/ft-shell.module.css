@@ -192,7 +192,7 @@
   outline-offset: var(--ft-focus-offset);
 }
 
-@media (max-width: 1024px), (pointer: coarse) {
+@media (max-width: 1180px), (hover: none) {
   .topBarNavControl,
   .drawerRoot {
     display: block;
@@ -217,7 +217,7 @@
   }
 }
 
-@media (max-width: 1024px) and (orientation: portrait), (pointer: coarse) and (orientation: portrait) {
+@media (max-width: 1180px) and (orientation: portrait), (hover: none) and (orientation: portrait) {
   .topBar {
     grid-template-columns: auto minmax(0, 1fr);
   }
