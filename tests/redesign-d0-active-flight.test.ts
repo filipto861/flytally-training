@@ -78,6 +78,7 @@ test("D0 migration and bootstrap enforce one ACTIVE flight per account and aircr
   const migration = read("migrations/20260921_training_active_flights.sql");
   const schema = read("lib/active-flight/schema.ts");
   const bootstrap = read("lib/database-bootstrap.ts");
+  const readiness = read("app/api/readiness/route.ts");
 
   for (const source of [migration, schema]) {
     assert.match(source, /training_active_flights/);
@@ -88,6 +89,8 @@ test("D0 migration and bootstrap enforce one ACTIVE flight per account and aircr
   }
   assert.match(bootstrap, /ensureTrainingActiveFlightSchema/);
   assert.match(bootstrap, /"training_active_flights"/);
+  assert.match(readiness, /activeFlightPersistence/);
+  assert.match(readiness, /SELECT 1 FROM training_active_flights LIMIT 0/);
 });
 
 test("D0 mirror reconciliation is server-canonical and retains local state only when server is unavailable", () => {
@@ -113,7 +116,12 @@ test("D0 local mirror round-trips by aircraft and removes malformed state", () =
   assert.equal(readActiveFlightMirror(storage, active.aircraftId), null);
 });
 
-test("D0 API routes fail closed behind FT_NEW_SHELL before session work", () => {
+test("D0 API routes expose CRUD transitions and fail closed behind FT_NEW_SHELL before session work", () => {
+  const main = read("app/api/active-flight/route.ts");
+  for (const method of ["GET", "POST", "PATCH", "DELETE"]) {
+    assert.match(main, new RegExp("export async function " + method + "\\("));
+  }
+
   for (const file of [
     "app/api/active-flight/route.ts",
     "app/api/active-flight/deactivate/route.ts",
