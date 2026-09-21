@@ -10,8 +10,8 @@ test("UX Round 3 METAR exposes fetched snapshots separately from manual apply", 
 
 test("UX Round 3 METAR manual action uses the concise Apply METAR label", () => {
   const source = fs.readFileSync(new URL("../components/metar-status.tsx", import.meta.url), "utf8");
-  assert.match(source, />Apply METAR</);
-  assert.match(source, />Apply cached METAR</);
+  assert.match(source, /"Apply METAR"/);
+  assert.match(source, /"Apply cached METAR"/);
   assert.doesNotMatch(source, /Apply to inputs/);
 });
 
