@@ -107,6 +107,12 @@
   min-width: 0;
 }
 
+/* W1: legacy per-page navigation remains in page markup for flag-off compatibility,
+   but the W0 shell owns navigation whenever it is mounted. */
+.content :global(.learner-pilot-nav) {
+  display: none;
+}
+
 .fastPathRail {
   position: sticky;
   bottom: 0;

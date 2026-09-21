@@ -92,20 +92,21 @@ test("W0 does not mount the new shell from existing aircraft page files", () => 
   }
 });
 
-test("W0 freezes the five content destinations and four fast-path destinations", () => {
-  const navigation = read("components/ft-shell/navigation.ts");
+test("W0 keeps five content destinations and four fast-path destinations after W1 centralizes IA", () => {
+  const contentIa = read("lib/aircraft-content-ia.ts");
+  const fastPath = read("components/ft-shell/navigation.ts");
 
   for (const label of ["AIRCRAFT", "PROCEDURES", "PERFORMANCE", "TRAINING", "FLIGHT"]) {
-    assert.match(navigation, new RegExp(`label: "${label}"`));
+    assert.match(contentIa, new RegExp(`label: "${label}"`));
   }
   for (const label of ["CHECKLIST", "QRH", "PERF", "REF"]) {
-    assert.match(navigation, new RegExp(`label: "${label}"`));
+    assert.match(fastPath, new RegExp(`label: "${label}"`));
   }
 
-  assert.match(navigation, /\/procedures/);
-  assert.match(navigation, /\/performance/);
-  assert.match(navigation, /\/training/);
-  assert.match(navigation, /\/fly/);
-  assert.match(navigation, /\/abnormal/);
-  assert.match(navigation, /\/reference/);
+  assert.match(contentIa, /"procedures"/);
+  assert.match(contentIa, /"performance"/);
+  assert.match(contentIa, /"training"/);
+  assert.match(contentIa, /"fly"/);
+  assert.match(fastPath, /\/abnormal/);
+  assert.match(fastPath, /\/reference/);
 });
