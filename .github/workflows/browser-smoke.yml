@@ -43,7 +43,7 @@ jobs:
           cache-dependency-path: package-lock.json
       - name: Install locked application and browser-test dependencies
         run: npm ci --no-audit --no-fund
-      - name: Install Chromium
+      - name: Install Chromium and WebKit
         run: npx playwright install --with-deps chromium webkit
       - name: Production build
         run: npm run build
