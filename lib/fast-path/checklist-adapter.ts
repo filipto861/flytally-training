@@ -3,8 +3,8 @@ import {
   checklistSessionStorageKey,
   normalizeChecklistSessionSnapshot,
   type ChecklistSessionSnapshot,
-} from "../checklist-session";
-import type { RuntimeChecklist } from "../checklist-runtime";
+} from "../checklist-session.ts";
+import type { RuntimeChecklist } from "../checklist-runtime.ts";
 
 export type ChecklistSessionStorage = {
   getItem(key: string): string | null;
