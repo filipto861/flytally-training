@@ -130,7 +130,15 @@ test("W3 Ctrl+Shift+1 through Ctrl+Shift+4 shortcuts map by physical digit code"
     undefined,
   );
   const provider = read("components/ft-fast-path/FtFastPathProvider.tsx");
+  const rail = read("components/ft-shell/FtFastPathRail.tsx");
   assert.match(provider, /window\.addEventListener\("keydown", handleKeyDown\)/);
+  assert.match(provider, /setShortcutsReady\(true\)/);
+  assert.doesNotMatch(
+    provider,
+    /\[closePanel, openPanel, panel\.open\]/,
+    "global shortcut listener must not churn when panel open state changes",
+  );
+  assert.match(rail, /data-shortcuts-ready=\{shortcutsReady \? "true" : "false"\}/);
 });
 
 test("W3 checklist indicator renders only for active progress and reopens CHECKLIST", () => {
