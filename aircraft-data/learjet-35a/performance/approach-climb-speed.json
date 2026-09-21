@@ -1,0 +1,128 @@
+{
+  "id": "learjet-35a-approach-climb-speed",
+  "title": "Approach Climb Speed · Flaps 40°",
+  "description": "Source-backed approach-climb speed schedule from the published APPROACH CLIMB row.",
+  "kind": "lookup-table",
+  "phase": "landing",
+  "calculator": {
+    "kind": "multi-axis-metric-grid",
+    "operation": "landing",
+    "inputAxes": [
+      "grossWeight"
+    ],
+    "outputKeys": [
+      "approachClimbSpeed"
+    ]
+  },
+  "axes": [
+    {
+      "key": "grossWeight",
+      "label": "Landing gross weight",
+      "unit": "lb",
+      "values": [
+        10000,
+        11000,
+        12000,
+        13000,
+        14000,
+        15000,
+        15300
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "key": "approachClimbSpeed",
+      "label": "Approach Climb Speed",
+      "unit": "KIAS"
+    }
+  ],
+  "rows": [
+    {
+      "inputs": {
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "approachClimbSpeed": 111
+      }
+    },
+    {
+      "inputs": {
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "approachClimbSpeed": 116
+      }
+    },
+    {
+      "inputs": {
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "approachClimbSpeed": 121
+      }
+    },
+    {
+      "inputs": {
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "approachClimbSpeed": 126
+      }
+    },
+    {
+      "inputs": {
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "approachClimbSpeed": 130
+      }
+    },
+    {
+      "inputs": {
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "approachClimbSpeed": 135
+      }
+    },
+    {
+      "inputs": {
+        "grossWeight": 15300
+      },
+      "outputs": {
+        "approachClimbSpeed": 136
+      }
+    }
+  ],
+  "interpolation": "linear-explicit",
+  "notes": [
+    "Standard landing configuration: flaps 40°.",
+    "Approach-climb speeds are stored from the separately published source row and are not derived from VREF.",
+    "Bounded linear software interpolation is used only between published gross-weight source rows.",
+    "Values below 10,000 lb or above 15,300 lb are intentionally rejected rather than extrapolated."
+  ],
+  "sources": [
+    {
+      "manualId": "CL-102B",
+      "chapter": "Performance Data",
+      "section": "Landing Speeds & Distances",
+      "pageLabel": "P-56",
+      "note": "Bombardier Learjet 35/36 Crew Checklist & Quick Reference Handbook · April 2001 · Sea Level / 2,000 ft blocks and landing-speed schedule"
+    },
+    {
+      "manualId": "CL-102B",
+      "chapter": "Performance Data",
+      "section": "Landing Speeds & Distances",
+      "pageLabel": "P-57",
+      "note": "Bombardier Learjet 35/36 Crew Checklist & Quick Reference Handbook · April 2001 · 4,000 / 6,000 ft blocks"
+    },
+    {
+      "manualId": "CL-102B",
+      "chapter": "Performance Data",
+      "section": "Landing Speeds & Distances",
+      "pageLabel": "P-58",
+      "note": "Bombardier Learjet 35/36 Crew Checklist & Quick Reference Handbook · April 2001 · 8,000 / 10,000 ft blocks"
+    }
+  ]
+}

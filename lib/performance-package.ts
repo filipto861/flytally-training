@@ -1,3 +1,4 @@
+import type { PilotLandingCalculatorDefinition } from "./pilot-landing-calculator.ts";
 import type { PilotTakeoffCalculatorDefinition } from "./pilot-takeoff-calculator.ts";
 import type { AircraftPerformanceContent, PerformanceDataset } from "./universal-aircraft-content.ts";
 
@@ -5,6 +6,7 @@ export type BundledPerformancePackage = {
   readonly aircraftId: string;
   readonly content: AircraftPerformanceContent;
   readonly takeoffCalculator?: PilotTakeoffCalculatorDefinition;
+  readonly landingCalculator?: PilotLandingCalculatorDefinition;
 };
 
 export function mergePerformanceDatasets(

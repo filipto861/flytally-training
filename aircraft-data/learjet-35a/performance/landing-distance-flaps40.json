@@ -1,0 +1,2371 @@
+{
+  "id": "learjet-35a-landing-distance-flaps40",
+  "title": "Landing Distance · Flaps 40° · Factored",
+  "description": "Source-backed factored landing distance for the standard flaps 40° landing configuration.",
+  "kind": "lookup-table",
+  "phase": "landing",
+  "calculator": {
+    "kind": "multi-axis-metric-grid",
+    "operation": "landing",
+    "inputAxes": [
+      "pressureAltitude",
+      "oat",
+      "grossWeight"
+    ],
+    "outputKeys": [
+      "landingDistanceFt"
+    ]
+  },
+  "axes": [
+    {
+      "key": "pressureAltitude",
+      "label": "Pressure altitude",
+      "unit": "ft",
+      "values": [
+        0,
+        2000,
+        4000,
+        6000,
+        8000,
+        10000
+      ]
+    },
+    {
+      "key": "oat",
+      "label": "Outside air temperature",
+      "unit": "°C",
+      "values": [
+        -18,
+        -7,
+        4,
+        16,
+        27,
+        38
+      ]
+    },
+    {
+      "key": "grossWeight",
+      "label": "Landing gross weight",
+      "unit": "lb",
+      "values": [
+        10000,
+        11000,
+        12000,
+        13000,
+        14000,
+        15000,
+        15300
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "key": "landingDistanceFt",
+      "label": "Landing Distance",
+      "unit": "FT"
+    }
+  ],
+  "rows": [
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -18,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "landingDistanceFt": 3680
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -7,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "landingDistanceFt": 3759
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 4,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "landingDistanceFt": 3837
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 16,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "landingDistanceFt": 3914
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 27,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "landingDistanceFt": 3992
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 38,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "landingDistanceFt": 4070
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -18,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "landingDistanceFt": 3857
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -7,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "landingDistanceFt": 3944
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 4,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "landingDistanceFt": 4029
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 16,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "landingDistanceFt": 4115
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 27,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "landingDistanceFt": 4202
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 38,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "landingDistanceFt": 4287
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -18,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "landingDistanceFt": 4037
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -7,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "landingDistanceFt": 4132
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 4,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "landingDistanceFt": 4227
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 16,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "landingDistanceFt": 4324
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 27,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "landingDistanceFt": 4419
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 38,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "landingDistanceFt": 4515
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -18,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "landingDistanceFt": 4249
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -7,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "landingDistanceFt": 4347
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 4,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "landingDistanceFt": 4445
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 16,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "landingDistanceFt": 4544
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 27,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "landingDistanceFt": 4642
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 38,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "landingDistanceFt": 4740
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -18,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "landingDistanceFt": 4465
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -7,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "landingDistanceFt": 4570
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 4,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "landingDistanceFt": 4675
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 16,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "landingDistanceFt": 4780
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 27,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "landingDistanceFt": 4885
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 38,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "landingDistanceFt": 4992
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -18,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "landingDistanceFt": 4652
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -7,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "landingDistanceFt": 4774
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 4,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "landingDistanceFt": 4894
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 16,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "landingDistanceFt": 5015
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 27,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "landingDistanceFt": 5137
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 38,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "landingDistanceFt": 5259
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -18,
+        "grossWeight": 15300
+      },
+      "outputs": {
+        "landingDistanceFt": 4709
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -7,
+        "grossWeight": 15300
+      },
+      "outputs": {
+        "landingDistanceFt": 4834
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 4,
+        "grossWeight": 15300
+      },
+      "outputs": {
+        "landingDistanceFt": 4960
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 16,
+        "grossWeight": 15300
+      },
+      "outputs": {
+        "landingDistanceFt": 5085
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 27,
+        "grossWeight": 15300
+      },
+      "outputs": {
+        "landingDistanceFt": 5212
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 38,
+        "grossWeight": 15300
+      },
+      "outputs": {
+        "landingDistanceFt": 5339
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -18,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "landingDistanceFt": 3847
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -7,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "landingDistanceFt": 3924
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 4,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "landingDistanceFt": 4002
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 16,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "landingDistanceFt": 4079
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 27,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "landingDistanceFt": 4157
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 38,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "landingDistanceFt": 4234
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -18,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "landingDistanceFt": 4040
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -7,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "landingDistanceFt": 4127
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 4,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "landingDistanceFt": 4212
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 16,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "landingDistanceFt": 4297
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 27,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "landingDistanceFt": 4384
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 38,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "landingDistanceFt": 4469
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -18,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "landingDistanceFt": 4240
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -7,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "landingDistanceFt": 4335
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 4,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "landingDistanceFt": 4430
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 16,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "landingDistanceFt": 4525
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 27,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "landingDistanceFt": 4622
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 38,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "landingDistanceFt": 4717
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -18,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "landingDistanceFt": 4459
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -7,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "landingDistanceFt": 4557
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 4,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "landingDistanceFt": 4654
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 16,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "landingDistanceFt": 4752
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 27,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "landingDistanceFt": 4850
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 38,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "landingDistanceFt": 4947
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -18,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "landingDistanceFt": 4690
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -7,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "landingDistanceFt": 4795
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 4,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "landingDistanceFt": 4899
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 16,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "landingDistanceFt": 5004
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 27,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "landingDistanceFt": 5109
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 38,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "landingDistanceFt": 5214
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -18,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "landingDistanceFt": 4910
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -7,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "landingDistanceFt": 5032
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 4,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "landingDistanceFt": 5152
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 16,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "landingDistanceFt": 5272
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 27,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "landingDistanceFt": 5394
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 38,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "landingDistanceFt": 5514
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -18,
+        "grossWeight": 15300
+      },
+      "outputs": {
+        "landingDistanceFt": 4977
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -7,
+        "grossWeight": 15300
+      },
+      "outputs": {
+        "landingDistanceFt": 5102
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 4,
+        "grossWeight": 15300
+      },
+      "outputs": {
+        "landingDistanceFt": 5229
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 16,
+        "grossWeight": 15300
+      },
+      "outputs": {
+        "landingDistanceFt": 5354
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 27,
+        "grossWeight": 15300
+      },
+      "outputs": {
+        "landingDistanceFt": 5479
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 38,
+        "grossWeight": 15300
+      },
+      "outputs": {
+        "landingDistanceFt": 5604
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -18,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "landingDistanceFt": 3977
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -7,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "landingDistanceFt": 4057
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 4,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "landingDistanceFt": 4139
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 16,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "landingDistanceFt": 4219
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 27,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "landingDistanceFt": 4300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 38,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "landingDistanceFt": 4380
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -18,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "landingDistanceFt": 4184
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -7,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "landingDistanceFt": 4274
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 4,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "landingDistanceFt": 4362
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 16,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "landingDistanceFt": 4452
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 27,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "landingDistanceFt": 4540
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 38,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "landingDistanceFt": 4630
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -18,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "landingDistanceFt": 4400
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -7,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "landingDistanceFt": 4499
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 4,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "landingDistanceFt": 4599
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 16,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "landingDistanceFt": 4699
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 27,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "landingDistanceFt": 4797
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 38,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "landingDistanceFt": 4897
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -18,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "landingDistanceFt": 4622
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -7,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "landingDistanceFt": 4724
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 4,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "landingDistanceFt": 4827
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 16,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "landingDistanceFt": 4929
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 27,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "landingDistanceFt": 5030
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 38,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "landingDistanceFt": 5134
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -18,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "landingDistanceFt": 4865
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -7,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "landingDistanceFt": 4974
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 4,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "landingDistanceFt": 5084
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 16,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "landingDistanceFt": 5194
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 27,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "landingDistanceFt": 5302
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 38,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "landingDistanceFt": 5412
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -18,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "landingDistanceFt": 5112
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -7,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "landingDistanceFt": 5239
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 4,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "landingDistanceFt": 5365
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 16,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "landingDistanceFt": 5490
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 27,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "landingDistanceFt": 5617
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -18,
+        "grossWeight": 15300
+      },
+      "outputs": {
+        "landingDistanceFt": 5187
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -7,
+        "grossWeight": 15300
+      },
+      "outputs": {
+        "landingDistanceFt": 5317
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 4,
+        "grossWeight": 15300
+      },
+      "outputs": {
+        "landingDistanceFt": 5449
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 16,
+        "grossWeight": 15300
+      },
+      "outputs": {
+        "landingDistanceFt": 5580
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 27,
+        "grossWeight": 15300
+      },
+      "outputs": {
+        "landingDistanceFt": 5710
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -18,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "landingDistanceFt": 4149
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -7,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "landingDistanceFt": 4234
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 4,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "landingDistanceFt": 4319
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 16,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "landingDistanceFt": 4405
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 27,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "landingDistanceFt": 4490
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 38,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "landingDistanceFt": 4575
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -18,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "landingDistanceFt": 4374
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -7,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "landingDistanceFt": 4469
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 4,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "landingDistanceFt": 4562
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 16,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "landingDistanceFt": 4657
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 27,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "landingDistanceFt": 4750
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 38,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "landingDistanceFt": 4845
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -18,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "landingDistanceFt": 4612
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -7,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "landingDistanceFt": 4717
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 4,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "landingDistanceFt": 4820
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 16,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "landingDistanceFt": 4925
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 27,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "landingDistanceFt": 5030
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 38,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "landingDistanceFt": 5135
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -18,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "landingDistanceFt": 4840
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -7,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "landingDistanceFt": 4947
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 4,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "landingDistanceFt": 5055
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 16,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "landingDistanceFt": 5164
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 27,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "landingDistanceFt": 5272
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 38,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "landingDistanceFt": 5379
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -18,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "landingDistanceFt": 5099
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -7,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "landingDistanceFt": 5214
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 4,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "landingDistanceFt": 5329
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 16,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "landingDistanceFt": 5444
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 27,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "landingDistanceFt": 5560
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -18,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "landingDistanceFt": 5380
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -7,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "landingDistanceFt": 5514
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 4,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "landingDistanceFt": 5647
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 16,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "landingDistanceFt": 5780
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 27,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "landingDistanceFt": 5914
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -18,
+        "grossWeight": 15300
+      },
+      "outputs": {
+        "landingDistanceFt": 5465
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -7,
+        "grossWeight": 15300
+      },
+      "outputs": {
+        "landingDistanceFt": 5604
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 4,
+        "grossWeight": 15300
+      },
+      "outputs": {
+        "landingDistanceFt": 5742
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 16,
+        "grossWeight": 15300
+      },
+      "outputs": {
+        "landingDistanceFt": 5880
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 27,
+        "grossWeight": 15300
+      },
+      "outputs": {
+        "landingDistanceFt": 6019
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -18,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "landingDistanceFt": 4330
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -7,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "landingDistanceFt": 4427
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 4,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "landingDistanceFt": 4525
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 16,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "landingDistanceFt": 4622
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 27,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "landingDistanceFt": 4719
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -18,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "landingDistanceFt": 4575
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -7,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "landingDistanceFt": 4682
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 4,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "landingDistanceFt": 4789
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 16,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "landingDistanceFt": 4897
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 27,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "landingDistanceFt": 5004
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -18,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "landingDistanceFt": 4835
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -7,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "landingDistanceFt": 4954
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 4,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "landingDistanceFt": 5074
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 16,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "landingDistanceFt": 5194
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 27,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "landingDistanceFt": 5312
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -18,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "landingDistanceFt": 5069
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -7,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "landingDistanceFt": 5192
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 4,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "landingDistanceFt": 5315
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 16,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "landingDistanceFt": 5439
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 27,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "landingDistanceFt": 5562
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -18,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "landingDistanceFt": 5344
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -7,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "landingDistanceFt": 5475
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 4,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "landingDistanceFt": 5607
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 16,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "landingDistanceFt": 5739
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 27,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "landingDistanceFt": 5870
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -18,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "landingDistanceFt": 5664
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -7,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "landingDistanceFt": 5815
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 4,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "landingDistanceFt": 5967
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 16,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "landingDistanceFt": 6119
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -18,
+        "grossWeight": 15300
+      },
+      "outputs": {
+        "landingDistanceFt": 5760
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -7,
+        "grossWeight": 15300
+      },
+      "outputs": {
+        "landingDistanceFt": 5917
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 4,
+        "grossWeight": 15300
+      },
+      "outputs": {
+        "landingDistanceFt": 6075
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 16,
+        "grossWeight": 15300
+      },
+      "outputs": {
+        "landingDistanceFt": 6232
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -18,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "landingDistanceFt": 4545
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -7,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "landingDistanceFt": 4649
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 4,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "landingDistanceFt": 4752
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 16,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "landingDistanceFt": 4855
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 27,
+        "grossWeight": 10000
+      },
+      "outputs": {
+        "landingDistanceFt": 4959
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -18,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "landingDistanceFt": 4814
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -7,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "landingDistanceFt": 4927
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 4,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "landingDistanceFt": 5040
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 16,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "landingDistanceFt": 5155
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 27,
+        "grossWeight": 11000
+      },
+      "outputs": {
+        "landingDistanceFt": 5269
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -18,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "landingDistanceFt": 5100
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -7,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "landingDistanceFt": 5227
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 4,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "landingDistanceFt": 5354
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 16,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "landingDistanceFt": 5480
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 27,
+        "grossWeight": 12000
+      },
+      "outputs": {
+        "landingDistanceFt": 5607
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -18,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "landingDistanceFt": 5342
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -7,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "landingDistanceFt": 5474
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 4,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "landingDistanceFt": 5604
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 16,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "landingDistanceFt": 5734
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 27,
+        "grossWeight": 13000
+      },
+      "outputs": {
+        "landingDistanceFt": 5865
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -18,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "landingDistanceFt": 5635
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -7,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "landingDistanceFt": 5775
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 4,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "landingDistanceFt": 5915
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 16,
+        "grossWeight": 14000
+      },
+      "outputs": {
+        "landingDistanceFt": 6055
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -18,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "landingDistanceFt": 6000
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -7,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "landingDistanceFt": 6162
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 4,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "landingDistanceFt": 6322
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 16,
+        "grossWeight": 15000
+      },
+      "outputs": {
+        "landingDistanceFt": 6484
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -18,
+        "grossWeight": 15300
+      },
+      "outputs": {
+        "landingDistanceFt": 6110
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -7,
+        "grossWeight": 15300
+      },
+      "outputs": {
+        "landingDistanceFt": 6277
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 4,
+        "grossWeight": 15300
+      },
+      "outputs": {
+        "landingDistanceFt": 6445
+      }
+    }
+  ],
+  "interpolation": "linear-explicit",
+  "notes": [
+    "Standard landing configuration: flaps 40°.",
+    "FACTORED landing-distance values are published directly in CL-102B and are stored unchanged; FlyTally does not derive them from ACTUAL distance.",
+    "Published baseline conditions: dry runway, zero wind, zero runway gradient, anti-ice off and anti-skid on.",
+    "Sparse high/hot source regions are intentionally absent. Interpolation fails closed whenever a required source corner is unpublished.",
+    "No extrapolation or nearest-cell substitution is permitted outside the published source envelope."
+  ],
+  "sources": [
+    {
+      "manualId": "CL-102B",
+      "chapter": "Performance Data",
+      "section": "Landing Speeds & Distances",
+      "pageLabel": "P-56",
+      "note": "Bombardier Learjet 35/36 Crew Checklist & Quick Reference Handbook · April 2001 · Sea Level / 2,000 ft blocks and landing-speed schedule"
+    },
+    {
+      "manualId": "CL-102B",
+      "chapter": "Performance Data",
+      "section": "Landing Speeds & Distances",
+      "pageLabel": "P-57",
+      "note": "Bombardier Learjet 35/36 Crew Checklist & Quick Reference Handbook · April 2001 · 4,000 / 6,000 ft blocks"
+    },
+    {
+      "manualId": "CL-102B",
+      "chapter": "Performance Data",
+      "section": "Landing Speeds & Distances",
+      "pageLabel": "P-58",
+      "note": "Bombardier Learjet 35/36 Crew Checklist & Quick Reference Handbook · April 2001 · 8,000 / 10,000 ft blocks"
+    }
+  ]
+}
