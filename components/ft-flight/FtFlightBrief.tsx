@@ -10,7 +10,7 @@ export function FtFlightBrief() {
         <h2 id="ft-flight-brief">Flight Brief</h2>
       </div>
 
-      <section className={styles.briefSection} aria-labelledby="ft-brief-performance">
+      <section className={styles.briefSection} aria-labelledby="ft-brief-performance" data-empty="true">
         <h3 id="ft-brief-performance">Performance</h3>
         <div className={styles.performanceGrid}>
           {performanceMetrics.map((metric) => (
@@ -23,17 +23,17 @@ export function FtFlightBrief() {
         </div>
       </section>
 
-      <section className={styles.briefSection} aria-labelledby="ft-brief-considerations">
+      <section className={styles.briefSection} aria-labelledby="ft-brief-considerations" data-empty="true">
         <h3 id="ft-brief-considerations">Flight Considerations</h3>
         <p className={styles.emptyState}>No active flight.</p>
       </section>
 
-      <section className={styles.briefSection} aria-labelledby="ft-brief-recommendations">
+      <section className={styles.briefSection} aria-labelledby="ft-brief-recommendations" data-empty="true">
         <h3 id="ft-brief-recommendations">Training Recommendations</h3>
         <p className={styles.emptyState}>No active flight.</p>
       </section>
 
-      <section className={styles.briefSection} aria-labelledby="ft-brief-procedures">
+      <section className={styles.briefSection} aria-labelledby="ft-brief-procedures" data-empty="true">
         <h3 id="ft-brief-procedures">Relevant Procedures</h3>
         <p className={styles.emptyState}>No active flight.</p>
       </section>
