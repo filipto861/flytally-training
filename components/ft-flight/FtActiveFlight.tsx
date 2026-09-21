@@ -230,7 +230,7 @@ export function FtActiveFlight({
                   maxLength={4}
                   pattern="[A-Za-z0-9]{4}"
                   autoCapitalize="characters"
-                  defaultValue={editing ? current.departure.icao : ""}
+                  defaultValue={editing ? editing.departure.icao : ""}
                 />
               </label>
               <label>
@@ -241,7 +241,7 @@ export function FtActiveFlight({
                   maxLength={4}
                   pattern="[A-Za-z0-9]{4}"
                   autoCapitalize="characters"
-                  defaultValue={editing ? current.destination.icao : ""}
+                  defaultValue={editing ? editing.destination.icao : ""}
                 />
               </label>
               <label>
@@ -250,7 +250,7 @@ export function FtActiveFlight({
                   name="runway"
                   required
                   maxLength={5}
-                  defaultValue={editing ? current.runway.identifier : ""}
+                  defaultValue={editing ? editing.runway.identifier : ""}
                 />
               </label>
               <div className={styles.fieldGroup}>
@@ -263,12 +263,12 @@ export function FtActiveFlight({
                     type="number"
                     min="1"
                     step="0.1"
-                    defaultValue={editing ? current.weight.value : undefined}
+                    defaultValue={editing ? editing.weight.value : undefined}
                   />
                   <select
                     name="weightUnit"
                     aria-label="Weight unit"
-                    defaultValue={editing ? current.weight.unit : "kg"}
+                    defaultValue={editing ? editing.weight.unit : "kg"}
                   >
                     <option value="kg">kg</option>
                     <option value="lb">lb</option>
@@ -281,14 +281,14 @@ export function FtActiveFlight({
                   name="flaps"
                   required
                   maxLength={32}
-                  defaultValue={editing ? current.configuration.flaps : ""}
+                  defaultValue={editing ? editing.configuration.flaps : ""}
                 />
               </label>
               <label className={styles.checkboxField}>
                 <input
                   name="antiIce"
                   type="checkbox"
-                  defaultChecked={editing ? current.configuration.antiIce === true : false}
+                  defaultChecked={editing ? editing.configuration.antiIce === true : false}
                 />
                 Anti-ice
               </label>
