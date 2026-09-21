@@ -139,10 +139,7 @@ export async function updateActiveFlight(
     weight: patch.weight ?? current.weight,
     configuration: patch.configuration ?? current.configuration,
   };
-  const dependency = { snapshotId: activeFlightDependencyReference({
-    aircraftId,
-    ...merged,
-  }) };
+  const dependency = { snapshotId: activeFlightDependencyReference(merged) };
   const brief = patch.brief !== undefined ? patch.brief : current.brief;
 
   const rows = await sql`UPDATE training_active_flights SET
