@@ -15,6 +15,7 @@
 
 .panel {
   position: relative;
+  box-sizing: border-box;
   width: calc(var(--ft-space-7) * 10 + var(--ft-space-5) + var(--ft-space-4));
   height: 100%;
   display: grid;
