@@ -1,0 +1,197 @@
+.launchSurface {
+  width: 100%;
+  display: grid;
+  gap: var(--ft-space-6);
+  padding: var(--ft-space-6);
+  color: var(--ft-text-primary);
+  background: var(--ft-bg-canvas);
+}
+
+.launchHeader {
+  display: grid;
+  gap: var(--ft-space-1);
+}
+
+.launchHeader h1,
+.continueSection h2,
+.secondarySection h2 {
+  margin: 0;
+  color: var(--ft-text-primary);
+  font-family: var(--ft-font-ui);
+  font-weight: 600;
+}
+
+.launchHeader h1 {
+  font-size: 1.75rem;
+  line-height: 1.2;
+}
+
+.continueSection h2 {
+  font-size: 1.5rem;
+  line-height: 1.25;
+}
+
+.secondarySection h2 {
+  font-size: 1.125rem;
+  line-height: 1.3;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--ft-text-metadata);
+  font-family: var(--ft-font-data);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.continueSection {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: var(--ft-space-5);
+  padding-block: var(--ft-space-6);
+  border-block: var(--ft-rule-strong);
+}
+
+.continueCopy {
+  display: grid;
+  gap: var(--ft-space-2);
+}
+
+.continueCopy > p {
+  max-width: 48rem;
+  margin: 0;
+  color: var(--ft-text-secondary);
+}
+
+.activityTitle,
+.secondaryTitle {
+  color: var(--ft-text-primary);
+  font-family: var(--ft-font-ui);
+  font-weight: 600;
+}
+
+.activityTitle {
+  font-size: 1.125rem;
+}
+
+.activityContext {
+  text-transform: capitalize;
+}
+
+.activityMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ft-space-3);
+  color: var(--ft-text-metadata);
+  font-family: var(--ft-font-data);
+  font-size: 0.8125rem;
+}
+
+.primaryAction,
+.secondaryAction {
+  min-height: var(--ft-touch-target-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  text-decoration: none;
+  font-family: var(--ft-font-ui);
+  font-weight: 600;
+}
+
+.primaryAction {
+  padding-inline: var(--ft-space-5);
+  border: var(--ft-rule-strong);
+  background: var(--ft-bg-operational);
+  color: var(--ft-text-primary);
+}
+
+.secondaryGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ft-space-6);
+}
+
+.secondarySection {
+  display: grid;
+  align-content: start;
+  gap: var(--ft-space-2);
+  padding-block: var(--ft-space-4);
+  border-top: var(--ft-rule-default);
+}
+
+.secondarySection > p {
+  margin: 0;
+  color: var(--ft-text-secondary);
+}
+
+.secondaryAction {
+  margin-top: var(--ft-space-2);
+  padding-inline: var(--ft-space-3);
+  border: var(--ft-rule-default);
+  color: var(--ft-text-primary);
+  background: var(--ft-bg-inset);
+}
+
+.emptyState {
+  color: var(--ft-text-metadata);
+}
+
+.recentList {
+  display: grid;
+  gap: var(--ft-space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.recentLink {
+  min-height: var(--ft-touch-target-min);
+  display: grid;
+  gap: var(--ft-space-1);
+  padding-block: var(--ft-space-2);
+  border-bottom: var(--ft-rule-default);
+  color: var(--ft-text-primary);
+  text-decoration: none;
+}
+
+.recentLink strong {
+  font-weight: 500;
+}
+
+.recentLink span {
+  color: var(--ft-text-metadata);
+  font-size: 0.8125rem;
+}
+
+.primaryAction:focus-visible,
+.secondaryAction:focus-visible,
+.recentLink:focus-visible {
+  outline: var(--ft-focus-width) solid var(--ft-text-primary);
+  outline-offset: var(--ft-focus-offset);
+}
+
+@media (max-width: 1180px), (hover: none) {
+  .launchSurface {
+    gap: var(--ft-space-5);
+    padding: var(--ft-space-4);
+  }
+
+  .continueSection {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    padding-block: var(--ft-space-5);
+  }
+
+  .secondaryGrid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--ft-space-4);
+  }
+
+  .primaryAction,
+  .secondaryAction {
+    width: 100%;
+  }
+}
