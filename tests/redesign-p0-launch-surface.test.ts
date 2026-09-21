@@ -86,14 +86,18 @@ test("P0 launch surface styling consumes frozen workspace tokens without hardcod
   assert.doesNotMatch(css.replaceAll("1180px", ""), /\b\d+(?:\.\d+)?px\b/);
 });
 
-test("P0 Flight is an explicit no-active-flight placeholder rather than fabricated flight context", () => {
+test("P0 Flight uses Active Flight when available and retains an explicit no-flight fallback", () => {
   const flight = read("components/ft-launch/FtFlightSection.tsx");
   const page = read("app/aircraft/[aircraftId]/page.tsx");
 
   assert.match(flight, /No active flight\./);
   assert.match(flight, /Start new flight/);
+  assert.match(flight, /current\.departure\.icao/);
+  assert.match(flight, /current\.destination\.icao/);
   assert.match(flight, /\/flight/);
-  assert.doesNotMatch(page, /activeFlight=\{/);
+  assert.match(page, /getActiveFlight/);
+  assert.match(page, /activeFlight=\{activeFlight\}/);
+  assert.doesNotMatch(page, /activeFlight=\{\s*\{/);
 });
 
 test("P0 new launch surface contains only Continue Training, Flight and Recent, not the legacy command surface", () => {
