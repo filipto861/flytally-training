@@ -5,7 +5,7 @@ import test from "node:test";
 const nav = fs.readFileSync(new URL("../components/aircraft-workspace-nav.tsx", import.meta.url), "utf8");
 const navCss = fs.readFileSync(new URL("../components/aircraft-workspace-nav.module.css", import.meta.url), "utf8");
 const shellCss = fs.readFileSync(new URL("../app/learner-shell.css", import.meta.url), "utf8");
-const aircraftHome = fs.readFileSync(new URL("../app/aircraft/[aircraftId]/page.tsx", import.meta.url), "utf8");
+const aircraftHome = fs.readFileSync(new URL("../components/legacy-aircraft-home.tsx", import.meta.url), "utf8");
 const library = fs.readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
 const productShell = fs.readFileSync(new URL("../components/product-shell.tsx", import.meta.url), "utf8");
 

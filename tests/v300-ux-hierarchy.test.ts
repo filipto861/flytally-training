@@ -29,7 +29,7 @@ test("v3.0 roadmap puts learner UX consolidation before multi-aircraft scale",()
 
 
 test("v3.0 U5 makes learner continuation discoverable without changing the four-area model",()=>{
-  const home=read("app/aircraft/[aircraftId]/page.tsx");
+  const home=read("components/legacy-aircraft-home.tsx");
   const training=read("app/aircraft/[aircraftId]/training/page.tsx");
   const continueCard=read("components/continue-learning-card.tsx");
   assert.match(home,/ContinueLearningCard/);

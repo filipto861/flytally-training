@@ -307,3 +307,59 @@ test("W3 panel is a 520px desktop drawer and a full-screen touch sheet", async (
   }
 });
 
+test("P0 launch surface Continue Training enters the training workspace", async ({ page }) => {
+  await page.goto(`${shellOnBase}${aircraftPath}`);
+
+  const launch = page.getByRole("main", { name: "Aircraft launch surface" });
+  await expect(launch).toBeVisible();
+  await expect(
+    launch.getByRole("heading", { name: "Continue Training", exact: true }),
+  ).toBeVisible();
+
+  const action = launch.getByRole("link", { name: "Start training", exact: true });
+  await expect(action).toBeVisible();
+  await action.click();
+  await expect(page).toHaveURL(
+    new RegExp(`${aircraftPath}/training(?:\\?variant=Standard)?$`),
+  );
+});
+
+test("P0 launch surface exposes the no-active-flight placeholder", async ({ page }) => {
+  await page.goto(`${shellOnBase}${aircraftPath}`);
+
+  const launch = page.getByRole("main", { name: "Aircraft launch surface" });
+  const flight = launch.getByRole("region", { name: "Flight" });
+  await expect(flight).toContainText("No active flight.");
+  await expect(
+    flight.getByRole("link", { name: "Start new flight", exact: true }),
+  ).toBeVisible();
+});
+
+test("P0 launch surface includes Recent without fabricating history", async ({ page }) => {
+  await page.goto(`${shellOnBase}${aircraftPath}`);
+
+  const launch = page.getByRole("main", { name: "Aircraft launch surface" });
+  const recent = launch.getByRole("region", { name: "Recent" });
+  await expect(recent).toBeVisible();
+  await expect(recent).toContainText("Nothing recent.");
+});
+
+test("P0 flag on replaces the legacy Fly Learn Reference command surface", async ({ page }) => {
+  await page.goto(`${shellOnBase}${aircraftPath}`);
+
+  await expect(page.getByRole("main", { name: "Aircraft launch surface" })).toBeVisible();
+  await expect(page.locator(".pilot-command-grid")).toHaveCount(0);
+  await expect(page.locator(".pilot-command-panel")).toHaveCount(0);
+});
+
+test("P0 flag off preserves the legacy aircraft command surface", async ({ page }) => {
+  await page.goto(aircraftPath);
+
+  await expect(page.getByRole("main", { name: "Aircraft launch surface" })).toHaveCount(0);
+  const legacy = page.locator(".pilot-command-grid");
+  await expect(legacy).toBeVisible();
+  await expect(legacy.getByRole("heading", { name: "Fly", exact: true })).toBeVisible();
+  await expect(legacy.getByRole("heading", { name: "Learn", exact: true })).toBeVisible();
+  await expect(legacy.getByRole("heading", { name: "Reference", exact: true })).toBeVisible();
+});
+

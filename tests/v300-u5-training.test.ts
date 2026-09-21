@@ -23,7 +23,7 @@ test("U5 restores Quick Start and Cockpit orientation to the current Learn hiera
 });
 
 test("U5 preserves selected variant through learner entry and legacy learning pages",()=>{
-  const home=read("app/aircraft/[aircraftId]/page.tsx");
+  const home=read("components/legacy-aircraft-home.tsx");
   const continueCard=read("components/continue-learning-card.tsx");
   const quick=read("app/aircraft/[aircraftId]/quick-start/page.tsx");
   const orientation=read("app/aircraft/[aircraftId]/orientation/page.tsx");
@@ -36,7 +36,7 @@ test("U5 preserves selected variant through learner entry and legacy learning pa
 });
 
 test("U5 keeps progress secondary while making continuation primary",()=>{
-  const home=read("app/aircraft/[aircraftId]/page.tsx");
+  const home=read("components/legacy-aircraft-home.tsx");
   const training=read("app/aircraft/[aircraftId]/training/page.tsx");
   const progress=read("components/progress-panel.tsx");
   assert.match(home,/ContinueLearningCard/);
@@ -59,7 +59,7 @@ test("U5 makes Reference faster and source metadata progressively disclosed",()=
 
 test("U5 keeps Fly operational and aircraft agnostic",()=>{
   const fly=read("components/flight-deck.tsx");
-  const home=read("app/aircraft/[aircraftId]/page.tsx");
+  const home=read("components/legacy-aircraft-home.tsx");
   const training=read("app/aircraft/[aircraftId]/training/page.tsx");
   const continueCard=read("components/continue-learning-card.tsx");
   assert.match(fly,/Checklist/);
