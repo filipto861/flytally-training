@@ -1,12 +1,5 @@
 import { defineConfig,devices } from "@playwright/test";
 
-const ipadBase={
-  browserName:"chromium",
-  deviceScaleFactor:2,
-  hasTouch:true,
-  isMobile:true,
-};
-
 export default defineConfig({
   testDir:"./e2e",
   timeout:30_000,
@@ -23,20 +16,8 @@ export default defineConfig({
   projects:[
     {name:"desktop-chromium",use:{...devices["Desktop Chrome"]}},
     {name:"mobile-chromium",use:{...devices["Pixel 7"]}},
-    {
-      name:"ipad-landscape",
-      use:{
-        ...ipadBase,
-        viewport:{width:1024,height:768},
-      },
-    },
-    {
-      name:"ipad-portrait",
-      use:{
-        ...ipadBase,
-        viewport:{width:768,height:1024},
-      },
-    },
+    {name:"ipad-landscape",use:{...devices["iPad (gen 7) landscape"]}},
+    {name:"ipad-portrait",use:{...devices["iPad (gen 7)"]}},
   ],
   webServer:{
     command:"npm start",
