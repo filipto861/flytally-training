@@ -25,6 +25,7 @@ test("B9-A resolves Prague runway 24 into generic runway context", () => {
   assert.equal(context.runwayIdent, "24");
   assert.equal(context.airportElevationFt, 1247);
   assert.equal(context.runwayEndElevationFt, 1158);
+  assert.equal(typeof context.oppositeEndElevationFt, "number");
   assert.equal(context.headingTrueDeg, 245);
   assert.equal(context.surfaceLengthFt, 12189);
   assert.equal(context.availableTakeoffLengthFt, 12189);

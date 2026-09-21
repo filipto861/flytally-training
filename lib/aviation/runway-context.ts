@@ -26,11 +26,13 @@ export function resolveRunwayEnd(
   const normalized = runwayIdent.trim().toUpperCase();
   const match = availableRunwayEnds(airport).find((candidate) => candidate.ident.toUpperCase() === normalized);
   if (!match) return undefined;
+  const oppositeEnd = match.runway.ends.find((end) => end !== match.end);
   return {
     airportIcao: airport.icao,
     runwayIdent: match.end.ident,
     airportElevationFt: airport.elevationFt,
     runwayEndElevationFt: match.end.elevationFt,
+    oppositeEndElevationFt: oppositeEnd?.elevationFt,
     headingTrueDeg: match.end.headingTrueDeg,
     surfaceLengthFt: match.runway.surfaceLengthFt,
     availableTakeoffLengthFt: match.runway.surfaceLengthFt,

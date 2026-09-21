@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { AirportRunwaySelector } from "./airport-runway-selector";
+import { EnvironmentContextPanel } from "./environment-context-panel";
 import { MetarStatus } from "./metar-status";
 import {
   FieldRow,
@@ -211,6 +212,11 @@ export function PilotTakeoffCalculator({
           <h3 className={styles.inputsTitle}>Inputs</h3>
 
           <MetarStatus icao={selectedIcao} onApply={handleMetarApply} />
+
+          <EnvironmentContextPanel
+            runwayContext={runwayContext}
+            metarSnapshot={metarSnapshot}
+          />
 
           <AirportRunwaySelector
             onAirportChange={handleAirportSelection}
