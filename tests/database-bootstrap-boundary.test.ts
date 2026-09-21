@@ -48,5 +48,5 @@ test("database-writing no-code acceptance requires an explicit disposable-target
 
 test("authenticated admin initialization reuses deployment bootstrap", () => {
   assert.match(adminActions, /initializeTrainingDatabase/);
-  assert.doesNotMatch(adminActions, /ensureTrainingProgressSchema|ensureManualAssetSchema|ensureTrainingIdentitySchema|ensureTrainingAiDraftSchema|ensureContentSchema/);
+  assert.doesNotMatch(adminActions, /ensureTrainingProgressSchema|ensureManualAssetSchema|ensureTrainingIdentitySchema|ensureTrainingAiDraftSchema|ensureTrainingActiveFlightSchema|ensureContentSchema/);
 });
