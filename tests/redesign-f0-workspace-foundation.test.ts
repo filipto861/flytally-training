@@ -110,10 +110,9 @@ test("F0 loads IBM Plex through Next self-hosted font plumbing with Latin Extend
   assert.match(layout, /--ft-font-plex-mono/);
 });
 
-test("F0 aircraft layout remains a narrow wrapper with no route-param dependency", () => {
+test("F0 aircraft layout keeps the workspace theme boundary after W0 extension", () => {
   const layout = read("app/aircraft/[aircraftId]/layout.tsx");
 
-  assert.doesNotMatch(layout, /params\s*:/);
-  assert.doesNotMatch(layout, /await\s+params/);
-  assert.doesNotMatch(layout, /AircraftWorkspaceNav|ActiveFlight|fast-path|search-overlay/i);
+  assert.match(layout, /WorkspaceThemeProvider/);
+  assert.doesNotMatch(layout, /AircraftWorkspaceNav|ActiveFlight|search-overlay/i);
 });
