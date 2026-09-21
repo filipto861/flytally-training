@@ -58,15 +58,17 @@ test("P1 empty Flight Brief contains metric labels but no fabricated performance
   assert.doesNotMatch(brief, /\bKIAS\b|\bknots?\b|\bkt\b|\bRPM\b|%/i);
 });
 
-test("P1 Flight Brief and flight history are explicitly marked empty until D0 exists", () => {
+test("P1 Flight Brief keeps downstream data slots empty while D0 supplies lifecycle context", () => {
   const active = read("components/ft-flight/FtActiveFlight.tsx");
   const brief = read("components/ft-flight/FtFlightBrief.tsx");
   const recent = read("components/ft-flight/FtRecentFlights.tsx");
 
-  assert.match(active, /data-empty="true"/);
+  assert.match(active, /data-empty=\{current \? "false" : "true"\}/);
   assert.match(active, /No active flight\./);
+  assert.match(active, /Start new flight/);
   assert.equal((brief.match(/data-empty="true"/g) ?? []).length, 4);
-  assert.match(brief, /No active flight/);
+  assert.match(brief, /data-flight-context=\{hasActiveFlight \? "active" : "none"\}/);
+  assert.match(brief, /No data yet/);
   assert.match(recent, /data-empty="true"/);
   assert.match(recent, /No recent flights\./);
 });

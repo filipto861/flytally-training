@@ -13,6 +13,7 @@ export async function GET() {
   const configuration = inspectReleaseConfiguration(process.env);
   let database = false;
   let progressPersistence = false;
+  let activeFlightPersistence = false;
   let sourceProvenanceCoverage = false;
   let currentContentFreshness = false;
   let sourceGovernedRelease = false;
@@ -34,6 +35,13 @@ export async function GET() {
         progressPersistence = true;
       } catch {
         progressPersistence = false;
+      }
+
+      try {
+        await sql`SELECT 1 FROM training_active_flights LIMIT 0`;
+        activeFlightPersistence = true;
+      } catch {
+        activeFlightPersistence = false;
       }
 
       try {
@@ -92,6 +100,7 @@ export async function GET() {
   const infrastructureReady = configuration.ready
     && database
     && progressPersistence
+    && activeFlightPersistence
     && aiDraftAuditPersistence
     && identityReplayProtection;
   const catalogReady = publishedAircraft && modularAircraftContent && currentContentFreshness;
@@ -110,6 +119,7 @@ export async function GET() {
       configuration: configuration.ready,
       database,
       progressPersistence,
+      activeFlightPersistence,
       currentContentFreshness,
       aiDraftAuditPersistence,
       identityReplayProtection,

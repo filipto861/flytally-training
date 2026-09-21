@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { FtLaunchSurface } from "@/components/ft-launch/FtLaunchSurface";
 import { LegacyAircraftHome } from "@/components/legacy-aircraft-home";
 import { resolveSelectedVariant } from "@/lib/aircraft-applicability";
+import { getActiveFlight } from "@/lib/active-flight/store";
 import { getAircraftContentBundle } from "@/lib/content-repository";
 import { getTrainingContentRepository } from "@/lib/content-store";
 import { isNewShellEnabled } from "@/lib/feature-flags";
@@ -41,13 +42,16 @@ export default async function AircraftPage({
   }
 
   const session = await getTrainingSession();
-  const latestTraining = session
-    ? await loadLatestLaunchTrainingEvent(
-        getTrainingProgressRepository(),
-        session.subject,
-        aircraft.id,
-      )
-    : undefined;
+  const [latestTraining, activeFlight] = session
+    ? await Promise.all([
+        loadLatestLaunchTrainingEvent(
+          getTrainingProgressRepository(),
+          session.subject,
+          aircraft.id,
+        ),
+        getActiveFlight(session.subject, aircraft.id),
+      ])
+    : [undefined, undefined];
 
   return (
     <FtLaunchSurface
@@ -55,6 +59,7 @@ export default async function AircraftPage({
       aircraftName={aircraft.displayName}
       selectedVariant={selectedVariant}
       latestTraining={latestTraining}
+      activeFlight={activeFlight}
       recentItems={[]}
     />
   );
