@@ -36,6 +36,7 @@ type FtFastPathContextValue = {
   readonly openPanel: (tab: FastPathTab) => void;
   readonly closePanel: () => void;
   readonly selectTab: (tab: FastPathTab) => void;
+  readonly shortcutsReady: boolean;
   readonly checklist?: RuntimeChecklist;
   readonly checklistSnapshot?: ChecklistSessionSnapshot;
   readonly checklistHydrated: boolean;
@@ -70,6 +71,7 @@ export function FtFastPathProvider({
       checklist ? normalizeChecklistSessionSnapshot(undefined, checklist) : undefined,
     );
   const [checklistHydrated, setChecklistHydrated] = useState(false);
+  const [shortcutsReady, setShortcutsReady] = useState(false);
 
   useEffect(() => {
     if (!checklist) {
@@ -119,15 +121,19 @@ export function FtFastPathProvider({
         openPanel(tab);
         return;
       }
-      if (event.key === "Escape" && panel.open) {
+      if (event.key === "Escape") {
         event.preventDefault();
         closePanel();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [closePanel, openPanel, panel.open]);
+    setShortcutsReady(true);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [closePanel, openPanel]);
 
   const toggleChecklistItem = useCallback(
     (itemId: string) => {
@@ -173,6 +179,7 @@ export function FtFastPathProvider({
       openPanel,
       closePanel,
       selectTab,
+      shortcutsReady,
       checklist,
       checklistSnapshot,
       checklistHydrated,
@@ -192,6 +199,7 @@ export function FtFastPathProvider({
       panel.open,
       selectChecklistPhase,
       selectTab,
+      shortcutsReady,
       toggleChecklistItem,
     ],
   );
