@@ -3,7 +3,7 @@ import fs from "node:fs";
 import test from "node:test";
 
 const read=(path:string)=>fs.readFileSync(new URL(`../${path}`,import.meta.url),"utf8");
-const home=read("app/aircraft/[aircraftId]/page.tsx");
+const home=read("components/legacy-aircraft-home.tsx");
 const training=read("app/aircraft/[aircraftId]/training/page.tsx");
 const reference=read("app/aircraft/[aircraftId]/reference/page.tsx");
 const nav=read("components/aircraft-workspace-nav.tsx");
