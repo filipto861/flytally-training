@@ -35,10 +35,11 @@ export function FtActiveFlight({
 
   async function submitFlight(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const formElement = event.currentTarget;
     setBusy(true);
     setError(null);
 
-    const form = new FormData(event.currentTarget);
+    const form = new FormData(formElement);
     const weightValue = Number(form.get("weight"));
     const input: ActiveFlightInput = {
       aircraftId,
@@ -60,7 +61,7 @@ export function FtActiveFlight({
       const created = await createClientActiveFlight(input);
       setFlight(created);
       setDialogOpen(false);
-      event.currentTarget.reset();
+      formElement.reset();
     } catch (caught) {
       setError(
         caught instanceof ActiveFlightClientError && caught.code === "active_flight_exists"
