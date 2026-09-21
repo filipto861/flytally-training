@@ -104,12 +104,31 @@ test("W3 panel styling uses frozen tokens and the token-derived 520px desktop dr
   assert.doesNotMatch(css.replaceAll("1180px", ""), /\b\d+(?:\.\d+)?px\b/);
 });
 
-test("W3 Alt+1 through Alt+4 shortcuts map to the four fast path tabs", () => {
-  assert.equal(fastPathTabForShortcut({ altKey: true, key: "1" }), "checklist");
-  assert.equal(fastPathTabForShortcut({ altKey: true, key: "2" }), "qrh");
-  assert.equal(fastPathTabForShortcut({ altKey: true, key: "3" }), "perf");
-  assert.equal(fastPathTabForShortcut({ altKey: true, key: "4" }), "ref");
-  assert.equal(fastPathTabForShortcut({ altKey: false, key: "1" }), undefined);
+test("W3 Ctrl+Shift+1 through Ctrl+Shift+4 shortcuts map by physical digit code", () => {
+  assert.equal(
+    fastPathTabForShortcut({ ctrlKey: true, shiftKey: true, code: "Digit1" }),
+    "checklist",
+  );
+  assert.equal(
+    fastPathTabForShortcut({ ctrlKey: true, shiftKey: true, code: "Digit2" }),
+    "qrh",
+  );
+  assert.equal(
+    fastPathTabForShortcut({ ctrlKey: true, shiftKey: true, code: "Digit3" }),
+    "perf",
+  );
+  assert.equal(
+    fastPathTabForShortcut({ ctrlKey: true, shiftKey: true, code: "Digit4" }),
+    "ref",
+  );
+  assert.equal(
+    fastPathTabForShortcut({ ctrlKey: true, shiftKey: false, code: "Digit1" }),
+    undefined,
+  );
+  assert.equal(
+    fastPathTabForShortcut({ ctrlKey: false, shiftKey: true, code: "Digit1" }),
+    undefined,
+  );
   const provider = read("components/ft-fast-path/FtFastPathProvider.tsx");
   assert.match(provider, /window\.addEventListener\("keydown", handleKeyDown\)/);
 });
