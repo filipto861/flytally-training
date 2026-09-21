@@ -76,10 +76,8 @@ export async function createActiveFlight(
   const id = randomUUID();
   const now = new Date().toISOString();
   const dependency = { snapshotId: activeFlightDependencyReference(input) };
-  const lockIdentity = accountSubject + ":" + input.aircraftId;
-
   const rows = await sql`WITH account_guard AS MATERIALIZED (
-      SELECT pg_advisory_xact_lock(hashtextextended(${lockIdentity}, 0))
+      SELECT pg_advisory_xact_lock(hashtextextended(${accountSubject}, 0))
     )
     INSERT INTO training_active_flights(
       id,account_subject,aircraft_id,lifecycle,departure,destination,runway,weight,
@@ -142,7 +140,10 @@ export async function updateActiveFlight(
   const dependency = { snapshotId: activeFlightDependencyReference(merged) };
   const brief = patch.brief !== undefined ? patch.brief : current.brief;
 
-  const rows = await sql`UPDATE training_active_flights SET
+  const rows = await sql`WITH account_guard AS MATERIALIZED (
+      SELECT pg_advisory_xact_lock(hashtextextended(${accountSubject}, 0))
+    )
+    UPDATE training_active_flights SET
       departure=${JSON.stringify(merged.departure)}::jsonb,
       destination=${JSON.stringify(merged.destination)}::jsonb,
       runway=${JSON.stringify(merged.runway)}::jsonb,
@@ -151,10 +152,11 @@ export async function updateActiveFlight(
       performance_dependency=${JSON.stringify(dependency)}::jsonb,
       brief=${brief == null ? null : JSON.stringify(brief)}::jsonb,
       updated_at=NOW()
+    FROM account_guard
     WHERE account_subject=${accountSubject}
       AND aircraft_id=${aircraftId}
       AND lifecycle='ACTIVE'
-    RETURNING *` as ActiveFlightRow[];
+    RETURNING training_active_flights.*` as ActiveFlightRow[];
 
   if (!rows[0]) throw new ActiveFlightNotFoundError();
   return mapRow(rows[0]);
@@ -164,7 +166,10 @@ export async function deactivateActiveFlight(
   accountSubject: string,
   aircraftId: string,
 ): Promise<ActiveFlight> {
-  const rows = await sql`UPDATE training_active_flights SET
+  const rows = await sql`WITH account_guard AS MATERIALIZED (
+      SELECT pg_advisory_xact_lock(hashtextextended(${accountSubject}, 0))
+    )
+    UPDATE training_active_flights SET
       lifecycle='PREVIOUS',
       deactivated_at=NOW(),
       updated_at=NOW()
@@ -181,7 +186,10 @@ export async function archiveActiveFlight(
   aircraftId: string,
   flightId: string,
 ): Promise<ActiveFlight> {
-  const rows = await sql`UPDATE training_active_flights SET
+  const rows = await sql`WITH account_guard AS MATERIALIZED (
+      SELECT pg_advisory_xact_lock(hashtextextended(${accountSubject}, 0))
+    )
+    UPDATE training_active_flights SET
       lifecycle='ARCHIVED',
       archived_at=NOW(),
       updated_at=NOW()
@@ -199,10 +207,14 @@ export async function deleteActiveFlight(
   aircraftId: string,
   flightId: string,
 ): Promise<boolean> {
-  const rows = await sql`DELETE FROM training_active_flights
+  const rows = await sql`WITH account_guard AS MATERIALIZED (
+      SELECT pg_advisory_xact_lock(hashtextextended(${accountSubject}, 0))
+    )
+    DELETE FROM training_active_flights
+    USING account_guard
     WHERE account_subject=${accountSubject}
       AND aircraft_id=${aircraftId}
       AND id=${flightId}
-    RETURNING id` as Array<{ id: string }>;
+    RETURNING training_active_flights.id` as Array<{ id: string }>;
   return Boolean(rows[0]);
 }
