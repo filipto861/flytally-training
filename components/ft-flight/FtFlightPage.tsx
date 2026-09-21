@@ -16,7 +16,8 @@ export function FtFlightPage({
     <main className={styles.flightPage} aria-label="Flight workspace" data-ft-flight-page="true">
       <header className={styles.pageHeader}>
         <p className={styles.eyebrow}>FLIGHT</p>
-        <h1>{aircraftName}</h1>
+        <h1>Flight</h1>
+        <p className={styles.pageContext}>{aircraftName}</p>
       </header>
 
       <FtActiveFlight aircraftId={aircraftId} selectedVariant={selectedVariant} />
