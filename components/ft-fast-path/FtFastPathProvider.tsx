@@ -53,10 +53,12 @@ const FtFastPathContext = createContext<FtFastPathContextValue | null>(null);
 export function FtFastPathProvider({
   aircraftId,
   checklist,
+  selectedVariant,
   children,
 }: Readonly<{
   aircraftId: string;
   checklist?: RuntimeChecklist;
+  selectedVariant?: string;
   children: ReactNode;
 }>) {
   const [panel, dispatch] = useReducer(
@@ -76,10 +78,14 @@ export function FtFastPathProvider({
       return;
     }
     setChecklistSnapshot(
-      restoreFastPathChecklistSession(checklist, window.sessionStorage),
+      restoreFastPathChecklistSession(
+        checklist,
+        window.sessionStorage,
+        selectedVariant,
+      ),
     );
     setChecklistHydrated(true);
-  }, [checklist]);
+  }, [checklist, selectedVariant]);
 
   useEffect(() => {
     if (!checklist || !checklistSnapshot || !checklistHydrated) return;
@@ -88,11 +94,12 @@ export function FtFastPathProvider({
         checklist,
         checklistSnapshot,
         window.sessionStorage,
+        selectedVariant,
       );
     } catch {
       // Fast path remains usable when sessionStorage is unavailable.
     }
-  }, [checklist, checklistHydrated, checklistSnapshot]);
+  }, [checklist, checklistHydrated, checklistSnapshot, selectedVariant]);
 
   const openPanel = useCallback((tab: FastPathTab) => {
     dispatch({ type: "open", tab });
