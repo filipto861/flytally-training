@@ -42,10 +42,10 @@ test("F3 browser smoke relies on npm ci instead of an ad-hoc Playwright install"
   assert.doesNotMatch(workflow, /npm install --no-save[^\n]*@playwright\/test/);
 });
 
-test("F3 leaves a skipped W0 shell acceptance skeleton", () => {
+test("F3 shell acceptance file remains wired after W0 activates it", () => {
   const spec = read("e2e/shell/aircraft-shell.spec.ts");
 
-  assert.match(spec, /Filled in by W0 when new shell is mounted/);
-  assert.match(spec, /test\.skip\(/);
-  assert.doesNotMatch(spec, /expect\(/);
+  assert.match(spec, /from "@playwright\/test"/);
+  assert.doesNotMatch(spec, /test\.skip\(/);
+  assert.match(spec, /expect\(/);
 });
