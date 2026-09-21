@@ -4,6 +4,7 @@ import path from "node:path";
 import test from "node:test";
 
 import type { TrainingAircraft } from "../lib/aircraft-catalog.ts";
+import type { TrainingContentDomain } from "../lib/content-admin-types.ts";
 import type { TrainingContentRepository } from "../lib/content-repository.ts";
 import {
   isValidAircraftSearchId,
@@ -54,7 +55,7 @@ function repositoryFor(contents: Readonly<Record<string, ReturnType<typeof check
     async listPublishedModuleDomains(aircraftId) {
       return aircraftById.has(aircraftId) ? (["checklists"] as const) : [];
     },
-    async getPublishedModule<T>(aircraftId, domain) {
+    async getPublishedModule<T>(aircraftId: string, domain: TrainingContentDomain) {
       return (domain === "checklists" ? contents[aircraftId] : undefined) as T | undefined;
     },
   };
