@@ -26,7 +26,13 @@ export async function POST(request: Request) {
     : null;
   const aircraftId = typeof row?.aircraftId === "string" ? row.aircraftId.trim() : "";
   const id = typeof row?.id === "string" ? row.id.trim() : "";
-  if (!aircraftId || !id || aircraftId.length > 128 || id.length > 128) {
+  if (
+    !aircraftId
+    || !id
+    || aircraftId.length > 128
+    || id.length > 128
+    || !/^[a-zA-Z0-9][a-zA-Z0-9._:-]*$/.test(aircraftId)
+  ) {
     return NextResponse.json({ error: "invalid_flight" }, { status: 400, headers: noStore });
   }
 
