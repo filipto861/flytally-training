@@ -1,7 +1,8 @@
+import type { ActiveFlight } from "@/lib/active-flight/types";
 import type { PersistedTrainingProgressEvent } from "@/lib/progress-events";
 
 import { FtContinueTraining } from "./FtContinueTraining";
-import { FtFlightSection, type FtActiveFlightSummary } from "./FtFlightSection";
+import { FtFlightSection } from "./FtFlightSection";
 import { FtRecent, type FtRecentItem } from "./FtRecent";
 import styles from "./ft-launch.module.css";
 
@@ -17,7 +18,7 @@ export function FtLaunchSurface({
   aircraftName: string;
   selectedVariant?: string;
   latestTraining?: PersistedTrainingProgressEvent;
-  activeFlight?: FtActiveFlightSummary;
+  activeFlight?: ActiveFlight | null;
   recentItems?: readonly FtRecentItem[];
 }>) {
   return (
