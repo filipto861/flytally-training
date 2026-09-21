@@ -140,6 +140,176 @@
   outline-offset: var(--ft-focus-offset);
 }
 
+
+.flightSummary,
+.lifecycleNotice {
+  display: grid;
+  gap: var(--ft-space-2);
+  color: var(--ft-text-secondary);
+}
+
+.flightSummary strong,
+.lifecycleNotice strong {
+  color: var(--ft-text-primary);
+  font-family: var(--ft-font-ui);
+}
+
+.flightSummary span,
+.lifecycleNotice span {
+  font-family: var(--ft-font-data);
+}
+
+.actionRow,
+.dialogActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ft-space-2);
+}
+
+.secondaryAction,
+.textAction,
+.iconAction {
+  min-height: var(--ft-touch-target-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: var(--ft-rule-default);
+  color: var(--ft-text-primary);
+  background: var(--ft-bg-inset);
+  font-family: var(--ft-font-ui);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.secondaryAction {
+  padding-inline: var(--ft-space-3);
+}
+
+.textAction {
+  width: fit-content;
+  border-color: transparent;
+  background: transparent;
+  padding-inline: 0;
+}
+
+.iconAction {
+  inline-size: var(--ft-touch-target-min);
+  padding: 0;
+}
+
+.primaryAction,
+.secondaryAction,
+.iconAction {
+  cursor: pointer;
+}
+
+.primaryAction:disabled,
+.secondaryAction:disabled,
+.iconAction:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.formError {
+  margin: 0;
+  color: var(--ft-source-caution);
+  font-family: var(--ft-font-ui);
+}
+
+.dialogBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: var(--ft-space-4);
+  background: color-mix(in srgb, var(--ft-text-primary) 24%, transparent);
+}
+
+.flightDialog {
+  width: 100%;
+  max-inline-size: calc(var(--ft-space-7) * 12);
+  max-block-size: calc(100vh - var(--ft-space-6) * 2);
+  overflow: auto;
+  display: grid;
+  gap: var(--ft-space-4);
+  padding: var(--ft-space-5);
+  border: var(--ft-rule-strong);
+  border-radius: var(--ft-radius-panel);
+  background: var(--ft-bg-shell);
+  color: var(--ft-text-primary);
+}
+
+.dialogHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--ft-space-3);
+  align-items: start;
+}
+
+.dialogHeader h3 {
+  margin: 0;
+  font-family: var(--ft-font-ui);
+  font-size: 1.125rem;
+}
+
+.flightForm {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ft-space-3);
+}
+
+.flightForm label {
+  display: grid;
+  gap: var(--ft-space-1);
+  color: var(--ft-text-secondary);
+  font-family: var(--ft-font-ui);
+  font-weight: 500;
+}
+
+.flightForm input,
+.flightForm select {
+  min-height: var(--ft-touch-target-min);
+  width: 100%;
+  padding-inline: var(--ft-space-3);
+  border: var(--ft-rule-default);
+  border-radius: var(--ft-radius-control);
+  background: var(--ft-bg-inset);
+  color: var(--ft-text-primary);
+  font: inherit;
+}
+
+.inlineField {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--ft-space-2);
+}
+
+.checkboxField {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+}
+
+.checkboxField input {
+  inline-size: var(--ft-touch-target-min);
+}
+
+.dialogActions {
+  grid-column: 1 / -1;
+  justify-content: flex-end;
+  padding-top: var(--ft-space-2);
+}
+
+.secondaryAction:focus-visible,
+.textAction:focus-visible,
+.iconAction:focus-visible,
+.flightForm input:focus-visible,
+.flightForm select:focus-visible {
+  outline: var(--ft-focus-width) solid var(--ft-text-primary);
+  outline-offset: var(--ft-focus-offset);
+}
+
+
 @media (max-width: 1180px), (hover: none) {
   .flightPage {
     gap: var(--ft-space-5);
@@ -158,7 +328,21 @@
     border-bottom: var(--ft-rule-default);
   }
 
-  .primaryAction {
+  .primaryAction,
+  .secondaryAction {
     width: 100%;
+  }
+
+  .flightForm {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dialogActions {
+    grid-column: auto;
+  }
+
+  .flightDialog {
+    max-block-size: calc(100vh - var(--ft-space-4) * 2);
+    padding: var(--ft-space-4);
   }
 }
