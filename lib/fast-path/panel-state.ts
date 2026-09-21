@@ -28,6 +28,8 @@ export function reduceFastPathPanelState(
       return { ...state, open: false };
     case "select":
       return { ...state, activeTab: action.tab };
+    default:
+      return state;
   }
 }
 
