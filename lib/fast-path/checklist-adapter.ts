@@ -11,17 +11,21 @@ export type ChecklistSessionStorage = {
   setItem(key: string, value: string): void;
 };
 
-function storageKey(checklist: RuntimeChecklist): string {
-  return checklistSessionStorageKey(checklist);
+function storageKey(
+  checklist: RuntimeChecklist,
+  selectedVariant?: string,
+): string {
+  return checklistSessionStorageKey(checklist, selectedVariant);
 }
 
 export function restoreFastPathChecklistSession(
   checklist: RuntimeChecklist,
   storage: ChecklistSessionStorage,
+  selectedVariant?: string,
 ): ChecklistSessionSnapshot {
   let raw: unknown;
   try {
-    const stored = storage.getItem(storageKey(checklist));
+    const stored = storage.getItem(storageKey(checklist, selectedVariant));
     raw = stored ? JSON.parse(stored) : undefined;
   } catch {
     raw = undefined;
@@ -33,8 +37,12 @@ export function saveFastPathChecklistSession(
   checklist: RuntimeChecklist,
   snapshot: ChecklistSessionSnapshot,
   storage: ChecklistSessionStorage,
+  selectedVariant?: string,
 ): void {
-  storage.setItem(storageKey(checklist), JSON.stringify(snapshot));
+  storage.setItem(
+    storageKey(checklist, selectedVariant),
+    JSON.stringify(snapshot),
+  );
 }
 
 export function toggleFastPathChecklistItem(
