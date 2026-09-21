@@ -1,5 +1,5 @@
-import { LOCAL_ACTIVE_FLIGHT_SUBJECT, type ActiveFlight } from "./types";
-import { isActiveFlight } from "./validation";
+import { LOCAL_ACTIVE_FLIGHT_SUBJECT, type ActiveFlight } from "./types.ts";
+import { isActiveFlight } from "./validation.ts";
 
 export interface ActiveFlightMirrorStorage {
   getItem(key: string): string | null;
