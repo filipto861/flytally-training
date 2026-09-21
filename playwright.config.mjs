@@ -1,5 +1,11 @@
 import { defineConfig,devices } from "@playwright/test";
 
+const browserFixtureEnv={
+  ...process.env,
+  FLYTALLY_TRAINING_BROWSER_FIXTURE:"1",
+  CI:"true",
+};
+
 export default defineConfig({
   testDir:"./e2e",
   timeout:30_000,
@@ -19,10 +25,20 @@ export default defineConfig({
     {name:"ipad-landscape",use:{...devices["iPad (gen 7) landscape"]}},
     {name:"ipad-portrait",use:{...devices["iPad (gen 7)"]}},
   ],
-  webServer:{
-    command:"npm start",
-    url:"http://127.0.0.1:3000",
-    reuseExistingServer:!process.env.CI,
-    timeout:120_000,
-  },
+  webServer:[
+    {
+      command:"npm start",
+      url:"http://127.0.0.1:3000",
+      reuseExistingServer:!process.env.CI,
+      timeout:120_000,
+      env:{...browserFixtureEnv,FT_NEW_SHELL:"false"},
+    },
+    {
+      command:"npm start -- -p 3001",
+      url:"http://127.0.0.1:3001",
+      reuseExistingServer:!process.env.CI,
+      timeout:120_000,
+      env:{...browserFixtureEnv,FT_NEW_SHELL:"true"},
+    },
+  ],
 });
