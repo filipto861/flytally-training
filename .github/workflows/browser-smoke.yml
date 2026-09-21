@@ -29,7 +29,7 @@ concurrency:
 
 jobs:
   chromium:
-    name: Chromium desktop + mobile + iPad
+    name: Desktop + mobile Chromium + iPad WebKit
     runs-on: ubuntu-latest
     timeout-minutes: 12
     env:
@@ -44,7 +44,7 @@ jobs:
       - name: Install locked application and browser-test dependencies
         run: npm ci --no-audit --no-fund
       - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps chromium webkit
       - name: Production build
         run: npm run build
       - name: Real browser smoke
