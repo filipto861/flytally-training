@@ -4,14 +4,17 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 
-import { ftShellDestinations, isFtShellDestinationActive } from "./navigation";
+import {
+  getAircraftContentIa,
+  isAircraftContentDestinationActive,
+} from "@/lib/aircraft-content-ia";
 import styles from "./ft-shell.module.css";
 
 const focusableSelector = 'a[href],button:not([disabled]),[tabindex]:not([tabindex="-1"])';
 
 export function FtNavDrawer({ aircraftId }: Readonly<{ aircraftId: string }>) {
   const pathname = usePathname();
-  const destinations = ftShellDestinations(aircraftId);
+  const destinations = getAircraftContentIa(aircraftId);
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -103,7 +106,11 @@ export function FtNavDrawer({ aircraftId }: Readonly<{ aircraftId: string }>) {
             </div>
             <nav className={styles.drawerNav} aria-label="Aircraft workspace sections">
               {destinations.map((destination) => {
-                const active = isFtShellDestinationActive(pathname, destination);
+                const active = isAircraftContentDestinationActive(
+                  pathname,
+                  aircraftId,
+                  destination.key,
+                );
                 return (
                   <Link
                     key={destination.key}
