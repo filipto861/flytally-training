@@ -10,25 +10,32 @@ const load = (file: string): PerformanceDataset => JSON.parse(
   fs.readFileSync(new URL(`../aircraft-data/learjet-35a/performance/${file}`, import.meta.url), "utf8"),
 ) as PerformanceDataset;
 
+const vref = load("vref.json");
 const landingClimb = load("landing-climb-speed.json");
 const approachClimb = load("approach-climb-speed.json");
 const landingDistance = load("landing-distance-flaps40.json");
-const datasets = [landingClimb, approachClimb, landingDistance];
+const datasets = [vref, landingClimb, approachClimb, landingDistance];
 
-test("B10 landing definition binds the three source datasets explicitly", () => {
+test("B10 landing definition binds the four source datasets explicitly", () => {
   assert.deepEqual(definition, {
+    vrefDatasetId: "learjet-35a-vref",
     landingClimbDatasetId: "learjet-35a-landing-climb-speed",
     approachClimbDatasetId: "learjet-35a-approach-climb-speed",
     landingDistanceDatasetId: "learjet-35a-landing-distance-flaps40",
   });
 });
 
-test("B10 pilot landing summary returns all three exact source-backed metrics", () => {
+test("B10 pilot landing summary returns all source-backed metrics plus derived VAPP", () => {
   const summary = calculatePilotLandingSummary(datasets, definition, {
     pressureAltitude: 0,
     oat: 16,
     grossWeight: 15000,
   });
+  assert.equal(summary.vrefKias.status, "ready");
+  assert.equal(summary.vrefKias.value, 127);
+  assert.equal(summary.vrefKias.unit, "KIAS");
+  assert.equal(summary.vappKias.status, "ready");
+  assert.equal(summary.vappKias.value, 127);
   assert.equal(summary.landingClimbSpeed.status, "ready");
   assert.equal(summary.landingClimbSpeed.value, 127);
   assert.equal(summary.landingClimbSpeed.unit, "KIAS");
@@ -46,6 +53,8 @@ test("B10 pilot landing summary uses bounded interpolation from the shared engin
     oat: 16,
     grossWeight: 10500,
   });
+  assert.equal(summary.vrefKias.value, 107.5);
+  assert.equal(summary.vappKias.value, 107.5);
   assert.equal(summary.landingClimbSpeed.value, 107.5);
   assert.equal(summary.approachClimbSpeed.value, 113.5);
   assert.equal(summary.landingDistanceFt.value, 4101.25);
@@ -57,6 +66,8 @@ test("B10 pilot landing summary keeps speed metrics available when distance is s
     oat: 38,
     grossWeight: 15000,
   });
+  assert.equal(summary.vrefKias.status, "ready");
+  assert.equal(summary.vappKias.status, "ready");
   assert.equal(summary.landingClimbSpeed.status, "ready");
   assert.equal(summary.approachClimbSpeed.status, "ready");
   assert.equal(summary.landingDistanceFt.status, "out-of-range");
@@ -65,6 +76,8 @@ test("B10 pilot landing summary keeps speed metrics available when distance is s
 
 test("B10 pilot landing summary distinguishes missing inputs from unavailable source data", () => {
   const missing = calculatePilotLandingSummary(datasets, definition, {});
+  assert.equal(missing.vrefKias.status, "missing");
+  assert.equal(missing.vappKias.status, "missing");
   assert.equal(missing.landingClimbSpeed.status, "missing");
   assert.equal(missing.approachClimbSpeed.status, "missing");
   assert.equal(missing.landingDistanceFt.status, "missing");
@@ -74,6 +87,8 @@ test("B10 pilot landing summary distinguishes missing inputs from unavailable so
     oat: 16,
     grossWeight: 15000,
   });
+  assert.equal(unavailable.vrefKias.status, "unavailable");
+  assert.equal(unavailable.vappKias.status, "unavailable");
   assert.equal(unavailable.landingClimbSpeed.status, "unavailable");
   assert.equal(unavailable.approachClimbSpeed.status, "unavailable");
   assert.equal(unavailable.landingDistanceFt.status, "unavailable");
@@ -81,6 +96,10 @@ test("B10 pilot landing summary distinguishes missing inputs from unavailable so
 
 test("B10 speed outputs require only gross weight while landing distance requires all three inputs", () => {
   const summary = calculatePilotLandingSummary(datasets, definition, { grossWeight: 14000 });
+  assert.equal(summary.vrefKias.status, "ready");
+  assert.equal(summary.vrefKias.value, 123);
+  assert.equal(summary.vappKias.status, "ready");
+  assert.equal(summary.vappKias.value, 123);
   assert.equal(summary.landingClimbSpeed.status, "ready");
   assert.equal(summary.landingClimbSpeed.value, 123);
   assert.equal(summary.approachClimbSpeed.status, "ready");
@@ -105,11 +124,12 @@ test("B10 landing UI remains aircraft-agnostic and consumes shared performance p
   assert.doesNotMatch(source, /MetarStatus|AirportRunwaySelector/);
 });
 
-test("B10 bundled package registers the three landing datasets and landing definition", () => {
+test("B10 bundled package registers the landing datasets and landing definition", () => {
   const source = fs.readFileSync(
     new URL("../aircraft-data/learjet-35a/performance/package.ts", import.meta.url),
     "utf8",
   );
+  assert.match(source, /vref\.json/);
   assert.match(source, /landing-climb-speed\.json/);
   assert.match(source, /approach-climb-speed\.json/);
   assert.match(source, /landing-distance-flaps40\.json/);

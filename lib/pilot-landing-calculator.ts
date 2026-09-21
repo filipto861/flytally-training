@@ -3,6 +3,7 @@ import type { PilotTakeoffMetricResult } from "./pilot-takeoff-calculator.ts";
 import type { PerformanceDataset, PerformanceScalar } from "./universal-aircraft-content.ts";
 
 export interface PilotLandingCalculatorDefinition {
+  readonly vrefDatasetId: string;
   readonly landingClimbDatasetId: string;
   readonly approachClimbDatasetId: string;
   readonly landingDistanceDatasetId: string;
@@ -12,9 +13,12 @@ export interface PilotLandingInputs {
   readonly pressureAltitude?: number;
   readonly oat?: number;
   readonly grossWeight?: number;
+  readonly windComponentKt?: number;
 }
 
 export interface PilotLandingSummary {
+  readonly vrefKias: PilotTakeoffMetricResult;
+  readonly vappKias: PilotTakeoffMetricResult;
   readonly landingClimbSpeed: PilotTakeoffMetricResult;
   readonly approachClimbSpeed: PilotTakeoffMetricResult;
   readonly landingDistanceFt: PilotTakeoffMetricResult;
@@ -55,6 +59,26 @@ function evaluateSingleMetric(
   };
 }
 
+function deriveVapp(
+  vref: PilotTakeoffMetricResult,
+  windComponentKt: number | undefined,
+): PilotTakeoffMetricResult {
+  if (vref.status !== "ready" || vref.value === undefined) {
+    return vref;
+  }
+
+  const addFive = windComponentKt !== undefined && windComponentKt >= 10;
+  return {
+    ...vref,
+    value: vref.value + (addFive ? 5 : 0),
+    reason: addFive
+      ? "Recommended per FlightSafety training guidance."
+      : windComponentKt === undefined
+        ? "No runway-aligned wind context available; VAPP shown at VREF."
+        : "No additional approach-speed increment applied for this wind component.",
+  };
+}
+
 export function calculatePilotLandingSummary(
   datasets: readonly PerformanceDataset[],
   definition: PilotLandingCalculatorDefinition,
@@ -63,8 +87,14 @@ export function calculatePilotLandingSummary(
   const grossWeightInputs = {
     grossWeight: inputs.grossWeight,
   };
+  const vrefKias = evaluateSingleMetric(
+    datasetById(datasets, definition.vrefDatasetId),
+    grossWeightInputs,
+  );
 
   return {
+    vrefKias,
+    vappKias: deriveVapp(vrefKias, inputs.windComponentKt),
     landingClimbSpeed: evaluateSingleMetric(
       datasetById(datasets, definition.landingClimbDatasetId),
       grossWeightInputs,
