@@ -52,7 +52,7 @@ function repositoryFor(contents: Readonly<Record<string, ReturnType<typeof check
     async getAbnormalTraining() { return undefined; },
     async getReferenceKnowledge() { return undefined; },
     async listPublishedModuleDomains(aircraftId) {
-      return aircraftById.has(aircraftId) ? ["checklists"] : [];
+      return aircraftById.has(aircraftId) ? (["checklists"] as const) : [];
     },
     async getPublishedModule<T>(aircraftId, domain) {
       return (domain === "checklists" ? contents[aircraftId] : undefined) as T | undefined;
@@ -130,6 +130,7 @@ test("W2 search route validates aircraft id and uses the aircraft-scoped service
   assert.equal(isValidAircraftSearchId("learjet-35a"), true);
   assert.equal(isValidAircraftSearchId("../bad"), false);
   assert.equal(isValidAircraftSearchId(""), false);
+  assert.match(route, /isNewShellEnabled\(\)/);
   assert.match(route, /isValidAircraftSearchId\(aircraftId\)/);
   assert.match(route, /searchAircraft\(/);
   assert.match(route, /cache-control": "private, no-store"/);
