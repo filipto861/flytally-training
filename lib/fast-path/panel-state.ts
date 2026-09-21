@@ -33,11 +33,13 @@ export function reduceFastPathPanelState(
   }
 }
 
-export function fastPathTabForShortcut(event: Pick<KeyboardEvent, "altKey" | "key">): FastPathTab | undefined {
-  if (!event.altKey) return undefined;
-  if (event.key === "1") return "checklist";
-  if (event.key === "2") return "qrh";
-  if (event.key === "3") return "perf";
-  if (event.key === "4") return "ref";
+export function fastPathTabForShortcut(
+  event: Pick<KeyboardEvent, "ctrlKey" | "shiftKey" | "code">,
+): FastPathTab | undefined {
+  if (!event.ctrlKey || !event.shiftKey) return undefined;
+  if (event.code === "Digit1") return "checklist";
+  if (event.code === "Digit2") return "qrh";
+  if (event.code === "Digit3") return "perf";
+  if (event.code === "Digit4") return "ref";
   return undefined;
 }
