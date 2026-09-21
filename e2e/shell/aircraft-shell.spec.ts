@@ -6,7 +6,9 @@ const aircraftPath = "/aircraft/browser-ci-aircraft";
 test("W0 keeps the legacy aircraft view when FT_NEW_SHELL is off", async ({ page }) => {
   await page.goto(aircraftPath);
   await expect(page.locator('[data-ft-shell="true"]')).toHaveCount(0);
-  await expect(page.getByRole("navigation", { name: "Aircraft navigation" })).toBeVisible();
+  const legacyNav = page.locator('section[aria-label="Aircraft navigation"]');
+  await expect(legacyNav).toBeVisible();
+  await expect(legacyNav.getByRole("navigation", { name: "Pilot workspace" })).toBeVisible();
 });
 
 test("W0 mounts the new aircraft shell when FT_NEW_SHELL is on", async ({ page }) => {
@@ -16,7 +18,9 @@ test("W0 mounts the new aircraft shell when FT_NEW_SHELL is on", async ({ page }
   await expect(shell).toBeVisible();
   await expect(shell.getByText("Browser CI Aircraft", { exact: true }).first()).toBeVisible();
   await expect(shell.getByText(/Training profile:/)).toBeVisible();
-  await expect(page.getByRole("navigation", { name: "Aircraft navigation" })).toBeVisible();
+  const legacyNav = page.locator('section[aria-label="Aircraft navigation"]');
+  await expect(legacyNav).toBeVisible();
+  await expect(legacyNav.getByRole("navigation", { name: "Pilot workspace" })).toBeVisible();
 });
 
 test("W0 exposes desktop side navigation and touch drawer navigation", async ({ page }, testInfo) => {
