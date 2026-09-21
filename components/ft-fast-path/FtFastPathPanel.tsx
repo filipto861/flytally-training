@@ -2,7 +2,11 @@
 
 import { useEffect, useRef, type KeyboardEvent } from "react";
 
+import type { ActiveFlight } from "@/lib/active-flight/types";
 import { fastPathTabs, type FastPathTab } from "@/lib/fast-path/panel-state";
+import type { PilotTakeoffCalculatorDefinition } from "@/lib/pilot-takeoff-calculator";
+import type { PerformanceDataset } from "@/lib/universal-aircraft-content";
+import { FtPerformancePresentation } from "@/components/ft-performance/FtPerformancePresentation";
 
 import { FtFastPathChecklist } from "./FtFastPathChecklist";
 import { FtFastPathPlaceholder } from "./FtFastPathPlaceholder";
@@ -19,8 +23,16 @@ const TAB_LABELS: Readonly<Record<FastPathTab, string>> = {
   ref: "REF",
 };
 
-export function FtFastPathPanel() {
-  const { panelOpen, activeTab, closePanel, selectTab } = useFtFastPath();
+export function FtFastPathPanel({
+  activeFlight,
+  performanceDatasets,
+  takeoffCalculator,
+}: Readonly<{
+  activeFlight?: ActiveFlight | null;
+  performanceDatasets: readonly PerformanceDataset[];
+  takeoffCalculator?: PilotTakeoffCalculatorDefinition;
+}>) {
+  const { aircraftId, panelOpen, activeTab, closePanel, selectTab } = useFtFastPath();
   const panelRef = useRef<HTMLDivElement>(null);
   const returnFocusRef = useRef<HTMLElement | null>(null);
   const wasOpenRef = useRef(false);
@@ -131,6 +143,14 @@ export function FtFastPathPanel() {
         <div className={styles.panelBody}>
           {activeTab === "checklist" ? (
             <FtFastPathChecklist />
+          ) : activeTab === "perf" ? (
+            <FtPerformancePresentation
+              aircraftId={aircraftId}
+              activeFlight={activeFlight}
+              datasets={performanceDatasets}
+              takeoffCalculator={takeoffCalculator}
+              view="operational"
+            />
           ) : (
             <FtFastPathPlaceholder tab={activeTab} />
           )}
