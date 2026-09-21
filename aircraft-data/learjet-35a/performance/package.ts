@@ -1,3 +1,6 @@
+import approachClimbSpeedJson from "./approach-climb-speed.json";
+import landingClimbSpeedJson from "./landing-climb-speed.json";
+import landingDistanceFlaps40Json from "./landing-distance-flaps40.json";
 import takeoffN1Json from "./takeoff-n1.json";
 import takeoffDistanceFlaps20Json from "./takeoff-distance-flaps20.json";
 import takeoffDistanceFlaps8Json from "./takeoff-distance-flaps8.json";
@@ -8,11 +11,15 @@ import v2Flaps8Json from "./v2-flaps8.json";
 import vrFlaps20Json from "./vr-flaps20.json";
 import vrFlaps8Json from "./vr-flaps8.json";
 import vrefJson from "./vref.json";
+import { learjet35aLandingCalculatorDefinition } from "./landing-calculator-definition.ts";
 import { learjet35aTakeoffCalculatorDefinition } from "./takeoff-calculator-definition.ts";
 
 import type { BundledPerformancePackage } from "../../../lib/performance-package.ts";
 import type { PerformanceDataset } from "../../../lib/universal-aircraft-content.ts";
 
+const approachClimbSpeed = approachClimbSpeedJson as unknown as PerformanceDataset;
+const landingClimbSpeed = landingClimbSpeedJson as unknown as PerformanceDataset;
+const landingDistanceFlaps40 = landingDistanceFlaps40Json as unknown as PerformanceDataset;
 const takeoffN1 = takeoffN1Json as unknown as PerformanceDataset;
 const takeoffDistanceFlaps8 = takeoffDistanceFlaps8Json as unknown as PerformanceDataset;
 const takeoffDistanceFlaps20 = takeoffDistanceFlaps20Json as unknown as PerformanceDataset;
@@ -33,6 +40,9 @@ export const learjet35aPerformancePackage: BundledPerformancePackage = {
     sourceNote: "Source-backed performance package assembled from the available AFM, Bombardier checklist/QRH and FlightSafety training material.",
     disclaimer: "Sources: available training material. Not FAA-approved.",
     datasets: [
+      approachClimbSpeed,
+      landingClimbSpeed,
+      landingDistanceFlaps40,
       takeoffN1,
       takeoffDistanceFlaps8,
       takeoffDistanceFlaps20,
@@ -46,4 +56,5 @@ export const learjet35aPerformancePackage: BundledPerformancePackage = {
     ],
   },
   takeoffCalculator: learjet35aTakeoffCalculatorDefinition,
+  landingCalculator: learjet35aLandingCalculatorDefinition,
 };

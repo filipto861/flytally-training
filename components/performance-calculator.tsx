@@ -17,10 +17,12 @@ import {
   type DistanceCalculation,
   type NativeDistanceCalculation,
 } from "@/lib/performance-calculator";
+import type { PilotLandingCalculatorDefinition } from "@/lib/pilot-landing-calculator";
 import type { PilotTakeoffCalculatorDefinition } from "@/lib/pilot-takeoff-calculator";
 import type { PerformanceDataset, TrainingSourceReference } from "@/lib/universal-aircraft-content";
 import { DeclarativePerformanceWorkspace } from "./declarative-performance-workspace";
 import { PerformanceExplorer } from "./performance-explorer";
+import { PilotLandingCalculator } from "./pilot-landing-calculator";
 import { PilotTakeoffCalculator } from "./pilot-takeoff-calculator";
 import styles from "./performance-calculator.module.css";
 
@@ -301,16 +303,18 @@ export function PerformanceCalculator({
   datasets,
   disclaimer,
   takeoffCalculator,
+  landingCalculator,
 }: Readonly<{
   datasets: readonly PerformanceDataset[];
   disclaimer?: string;
   takeoffCalculator?: PilotTakeoffCalculatorDefinition;
+  landingCalculator?: PilotLandingCalculatorDefinition;
 }>) {
   const runtimeDatasets = materializeLegacyPerformanceContracts(datasets);
   const hasDeclaredOperational = runtimeDatasets.some((dataset) =>
     dataset.calculator && (dataset.calculator.operation === "takeoff" || dataset.calculator.operation === "landing")
   );
-  if (!hasDeclaredOperational && !takeoffCalculator) {
+  if (!hasDeclaredOperational && !takeoffCalculator && !landingCalculator) {
     return <LegacyPerformanceCalculator datasets={runtimeDatasets} disclaimer={disclaimer} />;
   }
 
@@ -320,6 +324,7 @@ export function PerformanceCalculator({
   return (
     <section className={styles.wrapper} aria-label="Performance calculator">
       {takeoffCalculator ? <PilotTakeoffCalculator datasets={runtimeDatasets} definition={takeoffCalculator} /> : null}
+      {landingCalculator ? <PilotLandingCalculator datasets={runtimeDatasets} definition={landingCalculator} /> : null}
       <DeclarativePerformanceWorkspace datasets={declared} />
       <details className={styles.methodDetails}>
         <summary>Calculation method & sources</summary>

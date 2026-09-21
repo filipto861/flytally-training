@@ -51,6 +51,7 @@ export default async function PerformancePage({
         datasets={datasets}
         disclaimer={configuredPublished?.disclaimer ?? configuredBundled?.disclaimer}
         takeoffCalculator={bundledPackage?.takeoffCalculator}
+        landingCalculator={bundledPackage?.landingCalculator}
       />
     </main>
   );
