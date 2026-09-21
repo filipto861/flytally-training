@@ -14,6 +14,8 @@ import {
   isActiveFlight,
 } from "./validation";
 
+export type ActiveFlightPersistenceMode = "server-mirror" | "local-only";
+
 export class ActiveFlightClientError extends Error {
   readonly code: string;
 
@@ -55,7 +57,12 @@ function shouldUseLocalFallback(error: unknown): boolean {
     || (error instanceof ActiveFlightClientError && error.code === "unauthorized");
 }
 
-export async function createClientActiveFlight(input: ActiveFlightInput): Promise<ActiveFlight> {
+export async function createClientActiveFlight(
+  input: ActiveFlightInput,
+  persistenceMode: ActiveFlightPersistenceMode = "server-mirror",
+): Promise<ActiveFlight> {
+  if (persistenceMode === "local-only") return localCreate(input);
+
   try {
     const response = await fetch("/api/active-flight", {
       method: "POST",
@@ -63,7 +70,7 @@ export async function createClientActiveFlight(input: ActiveFlightInput): Promis
       body: JSON.stringify(input),
     });
     if (response.status === 201) return responseFlight(response);
-    if (response.status === 401) throw new ActiveFlightClientError("unauthorized");
+    if (response.status === 401) return localCreate(input);
     if (response.status === 409) throw new ActiveFlightClientError("active_flight_exists");
     if (response.status === 404) throw new ActiveFlightClientError("feature_disabled");
     throw new ActiveFlightClientError("create_failed");
@@ -86,7 +93,9 @@ export async function deactivateClientActiveFlight(flight: ActiveFlight): Promis
       body: JSON.stringify({ aircraftId: flight.aircraftId }),
     });
     if (response.ok) return responseFlight(response);
-    if (response.status === 401) throw new ActiveFlightClientError("unauthorized");
+    if (response.status === 401) {
+      return transitionActiveFlight(flight, "PREVIOUS", new Date().toISOString());
+    }
     throw new ActiveFlightClientError("deactivate_failed");
   } catch (error) {
     if (shouldUseLocalFallback(error)) {
@@ -109,7 +118,9 @@ export async function archiveClientActiveFlight(flight: ActiveFlight): Promise<A
       body: JSON.stringify({ aircraftId: flight.aircraftId, id: flight.id }),
     });
     if (response.ok) return responseFlight(response);
-    if (response.status === 401) throw new ActiveFlightClientError("unauthorized");
+    if (response.status === 401) {
+      return transitionActiveFlight(flight, "ARCHIVED", new Date().toISOString());
+    }
     throw new ActiveFlightClientError("archive_failed");
   } catch (error) {
     if (shouldUseLocalFallback(error)) {
