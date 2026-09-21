@@ -4,7 +4,7 @@
   gap: var(--ft-space-6);
   padding: var(--ft-space-6);
   color: var(--ft-text-primary);
-  background: var(--ft-bg-canvas);
+  background: var(--ft-bg-shell);
 }
 
 .launchHeader {
@@ -60,7 +60,6 @@
 }
 
 .continueCopy > p {
-  max-width: 48rem;
   margin: 0;
   color: var(--ft-text-secondary);
 }
