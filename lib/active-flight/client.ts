@@ -53,8 +53,7 @@ async function responseFlight(response: Response): Promise<ActiveFlight> {
 }
 
 function shouldUseLocalFallback(error: unknown): boolean {
-  return error instanceof TypeError
-    || (error instanceof ActiveFlightClientError && error.code === "unauthorized");
+  return error instanceof TypeError;
 }
 
 export async function createClientActiveFlight(
