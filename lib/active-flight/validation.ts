@@ -1,4 +1,4 @@
-import type { ActiveFlight, ActiveFlightInput, ActiveFlightPatch } from "./types";
+import type { ActiveFlight, ActiveFlightInput, ActiveFlightPatch } from "./types.ts";
 
 const ICAO = /^[A-Z0-9]{4}$/;
 const RUNWAY = /^[A-Z0-9]{1,4}[LCR]?$/;
