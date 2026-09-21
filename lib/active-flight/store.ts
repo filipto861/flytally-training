@@ -173,10 +173,11 @@ export async function deactivateActiveFlight(
       lifecycle='PREVIOUS',
       deactivated_at=NOW(),
       updated_at=NOW()
+    FROM account_guard
     WHERE account_subject=${accountSubject}
       AND aircraft_id=${aircraftId}
       AND lifecycle='ACTIVE'
-    RETURNING *` as ActiveFlightRow[];
+    RETURNING training_active_flights.*` as ActiveFlightRow[];
   if (!rows[0]) throw new ActiveFlightNotFoundError("No ACTIVE flight to deactivate.");
   return mapRow(rows[0]);
 }
@@ -193,11 +194,12 @@ export async function archiveActiveFlight(
       lifecycle='ARCHIVED',
       archived_at=NOW(),
       updated_at=NOW()
+    FROM account_guard
     WHERE account_subject=${accountSubject}
       AND aircraft_id=${aircraftId}
       AND id=${flightId}
       AND lifecycle='PREVIOUS'
-    RETURNING *` as ActiveFlightRow[];
+    RETURNING training_active_flights.*` as ActiveFlightRow[];
   if (!rows[0]) throw new ActiveFlightNotFoundError("No PREVIOUS flight to archive.");
   return mapRow(rows[0]);
 }
