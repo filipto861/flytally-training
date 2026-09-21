@@ -40,6 +40,7 @@ export type SelectedRunwayContext = {
   readonly runwayIdent: string;
   readonly airportElevationFt: number;
   readonly runwayEndElevationFt?: number;
+  readonly oppositeEndElevationFt?: number;
   readonly headingTrueDeg?: number;
   readonly surfaceLengthFt: number;
   readonly availableTakeoffLengthFt?: number;
