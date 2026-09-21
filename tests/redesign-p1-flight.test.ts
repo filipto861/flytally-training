@@ -78,7 +78,7 @@ test("P1 preserves the existing operational /fly implementation unchanged as a s
   assert.match(fly, /FlightDeck/);
   assert.match(fly, /active="fly"/);
   assert.match(active, /\/fly/);
-  assert.doesNotMatch(fly, /FtFlightPage|FT_NEW_SHELL|\/flight/);
+  assert.doesNotMatch(fly, /FtFlightPage|FT_NEW_SHELL|@\/components\/ft-flight|@\/components\/ft-launch/);
 });
 
 test("P1 /flight route is feature-gated and P0 enters it without exposing it in flag-off production", () => {
