@@ -196,6 +196,17 @@ export function PilotLandingCalculator({
   const hasOutOfRange = sourceResults.some((result) => result.status === "out-of-range");
   const hasUnavailable = sourceResults.some((result) => result.status === "unavailable");
 
+  const pressureAltitudeBadgeSource = pressureAltitude.dirty
+    ? "manual"
+    : runwayContext && metarSnapshot?.qnhHpa !== undefined
+      ? "metar"
+      : pressureAltitude.source;
+  const oatBadgeSource = oat.dirty
+    ? "manual"
+    : metarSnapshot?.temperatureC !== undefined
+      ? "metar"
+      : oat.source;
+
   const grossWeightMissing = "Enter Gross Weight";
   const distanceMissing = missingDistanceText(pressureAltitude.value, oat.value, grossWeight);
 
@@ -226,7 +237,7 @@ export function PilotLandingCalculator({
             <FieldRow
               helper={pressureAltitude.dirty && externalEnvironment ? "Manual override" : undefined}
               label="Pressure Altitude"
-              source={pressureAltitude.source}
+              source={pressureAltitudeBadgeSource}
             >
               <InputWithUnit
                 ariaLabel="Landing pressure altitude"
@@ -239,7 +250,7 @@ export function PilotLandingCalculator({
             <FieldRow
               helper={oat.dirty && metarSnapshot?.temperatureC !== undefined ? "Manual override" : undefined}
               label="OAT"
-              source={oat.source}
+              source={oatBadgeSource}
             >
               <InputWithUnit
                 ariaLabel="Landing outside air temperature"
