@@ -235,7 +235,7 @@
   gap: var(--ft-space-4);
   padding: var(--ft-space-5);
   border: var(--ft-rule-strong);
-  border-radius: var(--ft-radius-panel);
+  border-radius: var(--ft-radius-4);
   background: var(--ft-bg-shell);
   color: var(--ft-text-primary);
 }
@@ -274,7 +274,7 @@
   width: 100%;
   padding-inline: var(--ft-space-3);
   border: var(--ft-rule-default);
-  border-radius: var(--ft-radius-control);
+  border-radius: var(--ft-radius-2);
   background: var(--ft-bg-inset);
   color: var(--ft-text-primary);
   font: inherit;
