@@ -40,25 +40,28 @@ test("P1 Flight workspace exposes Active Flight and all frozen Flight Brief sect
   assert.match(page, /FtFlightBrief/);
   assert.match(active, />Active Flight</);
   assert.match(brief, />Performance</);
+  assert.match(brief, /FtPerformancePresentation/);
+  assert.match(brief, /view="brief"/);
   assert.match(brief, />Flight Considerations</);
   assert.match(brief, />Training Recommendations</);
   assert.match(brief, />Relevant Procedures</);
 });
 
-test("P1 empty Flight Brief contains metric labels but no fabricated performance values", () => {
+test("P1 delegates takeoff metrics to P2 instead of fabricating values in Flight Brief", () => {
   const brief = read("components/ft-flight/FtFlightBrief.tsx");
+  const strip = read("components/ft-performance/FtPerformanceStrip.tsx");
 
-  for (const label of ["N1", "V1", "VR", "V2"]) {
-    assert.match(brief, new RegExp(`"${label}"`));
+  for (const label of ["N1", "V1", "VR", "V2", "Takeoff Distance"]) {
+    assert.match(strip, new RegExp(`"${label}"`));
   }
   assert.doesNotMatch(
     brief,
     /\b(?:N1|V1|VR|V2)\b[^\n]{0,40}\b\d{2,3}(?:\.\d+)?\b/,
   );
-  assert.doesNotMatch(brief, /\bKIAS\b|\bknots?\b|\bkt\b|\bRPM\b|%/i);
+  assert.doesNotMatch(strip, /\bVREF\b/i);
 });
 
-test("P1 Flight Brief keeps downstream data slots empty while D0 supplies lifecycle context", () => {
+test("P1 keeps non-performance downstream slots empty while P2 owns Performance state", () => {
   const active = read("components/ft-flight/FtActiveFlight.tsx");
   const brief = read("components/ft-flight/FtFlightBrief.tsx");
   const recent = read("components/ft-flight/FtRecentFlights.tsx");
@@ -66,9 +69,9 @@ test("P1 Flight Brief keeps downstream data slots empty while D0 supplies lifecy
   assert.match(active, /data-empty=\{current \? "false" : "true"\}/);
   assert.match(active, /No active flight\./);
   assert.match(active, /Start new flight/);
-  assert.equal((brief.match(/data-empty="true"/g) ?? []).length, 4);
+  assert.equal((brief.match(/data-empty="true"/g) ?? []).length, 3);
   assert.match(brief, /data-flight-context=\{hasActiveFlight \? "active" : "none"\}/);
-  assert.match(brief, /No data yet/);
+  assert.match(brief, /FtPerformancePresentation/);
   assert.match(recent, /data-empty="true"/);
   assert.match(recent, /No recent flights\./);
 });
