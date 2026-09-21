@@ -27,18 +27,23 @@ test("F3 preserves existing Playwright projects and adds both iPad orientations"
   }
 });
 
-test("F3 iPad projects use Playwright's standard gen 7 device presets", () => {
+test("F3 iPad projects remain reproducible after W0 switches acceptance to Chromium", () => {
   const config = read("playwright.config.mjs");
 
-  assert.match(config, /devices\["iPad \(gen 7\) landscape"\]/);
-  assert.match(config, /devices\["iPad \(gen 7\)"\]/);
+  assert.match(config, /browserName:"chromium"/);
+  assert.match(config, /viewport:\{width:1112,height:834\}/);
+  assert.match(config, /viewport:\{width:834,height:1112\}/);
+  assert.match(config, /hasTouch:true/);
+  assert.match(config, /isMobile:true/);
+  assert.match(config, /Mozilla\/5\.0 \(iPad;/);
 });
 
 test("F3 browser smoke relies on npm ci instead of an ad-hoc Playwright install", () => {
   const workflow = read(".github/workflows/browser-smoke.yml");
 
   assert.match(workflow, /npm ci --no-audit --no-fund/);
-  assert.match(workflow, /npx playwright install --with-deps chromium webkit/);
+  assert.match(workflow, /npx playwright install --with-deps chromium/);
+  assert.doesNotMatch(workflow, /playwright install --with-deps chromium webkit/);
   assert.doesNotMatch(workflow, /npm install --no-save[^\n]*@playwright\/test/);
 });
 
