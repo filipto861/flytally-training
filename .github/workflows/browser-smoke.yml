@@ -29,7 +29,7 @@ concurrency:
 
 jobs:
   chromium:
-    name: Chromium desktop + mobile
+    name: Chromium desktop + mobile + iPad
     runs-on: ubuntu-latest
     timeout-minutes: 12
     env:
@@ -41,10 +41,8 @@ jobs:
           node-version: 24
           cache: npm
           cache-dependency-path: package-lock.json
-      - name: Install locked application dependencies
+      - name: Install locked application and browser-test dependencies
         run: npm ci --no-audit --no-fund
-      - name: Install pinned browser test runner
-        run: npm install --no-save --package-lock=false @playwright/test@1.55.0
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Production build
