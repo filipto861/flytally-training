@@ -236,7 +236,7 @@ export function PilotTakeoffCalculator({
     ? Math.min(Math.max(runwayMargin.usePercent, 0), 100)
     : 0;
 
-  const sourceResults = [summary.n1, summary.v1, summary.vr, summary.v2, summary.vref, summary.takeoffDistance];
+  const sourceResults = [summary.n1, summary.v1, summary.vr, summary.v2, summary.takeoffDistance];
   const hasOutOfRange = sourceResults.some((result) => result.status === "out-of-range");
   const hasUnavailable = sourceResults.some((result) => result.status === "unavailable");
 
@@ -473,12 +473,6 @@ export function PilotTakeoffCalculator({
               label="V2"
               status={summary.v2.status}
               value={takeoffMetricValue(summary.v2)}
-            />
-            <MetricCard
-              hint={takeoffMetricHint(summary.vref) ?? (summary.vref.status === "ready" ? "Landing reference at the entered weight." : undefined)}
-              label="VREF"
-              status={summary.vref.status}
-              value={takeoffMetricValue(summary.vref)}
             />
             <MetricCard
               hint={takeoffMetricHint(summary.v1)}

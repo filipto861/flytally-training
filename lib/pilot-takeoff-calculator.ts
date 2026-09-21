@@ -43,7 +43,6 @@ export type PilotTakeoffCalculatorDefinition = {
     readonly antiIceOn?: PilotTakeoffMetricBinding;
   };
   readonly flapOptions: readonly PilotTakeoffFlapOption[];
-  readonly vref: PilotTakeoffMetricBinding;
   readonly placeholders: readonly {
     readonly key: "v1" | "takeoffDistance";
     readonly label: string;
@@ -75,7 +74,6 @@ export type PilotTakeoffSummary = {
   readonly n1: PilotTakeoffMetricResult;
   readonly vr: PilotTakeoffMetricResult;
   readonly v2: PilotTakeoffMetricResult;
-  readonly vref: PilotTakeoffMetricResult;
   readonly v1: PilotTakeoffMetricResult;
   readonly takeoffDistance: PilotTakeoffMetricResult;
 };
@@ -215,7 +213,6 @@ export function calculatePilotTakeoffSummary(
     v2: flap
       ? evaluateMetric(datasets, flap.v2, inputs, definition, true)
       : { status: "unavailable", reason: "No flap configuration is available." },
-    vref: evaluateMetric(datasets, definition.vref, inputs, definition),
     v1,
     takeoffDistance,
   };
