@@ -385,7 +385,10 @@ test("P1 Flight page shows the Active Flight empty state", async ({ page }) => {
   await expect(active).toHaveAttribute("data-empty", "true");
   await expect(active).toContainText("No active flight.");
   await expect(
-    active.getByRole("link", { name: "Start new flight", exact: true }),
+    active.getByRole("button", { name: "Start new flight", exact: true }),
+  ).toBeVisible();
+  await expect(
+    active.getByRole("link", { name: "Open operational view", exact: true }),
   ).toHaveAttribute("href", new RegExp(`${aircraftPath}/fly`));
 });
 
@@ -462,5 +465,119 @@ test("P1 preserves the existing /fly operational route", async ({ page }) => {
     page.getByRole("region", { name: "Browser CI Aircraft flight deck" }),
   ).toBeVisible();
   await expect(page.getByRole("main", { name: "Flight workspace" })).toHaveCount(0);
+});
+
+async function createD0ActiveFlight(page: Page): Promise<Locator> {
+  const flight = await openP1Flight(page);
+  const active = flight.getByRole("region", { name: "Active Flight" });
+  await active.getByRole("button", { name: "Start new flight", exact: true }).click();
+
+  const dialog = page.getByRole("dialog", { name: "Start new flight" });
+  await expect(dialog).toBeVisible();
+  await dialog.getByLabel("Departure ICAO").fill("LKPR");
+  await dialog.getByLabel("Destination ICAO").fill("LOWW");
+  await dialog.getByLabel("Runway").fill("24");
+  await dialog.getByLabel("Weight", { exact: true }).fill("12000");
+  await dialog.getByLabel("Weight unit").selectOption("lb");
+  await dialog.getByLabel("Flaps").fill("8");
+  await dialog.getByRole("button", { name: "Activate flight", exact: true }).click();
+
+  await expect(dialog).toHaveCount(0);
+  await expect(active).toHaveAttribute("data-lifecycle", "ACTIVE");
+  await expect(active).toContainText("LKPR → LOWW");
+  await expect(active).toContainText("RWY 24 · ACTIVE");
+  return active;
+}
+
+test("D0 Active Flight creation flow persists into the local mirror", async ({ page }) => {
+  await createD0ActiveFlight(page);
+
+  const mirrored = await page.evaluate(() => {
+    const raw = localStorage.getItem(
+      "flytally-training:active-flight:v1:browser-ci-aircraft",
+    );
+    return raw ? JSON.parse(raw) : null;
+  });
+  expect(mirrored).toMatchObject({
+    aircraftId: "browser-ci-aircraft",
+    accountSubject: "local",
+    lifecycle: "ACTIVE",
+    departure: { icao: "LKPR" },
+    destination: { icao: "LOWW" },
+    runway: { identifier: "24" },
+  });
+});
+
+test("D0 Active Flight is visible on the P0 Flight launch section", async ({ page }) => {
+  await createD0ActiveFlight(page);
+  await page.goto(`${shellOnBase}${aircraftPath}`);
+
+  const launch = page.getByRole("main", { name: "Aircraft launch surface" });
+  const flight = launch.getByRole("region", { name: "Flight" });
+  await expect(flight).toContainText("LKPR → LOWW");
+  await expect(flight).toContainText("RWY 24 · ACTIVE");
+  await expect(
+    flight.getByRole("link", { name: "Open flight brief", exact: true }),
+  ).toBeVisible();
+});
+
+test("D0 Active Flight survives navigation back to the P1 Flight page", async ({ page }) => {
+  await createD0ActiveFlight(page);
+  await page.goto(`${shellOnBase}${aircraftPath}`);
+  await page.goto(`${shellOnBase}${aircraftPath}/flight`);
+
+  const active = page.getByRole("region", { name: "Active Flight" });
+  await expect(active).toHaveAttribute("data-lifecycle", "ACTIVE");
+  await expect(active).toContainText("LKPR → LOWW");
+});
+
+test("D0 activates Flight Brief context without inventing downstream brief data", async ({ page }) => {
+  await createD0ActiveFlight(page);
+
+  const brief = page.getByRole("region", { name: "Flight Brief" });
+  await expect(brief).toHaveAttribute("data-flight-context", "active");
+
+  const performance = page.getByRole("region", { name: "Performance" });
+  await expect(performance).toHaveAttribute("data-empty", "true");
+  await expect(performance.getByText("No data yet", { exact: true })).toHaveCount(4);
+  await expect(
+    page.getByRole("region", { name: "Flight Considerations" }),
+  ).toContainText("No considerations yet.");
+  await expect(
+    page.getByRole("region", { name: "Training Recommendations" }),
+  ).toContainText("No recommendations yet.");
+  await expect(
+    page.getByRole("region", { name: "Relevant Procedures" }),
+  ).toContainText("No relevant procedures yet.");
+});
+
+test("D0 deactivate transition moves ACTIVE to PREVIOUS only by explicit action", async ({ page }) => {
+  const active = await createD0ActiveFlight(page);
+  await active.getByRole("button", { name: "Deactivate flight", exact: true }).click();
+
+  await expect(active).toHaveAttribute("data-lifecycle", "PREVIOUS");
+  await expect(active).toContainText("No active flight.");
+  await expect(active).toContainText("Previous flight");
+  await expect(
+    active.getByRole("button", { name: "Archive previous flight", exact: true }),
+  ).toBeVisible();
+});
+
+test("D0 archive transition moves PREVIOUS to ARCHIVED only by explicit action", async ({ page }) => {
+  const active = await createD0ActiveFlight(page);
+  await active.getByRole("button", { name: "Deactivate flight", exact: true }).click();
+  await active.getByRole("button", { name: "Archive previous flight", exact: true }).click();
+
+  await expect(active).toHaveAttribute("data-lifecycle", "ARCHIVED");
+  await expect(active).toContainText("Previous flight archived.");
+  await expect(active).toContainText("No active flight.");
+});
+
+test("D0 flag off API fails closed with feature_disabled", async ({ request }) => {
+  const response = await request.get(
+    `/api/active-flight?aircraftId=browser-ci-aircraft`,
+  );
+  expect(response.status()).toBe(404);
+  await expect(response.json()).resolves.toEqual({ error: "feature_disabled" });
 });
 
