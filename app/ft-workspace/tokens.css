@@ -1,0 +1,47 @@
+/*
+ * FlyTally Training aircraft-workspace design tokens.
+ *
+ * These variables are intentionally scoped to .ft-workspace so the redesign can
+ * migrate aircraft routes without changing admin, account, or legacy surfaces.
+ * Semantic roles are the contract. Concrete values may be calibrated centrally.
+ */
+
+.ft-workspace {
+  /* Typography */
+  --ft-font-ui: var(--ft-font-plex-sans), "IBM Plex Sans", Inter, ui-sans-serif, system-ui, sans-serif;
+  --ft-font-data: var(--ft-font-plex-mono), "IBM Plex Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+
+  /* Spacing */
+  --ft-space-1: 4px;
+  --ft-space-2: 8px;
+  --ft-space-3: 12px;
+  --ft-space-4: 16px;
+  --ft-space-5: 24px;
+  --ft-space-6: 32px;
+  --ft-space-7: 48px;
+
+  /* Radius policy */
+  --ft-radius-0: 0;
+  --ft-radius-2: 2px;
+  --ft-radius-4: 4px;
+
+  /* Interaction primitives */
+  --ft-touch-target-min: 44px;
+  --ft-fast-path-height-desktop: 44px;
+  --ft-fast-path-height-ipad: 56px;
+  --ft-focus-width: 2px;
+  --ft-focus-offset: 2px;
+
+  /* Rules are semantic aliases over the active theme palette. */
+  --ft-rule-default: 1px solid var(--ft-border-rule);
+  --ft-rule-strong: 1px solid var(--ft-border-strong);
+  --ft-rule-accent: 2px solid var(--ft-text-primary);
+  --ft-rule-divider: 1px solid var(--ft-border-rule);
+
+  /*
+   * Content classification is not source-safety severity.
+   * Memory items therefore use their own neutral high-emphasis role.
+   */
+  --ft-memory-emphasis: var(--ft-text-primary);
+  --ft-memory-emphasis-border: var(--ft-border-strong);
+}

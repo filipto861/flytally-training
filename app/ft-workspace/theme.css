@@ -1,0 +1,82 @@
+/*
+ * FlyTally Training aircraft-workspace theme palette.
+ *
+ * Light and dark are peer operational themes. These rules only define semantic
+ * variables; they deliberately do not restyle legacy descendants during F0.
+ */
+
+.ft-workspace[data-theme="light"] {
+  --ft-bg-shell: #F7F7F5;
+  --ft-bg-panel: #FFFFFF;
+  --ft-bg-inset: #F0F1F0;
+  --ft-bg-operational: #EFEFEC;
+
+  --ft-border-rule: #DCDDDB;
+  --ft-border-strong: #B8BAB7;
+
+  --ft-text-primary: #1A1C1E;
+  --ft-text-secondary: #5A5D60;
+  --ft-text-metadata: #7A7D80;
+  --ft-text-disabled: #B0B3B5;
+
+  /* Source safety semantics: preserve source WARNING / CAUTION / NOTE. */
+  --ft-source-warning: #B3261E;
+  --ft-source-warning-bg: #FCEEEE;
+  --ft-source-caution: #A15C00;
+  --ft-source-caution-bg: #FFF4E5;
+  --ft-source-note: #3A4A5C;
+  --ft-source-note-bg: #EEF2F6;
+
+  /* Application state semantics are separate from source safety semantics. */
+  --ft-state-recalc: #A15C00;
+  --ft-state-recalc-bg: #FFF4E5;
+  --ft-state-attention: #8A6A00;
+  --ft-state-completed: #2E6B3A;
+  --ft-state-active: #1F2937;
+  --ft-state-previous: #5A5D60;
+  --ft-state-archived: #7A7D80;
+
+  --ft-training-accent: #3A4A5C;
+  --ft-training-accent-bg: #EEF2F6;
+}
+
+.ft-workspace[data-theme="dark"] {
+  --ft-bg-shell: #0E1013;
+  --ft-bg-panel: #161A1F;
+  --ft-bg-inset: #1D2228;
+  --ft-bg-operational: #1A1E24;
+
+  --ft-border-rule: #242A32;
+  --ft-border-strong: #333A44;
+
+  --ft-text-primary: #E5E7EB;
+  --ft-text-secondary: #A8ACB2;
+  --ft-text-metadata: #7A7F87;
+  --ft-text-disabled: #4A5058;
+
+  --ft-source-warning: #E57373;
+  --ft-source-warning-bg: #2A1818;
+  --ft-source-caution: #E0A85C;
+  --ft-source-caution-bg: #2A2012;
+  --ft-source-note: #9AB0C8;
+  --ft-source-note-bg: #182028;
+
+  --ft-state-recalc: #E0A85C;
+  --ft-state-recalc-bg: #2A2012;
+  --ft-state-attention: #C7A94A;
+  --ft-state-completed: #7BBF88;
+  --ft-state-active: #E5E7EB;
+  --ft-state-previous: #A8ACB2;
+  --ft-state-archived: #7A7F87;
+
+  --ft-training-accent: #9AB0C8;
+  --ft-training-accent-bg: #182028;
+}
+
+/*
+ * Source age is intentionally not assigned an attention color here.
+ * Age is neutral metadata unless an explicit policy elevates it.
+ *
+ * Reserved future application states (not implemented in F0):
+ * state.invalid, state.error.
+ */
