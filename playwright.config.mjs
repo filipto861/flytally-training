@@ -16,6 +16,8 @@ export default defineConfig({
   projects:[
     {name:"desktop-chromium",use:{...devices["Desktop Chrome"]}},
     {name:"mobile-chromium",use:{...devices["Pixel 7"]}},
+    {name:"ipad-landscape",use:{...devices["iPad (gen 7) landscape"]}},
+    {name:"ipad-portrait",use:{...devices["iPad (gen 7)"]}},
   ],
   webServer:{
     command:"npm start",
