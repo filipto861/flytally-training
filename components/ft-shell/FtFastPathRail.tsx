@@ -1,21 +1,24 @@
 "use client";
 
-import Link from "next/link";
-
 import { ftFastPathDestinations } from "./navigation";
+import { useFtFastPath } from "@/components/ft-fast-path/FtFastPathProvider";
 import styles from "./ft-shell.module.css";
 
 export function FtFastPathRail({ aircraftId }: Readonly<{ aircraftId: string }>) {
+  const { activeTab, panelOpen, openPanel } = useFtFastPath();
+
   return (
     <nav className={styles.fastPathRail} aria-label="Operational fast path">
       {ftFastPathDestinations(aircraftId).map((destination) => (
-        <Link
+        <button
           key={destination.key}
-          href={destination.href}
+          type="button"
           className={styles.fastPathLink}
+          aria-pressed={panelOpen && activeTab === destination.key}
+          onClick={() => openPanel(destination.key)}
         >
           {destination.label}
-        </Link>
+        </button>
       ))}
     </nav>
   );
