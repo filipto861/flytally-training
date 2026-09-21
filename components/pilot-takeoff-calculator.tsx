@@ -49,6 +49,18 @@ function altimeterSetting(unit: AltimeterUnit, value: number): AltimeterSetting 
   return unit === "hPa" ? { unit: "hPa", value } : { unit: "inHg", value };
 }
 
+function takeoffMetricValue(result: ReturnType<typeof calculatePilotTakeoffSummary>[keyof ReturnType<typeof calculatePilotTakeoffSummary>]): string {
+  if (result.status === "missing") return result.reason?.replace(/\.$/, "") ?? "Enter required inputs";
+  if (result.status === "pending") return result.reason?.startsWith("Enter ") ? result.reason.replace(/\.$/, "") : "Not available";
+  if (result.status === "unavailable") return "Not available";
+  if (result.status === "out-of-range") return "Out of range";
+  return formatPilotTakeoffMetric(result);
+}
+
+function takeoffMetricHint(result: ReturnType<typeof calculatePilotTakeoffSummary>[keyof ReturnType<typeof calculatePilotTakeoffSummary>]): string | undefined {
+  return result.status === "missing" ? undefined : result.reason;
+}
+
 export function PilotTakeoffCalculator({
   datasets,
   definition,
@@ -445,40 +457,40 @@ export function PilotTakeoffCalculator({
 
           <MetricGrid>
             <MetricCard
-              hint={summary.n1.reason}
+              hint={takeoffMetricHint(summary.n1)}
               label="N1"
               status={summary.n1.status}
-              value={formatPilotTakeoffMetric(summary.n1)}
+              value={takeoffMetricValue(summary.n1)}
             />
             <MetricCard
-              hint={summary.vr.reason}
+              hint={takeoffMetricHint(summary.vr)}
               label="VR"
               status={summary.vr.status}
-              value={formatPilotTakeoffMetric(summary.vr)}
+              value={takeoffMetricValue(summary.vr)}
             />
             <MetricCard
-              hint={summary.v2.reason}
+              hint={takeoffMetricHint(summary.v2)}
               label="V2"
               status={summary.v2.status}
-              value={formatPilotTakeoffMetric(summary.v2)}
+              value={takeoffMetricValue(summary.v2)}
             />
             <MetricCard
-              hint={summary.vref.reason ?? "Landing reference at the entered weight."}
+              hint={takeoffMetricHint(summary.vref) ?? (summary.vref.status === "ready" ? "Landing reference at the entered weight." : undefined)}
               label="VREF"
               status={summary.vref.status}
-              value={formatPilotTakeoffMetric(summary.vref)}
+              value={takeoffMetricValue(summary.vref)}
             />
             <MetricCard
-              hint={summary.v1.reason}
+              hint={takeoffMetricHint(summary.v1)}
               label="V1"
               status={summary.v1.status}
-              value={formatPilotTakeoffMetric(summary.v1)}
+              value={takeoffMetricValue(summary.v1)}
             />
             <MetricCard
-              hint={summary.takeoffDistance.reason}
+              hint={takeoffMetricHint(summary.takeoffDistance)}
               label="Takeoff Distance"
               status={summary.takeoffDistance.status}
-              value={formatPilotTakeoffMetric(summary.takeoffDistance)}
+              value={takeoffMetricValue(summary.takeoffDistance)}
             />
           </MetricGrid>
 

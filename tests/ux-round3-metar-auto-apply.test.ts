@@ -23,12 +23,12 @@ test("UX Round 3 takeoff tracks the last airport that received automatic METAR a
 
 test("UX Round 3 takeoff receives live or cached METAR snapshots without a button click", () => {
   const source = fs.readFileSync(new URL("../components/pilot-takeoff-calculator.tsx", import.meta.url), "utf8");
-  assert.match(source, /onSnapshot=\{setMetarSnapshot\}/);
+  assert.match(source, /onSnapshot=\{setInternalMetarSnapshot\}/);
 });
 
 test("UX Round 3 takeoff auto-applies a snapshot once for each selected airport", () => {
   const source = fs.readFileSync(new URL("../components/pilot-takeoff-calculator.tsx", import.meta.url), "utf8");
-  assert.match(source, /if \(lastAppliedIcao === selectedIcao\) return/);
+  assert.match(source, /lastAppliedIcao === selectedIcao/);
   assert.match(source, /handleMetarApply\(metarSnapshot\)/);
 });
 

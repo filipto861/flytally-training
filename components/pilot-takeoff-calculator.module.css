@@ -1,4 +1,5 @@
 .calculator{
+  width:100%;
   display:grid;
   gap:var(--ui-card-gap);
   min-width:0;
@@ -381,6 +382,21 @@
   line-height:1.4;
 }
 @media(max-width:620px){
+  .infoButton{
+    width:44px;
+    height:44px;
+    border:0;
+    background:transparent;
+  }
+  .infoButton>span:first-child{
+    display:grid;
+    width:20px;
+    height:20px;
+    place-items:center;
+    border:1px solid #cbd7e1;
+    border-radius:50%;
+    background:#fff;
+  }
   .runwayContext{grid-template-columns:1fr}
   .runwayContext>small{grid-column:auto}
   .runwayMargin{grid-template-columns:repeat(2,minmax(0,1fr))}

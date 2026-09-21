@@ -147,7 +147,10 @@ test("B10 performance workspace accepts and renders an optional landing calculat
   assert.match(component, /landingCalculator\.approachClimbDatasetId/);
   assert.match(component, /landingCalculator\.landingDistanceDatasetId/);
   assert.match(packageContract, /landingCalculator\?: PilotLandingCalculatorDefinition/);
-  assert.match(component, /<PilotLandingCalculator datasets=\{runtimeDatasets\} definition=\{landingCalculator\}/);
+  assert.match(component, /<PilotLandingCalculator/);
+  assert.match(component, /datasets=\{runtimeDatasets\}/);
+  assert.match(component, /definition=\{landingCalculator\}/);
+  assert.match(component, /externalEnvironment=\{environment\}/);
   assert.match(component, /takeoffCalculator\?: PilotTakeoffCalculatorDefinition/);
   assert.match(page, /landingCalculator=\{bundledPackage\?\.landingCalculator\}/);
   assert.match(page, /takeoffCalculator=\{bundledPackage\?\.takeoffCalculator\}/);

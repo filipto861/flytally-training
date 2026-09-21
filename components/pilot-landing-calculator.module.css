@@ -1,4 +1,5 @@
 .calculator{
+  width:100%;
   display:grid;
   gap:var(--ui-card-gap);
   min-width:0;
@@ -189,6 +190,21 @@
   .resultsHeader{padding:var(--ui-card-padding-mobile,16px) var(--ui-card-padding-mobile,16px) 0}
   .goAround{margin:var(--ui-space-4) var(--ui-card-padding-mobile,16px)}
   .goAroundNotes{grid-template-columns:1fr}
+  .infoButton{
+    width:44px;
+    height:44px;
+    border:0;
+    background:transparent;
+  }
+  .infoButton>span:first-child{
+    display:grid;
+    width:22px;
+    height:22px;
+    place-items:center;
+    border:1px solid #cbd7e1;
+    border-radius:50%;
+    background:#fff;
+  }
   .legalDisclaimer{padding:12px var(--ui-card-padding-mobile,16px)}
 }
 @media(prefers-reduced-motion:reduce){

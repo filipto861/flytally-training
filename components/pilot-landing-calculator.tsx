@@ -40,6 +40,8 @@ function landingMetricValue(
   missingText: string,
 ): string {
   if (result.status === "missing") return missingText;
+  if (result.status === "unavailable" || result.status === "pending") return "Not available";
+  if (result.status === "out-of-range") return "Out of range";
   return formatPilotTakeoffMetric(result);
 }
 
@@ -122,7 +124,7 @@ export function PilotLandingCalculator({
         current.dirty ? current : { value: "", source: "manual", dirty: false },
       );
     }
-  }, [externalEnvironment, metarSnapshot, runwayContext]);
+  }, [externalEnvironment?.icao, metarSnapshot, runwayContext]);
 
   const windComponentKt = useMemo(() => {
     if (
@@ -290,7 +292,7 @@ export function PilotLandingCalculator({
                   id="approach-climb-speed-tooltip"
                   label="Approach climb speed information"
                 >
-                  Missed approach climb speed. Required for single-engine missed approach climb gradient per FAR 25.121. Published separately from VREF.
+                  Missed approach climb speed. Required for single-engine missed approach climb gradient per FAR 25.121. Published separately from VREF (e.g. +8 kt at 15,000 lb).
                 </InfoTip>
               </div>
             </div>

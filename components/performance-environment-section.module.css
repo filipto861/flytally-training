@@ -96,7 +96,7 @@
   font-weight:650;
   line-height:1.5;
 }
-@media(max-width:760px){
+@media(max-width:620px){
   .header{
     align-items:flex-start;
     flex-direction:column;
@@ -111,6 +111,7 @@
 }
 @media(max-width:620px){
   .section{
+    width:100%;
     padding:var(--ui-card-padding-mobile,16px);
   }
 }

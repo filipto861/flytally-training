@@ -164,3 +164,20 @@ test("B6 UI is live-input driven and exposes the requested pilot fields and plac
   assert.match(presentation, /label: "20°"/);
   assert.match(presentation, /Sources: available training material\. Not FAA-approved\./);
 });
+
+
+test("UX Round 3 takeoff missing states identify the inputs required by each metric", () => {
+  const result = calculatePilotTakeoffSummary(datasets, definition, {
+    flaps: "8",
+    antiIce: false,
+  });
+
+  assert.equal(result.n1.status, "missing");
+  assert.equal(result.n1.reason, "Enter Pressure Altitude and OAT.");
+  assert.equal(result.vr.status, "missing");
+  assert.equal(result.vr.reason, "Enter Takeoff Weight.");
+  assert.equal(result.v2.reason, "Enter Takeoff Weight.");
+  assert.equal(result.vref.reason, "Enter Takeoff Weight.");
+  assert.equal(result.v1.reason, "Enter Pressure Altitude, OAT and Takeoff Weight.");
+  assert.equal(result.takeoffDistance.reason, "Enter Pressure Altitude, OAT and Takeoff Weight.");
+});

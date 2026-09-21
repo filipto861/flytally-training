@@ -31,7 +31,7 @@ test("UX Round 3 Environment section carries the baseline correction warning", (
 
 test("UX Round 3 Environment section stacks on narrow screens", () => {
   const css = fs.readFileSync(new URL("../components/performance-environment-section.module.css", import.meta.url), "utf8");
-  assert.match(css, /@media\(max-width:760px\)/);
+  assert.match(css, /@media\(max-width:620px\)/);
   assert.match(css, /\.topGrid\{\s*grid-template-columns:1fr/);
   assert.match(css, /@media\(max-width:620px\)/);
 });
