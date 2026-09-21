@@ -206,6 +206,12 @@ test("W2 Arrow keys move selection and Enter activates the selected result", asy
   await expect(page).toHaveURL(new RegExp(`${aircraftPath}/performance#browser-takeoff-grid$`));
 });
 
+async function waitForFastPathShortcuts(page: Page): Promise<Locator> {
+  const rail = page.getByRole("navigation", { name: "Operational fast path" });
+  await expect(rail).toHaveAttribute("data-shortcuts-ready", "true");
+  return rail;
+}
+
 async function openFastPath(page: Page, label: "CHECKLIST" | "QRH" | "PERF" | "REF") {
   const originalUrl = `${shellOnBase}${aircraftPath}`;
   await page.goto(originalUrl);
@@ -234,6 +240,7 @@ test("W3 Escape closes the fast path panel", async ({ page }) => {
 
 test("W3 Ctrl+Shift+1 opens CHECKLIST directly", async ({ page }) => {
   await page.goto(`${shellOnBase}${aircraftPath}`);
+  await waitForFastPathShortcuts(page);
   await page.keyboard.press("Control+Shift+1");
   const panel = page.getByRole("dialog", { name: "Operational fast path" });
   await expect(panel).toBeVisible();
@@ -245,6 +252,7 @@ test("W3 Ctrl+Shift+1 opens CHECKLIST directly", async ({ page }) => {
 
 test("W3 Ctrl+Shift+2 opens QRH directly", async ({ page }) => {
   await page.goto(`${shellOnBase}${aircraftPath}`);
+  await waitForFastPathShortcuts(page);
   await page.keyboard.press("Control+Shift+2");
   const panel = page.getByRole("dialog", { name: "Operational fast path" });
   await expect(panel).toBeVisible();
