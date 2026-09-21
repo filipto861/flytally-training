@@ -31,9 +31,6 @@ test("B10 landing-climb dataset satisfies the governed metric-grid contract", ()
     assert.deepEqual(dataset.calculator.outputKeys, ["landingClimbSpeed"]);
   }
   assert.equal(dataset.interpolation, "linear-explicit");
-});
-
-test("B10 landing-climb dataset preserves the published weight axis and provenance", () => {
   assert.deepEqual(dataset.axes[0]?.values, [10000, 11000, 12000, 13000, 14000, 15000, 15300]);
   assert.equal(dataset.rows.length, 7);
   assert.ok(dataset.sources?.some((source) => source.manualId === "CL-102B" && source.pageLabel === "P-56"));
