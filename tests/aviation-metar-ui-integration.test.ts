@@ -22,7 +22,7 @@ const css = read("components/metar-status.module.css");
 test("B9-B METAR widget is hidden until a valid airport ICAO is selected", () => {
   assert.match(component, /if \(!icao\) return null/);
   assert.match(selector, /onAirportChange\?/);
-  assert.match(pilot, /<MetarStatus icao=\{selectedIcao\}/);
+  assert.match(pilot, /!usesExternalEnvironment \? \([\s\S]{0,300}<MetarStatus[\s\S]{0,120}icao=\{selectedIcao\}/);
 });
 
 test("B9-B METAR widget uses client cache before same-origin live fetch", () => {
@@ -34,7 +34,7 @@ test("B9-B METAR widget uses client cache before same-origin live fetch", () => 
 
 test("B9-B applying METAR requires an explicit button action", () => {
   assert.match(component, /onClick=\{\(\) => snapshot && onApply\(snapshot\)\}/);
-  assert.match(component, /Apply to inputs/);
+  assert.match(component, /Apply METAR/);
   assert.doesNotMatch(component, /useEffect[\s\S]{0,300}onApply\(/);
 });
 
@@ -51,7 +51,7 @@ test("B9-B stale and expired cache thresholds enforce explicit safe behavior", (
 
 test("B9-B offline cache has explicit apply UX and manual fallback", () => {
   assert.match(component, /Using cached METAR/);
-  assert.match(component, /Apply cached values/);
+  assert.match(component, /Apply cached METAR/);
   assert.match(component, /Live weather unavailable\. Manual inputs remain available/);
 });
 

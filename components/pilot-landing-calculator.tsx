@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   FieldRow,
@@ -8,12 +8,23 @@ import {
   MetricCard,
   MetricGrid,
 } from "./performance-ui";
+import type { ExternalPerformanceEnvironment } from "./performance-environment-section";
 
+import {
+  manualSourcedValue,
+  metarAutoFill,
+} from "@/lib/aviation/runway-context";
+import { calculatePressureAltitudeFt } from "@/lib/aviation/pressure-altitude";
+import { calculateWindComponents } from "@/lib/aviation/wind-component";
+import type { SourcedValue } from "@/lib/aviation/airport-types";
 import {
   calculatePilotLandingSummary,
   type PilotLandingCalculatorDefinition,
 } from "@/lib/pilot-landing-calculator";
-import { formatPilotTakeoffMetric } from "@/lib/pilot-takeoff-calculator";
+import {
+  formatPilotTakeoffMetric,
+  type PilotTakeoffMetricResult,
+} from "@/lib/pilot-takeoff-calculator";
 import type { PerformanceDataset } from "@/lib/universal-aircraft-content";
 
 import styles from "./pilot-landing-calculator.module.css";
@@ -24,27 +35,130 @@ function numberFromInput(value: string): number | undefined {
   return Number.isFinite(parsed) ? parsed : undefined;
 }
 
+function landingMetricValue(
+  result: PilotTakeoffMetricResult,
+  missingText: string,
+): string {
+  if (result.status === "missing") return missingText;
+  if (result.status === "unavailable" || result.status === "pending") return "Not available";
+  if (result.status === "out-of-range") return "Out of range";
+  return formatPilotTakeoffMetric(result);
+}
+
+function missingDistanceText(pressureAltitude: string, oat: string, grossWeight: string): string {
+  const missing: string[] = [];
+  if (!grossWeight.trim()) missing.push("Gross Weight");
+  if (!pressureAltitude.trim()) missing.push("Pressure Altitude");
+  if (!oat.trim()) missing.push("OAT");
+  if (!missing.length) return "Enter required inputs";
+  if (missing.length === 1) return `Enter ${missing[0]}`;
+  if (missing.length === 2) return `Enter ${missing[0]} and ${missing[1]}`;
+  return "Enter Gross Weight, Pressure Altitude and OAT";
+}
+
+function InfoTip({
+  id,
+  label,
+  children,
+}: Readonly<{
+  id: string;
+  label: string;
+  children: string;
+}>) {
+  return (
+    <button
+      aria-describedby={id}
+      aria-label={label}
+      className={styles.infoButton}
+      type="button"
+    >
+      <span aria-hidden="true">i</span>
+      <span className={styles.infoTooltip} id={id} role="tooltip">{children}</span>
+    </button>
+  );
+}
+
 export function PilotLandingCalculator({
   datasets,
   definition,
+  externalEnvironment,
 }: Readonly<{
   datasets: readonly PerformanceDataset[];
   definition: PilotLandingCalculatorDefinition;
+  externalEnvironment?: ExternalPerformanceEnvironment;
 }>) {
   const [grossWeight, setGrossWeight] = useState("");
-  const [pressureAltitude, setPressureAltitude] = useState("");
-  const [oat, setOat] = useState("");
+  const [pressureAltitude, setPressureAltitude] = useState<SourcedValue<string>>({
+    value: "",
+    source: "manual",
+    dirty: false,
+  });
+  const [oat, setOat] = useState<SourcedValue<string>>({
+    value: "",
+    source: "manual",
+    dirty: false,
+  });
+
+  const runwayContext = externalEnvironment?.runwayContext;
+  const metarSnapshot = externalEnvironment?.metarSnapshot ?? null;
+
+  useEffect(() => {
+    if (!externalEnvironment) return;
+
+    if (metarSnapshot?.temperatureC !== undefined) {
+      setOat((current) => metarAutoFill(current, String(metarSnapshot.temperatureC)));
+    }
+
+    if (runwayContext && metarSnapshot?.qnhHpa !== undefined) {
+      try {
+        const calculated = Math.round(calculatePressureAltitudeFt(
+          runwayContext.airportElevationFt,
+          { unit: "hPa", value: metarSnapshot.qnhHpa },
+        ));
+        setPressureAltitude((current) => metarAutoFill(current, String(calculated)));
+      } catch {
+        // Manual pressure-altitude input remains available.
+      }
+    } else if (!runwayContext) {
+      setPressureAltitude((current) =>
+        current.dirty ? current : { value: "", source: "manual", dirty: false },
+      );
+    }
+  }, [externalEnvironment?.icao, metarSnapshot, runwayContext]);
+
+  const windComponentKt = useMemo(() => {
+    if (
+      !runwayContext
+      || runwayContext.headingTrueDeg === undefined
+      || !metarSnapshot
+    ) return undefined;
+
+    const windDirectionTrueDeg = metarSnapshot.windCalm
+      ? runwayContext.headingTrueDeg
+      : metarSnapshot.windDirectionTrueDeg;
+    const windSpeedKt = metarSnapshot.windCalm ? 0 : metarSnapshot.windSpeedKt;
+    if (windDirectionTrueDeg === undefined || windSpeedKt === undefined) return undefined;
+
+    return calculateWindComponents({
+      windDirectionTrueDeg,
+      windSpeedKt,
+      windGustKt: metarSnapshot.windGustKt,
+      runwayHeadingTrueDeg: runwayContext.headingTrueDeg,
+    })?.headwindKt;
+  }, [metarSnapshot, runwayContext]);
 
   const summary = useMemo(
     () => calculatePilotLandingSummary(datasets, definition, {
       grossWeight: numberFromInput(grossWeight),
-      pressureAltitude: numberFromInput(pressureAltitude),
-      oat: numberFromInput(oat),
+      pressureAltitude: numberFromInput(pressureAltitude.value),
+      oat: numberFromInput(oat.value),
+      windComponentKt,
     }),
-    [datasets, definition, grossWeight, pressureAltitude, oat],
+    [datasets, definition, grossWeight, pressureAltitude.value, oat.value, windComponentKt],
   );
 
   const sourceResults = [
+    summary.vrefKias,
     summary.landingClimbSpeed,
     summary.approachClimbSpeed,
     summary.landingDistanceFt,
@@ -52,12 +166,15 @@ export function PilotLandingCalculator({
   const hasOutOfRange = sourceResults.some((result) => result.status === "out-of-range");
   const hasUnavailable = sourceResults.some((result) => result.status === "unavailable");
 
+  const grossWeightMissing = "Enter Gross Weight";
+  const distanceMissing = missingDistanceText(pressureAltitude.value, oat.value, grossWeight);
+
   return (
     <section className={styles.calculator} aria-label="Landing Calculator">
       <header className={styles.header}>
         <div>
           <h2>Landing Calculator</h2>
-          <p>Enter landing conditions. Results update from the encoded source grids.</p>
+          <p>Approach-first landing references with source-backed distance and go-around data.</p>
         </div>
         <span className={styles.live}>Live calculation</span>
       </header>
@@ -76,21 +193,29 @@ export function PilotLandingCalculator({
               />
             </FieldRow>
 
-            <FieldRow label="Pressure Altitude" source="manual">
+            <FieldRow
+              helper={pressureAltitude.dirty && externalEnvironment ? "Manual override" : undefined}
+              label="Pressure Altitude"
+              source={pressureAltitude.source}
+            >
               <InputWithUnit
                 ariaLabel="Landing pressure altitude"
-                onChange={setPressureAltitude}
+                onChange={(value) => setPressureAltitude(manualSourcedValue(value))}
                 unit="ft"
-                value={pressureAltitude}
+                value={pressureAltitude.value}
               />
             </FieldRow>
 
-            <FieldRow label="OAT" source="manual">
+            <FieldRow
+              helper={oat.dirty && metarSnapshot?.temperatureC !== undefined ? "Manual override" : undefined}
+              label="OAT"
+              source={oat.source}
+            >
               <InputWithUnit
                 ariaLabel="Landing outside air temperature"
-                onChange={setOat}
+                onChange={(value) => setOat(manualSourcedValue(value))}
                 unit="°C"
-                value={oat}
+                value={oat.value}
               />
             </FieldRow>
           </div>
@@ -98,7 +223,7 @@ export function PilotLandingCalculator({
 
         <section className={styles.results} aria-label="Landing results">
           <div className={styles.resultsHeader}>
-            <h3 className={styles.resultsTitle}>Landing result</h3>
+            <h3 className={styles.resultsTitle}>Primary result</h3>
             {hasOutOfRange ? (
               <div className={styles.notice} role="status">
                 <strong>Out of range.</strong> One or more values are outside the encoded source envelope or require unpublished source corners.
@@ -112,27 +237,69 @@ export function PilotLandingCalculator({
 
           <MetricGrid columns={3}>
             <MetricCard
-              hint={summary.landingClimbSpeed.reason}
-              label="Landing Climb"
-              status={summary.landingClimbSpeed.status}
-              value={formatPilotTakeoffMetric(summary.landingClimbSpeed)}
+              hint={summary.vrefKias.reason ?? "Landing reference speed at the entered gross weight."}
+              label="VREF"
+              status={summary.vrefKias.status}
+              value={landingMetricValue(summary.vrefKias, grossWeightMissing)}
             />
             <MetricCard
-              hint={summary.approachClimbSpeed.reason}
-              label="Approach Climb"
-              status={summary.approachClimbSpeed.status}
-              value={formatPilotTakeoffMetric(summary.approachClimbSpeed)}
+              hint={summary.vappKias.reason ?? "Recommended approach target derived from VREF."}
+              label="VAPP"
+              status={summary.vappKias.status}
+              value={landingMetricValue(summary.vappKias, grossWeightMissing)}
             />
             <MetricCard
               hint={summary.landingDistanceFt.reason}
               label="Landing Distance"
               status={summary.landingDistanceFt.status}
-              value={formatPilotTakeoffMetric(summary.landingDistanceFt)}
+              value={landingMetricValue(summary.landingDistanceFt, distanceMissing)}
             />
           </MetricGrid>
 
+          <details className={styles.goAround}>
+            <summary>Go-around reference</summary>
+            <div className={styles.goAroundHeader}>
+              <span>Certification climb references</span>
+              <span>Source-backed</span>
+            </div>
+            <MetricGrid columns={2}>
+              <MetricCard
+                hint="Two-engine balked landing climb reference."
+                label="Landing Climb Speed"
+                status={summary.landingClimbSpeed.status}
+                value={landingMetricValue(summary.landingClimbSpeed, grossWeightMissing)}
+              />
+              <MetricCard
+                hint="Single-engine missed approach climb reference."
+                label="Approach Climb Speed"
+                status={summary.approachClimbSpeed.status}
+                value={landingMetricValue(summary.approachClimbSpeed, grossWeightMissing)}
+              />
+            </MetricGrid>
+            <div className={styles.goAroundNotes}>
+              <div>
+                <span>Landing Climb Speed</span>
+                <InfoTip
+                  id="landing-climb-speed-tooltip"
+                  label="Landing climb speed information"
+                >
+                  Balked landing climb speed. Required for two-engine balked landing climb gradient per FAR 25.119. Equal to VREF at all published weights.
+                </InfoTip>
+              </div>
+              <div>
+                <span>Approach Climb Speed</span>
+                <InfoTip
+                  id="approach-climb-speed-tooltip"
+                  label="Approach climb speed information"
+                >
+                  Missed approach climb speed. Required for single-engine missed approach climb gradient per FAR 25.121. Published separately from VREF (e.g. +8 kt at 15,000 lb).
+                </InfoTip>
+              </div>
+            </div>
+          </details>
+
           <p className={styles.legalDisclaimer}>
-            Sources: available training material. Not approved for operational use. Landing-distance values are the published factored source values for the encoded configuration. Always verify current aircraft configuration, weather, runway data, NOTAMs and approved performance documentation before flight.
+            Sources: available training material. Not approved for operational use. Landing-distance values are the published factored source values for the encoded configuration. VAPP is a training recommendation derived from VREF and must not replace approved operator or aircraft guidance. Always verify current aircraft configuration, weather, runway data, NOTAMs and approved performance documentation before flight.
           </p>
         </section>
       </div>

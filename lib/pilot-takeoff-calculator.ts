@@ -96,23 +96,41 @@ function inputValue(
   return inputs.takeoffWeight;
 }
 
+function joinInputLabels(labels: readonly string[]): string {
+  if (labels.length <= 1) return labels[0] ?? "required inputs";
+  if (labels.length === 2) return `${labels[0]} and ${labels[1]}`;
+  return `${labels.slice(0, -1).join(", ")} and ${labels.at(-1)}`;
+}
+
 function evaluateMetric(
   datasets: readonly PerformanceDataset[],
   binding: PilotTakeoffMetricBinding,
   inputs: PilotTakeoffCalculatorInputs,
+  definition: PilotTakeoffCalculatorDefinition,
+  requiresFlaps = false,
 ): PilotTakeoffMetricResult {
   const dataset = datasetById(datasets, binding.datasetId);
   if (!dataset) {
     return { status: "unavailable", precision: binding.precision, reason: "Source dataset unavailable." };
   }
 
+  const boundInputs = new Set(binding.inputs.map((inputBinding) => inputBinding.input));
+  const inputOrder: readonly PilotTakeoffNumericInputKey[] = ["pressureAltitude", "oat", "takeoffWeight"];
+  const missingLabels = inputOrder
+    .filter((key) => boundInputs.has(key) && inputValue(inputs, key) === undefined)
+    .map((key) => definition.inputs[key].label);
+  if (requiresFlaps && !inputs.flaps.trim()) missingLabels.push(definition.inputs.flaps.label);
+  if (missingLabels.length) {
+    return {
+      status: "missing",
+      precision: binding.precision,
+      reason: `Enter ${joinInputLabels(missingLabels)}.`,
+    };
+  }
+
   const calculatorInputs: Record<string, PerformanceScalar | undefined> = {};
   for (const inputBinding of binding.inputs) {
-    const value = inputValue(inputs, inputBinding.input);
-    if (value === undefined) {
-      return { status: "missing", precision: binding.precision };
-    }
-    calculatorInputs[inputBinding.axisKey] = value;
+    calculatorInputs[inputBinding.axisKey] = inputValue(inputs, inputBinding.input);
   }
 
   const calculation = calculateMultiAxisMetricGrid(dataset, calculatorInputs);
@@ -151,7 +169,7 @@ export function calculatePilotTakeoffSummary(
 
   const n1Binding = inputs.antiIce ? definition.n1.antiIceOn : definition.n1.antiIceOff;
   const n1 = n1Binding
-    ? evaluateMetric(datasets, n1Binding, inputs)
+    ? evaluateMetric(datasets, n1Binding, inputs, definition)
     : {
         status: "unavailable" as const,
         reason: inputs.antiIce
@@ -164,7 +182,7 @@ export function calculatePilotTakeoffSummary(
     : undefined;
   const v1 = flap?.v1
     ? v1Binding
-      ? evaluateMetric(datasets, v1Binding, inputs)
+      ? evaluateMetric(datasets, v1Binding, inputs, definition, true)
       : {
           status: "unavailable" as const,
           reason: inputs.antiIce
@@ -178,7 +196,7 @@ export function calculatePilotTakeoffSummary(
     : undefined;
   const takeoffDistance = flap?.takeoffDistance
     ? takeoffDistanceBinding
-      ? evaluateMetric(datasets, takeoffDistanceBinding, inputs)
+      ? evaluateMetric(datasets, takeoffDistanceBinding, inputs, definition, true)
       : {
           status: "unavailable" as const,
           reason: inputs.antiIce
@@ -192,12 +210,12 @@ export function calculatePilotTakeoffSummary(
   return {
     n1,
     vr: flap
-      ? evaluateMetric(datasets, flap.vr, inputs)
+      ? evaluateMetric(datasets, flap.vr, inputs, definition, true)
       : { status: "unavailable", reason: "No flap configuration is available." },
     v2: flap
-      ? evaluateMetric(datasets, flap.v2, inputs)
+      ? evaluateMetric(datasets, flap.v2, inputs, definition, true)
       : { status: "unavailable", reason: "No flap configuration is available." },
-    vref: evaluateMetric(datasets, definition.vref, inputs),
+    vref: evaluateMetric(datasets, definition.vref, inputs, definition),
     v1,
     takeoffDistance,
   };
