@@ -1,12 +1,16 @@
 import type { ReactNode } from "react";
 
+import { FtSearchOverlay } from "@/components/ft-search/FtSearchOverlay";
+
 import styles from "./ft-shell.module.css";
 
 export function FtTopBar({
+  aircraftId,
   aircraftIdentity,
   trainingProfileLabel,
   navigationControl,
 }: Readonly<{
+  aircraftId: string;
   aircraftIdentity: string;
   trainingProfileLabel: string;
   navigationControl: ReactNode;
@@ -21,14 +25,7 @@ export function FtTopBar({
       </div>
 
       <div className={styles.topBarActions}>
-        <button
-          type="button"
-          className={styles.searchTrigger}
-          aria-label="Search aircraft workspace"
-          disabled
-        >
-          SEARCH
-        </button>
+        <FtSearchOverlay aircraftId={aircraftId} aircraftIdentity={aircraftIdentity} />
         <span className={styles.flightPlaceholder} aria-label="Active flight status">
           ACTIVE FLIGHT · NONE
         </span>
