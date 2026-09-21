@@ -26,6 +26,7 @@ export function FtActiveFlight({
   activeFlight?: ActiveFlight | null;
 }>) {
   const { flight, setFlight } = useActiveFlightState(aircraftId, activeFlight);
+  const persistenceMode = activeFlight === undefined ? "local-only" : "server-mirror";
   const [dialogOpen, setDialogOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -66,7 +67,7 @@ export function FtActiveFlight({
     }
 
     try {
-      const created = await createClientActiveFlight(validated);
+      const created = await createClientActiveFlight(validated, persistenceMode);
       setFlight(created);
       setDialogOpen(false);
       formElement.reset();
