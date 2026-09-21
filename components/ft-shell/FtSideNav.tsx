@@ -3,17 +3,24 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { ftShellDestinations, isFtShellDestinationActive } from "./navigation";
+import {
+  getAircraftContentIa,
+  isAircraftContentDestinationActive,
+} from "@/lib/aircraft-content-ia";
 import styles from "./ft-shell.module.css";
 
 export function FtSideNav({ aircraftId }: Readonly<{ aircraftId: string }>) {
   const pathname = usePathname();
-  const destinations = ftShellDestinations(aircraftId);
+  const destinations = getAircraftContentIa(aircraftId);
 
   return (
     <nav className={styles.sideNav} aria-label="Aircraft workspace sections">
       {destinations.map((destination) => {
-        const active = isFtShellDestinationActive(pathname, destination);
+        const active = isAircraftContentDestinationActive(
+          pathname,
+          aircraftId,
+          destination.key,
+        );
         return (
           <Link
             key={destination.key}
