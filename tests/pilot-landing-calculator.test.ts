@@ -119,7 +119,13 @@ test("B10 bundled package registers the three landing datasets and landing defin
 test("B10 performance workspace accepts and renders an optional landing calculator without changing takeoff props", () => {
   const component = fs.readFileSync(new URL("../components/performance-calculator.tsx", import.meta.url), "utf8");
   const page = fs.readFileSync(new URL("../app/aircraft/[aircraftId]/performance/page.tsx", import.meta.url), "utf8");
+  const packageContract = fs.readFileSync(new URL("../lib/performance-package.ts", import.meta.url), "utf8");
   assert.match(component, /landingCalculator\?: PilotLandingCalculatorDefinition/);
+  assert.match(component, /hasLandingCalculatorDatasets/);
+  assert.match(component, /landingCalculator\.landingClimbDatasetId/);
+  assert.match(component, /landingCalculator\.approachClimbDatasetId/);
+  assert.match(component, /landingCalculator\.landingDistanceDatasetId/);
+  assert.match(packageContract, /landingCalculator\?: PilotLandingCalculatorDefinition/);
   assert.match(component, /<PilotLandingCalculator datasets=\{runtimeDatasets\} definition=\{landingCalculator\}/);
   assert.match(component, /takeoffCalculator\?: PilotTakeoffCalculatorDefinition/);
   assert.match(page, /landingCalculator=\{bundledPackage\?\.landingCalculator\}/);
