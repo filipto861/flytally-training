@@ -463,6 +463,12 @@ export function PilotTakeoffCalculator({
               value={takeoffMetricValue(summary.n1)}
             />
             <MetricCard
+              hint={takeoffMetricHint(summary.v1)}
+              label="V1"
+              status={summary.v1.status}
+              value={takeoffMetricValue(summary.v1)}
+            />
+            <MetricCard
               hint={takeoffMetricHint(summary.vr)}
               label="VR"
               status={summary.vr.status}
@@ -473,12 +479,6 @@ export function PilotTakeoffCalculator({
               label="V2"
               status={summary.v2.status}
               value={takeoffMetricValue(summary.v2)}
-            />
-            <MetricCard
-              hint={takeoffMetricHint(summary.v1)}
-              label="V1"
-              status={summary.v1.status}
-              value={takeoffMetricValue(summary.v1)}
             />
             <MetricCard
               hint={takeoffMetricHint(summary.takeoffDistance)}
