@@ -5,8 +5,11 @@ import { FtFastPathProvider } from "@/components/ft-fast-path/FtFastPathProvider
 import {
   configurationForAircraftVariant,
   filterChecklistForConfiguration,
+  filterPerformanceForConfiguration,
   resolveSelectedVariant,
 } from "@/lib/aircraft-applicability";
+import { getActiveFlight } from "@/lib/active-flight/store";
+import { getBundledPerformancePackage } from "@/lib/bundled-performance-content";
 import {
   normalizeLegacyFlightFlow,
   normalizeUniversalChecklist,
@@ -14,7 +17,12 @@ import {
 import { getPublishedAircraftModule } from "@/lib/content-repository";
 import { getTrainingContentRepository } from "@/lib/content-store";
 import { isNewShellEnabled } from "@/lib/feature-flags";
-import type { AircraftChecklistContent } from "@/lib/universal-aircraft-content";
+import { mergePerformanceDatasets } from "@/lib/performance-package";
+import { getTrainingSession } from "@/lib/training-session";
+import type {
+  AircraftChecklistContent,
+  AircraftPerformanceContent,
+} from "@/lib/universal-aircraft-content";
 
 import { FtFastPathRail } from "./FtFastPathRail";
 import { FtNavDrawer } from "./FtNavDrawer";
@@ -32,15 +40,23 @@ export async function FtShell({
   if (!isNewShellEnabled()) return <>{children}</>;
 
   const repository = getTrainingContentRepository();
-  const [aircraft, universalChecklist, legacyChecklist] = await Promise.all([
-    repository.getAircraft(aircraftId),
-    getPublishedAircraftModule<AircraftChecklistContent>(
-      repository,
-      aircraftId,
-      "checklists",
-    ),
-    repository.getNormalFlight(aircraftId),
-  ]);
+  const bundledPerformance = getBundledPerformancePackage(aircraftId);
+  const [aircraft, universalChecklist, legacyChecklist, publishedPerformance, session] =
+    await Promise.all([
+      repository.getAircraft(aircraftId),
+      getPublishedAircraftModule<AircraftChecklistContent>(
+        repository,
+        aircraftId,
+        "checklists",
+      ),
+      repository.getNormalFlight(aircraftId),
+      getPublishedAircraftModule<AircraftPerformanceContent>(
+        repository,
+        aircraftId,
+        "performance",
+      ),
+      getTrainingSession(),
+    ]);
 
   const aircraftIdentity = aircraft?.displayName ?? aircraftId;
   const trainingProfileLabel =
@@ -51,11 +67,14 @@ export async function FtShell({
   const selectedVariant = aircraft
     ? resolveSelectedVariant(undefined, aircraft.variants)
     : undefined;
+  const configuration = aircraft
+    ? configurationForAircraftVariant(aircraft, selectedVariant)
+    : undefined;
   const configuredChecklist =
-    aircraft && universalChecklist
+    aircraft && universalChecklist && configuration
       ? filterChecklistForConfiguration(
           universalChecklist,
-          configurationForAircraftVariant(aircraft, selectedVariant),
+          configuration,
         )
       : undefined;
   const checklist =
@@ -64,6 +83,22 @@ export async function FtShell({
       : !universalChecklist && legacyChecklist
         ? normalizeLegacyFlightFlow(legacyChecklist)
         : undefined;
+
+  const configuredPublishedPerformance =
+    publishedPerformance && configuration
+      ? filterPerformanceForConfiguration(publishedPerformance, configuration)
+      : undefined;
+  const configuredBundledPerformance =
+    bundledPerformance && configuration
+      ? filterPerformanceForConfiguration(bundledPerformance.content, configuration)
+      : undefined;
+  const performanceDatasets = mergePerformanceDatasets(
+    configuredPublishedPerformance?.datasets ?? [],
+    configuredBundledPerformance?.datasets ?? [],
+  );
+  const activeFlight = session
+    ? await getActiveFlight(session.subject, aircraftId)
+    : undefined;
 
   return (
     <FtFastPathProvider
@@ -85,7 +120,11 @@ export async function FtShell({
         </div>
 
         <FtFastPathRail aircraftId={aircraftId} />
-        <FtFastPathPanel />
+        <FtFastPathPanel
+          activeFlight={activeFlight}
+          performanceDatasets={performanceDatasets}
+          takeoffCalculator={bundledPerformance?.takeoffCalculator}
+        />
       </section>
     </FtFastPathProvider>
   );
