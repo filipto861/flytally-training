@@ -1,9 +1,20 @@
 "use client";
 
-import type { AircraftSearchResult } from "@/lib/search/aircraft-search";
+import type { AircraftSearchResult, AircraftSearchResultType } from "@/lib/search/aircraft-search";
 
 import { FtSearchIcon } from "./icons/FtSearchIcon";
 import styles from "./ft-search.module.css";
+
+const TYPE_LABELS: Readonly<Record<AircraftSearchResultType, string>> = {
+  procedure: "Procedure",
+  memoryItem: "Memory Item",
+  limitation: "Limitation",
+  system: "System",
+  component: "Component",
+  performance: "Performance",
+  scenario: "Scenario",
+  source: "Source",
+};
 
 export function FtSearchResults({
   results,
@@ -44,7 +55,7 @@ export function FtSearchResults({
             <span className={styles.resultText}>
               <span className={styles.resultTitle}>{result.title}</span>
               <span className={styles.resultMeta}>
-                {result.type} · {result.context}
+                {TYPE_LABELS[result.type]} · {result.context}
               </span>
             </span>
           </button>
