@@ -9,6 +9,12 @@ import { MetarStatus } from "./metar-status";
 
 import styles from "./performance-environment-section.module.css";
 
+export interface ExternalPerformanceEnvironment {
+  readonly icao: string | null;
+  readonly runwayContext?: SelectedRunwayContext;
+  readonly metarSnapshot: MetarSnapshot | null;
+}
+
 export interface PerformanceEnvironmentSectionProps {
   readonly icao: string | null;
   readonly onIcaoChange: (icao: string | null) => void;

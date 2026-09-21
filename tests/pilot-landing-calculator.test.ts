@@ -142,6 +142,7 @@ test("B10 performance workspace accepts and renders an optional landing calculat
   const packageContract = fs.readFileSync(new URL("../lib/performance-package.ts", import.meta.url), "utf8");
   assert.match(component, /landingCalculator\?: PilotLandingCalculatorDefinition/);
   assert.match(component, /hasLandingCalculatorDatasets/);
+  assert.match(component, /landingCalculator\.vrefDatasetId/);
   assert.match(component, /landingCalculator\.landingClimbDatasetId/);
   assert.match(component, /landingCalculator\.approachClimbDatasetId/);
   assert.match(component, /landingCalculator\.landingDistanceDatasetId/);

@@ -17,10 +17,13 @@ import {
   type DistanceCalculation,
   type NativeDistanceCalculation,
 } from "@/lib/performance-calculator";
+import type { SelectedRunwayContext } from "@/lib/aviation/airport-types";
 import type { PilotLandingCalculatorDefinition } from "@/lib/pilot-landing-calculator";
 import type { PilotTakeoffCalculatorDefinition } from "@/lib/pilot-takeoff-calculator";
 import type { PerformanceDataset, TrainingSourceReference } from "@/lib/universal-aircraft-content";
+import type { MetarSnapshot } from "@/lib/weather/metar-types";
 import { DeclarativePerformanceWorkspace } from "./declarative-performance-workspace";
+import { PerformanceEnvironmentSection } from "./performance-environment-section";
 import { PerformanceExplorer } from "./performance-explorer";
 import { PilotLandingCalculator } from "./pilot-landing-calculator";
 import { PilotTakeoffCalculator } from "./pilot-takeoff-calculator";
@@ -299,17 +302,23 @@ function LegacyPerformanceCalculator({
 }
 
 
-export function PerformanceCalculator({
-  datasets,
-  disclaimer,
-  takeoffCalculator,
-  landingCalculator,
-}: Readonly<{
+type PerformanceCalculatorProps = Readonly<{
   datasets: readonly PerformanceDataset[];
   disclaimer?: string;
   takeoffCalculator?: PilotTakeoffCalculatorDefinition;
   landingCalculator?: PilotLandingCalculatorDefinition;
-}>) {
+}>;
+
+function PerformanceWorkspace({
+  datasets,
+  disclaimer,
+  takeoffCalculator,
+  landingCalculator,
+}: PerformanceCalculatorProps) {
+  const [selectedIcao, setSelectedIcao] = useState<string | null>(null);
+  const [runwayContext, setRunwayContext] = useState<SelectedRunwayContext>();
+  const [metarSnapshot, setMetarSnapshot] = useState<MetarSnapshot | null>(null);
+
   const runtimeDatasets = materializeLegacyPerformanceContracts(datasets);
   const hasDeclaredOperational = runtimeDatasets.some((dataset) =>
     dataset.calculator && (dataset.calculator.operation === "takeoff" || dataset.calculator.operation === "landing")
@@ -317,37 +326,100 @@ export function PerformanceCalculator({
   const hasLandingCalculatorDatasets = Boolean(
     landingCalculator
     && [
+      landingCalculator.vrefDatasetId,
       landingCalculator.landingClimbDatasetId,
       landingCalculator.approachClimbDatasetId,
       landingCalculator.landingDistanceDatasetId,
     ].every((datasetId) => runtimeDatasets.some((dataset) => dataset.id === datasetId)),
   );
-  if (!hasDeclaredOperational && !takeoffCalculator && !hasLandingCalculatorDatasets) {
+  const hasPilotWorkspace = Boolean(takeoffCalculator || (landingCalculator && hasLandingCalculatorDatasets));
+
+  if (!hasDeclaredOperational && !hasPilotWorkspace) {
     return <LegacyPerformanceCalculator datasets={runtimeDatasets} disclaimer={disclaimer} />;
   }
 
   const declared = runtimeDatasets.filter((dataset) =>
     dataset.calculator && (dataset.calculator.operation === "takeoff" || dataset.calculator.operation === "landing")
   );
+
+  if (!hasPilotWorkspace) {
+    return (
+      <section className={styles.wrapper} aria-label="Performance calculator">
+        <DeclarativePerformanceWorkspace datasets={declared} />
+        <details className={styles.methodDetails}>
+          <summary>Calculation method & sources</summary>
+          <div className={styles.methodBody}>
+            <p><strong>Declarative calculator contract.</strong> Input labels, units, calculator bindings, exact lookup rules and constraints come from the active source-backed datasets. Interpolation is used only where a dataset explicitly permits bounded interpolation; extrapolation is never performed.</p>
+            {declared.map((dataset) => <div className={styles.sourceItem} key={dataset.id}><strong>{dataset.title}</strong>{sourceLine(dataset.sources) ? <span>{sourceLine(dataset.sources)}</span> : null}{dataset.notes?.length ? <ul>{dataset.notes.map((note) => <li key={note}>{note}</li>)}</ul> : null}</div>)}
+            <p className={styles.disclaimer}>{disclaimer ?? "Training aid only. Verify performance using the applicable approved aircraft/operator documentation."}</p>
+          </div>
+        </details>
+        <details className={styles.referenceDrawer}>
+          <summary>Reference data & other performance tables</summary>
+          <div className={styles.referenceBody}><PerformanceExplorer datasets={datasets} /></div>
+        </details>
+      </section>
+    );
+  }
+
+  const environment = {
+    icao: selectedIcao,
+    runwayContext,
+    metarSnapshot,
+  };
+
+  const handleIcaoChange = (icao: string | null) => {
+    setSelectedIcao(icao);
+    setMetarSnapshot(null);
+  };
+
   return (
-    <section className={styles.wrapper} aria-label="Performance calculator">
-      {takeoffCalculator ? <PilotTakeoffCalculator datasets={runtimeDatasets} definition={takeoffCalculator} /> : null}
-      {landingCalculator && hasLandingCalculatorDatasets
-        ? <PilotLandingCalculator datasets={runtimeDatasets} definition={landingCalculator} />
-        : null}
-      <DeclarativePerformanceWorkspace datasets={declared} />
+    <section className={`${styles.wrapper} ${styles.pilotWorkspace}`} aria-label="Performance calculator">
+      <PerformanceEnvironmentSection
+        icao={selectedIcao}
+        metarSnapshot={metarSnapshot}
+        onIcaoChange={handleIcaoChange}
+        onMetarApply={setMetarSnapshot}
+        onMetarSnapshot={setMetarSnapshot}
+        onRunwayContextChange={setRunwayContext}
+        runwayContext={runwayContext}
+      />
+
+      <div className={styles.taskStack}>
+        {takeoffCalculator ? (
+          <PilotTakeoffCalculator
+            datasets={runtimeDatasets}
+            definition={takeoffCalculator}
+            externalEnvironment={environment}
+          />
+        ) : null}
+
+        {landingCalculator && hasLandingCalculatorDatasets ? (
+          <PilotLandingCalculator
+            datasets={runtimeDatasets}
+            definition={landingCalculator}
+            externalEnvironment={environment}
+          />
+        ) : null}
+      </div>
+
       <details className={styles.methodDetails}>
         <summary>Calculation method & sources</summary>
         <div className={styles.methodBody}>
-          <p><strong>Declarative calculator contract.</strong> Input labels, units, calculator bindings, exact lookup rules and constraints come from the active source-backed datasets. Interpolation is used only where a dataset explicitly permits bounded interpolation; extrapolation is never performed.</p>
+          <p><strong>Source-backed workspace.</strong> Shared airport and weather context feeds both task calculators. Manual edits remain local overrides. Interpolation is used only where a dataset explicitly permits bounded interpolation; extrapolation is never performed.</p>
           {declared.map((dataset) => <div className={styles.sourceItem} key={dataset.id}><strong>{dataset.title}</strong>{sourceLine(dataset.sources) ? <span>{sourceLine(dataset.sources)}</span> : null}{dataset.notes?.length ? <ul>{dataset.notes.map((note) => <li key={note}>{note}</li>)}</ul> : null}</div>)}
           <p className={styles.disclaimer}>{disclaimer ?? "Training aid only. Verify performance using the applicable approved aircraft/operator documentation."}</p>
         </div>
       </details>
+
       <details className={styles.referenceDrawer}>
         <summary>Reference data & other performance tables</summary>
         <div className={styles.referenceBody}><PerformanceExplorer datasets={datasets} /></div>
       </details>
     </section>
   );
+}
+
+export function PerformanceCalculator(props: PerformanceCalculatorProps) {
+  return <PerformanceWorkspace {...props} />;
 }

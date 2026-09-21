@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { AirportRunwaySelector } from "./airport-runway-selector";
 import { EnvironmentContextPanel } from "./environment-context-panel";
 import { MetarStatus } from "./metar-status";
+import type { ExternalPerformanceEnvironment } from "./performance-environment-section";
 import {
   FieldRow,
   InputWithUnit,
@@ -51,18 +52,20 @@ function altimeterSetting(unit: AltimeterUnit, value: number): AltimeterSetting 
 export function PilotTakeoffCalculator({
   datasets,
   definition,
+  externalEnvironment,
 }: Readonly<{
   datasets: readonly PerformanceDataset[];
   definition: PilotTakeoffCalculatorDefinition;
+  externalEnvironment?: ExternalPerformanceEnvironment;
 }>) {
   const [pressureAltitude, setPressureAltitude] = useState<SourcedValue<string>>({
     value: "",
     source: "manual",
     dirty: false,
   });
-  const [runwayContext, setRunwayContext] = useState<SelectedRunwayContext>();
-  const [selectedIcao, setSelectedIcao] = useState<string | null>(null);
-  const [metarSnapshot, setMetarSnapshot] = useState<MetarSnapshot | null>(null);
+  const [internalRunwayContext, setInternalRunwayContext] = useState<SelectedRunwayContext>();
+  const [internalSelectedIcao, setInternalSelectedIcao] = useState<string | null>(null);
+  const [internalMetarSnapshot, setInternalMetarSnapshot] = useState<MetarSnapshot | null>(null);
   const [lastAppliedIcao, setLastAppliedIcao] = useState<string | null>(null);
   const [availableTakeoffLengthFt, setAvailableTakeoffLengthFt] = useState("");
   const [qnh, setQnh] = useState<SourcedValue<string>>({ value: "1013.25", source: "manual", dirty: false });
@@ -71,6 +74,11 @@ export function PilotTakeoffCalculator({
   const [takeoffWeight, setTakeoffWeight] = useState("");
   const [flaps, setFlaps] = useState(definition.flapOptions[0]?.value ?? "");
   const [antiIce, setAntiIce] = useState(false);
+
+  const usesExternalEnvironment = externalEnvironment !== undefined;
+  const runwayContext = usesExternalEnvironment ? externalEnvironment.runwayContext : internalRunwayContext;
+  const selectedIcao = usesExternalEnvironment ? externalEnvironment.icao : internalSelectedIcao;
+  const metarSnapshot = usesExternalEnvironment ? externalEnvironment.metarSnapshot : internalMetarSnapshot;
 
   const calculatedPressureAltitude = useMemo(() => {
     if (!runwayContext) return undefined;
@@ -91,6 +99,16 @@ export function PilotTakeoffCalculator({
     setPressureAltitude((current) => airportAutoFill(current, String(calculatedPressureAltitude)));
   }, [calculatedPressureAltitude]);
 
+  useEffect(() => {
+    if (!usesExternalEnvironment) return;
+    setAvailableTakeoffLengthFt(runwayContext ? String(runwayContext.surfaceLengthFt) : "");
+    if (!runwayContext) {
+      setPressureAltitude((current) =>
+        current.dirty ? current : { value: "", source: "airport-db", dirty: false },
+      );
+    }
+  }, [runwayContext, usesExternalEnvironment]);
+
   const summary = useMemo(
     () => calculatePilotTakeoffSummary(datasets, definition, {
       pressureAltitude: numberFromInput(pressureAltitude.value),
@@ -103,7 +121,7 @@ export function PilotTakeoffCalculator({
   );
 
   const handleRunwayContext = (context: SelectedRunwayContext | undefined) => {
-    setRunwayContext(context);
+    setInternalRunwayContext(context);
     setAvailableTakeoffLengthFt(context ? String(context.surfaceLengthFt) : "");
     if (!context) {
       setPressureAltitude((current) =>
@@ -123,13 +141,13 @@ export function PilotTakeoffCalculator({
     setQnhUnit(nextUnit);
   };
 
-  const formatMetarQnh = (snapshot: MetarSnapshot): string | undefined => {
+  const formatMetarQnh = useCallback((snapshot: MetarSnapshot): string | undefined => {
     if (qnhUnit === "hPa") return snapshot.qnhHpa === undefined ? undefined : String(Math.round(snapshot.qnhHpa * 100) / 100);
     return snapshot.altimeterInHg === undefined ? undefined : snapshot.altimeterInHg.toFixed(2);
-  };
+  }, [qnhUnit]);
 
-  const handleMetarApply = (snapshot: MetarSnapshot) => {
-    setMetarSnapshot(snapshot);
+  const handleMetarApply = useCallback((snapshot: MetarSnapshot) => {
+    if (!usesExternalEnvironment) setInternalMetarSnapshot(snapshot);
     if (snapshot.temperatureC !== undefined) {
       setOat((current) => metarAutoFill(current, String(snapshot.temperatureC)));
     }
@@ -137,14 +155,18 @@ export function PilotTakeoffCalculator({
     if (metarQnh !== undefined) {
       setQnh((current) => metarAutoFill(current, metarQnh));
     }
-  };
+  }, [formatMetarQnh, usesExternalEnvironment]);
 
   useEffect(() => {
-    if (!metarSnapshot || !selectedIcao) return;
-    if (lastAppliedIcao === selectedIcao) return;
+    if (!metarSnapshot) return;
+    if (usesExternalEnvironment) {
+      handleMetarApply(metarSnapshot);
+      return;
+    }
+    if (!selectedIcao || lastAppliedIcao === selectedIcao) return;
     handleMetarApply(metarSnapshot);
     setLastAppliedIcao(selectedIcao);
-  }, [lastAppliedIcao, metarSnapshot, qnhUnit, selectedIcao]);
+  }, [handleMetarApply, lastAppliedIcao, metarSnapshot, selectedIcao, usesExternalEnvironment]);
 
   const forceMetarOat = () => {
     if (metarSnapshot?.temperatureC === undefined) return;
@@ -159,8 +181,8 @@ export function PilotTakeoffCalculator({
   };
 
   const handleAirportSelection = (icao: string | null) => {
-    setSelectedIcao(icao);
-    setMetarSnapshot(null);
+    setInternalSelectedIcao(icao);
+    setInternalMetarSnapshot(null);
     setLastAppliedIcao(null);
   };
 
@@ -220,21 +242,25 @@ export function PilotTakeoffCalculator({
         <section className={styles.inputs} aria-label="Takeoff inputs">
           <h3 className={styles.inputsTitle}>Inputs</h3>
 
-          <MetarStatus
-            icao={selectedIcao}
-            onApply={handleMetarApply}
-            onSnapshot={setMetarSnapshot}
-          />
+          {!usesExternalEnvironment ? (
+            <>
+              <MetarStatus
+                icao={selectedIcao}
+                onApply={handleMetarApply}
+                onSnapshot={setInternalMetarSnapshot}
+              />
 
-          <EnvironmentContextPanel
-            runwayContext={runwayContext}
-            metarSnapshot={metarSnapshot}
-          />
+              <EnvironmentContextPanel
+                runwayContext={runwayContext}
+                metarSnapshot={metarSnapshot}
+              />
 
-          <AirportRunwaySelector
-            onAirportChange={handleAirportSelection}
-            onChange={handleRunwayContext}
-          />
+              <AirportRunwaySelector
+                onAirportChange={handleAirportSelection}
+                onChange={handleRunwayContext}
+              />
+            </>
+          ) : null}
 
           {runwayContext ? (
             <div className={styles.runwayContext}>

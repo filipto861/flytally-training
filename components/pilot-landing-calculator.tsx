@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   FieldRow,
@@ -8,7 +8,15 @@ import {
   MetricCard,
   MetricGrid,
 } from "./performance-ui";
+import type { ExternalPerformanceEnvironment } from "./performance-environment-section";
 
+import {
+  manualSourcedValue,
+  metarAutoFill,
+} from "@/lib/aviation/runway-context";
+import { calculatePressureAltitudeFt } from "@/lib/aviation/pressure-altitude";
+import { calculateWindComponents } from "@/lib/aviation/wind-component";
+import type { SourcedValue } from "@/lib/aviation/airport-types";
 import {
   calculatePilotLandingSummary,
   type PilotLandingCalculatorDefinition,
@@ -71,21 +79,80 @@ function InfoTip({
 export function PilotLandingCalculator({
   datasets,
   definition,
+  externalEnvironment,
 }: Readonly<{
   datasets: readonly PerformanceDataset[];
   definition: PilotLandingCalculatorDefinition;
+  externalEnvironment?: ExternalPerformanceEnvironment;
 }>) {
   const [grossWeight, setGrossWeight] = useState("");
-  const [pressureAltitude, setPressureAltitude] = useState("");
-  const [oat, setOat] = useState("");
+  const [pressureAltitude, setPressureAltitude] = useState<SourcedValue<string>>({
+    value: "",
+    source: "manual",
+    dirty: false,
+  });
+  const [oat, setOat] = useState<SourcedValue<string>>({
+    value: "",
+    source: "manual",
+    dirty: false,
+  });
+
+  const runwayContext = externalEnvironment?.runwayContext;
+  const metarSnapshot = externalEnvironment?.metarSnapshot ?? null;
+
+  useEffect(() => {
+    if (!externalEnvironment) return;
+
+    if (metarSnapshot?.temperatureC !== undefined) {
+      setOat((current) => metarAutoFill(current, String(metarSnapshot.temperatureC)));
+    }
+
+    if (runwayContext && metarSnapshot?.qnhHpa !== undefined) {
+      try {
+        const calculated = Math.round(calculatePressureAltitudeFt(
+          runwayContext.airportElevationFt,
+          { unit: "hPa", value: metarSnapshot.qnhHpa },
+        ));
+        setPressureAltitude((current) => metarAutoFill(current, String(calculated)));
+      } catch {
+        // Manual pressure-altitude input remains available.
+      }
+    } else if (!runwayContext) {
+      setPressureAltitude((current) =>
+        current.dirty ? current : { value: "", source: "manual", dirty: false },
+      );
+    }
+  }, [externalEnvironment, metarSnapshot, runwayContext]);
+
+  const windComponentKt = useMemo(() => {
+    if (
+      !runwayContext
+      || runwayContext.headingTrueDeg === undefined
+      || !metarSnapshot
+    ) return undefined;
+
+    const windDirectionTrueDeg = metarSnapshot.windCalm
+      ? runwayContext.headingTrueDeg
+      : metarSnapshot.windDirectionTrueDeg;
+    const windSpeedKt = metarSnapshot.windCalm ? 0 : metarSnapshot.windSpeedKt;
+    if (windDirectionTrueDeg === undefined || windSpeedKt === undefined) return undefined;
+
+    return calculateWindComponents({
+      windDirectionTrueDeg,
+      windSpeedKt,
+      windGustKt: metarSnapshot.windGustKt,
+      runwayHeadingTrueDeg: runwayContext.headingTrueDeg,
+    })?.headwindKt;
+  }, [metarSnapshot, runwayContext]);
 
   const summary = useMemo(
     () => calculatePilotLandingSummary(datasets, definition, {
       grossWeight: numberFromInput(grossWeight),
-      pressureAltitude: numberFromInput(pressureAltitude),
-      oat: numberFromInput(oat),
+      pressureAltitude: numberFromInput(pressureAltitude.value),
+      oat: numberFromInput(oat.value),
+      windComponentKt,
     }),
-    [datasets, definition, grossWeight, pressureAltitude, oat],
+    [datasets, definition, grossWeight, pressureAltitude.value, oat.value, windComponentKt],
   );
 
   const sourceResults = [
@@ -98,7 +165,7 @@ export function PilotLandingCalculator({
   const hasUnavailable = sourceResults.some((result) => result.status === "unavailable");
 
   const grossWeightMissing = "Enter Gross Weight";
-  const distanceMissing = missingDistanceText(pressureAltitude, oat, grossWeight);
+  const distanceMissing = missingDistanceText(pressureAltitude.value, oat.value, grossWeight);
 
   return (
     <section className={styles.calculator} aria-label="Landing Calculator">
@@ -124,21 +191,29 @@ export function PilotLandingCalculator({
               />
             </FieldRow>
 
-            <FieldRow label="Pressure Altitude" source="manual">
+            <FieldRow
+              helper={pressureAltitude.dirty && externalEnvironment ? "Manual override" : undefined}
+              label="Pressure Altitude"
+              source={pressureAltitude.source}
+            >
               <InputWithUnit
                 ariaLabel="Landing pressure altitude"
-                onChange={setPressureAltitude}
+                onChange={(value) => setPressureAltitude(manualSourcedValue(value))}
                 unit="ft"
-                value={pressureAltitude}
+                value={pressureAltitude.value}
               />
             </FieldRow>
 
-            <FieldRow label="OAT" source="manual">
+            <FieldRow
+              helper={oat.dirty && metarSnapshot?.temperatureC !== undefined ? "Manual override" : undefined}
+              label="OAT"
+              source={oat.source}
+            >
               <InputWithUnit
                 ariaLabel="Landing outside air temperature"
-                onChange={setOat}
+                onChange={(value) => setOat(manualSourcedValue(value))}
                 unit="°C"
-                value={oat}
+                value={oat.value}
               />
             </FieldRow>
           </div>
