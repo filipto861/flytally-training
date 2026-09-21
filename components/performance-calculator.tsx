@@ -314,7 +314,15 @@ export function PerformanceCalculator({
   const hasDeclaredOperational = runtimeDatasets.some((dataset) =>
     dataset.calculator && (dataset.calculator.operation === "takeoff" || dataset.calculator.operation === "landing")
   );
-  if (!hasDeclaredOperational && !takeoffCalculator && !landingCalculator) {
+  const hasLandingCalculatorDatasets = Boolean(
+    landingCalculator
+    && [
+      landingCalculator.landingClimbDatasetId,
+      landingCalculator.approachClimbDatasetId,
+      landingCalculator.landingDistanceDatasetId,
+    ].every((datasetId) => runtimeDatasets.some((dataset) => dataset.id === datasetId)),
+  );
+  if (!hasDeclaredOperational && !takeoffCalculator && !hasLandingCalculatorDatasets) {
     return <LegacyPerformanceCalculator datasets={runtimeDatasets} disclaimer={disclaimer} />;
   }
 
@@ -324,7 +332,9 @@ export function PerformanceCalculator({
   return (
     <section className={styles.wrapper} aria-label="Performance calculator">
       {takeoffCalculator ? <PilotTakeoffCalculator datasets={runtimeDatasets} definition={takeoffCalculator} /> : null}
-      {landingCalculator ? <PilotLandingCalculator datasets={runtimeDatasets} definition={landingCalculator} /> : null}
+      {landingCalculator && hasLandingCalculatorDatasets
+        ? <PilotLandingCalculator datasets={runtimeDatasets} definition={landingCalculator} />
+        : null}
       <DeclarativePerformanceWorkspace datasets={declared} />
       <details className={styles.methodDetails}>
         <summary>Calculation method & sources</summary>
