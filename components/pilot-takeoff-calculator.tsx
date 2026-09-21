@@ -276,14 +276,6 @@ export function PilotTakeoffCalculator({
 
           {runwayContext ? (
             <div className={styles.runwayContext}>
-              <div className={styles.runwaySurface}>
-                <div className={styles.contextLabel}>
-                  <span>Runway surface length</span>
-                </div>
-                <div className={styles.readOnlyControl}>
-                  <strong>{formatThousandsWithUnit(runwayContext.surfaceLengthFt, "ft")}</strong>
-                </div>
-              </div>
               <div className={styles.availableLength}>
                 <div className={styles.editableLabel}>
                   <span>Available takeoff length</span>
@@ -298,7 +290,9 @@ export function PilotTakeoffCalculator({
                 />
                 <div className={styles.availableLengthMeta}>
                   <div className={styles.helperWithInfo}>
-                    <small>Defaults to surface length</small>
+                    <small>
+                      Source: runway surface length {formatThousandsWithUnit(runwayContext.surfaceLengthFt, "ft")}
+                    </small>
                     <button
                       aria-describedby="available-takeoff-length-tooltip"
                       aria-label="Available takeoff length information"
