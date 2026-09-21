@@ -176,7 +176,7 @@ test("W2 checklist query returns relevant aircraft-scoped results", async ({ pag
 
   const results = dialog.getByRole("listbox", { name: "Search results" });
   await expect(results).toBeVisible();
-  await expect(results.getByRole("option").filter({ hasText: "Browser CI Checklist" })).toBeVisible();
+  await expect(results.getByRole("option", { name: /^Browser CI Checklist\b/ })).toBeVisible();
 });
 
 test("W2 selecting a result navigates to its canonical route", async ({ page }) => {
@@ -184,7 +184,7 @@ test("W2 selecting a result navigates to its canonical route", async ({ page }) 
   const input = dialog.getByRole("searchbox", { name: "Search Browser CI Aircraft..." });
   await input.fill("Browser CI Checklist");
 
-  const result = dialog.getByRole("option").filter({ hasText: "Browser CI Checklist" });
+  const result = dialog.getByRole("option", { name: /^Browser CI Checklist\b/ });
   await expect(result).toBeVisible();
   await result.click();
   await expect(page).toHaveURL(`${shellOnBase}${aircraftPath}/checklists`);
