@@ -94,7 +94,7 @@ function result(
     title,
     type,
     context,
-    href: `/aircraft/${aircraftId}/${route}`,
+    href: route ? `/aircraft/${aircraftId}/${route}` : `/aircraft/${aircraftId}`,
     source,
     searchableContext: [context, extraSearchText].filter(Boolean).join(" · "),
   };
@@ -341,7 +341,7 @@ function sourceCandidates(aircraftId: string, aircraft: TrainingAircraft): Searc
       manual.id,
       manual.title,
       [manual.publisher, manual.revision, manual.issueDate].filter(Boolean).join(" · "),
-      "reference",
+      "",
       manual.id,
       [manual.sourceKind, manual.authorityRole].join(" "),
     ),
