@@ -216,12 +216,21 @@ function object(value: unknown): Record<string, unknown> | null {
     : null;
 }
 
+function finiteOptionalNumber(value: unknown): boolean {
+  return value === undefined || (typeof value === "number" && Number.isFinite(value));
+}
+
 function metric(value: unknown): value is PilotTakeoffMetricResult {
   const row = object(value);
-  return Boolean(
-    row
-    && ["ready", "missing", "out-of-range", "unavailable", "pending"].includes(String(row.status)),
-  );
+  if (
+    !row
+    || !["ready", "missing", "out-of-range", "unavailable", "pending"].includes(String(row.status))
+  ) return false;
+  if (!finiteOptionalNumber(row.value)) return false;
+  if (row.unit !== undefined && typeof row.unit !== "string") return false;
+  if (!finiteOptionalNumber(row.precision)) return false;
+  if (row.reason !== undefined && typeof row.reason !== "string") return false;
+  return row.status !== "ready" || typeof row.value === "number";
 }
 
 function context(value: unknown): value is FlightPerformanceContext {
@@ -229,6 +238,7 @@ function context(value: unknown): value is FlightPerformanceContext {
   const weight = object(row?.weight);
   const runway = object(row?.runway);
   const configuration = object(row?.configuration);
+  const weather = row?.weather === null ? null : object(row?.weather);
   return Boolean(
     row
     && typeof row.activeFlightId === "string"
@@ -236,31 +246,52 @@ function context(value: unknown): value is FlightPerformanceContext {
     && typeof row.dependencySnapshotId === "string"
     && weight
     && typeof weight.value === "number"
+    && Number.isFinite(weight.value)
     && (weight.unit === "kg" || weight.unit === "lb")
     && runway
     && typeof runway.identifier === "string"
     && configuration
     && typeof configuration.flaps === "string"
-    && typeof configuration.antiIce === "boolean",
+    && typeof configuration.antiIce === "boolean"
+    && (
+      row.weather === null
+      || (
+        weather
+        && typeof weather.qnh === "number"
+        && Number.isFinite(weather.qnh)
+        && typeof weather.oat === "number"
+        && Number.isFinite(weather.oat)
+      )
+    ),
+  );
+}
+
+function calculationInputs(value: unknown): value is PerformanceCalculationInputs {
+  const row = object(value);
+  return Boolean(
+    row
+    && finiteOptionalNumber(row.pressureAltitudeFt)
+    && finiteOptionalNumber(row.oatC),
   );
 }
 
 function isPerformanceResult(value: unknown): value is PerformanceResult {
   const row = object(value);
-  return Boolean(
-    row
-    && context(row.context)
-    && typeof row.contextHash === "string"
-    && metric(row.n1)
-    && metric(row.v1)
-    && metric(row.vr)
-    && metric(row.v2)
-    && metric(row.takeoffDistance)
-    && typeof row.computedAt === "string"
-    && !Number.isNaN(Date.parse(row.computedAt as string))
-    && (row.source === "takeoff-calculator" || row.source === "multi-axis-metric-grid")
-    && object(row.calculationInputs),
-  );
+  if (
+    !row
+    || !context(row.context)
+    || typeof row.contextHash !== "string"
+    || !metric(row.n1)
+    || !metric(row.v1)
+    || !metric(row.vr)
+    || !metric(row.v2)
+    || !metric(row.takeoffDistance)
+    || typeof row.computedAt !== "string"
+    || Number.isNaN(Date.parse(row.computedAt as string))
+    || (row.source !== "takeoff-calculator" && row.source !== "multi-axis-metric-grid")
+    || !calculationInputs(row.calculationInputs)
+  ) return false;
+  return row.contextHash === computeContextHash(row.context);
 }
 
 export function readPerformanceResult(
