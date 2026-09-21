@@ -9,12 +9,15 @@ import {
   archiveClientActiveFlight,
   createClientActiveFlight,
   deactivateClientActiveFlight,
+  patchClientActiveFlight,
 } from "@/lib/active-flight/client";
 import type { ActiveFlight, ActiveFlightInput } from "@/lib/active-flight/types";
 import { parseActiveFlightInput } from "@/lib/active-flight/validation";
 import { useActiveFlightState } from "./use-active-flight";
 
 import styles from "./ft-flight.module.css";
+
+type DialogMode = "create" | "edit" | null;
 
 export function FtActiveFlight({
   aircraftId,
@@ -27,7 +30,7 @@ export function FtActiveFlight({
 }>) {
   const { flight, setFlight } = useActiveFlightState(aircraftId, activeFlight);
   const persistenceMode = activeFlight === undefined ? "local-only" : "server-mirror";
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogMode, setDialogMode] = useState<DialogMode>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -67,9 +70,20 @@ export function FtActiveFlight({
     }
 
     try {
-      const created = await createClientActiveFlight(validated, persistenceMode);
-      setFlight(created);
-      setDialogOpen(false);
+      if (dialogMode === "edit" && current) {
+        const updated = await patchClientActiveFlight(current, {
+          departure: validated.departure,
+          destination: validated.destination,
+          runway: validated.runway,
+          weight: validated.weight,
+          configuration: validated.configuration,
+        });
+        setFlight(updated);
+      } else {
+        const created = await createClientActiveFlight(validated, persistenceMode);
+        setFlight(created);
+      }
+      setDialogMode(null);
       formElement.reset();
     } catch (caught) {
       setError(
@@ -108,6 +122,9 @@ export function FtActiveFlight({
     }
   }
 
+  const editing = dialogMode === "edit" && current;
+  const dialogTitle = editing ? "Edit flight" : "Start new flight";
+
   return (
     <section
       className={styles.section}
@@ -133,6 +150,17 @@ export function FtActiveFlight({
             >
               Open operational view
             </Link>
+            <button
+              className={styles.secondaryAction}
+              type="button"
+              onClick={() => {
+                setError(null);
+                setDialogMode("edit");
+              }}
+              disabled={busy}
+            >
+              Edit flight
+            </button>
             <button className={styles.secondaryAction} type="button" onClick={deactivate} disabled={busy}>
               Deactivate flight
             </button>
@@ -157,7 +185,7 @@ export function FtActiveFlight({
             type="button"
             onClick={() => {
               setError(null);
-              setDialogOpen(true);
+              setDialogMode("create");
             }}
             disabled={busy}
           >
@@ -174,19 +202,19 @@ export function FtActiveFlight({
 
       {error ? <p className={styles.formError} role="alert">{error}</p> : null}
 
-      {dialogOpen ? (
+      {dialogMode ? (
         <div className={styles.dialogBackdrop}>
-          <div className={styles.flightDialog} role="dialog" aria-modal="true" aria-labelledby="ft-new-flight-title">
+          <div className={styles.flightDialog} role="dialog" aria-modal="true" aria-labelledby="ft-flight-dialog-title">
             <div className={styles.dialogHeader}>
               <div>
                 <p className={styles.eyebrow}>ACTIVE FLIGHT</p>
-                <h3 id="ft-new-flight-title">Start new flight</h3>
+                <h3 id="ft-flight-dialog-title">{dialogTitle}</h3>
               </div>
               <button
                 className={styles.iconAction}
                 type="button"
                 aria-label="Close flight setup"
-                onClick={() => setDialogOpen(false)}
+                onClick={() => setDialogMode(null)}
                 disabled={busy}
               >
                 ×
@@ -196,21 +224,52 @@ export function FtActiveFlight({
             <form className={styles.flightForm} onSubmit={submitFlight}>
               <label>
                 Departure ICAO
-                <input name="departure" required maxLength={4} pattern="[A-Za-z0-9]{4}" autoCapitalize="characters" />
+                <input
+                  name="departure"
+                  required
+                  maxLength={4}
+                  pattern="[A-Za-z0-9]{4}"
+                  autoCapitalize="characters"
+                  defaultValue={editing ? current.departure.icao : ""}
+                />
               </label>
               <label>
                 Destination ICAO
-                <input name="destination" required maxLength={4} pattern="[A-Za-z0-9]{4}" autoCapitalize="characters" />
+                <input
+                  name="destination"
+                  required
+                  maxLength={4}
+                  pattern="[A-Za-z0-9]{4}"
+                  autoCapitalize="characters"
+                  defaultValue={editing ? current.destination.icao : ""}
+                />
               </label>
               <label>
                 Runway
-                <input name="runway" required maxLength={5} />
+                <input
+                  name="runway"
+                  required
+                  maxLength={5}
+                  defaultValue={editing ? current.runway.identifier : ""}
+                />
               </label>
               <div className={styles.fieldGroup}>
                 <label htmlFor="ft-active-flight-weight">Weight</label>
                 <span className={styles.inlineField}>
-                  <input id="ft-active-flight-weight" name="weight" required type="number" min="1" step="0.1" />
-                  <select name="weightUnit" aria-label="Weight unit" defaultValue="kg">
+                  <input
+                    id="ft-active-flight-weight"
+                    name="weight"
+                    required
+                    type="number"
+                    min="1"
+                    step="0.1"
+                    defaultValue={editing ? current.weight.value : undefined}
+                  />
+                  <select
+                    name="weightUnit"
+                    aria-label="Weight unit"
+                    defaultValue={editing ? current.weight.unit : "kg"}
+                  >
                     <option value="kg">kg</option>
                     <option value="lb">lb</option>
                   </select>
@@ -218,23 +277,32 @@ export function FtActiveFlight({
               </div>
               <label>
                 Flaps
-                <input name="flaps" required maxLength={32} />
+                <input
+                  name="flaps"
+                  required
+                  maxLength={32}
+                  defaultValue={editing ? current.configuration.flaps : ""}
+                />
               </label>
               <label className={styles.checkboxField}>
-                <input name="antiIce" type="checkbox" />
+                <input
+                  name="antiIce"
+                  type="checkbox"
+                  defaultChecked={editing ? current.configuration.antiIce === true : false}
+                />
                 Anti-ice
               </label>
               <div className={styles.dialogActions}>
                 <button
                   className={styles.secondaryAction}
                   type="button"
-                  onClick={() => setDialogOpen(false)}
+                  onClick={() => setDialogMode(null)}
                   disabled={busy}
                 >
                   Cancel
                 </button>
                 <button className={styles.primaryAction} type="submit" disabled={busy}>
-                  {busy ? "Saving…" : "Activate flight"}
+                  {busy ? "Saving…" : editing ? "Save flight" : "Activate flight"}
                 </button>
               </div>
             </form>
