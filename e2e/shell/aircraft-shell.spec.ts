@@ -108,14 +108,17 @@ test("W1 top-level IA links navigate to the canonical section routes", async ({ 
   }
 });
 
-test("W1 active top-level state follows legacy sub-routes", async ({ page }, testInfo) => {
+test("W1 active top-level state follows fixture-supported routes", async ({ page }, testInfo) => {
   test.setTimeout(60_000);
 
+  // Browser CI publishes only checklist + performance content. Use routes that
+  // actually render for that governed fixture; exhaustive legacy sub-route
+  // classification is covered by redesign-w1-content-ia.test.ts.
   const cases = [
-    [`${aircraftPath}/systems`, "AIRCRAFT"],
-    [`${aircraftPath}/abnormal`, "PROCEDURES"],
-    [`${aircraftPath}/weight-balance`, "PERFORMANCE"],
-    [`${aircraftPath}/quick-start`, "TRAINING"],
+    [aircraftPath, "AIRCRAFT"],
+    [`${aircraftPath}/checklists`, "PROCEDURES"],
+    [`${aircraftPath}/performance`, "PERFORMANCE"],
+    [`${aircraftPath}/training`, "TRAINING"],
     [`${aircraftPath}/reference`, "FLIGHT"],
   ] as const;
 
