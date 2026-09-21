@@ -259,7 +259,8 @@
   gap: var(--ft-space-3);
 }
 
-.flightForm label {
+.flightForm label,
+.fieldGroup {
   display: grid;
   gap: var(--ft-space-1);
   color: var(--ft-text-secondary);
