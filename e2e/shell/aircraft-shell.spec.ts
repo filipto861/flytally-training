@@ -363,3 +363,104 @@ test("P0 flag off preserves the legacy aircraft command surface", async ({ page 
   await expect(legacy.getByRole("heading", { name: "Reference", exact: true })).toBeVisible();
 });
 
+async function openP1Flight(page: Page): Promise<Locator> {
+  await page.goto(`${shellOnBase}${aircraftPath}/flight`);
+  const flight = page.getByRole("main", { name: "Flight workspace" });
+  await expect(flight).toBeVisible();
+  return flight;
+}
+
+test("P1 Flight page exposes the Flight Brief structure", async ({ page }) => {
+  const flight = await openP1Flight(page);
+  await expect(flight.getByRole("heading", { name: "Flight", exact: true })).toBeVisible();
+  await expect(
+    flight.getByRole("region", { name: "Flight Brief" }),
+  ).toBeVisible();
+});
+
+test("P1 Flight page shows the Active Flight empty state", async ({ page }) => {
+  const flight = await openP1Flight(page);
+  const active = flight.getByRole("region", { name: "Active Flight" });
+
+  await expect(active).toHaveAttribute("data-empty", "true");
+  await expect(active).toContainText("No active flight.");
+  await expect(
+    active.getByRole("link", { name: "Start new flight", exact: true }),
+  ).toHaveAttribute("href", new RegExp(`${aircraftPath}/fly`));
+});
+
+test("P1 Flight Brief Performance stays visibly empty without active-flight data", async ({ page }) => {
+  const flight = await openP1Flight(page);
+  const performance = flight.getByRole("region", { name: "Performance" });
+
+  await expect(performance).toHaveAttribute("data-empty", "true");
+  for (const label of ["N1", "V1", "VR", "V2"]) {
+    await expect(performance.getByText(label, { exact: true })).toBeVisible();
+  }
+  await expect(performance.getByText("No active flight", { exact: true })).toHaveCount(4);
+});
+
+test("P1 Flight Brief Flight Considerations stays visibly empty", async ({ page }) => {
+  const flight = await openP1Flight(page);
+  const section = flight.getByRole("region", { name: "Flight Considerations" });
+
+  await expect(section).toHaveAttribute("data-empty", "true");
+  await expect(section).toContainText("No active flight.");
+});
+
+test("P1 Flight Brief Training Recommendations stays visibly empty", async ({ page }) => {
+  const flight = await openP1Flight(page);
+  const section = flight.getByRole("region", { name: "Training Recommendations" });
+
+  await expect(section).toHaveAttribute("data-empty", "true");
+  await expect(section).toContainText("No active flight.");
+});
+
+test("P1 Flight Brief Relevant Procedures stays visibly empty", async ({ page }) => {
+  const flight = await openP1Flight(page);
+  const section = flight.getByRole("region", { name: "Relevant Procedures" });
+
+  await expect(section).toHaveAttribute("data-empty", "true");
+  await expect(section).toContainText("No active flight.");
+});
+
+test("P1 Flight page exposes an explicit Recent Flights empty state", async ({ page }) => {
+  const flight = await openP1Flight(page);
+  const recent = flight.getByRole("region", { name: "Recent Flights" });
+
+  await expect(recent).toHaveAttribute("data-empty", "true");
+  await expect(recent).toContainText("No recent flights.");
+});
+
+test("P1 P0 Flight entry opens the new briefing workspace", async ({ page }) => {
+  await page.goto(`${shellOnBase}${aircraftPath}`);
+  const launch = page.getByRole("main", { name: "Aircraft launch surface" });
+  const flight = launch.getByRole("region", { name: "Flight" });
+
+  await flight.getByRole("link", { name: "Start new flight", exact: true }).click();
+  await expect(page).toHaveURL(
+    new RegExp(`${aircraftPath}/flight(?:\\?variant=Standard)?$`),
+  );
+  await expect(page.getByRole("main", { name: "Flight workspace" })).toBeVisible();
+});
+
+test("P1 flag off redirects /flight to the legacy operational /fly route", async ({ page }) => {
+  await page.goto(`${aircraftPath}/flight`);
+
+  await expect(page).toHaveURL(new RegExp(`${aircraftPath}/fly$`));
+  await expect(page.locator('[data-ft-shell="true"]')).toHaveCount(0);
+  await expect(
+    page.getByRole("region", { name: "Browser CI Aircraft flight deck" }),
+  ).toBeVisible();
+});
+
+test("P1 preserves the existing /fly operational route", async ({ page }) => {
+  await page.goto(`${shellOnBase}${aircraftPath}/fly`);
+
+  await expect(page).toHaveURL(`${shellOnBase}${aircraftPath}/fly`);
+  await expect(
+    page.getByRole("region", { name: "Browser CI Aircraft flight deck" }),
+  ).toBeVisible();
+  await expect(page.getByRole("main", { name: "Flight workspace" })).toHaveCount(0);
+});
+

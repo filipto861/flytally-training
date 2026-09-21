@@ -74,6 +74,7 @@ export const CONTENT_IA: readonly AircraftContentIaDestination[] = [
     label: "FLIGHT",
     href: (aircraftId) => aircraftHref(aircraftId, "fly"),
     subs: [
+      { key: "flight", label: "Flight Brief", href: (aircraftId) => aircraftHref(aircraftId, "flight") },
       { key: "quick-reference", label: "Quick Reference", href: (aircraftId) => aircraftHref(aircraftId, "quick-reference") },
       { key: "reference", label: "Reference", href: (aircraftId) => aircraftHref(aircraftId, "reference") },
     ],

@@ -92,7 +92,7 @@ test("P0 Flight is an explicit no-active-flight placeholder rather than fabricat
 
   assert.match(flight, /No active flight\./);
   assert.match(flight, /Start new flight/);
-  assert.match(flight, /\/fly/);
+  assert.match(flight, /\/flight/);
   assert.doesNotMatch(page, /activeFlight=\{/);
 });
 

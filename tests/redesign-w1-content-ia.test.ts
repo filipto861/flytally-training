@@ -47,6 +47,7 @@ test("W1 IA classifies all existing named aircraft routes into the five sections
     ["cold-dark", "training"],
     ["progress-overview", "training"],
     ["fly", "flight"],
+    ["flight", "flight"],
     ["quick-reference", "flight"],
     ["reference", "flight"],
   ]);
