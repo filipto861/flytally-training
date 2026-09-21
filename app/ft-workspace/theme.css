@@ -35,8 +35,6 @@
   --ft-state-active: #1F2937;
   --ft-state-previous: #5A5D60;
   --ft-state-archived: #7A7D80;
-  --ft-state-invalid: #B3261E;
-  --ft-state-invalid-bg: #FCEEEE;
 
   --ft-training-accent: #3A4A5C;
   --ft-training-accent-bg: #EEF2F6;
@@ -70,8 +68,6 @@
   --ft-state-active: #E5E7EB;
   --ft-state-previous: #A8ACB2;
   --ft-state-archived: #7A7F87;
-  --ft-state-invalid: #E57373;
-  --ft-state-invalid-bg: #2A1818;
 
   --ft-training-accent: #9AB0C8;
   --ft-training-accent-bg: #182028;
@@ -80,4 +76,7 @@
 /*
  * Source age is intentionally not assigned an attention color here.
  * Age is neutral metadata unless an explicit policy elevates it.
+ *
+ * Reserved future application states (not implemented in F0):
+ * state.invalid, state.error.
  */
