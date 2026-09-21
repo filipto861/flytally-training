@@ -1,0 +1,301 @@
+.panelLayer {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  justify-items: end;
+}
+
+.panelBackdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: color-mix(in srgb, var(--ft-text-primary) 20%, transparent);
+}
+
+.panel {
+  position: relative;
+  width: calc(var(--ft-space-7) * 10 + var(--ft-space-5) + var(--ft-space-4));
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  border-inline-start: var(--ft-rule-strong);
+  background: var(--ft-bg-panel);
+  color: var(--ft-text-primary);
+  animation: ft-fast-path-slide-in 180ms ease-out;
+}
+
+.panelHeader {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--ft-space-2);
+  align-items: center;
+  padding: var(--ft-space-2) var(--ft-space-3);
+  border-bottom: var(--ft-rule-default);
+  background: var(--ft-bg-panel);
+}
+
+.tabList {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border: var(--ft-rule-default);
+  border-radius: var(--ft-radius-2);
+  overflow: hidden;
+}
+
+.tab,
+.closeButton,
+.indicator,
+.fullPageLink {
+  min-height: var(--ft-touch-target-min);
+  font: inherit;
+}
+
+.tab {
+  border: 0;
+  border-inline-end: var(--ft-rule-default);
+  background: var(--ft-bg-inset);
+  color: var(--ft-text-secondary);
+  font-family: var(--ft-font-data);
+  font-weight: 500;
+}
+
+.tab:last-child {
+  border-inline-end: 0;
+}
+
+.tabActive {
+  background: var(--ft-bg-operational);
+  color: var(--ft-text-primary);
+  font-weight: 600;
+}
+
+.closeButton {
+  padding-inline: var(--ft-space-3);
+  border: var(--ft-rule-default);
+  border-radius: var(--ft-radius-2);
+  background: var(--ft-bg-inset);
+  color: var(--ft-text-secondary);
+  font-family: var(--ft-font-data);
+  font-weight: 500;
+}
+
+.panelBody {
+  min-height: 0;
+  overflow: auto;
+  background: var(--ft-bg-panel);
+}
+
+.checklist {
+  display: grid;
+  gap: var(--ft-space-3);
+  padding: var(--ft-space-4);
+}
+
+.checklistHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--ft-space-3);
+}
+
+.checklistHeader h2,
+.placeholder h2 {
+  margin: 0;
+  font-weight: 600;
+}
+
+.eyebrow {
+  margin: 0 0 var(--ft-space-1);
+  color: var(--ft-text-metadata);
+  font-family: var(--ft-font-data);
+  font-weight: 600;
+}
+
+.progressValue {
+  font-family: var(--ft-font-data);
+  font-weight: 600;
+}
+
+.progressTrack {
+  height: var(--ft-space-1);
+  overflow: hidden;
+  background: var(--ft-bg-inset);
+}
+
+.progressTrack span {
+  display: block;
+  height: 100%;
+  background: var(--ft-text-primary);
+}
+
+.currentStep {
+  display: grid;
+  gap: var(--ft-space-1);
+  padding: var(--ft-space-3);
+  border: var(--ft-rule-default);
+  background: var(--ft-bg-operational);
+}
+
+.currentStep span,
+.phasePicker > span {
+  color: var(--ft-text-metadata);
+  font-family: var(--ft-font-data);
+  font-weight: 500;
+}
+
+.currentStep strong {
+  font-weight: 600;
+}
+
+.phasePicker {
+  display: grid;
+  gap: var(--ft-space-1);
+}
+
+.phasePicker select {
+  min-height: var(--ft-touch-target-min);
+  padding-inline: var(--ft-space-3);
+  border: var(--ft-rule-default);
+  border-radius: var(--ft-radius-2);
+  background: var(--ft-bg-inset);
+  color: var(--ft-text-primary);
+  font: inherit;
+}
+
+.checklistItems {
+  display: grid;
+  border-top: var(--ft-rule-default);
+}
+
+.checklistItem {
+  min-height: var(--ft-touch-target-min);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--ft-space-3);
+  padding: var(--ft-space-3) var(--ft-space-2);
+  border-bottom: var(--ft-rule-default);
+}
+
+.checklistItem input {
+  width: var(--ft-space-4);
+  height: var(--ft-space-4);
+  margin: 0;
+}
+
+.checklistItemCopy {
+  min-width: 0;
+  display: flex;
+  justify-content: space-between;
+  gap: var(--ft-space-3);
+}
+
+.checklistItemCopy strong {
+  font-weight: 500;
+}
+
+.checklistItemCopy span {
+  color: var(--ft-text-secondary);
+  font-family: var(--ft-font-data);
+}
+
+.checklistItem[data-complete="true"] {
+  color: var(--ft-text-metadata);
+  background: var(--ft-bg-inset);
+}
+
+.checklistUnavailable,
+.placeholder {
+  display: grid;
+  gap: var(--ft-space-3);
+  padding: var(--ft-space-4);
+}
+
+.checklistUnavailable p,
+.placeholder p {
+  margin: 0;
+  color: var(--ft-text-secondary);
+}
+
+.fullPageLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  padding-inline: var(--ft-space-3);
+  border: var(--ft-rule-default);
+  border-radius: var(--ft-radius-2);
+  background: var(--ft-bg-operational);
+  color: var(--ft-text-primary);
+  font-family: var(--ft-font-ui);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.indicator {
+  padding-inline: var(--ft-space-3);
+  border: var(--ft-rule-default);
+  border-radius: var(--ft-radius-2);
+  background: var(--ft-bg-operational);
+  color: var(--ft-text-primary);
+  font-family: var(--ft-font-data);
+  font-weight: 600;
+}
+
+.tab:focus-visible,
+.closeButton:focus-visible,
+.indicator:focus-visible,
+.fullPageLink:focus-visible,
+.phasePicker select:focus-visible,
+.checklistItem input:focus-visible {
+  outline: var(--ft-focus-width) solid var(--ft-text-primary);
+  outline-offset: var(--ft-focus-offset);
+}
+
+@keyframes ft-fast-path-slide-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes ft-fast-path-slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 1180px), (hover: none) {
+  .panelLayer {
+    justify-items: stretch;
+  }
+
+  .panel {
+    width: 100%;
+    border-inline-start: 0;
+    animation-name: ft-fast-path-slide-up;
+  }
+
+  .panelHeader {
+    padding: var(--ft-space-3);
+  }
+
+  .checklist,
+  .checklistUnavailable,
+  .placeholder {
+    padding: var(--ft-space-3);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    animation: none;
+  }
+}
