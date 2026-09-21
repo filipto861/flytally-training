@@ -66,6 +66,40 @@ const performance:AircraftPerformanceContent={
         runwayAvailableInput:{key:"runway_available_m",label:"Runway available",unit:"m"},
       },
     },
+    {
+      id:"browser-p2-takeoff-summary",
+      title:"Takeoff summary",
+      description:"Deterministic browser-only source grid for P2 presentation acceptance.",
+      kind:"lookup-table",
+      phase:"takeoff",
+      axes:[
+        {key:"takeoffWeight",label:"Takeoff weight",unit:"lb",values:[12000,13000]},
+      ],
+      outputs:[
+        {key:"n1Percent",label:"N1",unit:"%"},
+        {key:"v1",label:"V1",unit:"KIAS"},
+        {key:"vr",label:"VR",unit:"KIAS"},
+        {key:"v2",label:"V2",unit:"KIAS"},
+        {key:"takeoffDistance",label:"Takeoff Distance",unit:"ft"},
+      ],
+      rows:[
+        {
+          inputs:{takeoffWeight:12000},
+          outputs:{n1Percent:94,v1:110,vr:115,v2:125,takeoffDistance:3100},
+        },
+        {
+          inputs:{takeoffWeight:13000},
+          outputs:{n1Percent:95,v1:115,vr:120,v2:130,takeoffDistance:3500},
+        },
+      ],
+      interpolation:"none",
+      calculator:{
+        kind:"multi-axis-metric-grid",
+        operation:"takeoff",
+        inputAxes:["takeoffWeight"],
+        outputKeys:["n1Percent","v1","vr","v2","takeoffDistance"],
+      },
+    },
   ],
 };
 
