@@ -66,7 +66,7 @@ test("P0 launch surface styling consumes frozen workspace tokens without hardcod
   const css = read("components/ft-launch/ft-launch.module.css");
 
   for (const token of [
-    "--ft-bg-canvas",
+    "--ft-bg-shell",
     "--ft-bg-inset",
     "--ft-bg-operational",
     "--ft-text-primary",
