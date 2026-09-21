@@ -5,7 +5,7 @@ import test from "node:test";
 const nav = fs.readFileSync(new URL("../components/aircraft-workspace-nav.tsx", import.meta.url), "utf8");
 const navCss = fs.readFileSync(new URL("../components/aircraft-workspace-nav.module.css", import.meta.url), "utf8");
 const shellCss = fs.readFileSync(new URL("../app/learner-shell.css", import.meta.url), "utf8");
-const aircraftHome = fs.readFileSync(new URL("../app/aircraft/[aircraftId]/page.tsx", import.meta.url), "utf8");
+const aircraftHome = fs.readFileSync(new URL("../components/legacy-aircraft-home.tsx", import.meta.url), "utf8");
 
 test("focused learner shell keeps one aircraft navigator with stable primary destinations", () => {
   assert.match(nav, /learner-pilot-nav/);
