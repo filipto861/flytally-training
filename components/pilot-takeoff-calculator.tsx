@@ -63,6 +63,7 @@ export function PilotTakeoffCalculator({
   const [runwayContext, setRunwayContext] = useState<SelectedRunwayContext>();
   const [selectedIcao, setSelectedIcao] = useState<string | null>(null);
   const [metarSnapshot, setMetarSnapshot] = useState<MetarSnapshot | null>(null);
+  const [lastAppliedIcao, setLastAppliedIcao] = useState<string | null>(null);
   const [availableTakeoffLengthFt, setAvailableTakeoffLengthFt] = useState("");
   const [qnh, setQnh] = useState<SourcedValue<string>>({ value: "1013.25", source: "manual", dirty: false });
   const [qnhUnit, setQnhUnit] = useState<AltimeterUnit>("hPa");
@@ -138,6 +139,13 @@ export function PilotTakeoffCalculator({
     }
   };
 
+  useEffect(() => {
+    if (!metarSnapshot || !selectedIcao) return;
+    if (lastAppliedIcao === selectedIcao) return;
+    handleMetarApply(metarSnapshot);
+    setLastAppliedIcao(selectedIcao);
+  }, [lastAppliedIcao, metarSnapshot, qnhUnit, selectedIcao]);
+
   const forceMetarOat = () => {
     if (metarSnapshot?.temperatureC === undefined) return;
     setOat((current) => metarAutoFill(current, String(metarSnapshot.temperatureC), true));
@@ -153,6 +161,7 @@ export function PilotTakeoffCalculator({
   const handleAirportSelection = (icao: string | null) => {
     setSelectedIcao(icao);
     setMetarSnapshot(null);
+    setLastAppliedIcao(null);
   };
 
   const runwayMargin = useMemo(() => {
@@ -211,7 +220,11 @@ export function PilotTakeoffCalculator({
         <section className={styles.inputs} aria-label="Takeoff inputs">
           <h3 className={styles.inputsTitle}>Inputs</h3>
 
-          <MetarStatus icao={selectedIcao} onApply={handleMetarApply} />
+          <MetarStatus
+            icao={selectedIcao}
+            onApply={handleMetarApply}
+            onSnapshot={setMetarSnapshot}
+          />
 
           <EnvironmentContextPanel
             runwayContext={runwayContext}

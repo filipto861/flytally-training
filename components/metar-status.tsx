@@ -20,6 +20,7 @@ import styles from "./metar-status.module.css";
 export interface MetarStatusProps {
   readonly icao: string | null;
   readonly onApply: (snapshot: MetarSnapshot) => void;
+  readonly onSnapshot?: (snapshot: MetarSnapshot) => void;
 }
 
 type ViewState = {
@@ -61,7 +62,7 @@ function windText(snapshot: MetarSnapshot): string {
   return `${direction}/${speed}${gust} KT`;
 }
 
-export function MetarStatus({ icao, onApply }: MetarStatusProps) {
+export function MetarStatus({ icao, onApply, onSnapshot }: MetarStatusProps) {
   const [view, setView] = useState<ViewState>({ kind: "idle" });
   const [online, setOnline] = useState(() => typeof navigator === "undefined" ? true : navigator.onLine);
   const requestId = useRef(0);
@@ -137,6 +138,11 @@ export function MetarStatus({ icao, onApply }: MetarStatusProps) {
     void requestLive(icao, cached);
   }, [icao, online, requestLive]);
 
+  useEffect(() => {
+    if (view.kind !== "ready" || !view.snapshot) return;
+    onSnapshot?.(view.snapshot);
+  }, [onSnapshot, view.kind, view.snapshot]);
+
   if (!icao) return null;
 
   const snapshot = view.snapshot;
@@ -199,7 +205,7 @@ export function MetarStatus({ icao, onApply }: MetarStatusProps) {
                 <path d="m8 11 4 4 4-4" />
                 <path d="M5 19h14" />
               </svg>
-              <span>{displayFreshness === "offline" ? "Apply cached values" : "Apply to inputs"}</span>
+              <span>{displayFreshness === "offline" ? "Apply cached METAR" : "Apply METAR"}</span>
             </button>
           </div>
           {expired ? <p className={styles.expired}>Cached METAR is more than 12 hours old and cannot be applied.</p> : null}
