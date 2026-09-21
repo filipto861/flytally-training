@@ -36,7 +36,7 @@ export function FtFlightSection({
           <p className={styles.emptyState}>No active flight.</p>
           <Link
             className={styles.secondaryAction}
-            href={withVariantQuery(`/aircraft/${aircraftId}/fly`, selectedVariant)}
+            href={withVariantQuery(`/aircraft/${aircraftId}/flight`, selectedVariant)}
           >
             Start new flight
           </Link>
