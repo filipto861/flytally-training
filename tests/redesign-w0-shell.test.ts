@@ -15,8 +15,9 @@ function aircraftPages(directory: string): string[] {
   });
 }
 
-test("W0 shell CSS consumes F0 tokens without hardcoded colors or spacing", () => {
+test("W0 shell CSS consumes F0 tokens and iPad acceptance uses Chromium touch emulation", () => {
   const css = read("components/ft-shell/ft-shell.module.css");
+  const config = read("playwright.config.mjs");
 
   for (const token of [
     "--ft-bg-shell",
@@ -39,16 +40,11 @@ test("W0 shell CSS consumes F0 tokens without hardcoded colors or spacing", () =
 
   assert.doesNotMatch(css, /#[0-9a-f]{3,8}\b|\brgba?\(|\bhsla?\(/i);
   assert.doesNotMatch(css.replaceAll("1180px", ""), /\b\d+(?:\.\d+)?px\b/);
-});
 
-test("W0 iPad acceptance uses Chromium touch emulation and the widened shell breakpoint", () => {
-  const config = read("playwright.config.mjs");
-  const css = read("components/ft-shell/ft-shell.module.css");
-
-  assert.match(config, /name:"ipad-landscape"[\s\S]*browserName:"chromium"[\s\S]*viewport:\{width:1112,height:834\}/);
-  assert.match(config, /name:"ipad-portrait"[\s\S]*browserName:"chromium"[\s\S]*viewport:\{width:834,height:1112\}/);
-  assert.match(config, /hasTouch:true/);
-  assert.match(config, /isMobile:true/);
+  assert.match(config, /const ipadChromium=\{[\s\S]*browserName:"chromium"[\s\S]*hasTouch:true[\s\S]*isMobile:true/);
+  assert.match(config, /name:"ipad-landscape"[\s\S]*viewport:\{width:1112,height:834\}/);
+  assert.match(config, /name:"ipad-portrait"[\s\S]*viewport:\{width:834,height:1112\}/);
+  assert.match(config, /Mozilla\/5\.0 \(iPad;/);
   assert.match(css, /@media \(max-width: 1180px\), \(hover: none\)/);
 });
 
