@@ -13,6 +13,12 @@
   gap: var(--ft-space-1);
 }
 
+.pageContext {
+  margin: 0;
+  color: var(--ft-text-secondary);
+  font-family: var(--ft-font-data);
+}
+
 .pageHeader h1,
 .section h2,
 .brief h2,
