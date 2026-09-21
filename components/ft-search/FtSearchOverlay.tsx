@@ -80,9 +80,12 @@ export function FtSearchOverlay({
       return;
     }
 
+    setResults([]);
+    setSelectedIndex(-1);
+    setLoading(true);
+
     const controller = new AbortController();
     const timer = window.setTimeout(async () => {
-      setLoading(true);
       try {
         const response = await fetch(
           `/api/aircraft/${encodeURIComponent(aircraftId)}/search?q=${encodeURIComponent(trimmed)}&limit=20`,
