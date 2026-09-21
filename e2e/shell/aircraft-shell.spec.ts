@@ -160,13 +160,13 @@ test("W2 Escape closes the search overlay and restores trigger focus", async ({ 
   await expect(page.getByRole("button", { name: "Search aircraft workspace" })).toBeFocused();
 });
 
-test("W2 empty state exposes deterministic search sections", async ({ page }) => {
+test("W2 empty state exposes deterministic sections and hides absent flight context", async ({ page }) => {
   const dialog = await openAircraftSearch(page);
 
-  for (const heading of ["RECENT", "CURRENT FLIGHT", "QUICK ACCESS", "BROWSE BY TYPE"]) {
+  for (const heading of ["RECENT", "QUICK ACCESS", "BROWSE BY TYPE"]) {
     await expect(dialog.getByRole("heading", { name: heading, exact: true })).toBeVisible();
   }
-  await expect(dialog.getByText("No active flight context available.")).toBeVisible();
+  await expect(dialog.getByRole("heading", { name: "CURRENT FLIGHT", exact: true })).toHaveCount(0);
 });
 
 test("W2 checklist query returns relevant aircraft-scoped results", async ({ page }) => {
