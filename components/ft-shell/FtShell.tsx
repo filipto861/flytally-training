@@ -28,6 +28,7 @@ export async function FtShell({
   return (
     <section className={styles.shell} data-ft-shell="true" aria-label="Aircraft workspace shell">
       <FtTopBar
+        aircraftId={aircraftId}
         aircraftIdentity={aircraftIdentity}
         trainingProfileLabel={trainingProfileLabel}
         navigationControl={<FtNavDrawer aircraftId={aircraftId} />}
