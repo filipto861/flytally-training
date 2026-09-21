@@ -1,6 +1,7 @@
 import "server-only";
 
 import { ensureTrainingAiDraftSchema } from "./ai-draft-schema";
+import { ensureTrainingActiveFlightSchema } from "./active-flight/schema";
 import { ensureContentSchema } from "./content-admin-repository";
 import { sql } from "./db";
 import { ensureTrainingIdentitySchema } from "./identity-schema";
@@ -23,6 +24,7 @@ export const trainingDatabaseTables = [
   "training_aircraft_state",
   "training_identity_assertions",
   "training_ai_draft_runs",
+  "training_active_flights",
 ] as const;
 
 /**
@@ -37,6 +39,7 @@ export async function initializeTrainingDatabase(): Promise<void> {
     ensureTrainingProgressSchema(),
     ensureTrainingIdentitySchema(),
     ensureTrainingAiDraftSchema(),
+    ensureTrainingActiveFlightSchema(),
   ]);
   await verifyTrainingDatabaseSchema();
 }
