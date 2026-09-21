@@ -17,12 +17,14 @@ export function FtSearchEmptyState({
   onRecentQuery,
   onClearRecent,
   onNavigate,
+  currentFlight,
 }: Readonly<{
   aircraftId: string;
   recent: readonly string[];
   onRecentQuery: (query: string) => void;
   onClearRecent: () => void;
   onNavigate: () => void;
+  currentFlight?: SearchLink;
 }>) {
   const base = `/aircraft/${aircraftId}`;
   const quickAccess: readonly SearchLink[] = [
@@ -70,10 +72,15 @@ export function FtSearchEmptyState({
         )}
       </section>
 
-      <section className={styles.emptySection} aria-labelledby="ft-search-current-flight">
-        <h2 id="ft-search-current-flight">CURRENT FLIGHT</h2>
-        <p className={styles.emptyMessage}>No active flight context available.</p>
-      </section>
+      {currentFlight ? (
+        <section className={styles.emptySection} aria-labelledby="ft-search-current-flight">
+          <h2 id="ft-search-current-flight">CURRENT FLIGHT</h2>
+          <Link href={currentFlight.href} className={styles.emptyLink} onClick={onNavigate}>
+            <FtSearchIcon name={currentFlight.icon} />
+            <span>{currentFlight.label}</span>
+          </Link>
+        </section>
+      ) : null}
 
       <section className={styles.emptySection} aria-labelledby="ft-search-quick-access">
         <h2 id="ft-search-quick-access">QUICK ACCESS</h2>
