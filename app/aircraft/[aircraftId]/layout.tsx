@@ -1,7 +1,9 @@
 import type { ReactNode } from "react";
 import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 
+import { FtShell } from "@/components/ft-shell/FtShell";
 import { WorkspaceThemeProvider } from "@/components/ft-workspace-theme";
+import { isNewShellEnabled } from "@/lib/feature-flags";
 import "../../ft-workspace/tokens.css";
 import "../../ft-workspace/theme.css";
 
@@ -19,14 +21,19 @@ const workspaceMono = IBM_Plex_Mono({
   variable: "--ft-font-plex-mono",
 });
 
-export default function AircraftWorkspaceLayout({
+export default async function AircraftWorkspaceLayout({
   children,
+  params,
 }: Readonly<{
   children: ReactNode;
+  params: Promise<{ aircraftId: string }>;
 }>) {
+  const { aircraftId } = await params;
+  const newShell = isNewShellEnabled();
+
   return (
     <WorkspaceThemeProvider className={`${workspaceSans.variable} ${workspaceMono.variable}`}>
-      {children}
+      {newShell ? <FtShell aircraftId={aircraftId}>{children}</FtShell> : children}
     </WorkspaceThemeProvider>
   );
 }
