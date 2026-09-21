@@ -1,0 +1,158 @@
+.flightPage {
+  width: 100%;
+  display: grid;
+  gap: var(--ft-space-6);
+  padding: var(--ft-space-6);
+  background: var(--ft-bg-shell);
+  color: var(--ft-text-primary);
+}
+
+.pageHeader,
+.briefHeader {
+  display: grid;
+  gap: var(--ft-space-1);
+}
+
+.pageHeader h1,
+.section h2,
+.brief h2,
+.briefSection h3 {
+  margin: 0;
+  color: var(--ft-text-primary);
+  font-family: var(--ft-font-ui);
+  font-weight: 600;
+}
+
+.pageHeader h1 {
+  font-size: 1.75rem;
+  line-height: 1.2;
+}
+
+.section h2,
+.brief h2 {
+  font-size: 1.25rem;
+  line-height: 1.3;
+}
+
+.briefSection h3 {
+  font-size: 1rem;
+  line-height: 1.3;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--ft-text-metadata);
+  font-family: var(--ft-font-data);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.section,
+.brief {
+  display: grid;
+  gap: var(--ft-space-3);
+  padding-block: var(--ft-space-4);
+  border-top: var(--ft-rule-strong);
+}
+
+.brief {
+  gap: var(--ft-space-4);
+}
+
+.briefSection {
+  display: grid;
+  gap: var(--ft-space-2);
+  padding-block: var(--ft-space-3);
+  border-top: var(--ft-rule-default);
+}
+
+.emptyState,
+.performanceEmpty {
+  color: var(--ft-text-metadata);
+}
+
+.emptyState {
+  margin: 0;
+}
+
+.primaryAction {
+  min-height: var(--ft-touch-target-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  padding-inline: var(--ft-space-4);
+  border: var(--ft-rule-default);
+  background: var(--ft-bg-operational);
+  color: var(--ft-text-primary);
+  font-family: var(--ft-font-ui);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.performanceGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border: var(--ft-rule-default);
+}
+
+.performanceItem {
+  display: grid;
+  gap: var(--ft-space-1);
+  padding: var(--ft-space-3);
+  border-inline-end: var(--ft-rule-default);
+  background: var(--ft-bg-inset);
+}
+
+.performanceItem:last-child {
+  border-inline-end: 0;
+}
+
+.performanceLabel,
+.performanceItem strong,
+.performanceEmpty {
+  font-family: var(--ft-font-data);
+}
+
+.performanceLabel {
+  color: var(--ft-text-secondary);
+  font-weight: 600;
+}
+
+.performanceItem strong {
+  color: var(--ft-text-primary);
+  font-size: 1.25rem;
+}
+
+.performanceEmpty {
+  font-size: 0.75rem;
+}
+
+.primaryAction:focus-visible {
+  outline: var(--ft-focus-width) solid var(--ft-text-primary);
+  outline-offset: var(--ft-focus-offset);
+}
+
+@media (max-width: 1180px), (hover: none) {
+  .flightPage {
+    gap: var(--ft-space-5);
+    padding: var(--ft-space-4);
+  }
+
+  .performanceGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .performanceItem:nth-child(2) {
+    border-inline-end: 0;
+  }
+
+  .performanceItem:nth-child(-n + 2) {
+    border-bottom: var(--ft-rule-default);
+  }
+
+  .primaryAction {
+    width: 100%;
+  }
+}
