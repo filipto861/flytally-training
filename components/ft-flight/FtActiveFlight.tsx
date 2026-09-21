@@ -196,16 +196,16 @@ export function FtActiveFlight({
                 Runway
                 <input name="runway" required maxLength={5} />
               </label>
-              <label>
-                Weight
+              <div className={styles.fieldGroup}>
+                <label htmlFor="ft-active-flight-weight">Weight</label>
                 <span className={styles.inlineField}>
-                  <input name="weight" required type="number" min="1" step="0.1" />
+                  <input id="ft-active-flight-weight" name="weight" required type="number" min="1" step="0.1" />
                   <select name="weightUnit" aria-label="Weight unit" defaultValue="kg">
                     <option value="kg">kg</option>
                     <option value="lb">lb</option>
                   </select>
                 </span>
-              </label>
+              </div>
               <label>
                 Flaps
                 <input name="flaps" required maxLength={32} />
