@@ -1,6 +1,10 @@
 export const RECENT_SEARCH_LIMIT = 5;
 
-export type RecentSearchStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">;
+export type RecentSearchStorage = {
+  getItem(key: string): string | null;
+  setItem(key: string, value: string): void;
+  removeItem(key: string): void;
+};
 
 function storageKey(aircraftId: string): string {
   return `ft-recent-searches-${aircraftId}`;
