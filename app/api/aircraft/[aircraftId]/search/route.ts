@@ -1,4 +1,5 @@
 import { getTrainingContentRepository } from "@/lib/content-store";
+import { isNewShellEnabled } from "@/lib/feature-flags";
 import {
   isValidAircraftSearchId,
   searchAircraft,
@@ -22,6 +23,13 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ aircraftId: string }> },
 ): Promise<Response> {
+  if (!isNewShellEnabled()) {
+    return Response.json(
+      { error: "feature_disabled" },
+      { status: 404, headers: NO_STORE_HEADERS },
+    );
+  }
+
   const { aircraftId } = await params;
   if (!isValidAircraftSearchId(aircraftId)) {
     return Response.json(
