@@ -11,6 +11,7 @@ import {
 import type { ExternalPerformanceEnvironment } from "./performance-environment-section";
 
 import {
+  calculateRunwayMarginFt,
   manualSourcedValue,
   metarAutoFill,
 } from "@/lib/aviation/runway-context";
@@ -26,6 +27,7 @@ import {
   type PilotTakeoffMetricResult,
 } from "@/lib/pilot-takeoff-calculator";
 import type { PerformanceDataset } from "@/lib/universal-aircraft-content";
+import { formatThousands, formatThousandsWithUnit } from "@/lib/format/numbers";
 
 import styles from "./pilot-landing-calculator.module.css";
 
@@ -157,6 +159,34 @@ export function PilotLandingCalculator({
     [datasets, definition, grossWeight, pressureAltitude.value, oat.value, windComponentKt],
   );
 
+  const availableLengthFt = runwayContext?.availableTakeoffLengthFt ?? runwayContext?.surfaceLengthFt;
+  const runwayMargin = useMemo(() => {
+    if (
+      availableLengthFt === undefined
+      || availableLengthFt <= 0
+      || summary.landingDistanceFt.status !== "ready"
+      || summary.landingDistanceFt.value === undefined
+    ) return undefined;
+    try {
+      return calculateRunwayMarginFt(summary.landingDistanceFt.value, availableLengthFt);
+    } catch {
+      return undefined;
+    }
+  }, [availableLengthFt, summary.landingDistanceFt]);
+
+  const marginTone = runwayMargin
+    ? runwayMargin.usePercent <= 50
+      ? "safe"
+      : runwayMargin.usePercent <= 70
+        ? "neutral"
+        : runwayMargin.usePercent <= 90
+          ? "caution"
+          : "critical"
+    : undefined;
+  const runwayProgressPercent = runwayMargin
+    ? Math.min(Math.max(runwayMargin.usePercent, 0), 100)
+    : 0;
+
   const sourceResults = [
     summary.vrefKias,
     summary.landingClimbSpeed,
@@ -165,6 +195,17 @@ export function PilotLandingCalculator({
   ];
   const hasOutOfRange = sourceResults.some((result) => result.status === "out-of-range");
   const hasUnavailable = sourceResults.some((result) => result.status === "unavailable");
+
+  const pressureAltitudeBadgeSource = pressureAltitude.dirty
+    ? "manual"
+    : runwayContext && metarSnapshot?.qnhHpa !== undefined
+      ? "metar"
+      : pressureAltitude.source;
+  const oatBadgeSource = oat.dirty
+    ? "manual"
+    : metarSnapshot?.temperatureC !== undefined
+      ? "metar"
+      : oat.source;
 
   const grossWeightMissing = "Enter Gross Weight";
   const distanceMissing = missingDistanceText(pressureAltitude.value, oat.value, grossWeight);
@@ -196,7 +237,7 @@ export function PilotLandingCalculator({
             <FieldRow
               helper={pressureAltitude.dirty && externalEnvironment ? "Manual override" : undefined}
               label="Pressure Altitude"
-              source={pressureAltitude.source}
+              source={pressureAltitudeBadgeSource}
             >
               <InputWithUnit
                 ariaLabel="Landing pressure altitude"
@@ -209,7 +250,7 @@ export function PilotLandingCalculator({
             <FieldRow
               helper={oat.dirty && metarSnapshot?.temperatureC !== undefined ? "Manual override" : undefined}
               label="OAT"
-              source={oat.source}
+              source={oatBadgeSource}
             >
               <InputWithUnit
                 ariaLabel="Landing outside air temperature"
@@ -255,6 +296,44 @@ export function PilotLandingCalculator({
               value={landingMetricValue(summary.landingDistanceFt, distanceMissing)}
             />
           </MetricGrid>
+
+          {runwayMargin && runwayContext && availableLengthFt !== undefined ? (
+            <div
+              className={styles.runwayMargin}
+              data-margin-tone={marginTone}
+              data-overrun={runwayMargin.usePercent > 100}
+              data-within={runwayMargin.withinLength}
+            >
+              <div>
+                <span>Required distance</span>
+                <strong>{formatThousandsWithUnit(Math.round(summary.landingDistanceFt.value ?? 0), "ft")}</strong>
+              </div>
+              <div>
+                <span>Available</span>
+                <strong>{formatThousandsWithUnit(Math.round(availableLengthFt), "ft")}</strong>
+              </div>
+              <div>
+                <span>Margin</span>
+                <strong className={styles.semanticValue}>
+                  {runwayMargin.marginFt >= 0 ? "+" : ""}
+                  {formatThousands(Math.round(runwayMargin.marginFt))} ft
+                </strong>
+              </div>
+              <div className={styles.runwayUsed}>
+                <span>Runway used</span>
+                <strong className={styles.semanticValue}>{Math.round(runwayMargin.usePercent)}%</strong>
+                <div className={styles.runwayProgress} aria-hidden="true">
+                  <span
+                    className={styles.runwayProgressFill}
+                    style={{ width: `${runwayProgressPercent}%` }}
+                  />
+                </div>
+              </div>
+              <small>
+                Based on runway surface length from the shared airport database context, not declared LDA.
+              </small>
+            </div>
+          ) : null}
 
           <details className={styles.goAround}>
             <summary>Go-around reference</summary>

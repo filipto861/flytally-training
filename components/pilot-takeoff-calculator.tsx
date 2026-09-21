@@ -236,7 +236,7 @@ export function PilotTakeoffCalculator({
     ? Math.min(Math.max(runwayMargin.usePercent, 0), 100)
     : 0;
 
-  const sourceResults = [summary.n1, summary.v1, summary.vr, summary.v2, summary.vref, summary.takeoffDistance];
+  const sourceResults = [summary.n1, summary.v1, summary.vr, summary.v2, summary.takeoffDistance];
   const hasOutOfRange = sourceResults.some((result) => result.status === "out-of-range");
   const hasUnavailable = sourceResults.some((result) => result.status === "unavailable");
 
@@ -276,14 +276,6 @@ export function PilotTakeoffCalculator({
 
           {runwayContext ? (
             <div className={styles.runwayContext}>
-              <div className={styles.runwaySurface}>
-                <div className={styles.contextLabel}>
-                  <span>Runway surface length</span>
-                </div>
-                <div className={styles.readOnlyControl}>
-                  <strong>{formatThousandsWithUnit(runwayContext.surfaceLengthFt, "ft")}</strong>
-                </div>
-              </div>
               <div className={styles.availableLength}>
                 <div className={styles.editableLabel}>
                   <span>Available takeoff length</span>
@@ -298,7 +290,9 @@ export function PilotTakeoffCalculator({
                 />
                 <div className={styles.availableLengthMeta}>
                   <div className={styles.helperWithInfo}>
-                    <small>Defaults to surface length</small>
+                    <small>
+                      Source: runway surface length {formatThousandsWithUnit(runwayContext.surfaceLengthFt, "ft")}
+                    </small>
                     <button
                       aria-describedby="available-takeoff-length-tooltip"
                       aria-label="Available takeoff length information"
@@ -463,6 +457,12 @@ export function PilotTakeoffCalculator({
               value={takeoffMetricValue(summary.n1)}
             />
             <MetricCard
+              hint={takeoffMetricHint(summary.v1)}
+              label="V1"
+              status={summary.v1.status}
+              value={takeoffMetricValue(summary.v1)}
+            />
+            <MetricCard
               hint={takeoffMetricHint(summary.vr)}
               label="VR"
               status={summary.vr.status}
@@ -473,18 +473,6 @@ export function PilotTakeoffCalculator({
               label="V2"
               status={summary.v2.status}
               value={takeoffMetricValue(summary.v2)}
-            />
-            <MetricCard
-              hint={takeoffMetricHint(summary.vref) ?? (summary.vref.status === "ready" ? "Landing reference at the entered weight." : undefined)}
-              label="VREF"
-              status={summary.vref.status}
-              value={takeoffMetricValue(summary.vref)}
-            />
-            <MetricCard
-              hint={takeoffMetricHint(summary.v1)}
-              label="V1"
-              status={summary.v1.status}
-              value={takeoffMetricValue(summary.v1)}
             />
             <MetricCard
               hint={takeoffMetricHint(summary.takeoffDistance)}

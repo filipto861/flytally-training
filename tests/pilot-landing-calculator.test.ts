@@ -121,6 +121,9 @@ test("B10 landing UI remains aircraft-agnostic and consumes shared performance p
   assert.match(source, /InputWithUnit/);
   assert.match(source, /MetricCard/);
   assert.match(source, /MetricGrid/);
+  assert.match(source, /calculateRunwayMarginFt/);
+  assert.match(source, /summary\.landingDistanceFt\.value/);
+  assert.match(source, /runwayContext\?\.availableTakeoffLengthFt \?\? runwayContext\?\.surfaceLengthFt/);
   assert.doesNotMatch(source, /MetarStatus|AirportRunwaySelector/);
 });
 

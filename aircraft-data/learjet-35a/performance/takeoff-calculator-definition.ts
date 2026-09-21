@@ -95,11 +95,6 @@ export const learjet35aTakeoffCalculatorDefinition: PilotTakeoffCalculatorDefini
       },
     },
   ],
-  vref: {
-    datasetId: "learjet-35a-vref",
-    outputKey: "vref",
-    inputs: [{ input: "takeoffWeight", axisKey: "grossWeight" }],
-  },
   placeholders: [],
   disclaimer: "Sources: available training material. Not FAA-approved.",
 };
