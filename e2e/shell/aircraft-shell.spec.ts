@@ -232,9 +232,9 @@ test("W3 Escape closes the fast path panel", async ({ page }) => {
   await expect(page).toHaveURL(`${shellOnBase}${aircraftPath}`);
 });
 
-test("W3 Alt+1 opens CHECKLIST directly", async ({ page }) => {
+test("W3 Ctrl+Shift+1 opens CHECKLIST directly", async ({ page }) => {
   await page.goto(`${shellOnBase}${aircraftPath}`);
-  await page.keyboard.press("Alt+1");
+  await page.keyboard.press("Control+Shift+1");
   const panel = page.getByRole("dialog", { name: "Operational fast path" });
   await expect(panel).toBeVisible();
   await expect(panel.getByRole("tab", { name: "CHECKLIST", exact: true })).toHaveAttribute(
@@ -243,9 +243,9 @@ test("W3 Alt+1 opens CHECKLIST directly", async ({ page }) => {
   );
 });
 
-test("W3 Alt+2 opens QRH directly", async ({ page }) => {
+test("W3 Ctrl+Shift+2 opens QRH directly", async ({ page }) => {
   await page.goto(`${shellOnBase}${aircraftPath}`);
-  await page.keyboard.press("Alt+2");
+  await page.keyboard.press("Control+Shift+2");
   const panel = page.getByRole("dialog", { name: "Operational fast path" });
   await expect(panel).toBeVisible();
   await expect(panel.getByRole("tab", { name: "QRH", exact: true })).toHaveAttribute(
