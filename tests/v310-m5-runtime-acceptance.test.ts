@@ -123,7 +123,7 @@ test("v3.1 M5A progress remains isolated per aircraft",()=>{
 });
 
 test("v3.1 M5A learner surfaces stay capability/configuration driven",()=>{
-  const home=read("app/aircraft/[aircraftId]/page.tsx");
+  const home=read("components/legacy-aircraft-home.tsx");
   const fly=read("app/aircraft/[aircraftId]/fly/page.tsx");
   const learn=read("app/aircraft/[aircraftId]/training/page.tsx");
   const reference=read("app/aircraft/[aircraftId]/reference/page.tsx");
