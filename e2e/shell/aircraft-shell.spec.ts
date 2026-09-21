@@ -79,10 +79,10 @@ test("W0 exposes the four operational fast-path destinations", async ({ page }) 
 
   const fastPath = page.getByRole("navigation", { name: "Operational fast path" });
   await expect(fastPath).toBeVisible();
-  await expect(fastPath.getByRole("link")).toHaveCount(4);
+  await expect(fastPath.getByRole("button")).toHaveCount(4);
 
   for (const label of ["CHECKLIST", "QRH", "PERF", "REF"]) {
-    await expect(fastPath.getByRole("link", { name: label, exact: true })).toBeVisible();
+    await expect(fastPath.getByRole("button", { name: label, exact: true })).toBeVisible();
   }
 });
 
@@ -204,5 +204,106 @@ test("W2 Arrow keys move selection and Enter activates the selected result", asy
 
   await input.press("Enter");
   await expect(page).toHaveURL(new RegExp(`${aircraftPath}/performance#browser-takeoff-grid$`));
+});
+
+async function waitForFastPathShortcuts(page: Page): Promise<Locator> {
+  const rail = page.getByRole("navigation", { name: "Operational fast path" });
+  await expect(rail).toHaveAttribute("data-shortcuts-ready", "true");
+  return rail;
+}
+
+async function openFastPath(page: Page, label: "CHECKLIST" | "QRH" | "PERF" | "REF") {
+  const originalUrl = `${shellOnBase}${aircraftPath}`;
+  await page.goto(originalUrl);
+  const rail = page.getByRole("navigation", { name: "Operational fast path" });
+  await rail.getByRole("button", { name: label, exact: true }).click();
+  const panel = page.getByRole("dialog", { name: "Operational fast path" });
+  await expect(panel).toBeVisible();
+  await expect(page).toHaveURL(originalUrl);
+  return panel;
+}
+
+test("W3 rail opens fast path panel without navigating", async ({ page }) => {
+  const panel = await openFastPath(page, "CHECKLIST");
+  await expect(panel.getByRole("tab", { name: "CHECKLIST", exact: true })).toHaveAttribute(
+    "aria-selected",
+    "true",
+  );
+});
+
+test("W3 Escape closes the fast path panel", async ({ page }) => {
+  const panel = await openFastPath(page, "CHECKLIST");
+  await page.keyboard.press("Escape");
+  await expect(panel).toHaveCount(0);
+  await expect(page).toHaveURL(`${shellOnBase}${aircraftPath}`);
+});
+
+test("W3 Ctrl+Shift+1 opens CHECKLIST directly", async ({ page }) => {
+  await page.goto(`${shellOnBase}${aircraftPath}`);
+  await waitForFastPathShortcuts(page);
+  await page.keyboard.press("Control+Shift+1");
+  const panel = page.getByRole("dialog", { name: "Operational fast path" });
+  await expect(panel).toBeVisible();
+  await expect(panel.getByRole("tab", { name: "CHECKLIST", exact: true })).toHaveAttribute(
+    "aria-selected",
+    "true",
+  );
+});
+
+test("W3 Ctrl+Shift+2 opens QRH directly", async ({ page }) => {
+  await page.goto(`${shellOnBase}${aircraftPath}`);
+  await waitForFastPathShortcuts(page);
+  await page.keyboard.press("Control+Shift+2");
+  const panel = page.getByRole("dialog", { name: "Operational fast path" });
+  await expect(panel).toBeVisible();
+  await expect(panel.getByRole("tab", { name: "QRH", exact: true })).toHaveAttribute(
+    "aria-selected",
+    "true",
+  );
+  await expect(panel.getByRole("heading", { name: "QRH", exact: true })).toBeVisible();
+});
+
+test("W3 QRH placeholder can open the canonical full page", async ({ page }) => {
+  const panel = await openFastPath(page, "QRH");
+  await panel.getByRole("link", { name: "Open full page", exact: true }).click();
+  await expect(page).toHaveURL(`${shellOnBase}${aircraftPath}/abnormal`);
+});
+
+test("W3 checklist state persists after closing and reopening the panel", async ({ page }) => {
+  const panel = await openFastPath(page, "CHECKLIST");
+  const battery = panel.getByRole("checkbox", { name: /Battery/ });
+  await expect(battery).not.toBeChecked();
+  await battery.check();
+  await expect(battery).toBeChecked();
+
+  await page.keyboard.press("Escape");
+  await expect(panel).toHaveCount(0);
+
+  const indicator = page.getByRole("button", { name: "Open checklist progress 1 of 2" });
+  await expect(indicator).toBeVisible();
+  await indicator.click();
+
+  const reopened = page.getByRole("dialog", { name: "Operational fast path" });
+  await expect(reopened).toBeVisible();
+  await expect(reopened.getByRole("checkbox", { name: /Battery/ })).toBeChecked();
+  await expect(page).toHaveURL(`${shellOnBase}${aircraftPath}`);
+});
+
+test("W3 panel is a 520px desktop drawer and a full-screen touch sheet", async ({ page }, testInfo) => {
+  const panel = await openFastPath(page, "CHECKLIST");
+  const box = await panel.boundingBox();
+  const viewport = page.viewportSize();
+
+  expect(box).not.toBeNull();
+  expect(viewport).not.toBeNull();
+  if (!box || !viewport) return;
+
+  if (testInfo.project.name === "desktop-chromium") {
+    expect(Math.abs(box.width - 520)).toBeLessThanOrEqual(2);
+    expect(Math.abs(box.height - viewport.height)).toBeLessThanOrEqual(2);
+  } else {
+    expect(Math.abs(box.width - viewport.width)).toBeLessThanOrEqual(2);
+    expect(Math.abs(box.height - viewport.height)).toBeLessThanOrEqual(2);
+  }
 });
 

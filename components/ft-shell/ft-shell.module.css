@@ -129,11 +129,17 @@
   align-items: center;
   justify-content: center;
   padding-inline: var(--ft-space-2);
+  border: 0;
   border-inline-end: var(--ft-rule-default);
+  background: transparent;
   color: var(--ft-text-primary);
   font-family: var(--ft-font-data);
   font-weight: 600;
   text-decoration: none;
+}
+
+.fastPathLink[aria-pressed="true"] {
+  background: var(--ft-bg-operational);
 }
 
 .fastPathLink:last-child {

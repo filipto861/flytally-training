@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { FtFastPathIndicator } from "@/components/ft-fast-path/FtFastPathIndicator";
 import { FtSearchOverlay } from "@/components/ft-search/FtSearchOverlay";
 
 import styles from "./ft-shell.module.css";
@@ -26,6 +27,7 @@ export function FtTopBar({
 
       <div className={styles.topBarActions}>
         <FtSearchOverlay aircraftId={aircraftId} aircraftIdentity={aircraftIdentity} />
+        <FtFastPathIndicator />
         <span className={styles.flightPlaceholder} aria-label="Active flight status">
           ACTIVE FLIGHT · NONE
         </span>
