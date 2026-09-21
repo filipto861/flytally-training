@@ -6,14 +6,14 @@ import "../../ft-workspace/tokens.css";
 import "../../ft-workspace/theme.css";
 
 const workspaceSans = IBM_Plex_Sans({
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
   weight: ["400", "500", "600"],
   display: "swap",
   variable: "--ft-font-plex-sans",
 });
 
 const workspaceMono = IBM_Plex_Mono({
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
   weight: ["400", "500", "600"],
   display: "swap",
   variable: "--ft-font-plex-mono",
