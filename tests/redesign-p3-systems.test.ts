@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import {
@@ -403,4 +404,21 @@ test("P3 systems search indexes schematic user-visible text but not layout metad
   assert.doesNotMatch(search, /\b17\b/);
   assert.doesNotMatch(search, /fuel-pump/);
   assert.doesNotMatch(search, /fuel-supply/);
+});
+
+
+test("P3 new-shell Systems route stays gated while legacy flag-off path survives", () => {
+  const routeSource = readFileSync(
+    new URL("../app/aircraft/[aircraftId]/systems/page.tsx", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(routeSource, /isNewShellEnabled\(\)/);
+  assert.match(routeSource, /FtSystemsPage/);
+  assert.match(routeSource, /SystemsBrowser/);
+
+  assert.doesNotMatch(routeSource, /FtShell/);
+  assert.doesNotMatch(routeSource, /CONTENT_IA/);
+  assert.doesNotMatch(routeSource, /aircraftId\s*===\s*["']/);
+  assert.doesNotMatch(routeSource, /aircraft\.model\s*===\s*["']/);
 });
