@@ -1,5 +1,6 @@
+import type { CockpitOrientation } from "./cockpit-orientation";
 import type { StaticTrainingContentSeed } from "./static-content-repository";
-import type { AircraftChecklistContent,AircraftPerformanceContent } from "./universal-aircraft-content";
+import type { AircraftChecklistContent,AircraftPerformanceContent,AircraftSystemsContent,TrainingSourceReference } from "./universal-aircraft-content";
 
 export const browserTrainingAircraftId="browser-ci-aircraft";
 
@@ -103,6 +104,76 @@ const performance:AircraftPerformanceContent={
   ],
 };
 
+const systemsSource={
+  manualId:"browser-ci-systems-source",
+  section:"P3 deterministic fixture",
+  pageLabel:"P3-1",
+} satisfies TrainingSourceReference;
+
+const systems:AircraftSystemsContent={
+  aircraftId:browserTrainingAircraftId,
+  title:"Browser CI Systems",
+  systems:[
+    {
+      id:"generic-source-system",
+      title:"Generic Source System",
+      summary:"Test-only system with a deterministic logical schematic.",
+      schematic:{
+        version:1,
+        title:"Generic Source Schematic",
+        description:"Test-only schematic. Not to scale.",
+        sources:[systemsSource],
+        nodes:[
+          {id:"source-a",label:"Source A",role:"source",x:10,y:50},
+          {id:"pump-a",label:"Pump A",role:"component",x:40,y:30},
+          {id:"valve-a",label:"Valve A",role:"control",x:60,y:50},
+          {id:"consumer-a",label:"Consumer A",role:"consumer",x:90,y:50},
+        ],
+        edges:[
+          {id:"e-source-pump",from:"source-a",to:"pump-a",direction:"forward",label:"supply"},
+          {id:"e-pump-valve",from:"pump-a",to:"valve-a",direction:"forward"},
+          {id:"e-valve-cons",from:"valve-a",to:"consumer-a",direction:"forward",label:"delivery"},
+        ],
+      },
+    },
+    {
+      id:"generic-text-system",
+      title:"Generic Text System",
+      summary:"Test-only text-only system for the sparse P3 case.",
+      components:["Text component A","Text component B"],
+      controls:["Text control A"],
+      indications:["Text indication A"],
+    },
+  ],
+};
+
+const cockpitOrientation:CockpitOrientation={
+  aircraftId:browserTrainingAircraftId,
+  title:"Browser CI Cockpit Orientation",
+  sourceNote:"Test-only deterministic cockpit orientation fixture.",
+  regions:[
+    {
+      id:"region-a",
+      label:"Region A",
+      description:"Test-only deterministic cockpit region.",
+    },
+  ],
+  controls:[
+    {
+      id:"control-a",
+      label:"Control A",
+      regionId:"region-a",
+      description:"Test-only deterministic cockpit control.",
+      checklistItemIds:[],
+      source:{
+        chapter:1,
+        section:"P3 deterministic fixture",
+        manualPage:"P3-O1",
+      },
+    },
+  ],
+};
+
 export const browserTrainingContentSeed:StaticTrainingContentSeed={
   aircraft:[
     {
@@ -117,10 +188,11 @@ export const browserTrainingContentSeed:StaticTrainingContentSeed={
   nativeModules:[
     {aircraftId:browserTrainingAircraftId,domain:"checklists",payload:checklist},
     {aircraftId:browserTrainingAircraftId,domain:"performance",payload:performance},
+    {aircraftId:browserTrainingAircraftId,domain:"systems",payload:systems},
   ],
   learningContent:[],
   normalFlights:[],
-  cockpitOrientations:[],
+  cockpitOrientations:[cockpitOrientation],
   abnormalTrainings:[],
   referenceKnowledge:[],
 };

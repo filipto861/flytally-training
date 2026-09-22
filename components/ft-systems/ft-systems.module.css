@@ -1,0 +1,423 @@
+.page {
+  width: 100%;
+  min-width: 0;
+  display: grid;
+  gap: var(--ft-space-6);
+  padding: var(--ft-space-6);
+  background: var(--ft-bg-shell);
+  color: var(--ft-text-primary);
+  font-family: var(--ft-font-ui);
+}
+
+.pageHeader,
+.detail,
+.detailHeader,
+.mentalModel,
+.schematicSection,
+.systemSection,
+.sourceSection,
+.schematicDetail,
+.connectionSection,
+.schematicSourceSection,
+.emptyState {
+  display: grid;
+  gap: var(--ft-space-3);
+}
+
+.pageHeader h1,
+.detailHeader h2,
+.mentalModel h3,
+.schematicHeader h3,
+.systemSection h3,
+.sourceSection h3,
+.schematicDetail h3,
+.connectionSection h4,
+.schematicSourceSection h4 {
+  margin: 0;
+  color: var(--ft-text-primary);
+}
+
+.pageHeader h1 {
+  font-size: 1.75rem;
+}
+
+.detailHeader h2 {
+  font-size: 1.5rem;
+}
+
+.pageHeader p,
+.detailHeader p,
+.mentalModel p,
+.schematicDescription,
+.schematicDetail p,
+.systemSection li,
+.sourceSection li,
+.connectionSection li,
+.schematicSourceSection li,
+.emptyState p {
+  margin: 0;
+  color: var(--ft-text-secondary);
+}
+
+.lede {
+  max-width: calc(var(--ft-space-7) * 12);
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--ft-text-metadata);
+  font-family: var(--ft-font-data);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.layout {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: calc(var(--ft-space-7) * 4) minmax(0, 1fr);
+  gap: var(--ft-space-5);
+  align-items: start;
+}
+
+.indexPanel {
+  min-width: 0;
+  display: grid;
+  border: var(--ft-rule-default);
+  background: var(--ft-bg-panel);
+}
+
+.indexHeader {
+  display: grid;
+  gap: var(--ft-space-1);
+  padding: var(--ft-space-3);
+  border-bottom: var(--ft-rule-default);
+}
+
+.indexHeader strong {
+  color: var(--ft-text-primary);
+}
+
+.indexHeader span {
+  color: var(--ft-text-metadata);
+  font-family: var(--ft-font-data);
+  font-size: 0.75rem;
+}
+
+.indexList {
+  display: grid;
+}
+
+.indexButton {
+  min-height: var(--ft-touch-target-min);
+  width: 100%;
+  display: grid;
+  gap: var(--ft-space-1);
+  padding: var(--ft-space-3);
+  border: 0;
+  border-bottom: var(--ft-rule-default);
+  border-inline-start: var(--ft-focus-width) solid transparent;
+  background: var(--ft-bg-panel);
+  color: var(--ft-text-primary);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.indexButton:last-child {
+  border-bottom: 0;
+}
+
+.indexButton span {
+  color: var(--ft-text-secondary);
+  font-size: 0.875rem;
+}
+
+.indexButton[aria-current="page"] {
+  border-inline-start-color: var(--ft-training-accent);
+  background: var(--ft-training-accent-bg);
+  font-weight: 600;
+}
+
+.indexButton:focus-visible,
+.mobilePicker select:focus-visible,
+.schematicNode:focus-visible,
+.clearSelection:focus-visible {
+  outline: var(--ft-focus-width) solid var(--ft-text-primary);
+  outline-offset: var(--ft-focus-offset);
+}
+
+.mobilePicker {
+  display: none;
+}
+
+.detail {
+  min-width: 0;
+}
+
+.detailHeader {
+  padding-bottom: var(--ft-space-4);
+  border-bottom: var(--ft-rule-strong);
+}
+
+.mentalModel {
+  padding: var(--ft-space-4);
+  border: var(--ft-rule-default);
+  background: var(--ft-bg-inset);
+}
+
+.mentalModel h3,
+.systemSection h3,
+.sourceSection h3,
+.connectionSection h4,
+.schematicSourceSection h4 {
+  font-size: 1rem;
+}
+
+.schematicSection {
+  padding-block: var(--ft-space-4);
+  border-top: var(--ft-rule-default);
+  border-bottom: var(--ft-rule-default);
+}
+
+.schematicHeader {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: var(--ft-space-3);
+}
+
+.schematicHeader span {
+  color: var(--ft-text-metadata);
+  font-family: var(--ft-font-data);
+  font-size: 0.75rem;
+}
+
+.schematicDescription {
+  max-width: calc(var(--ft-space-7) * 12);
+}
+
+.schematicWorkspace {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(calc(var(--ft-space-7) * 4), 1fr);
+  gap: var(--ft-space-4);
+  align-items: start;
+}
+
+.schematicContainer {
+  position: relative;
+  min-width: 0;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border: var(--ft-rule-default);
+  background: var(--ft-bg-inset);
+}
+
+.schematicSvg,
+.schematicNodes,
+.edgeLabels {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.schematicSvg {
+  pointer-events: none;
+}
+
+.schematicEdge {
+  stroke: var(--ft-border-strong);
+  stroke-width: 0.5;
+  stroke-linecap: round;
+}
+
+.schematicEdge[data-active="true"] {
+  stroke: var(--ft-training-accent);
+  stroke-width: 0.8;
+}
+
+.schematicNode {
+  --node-x: 50;
+  --node-y: 50;
+  position: absolute;
+  left: calc(var(--node-x) * 1%);
+  top: calc(var(--node-y) * 1%);
+  transform: translate(-50%, -50%);
+  min-width: var(--ft-touch-target-min);
+  min-height: var(--ft-touch-target-min);
+  max-width: calc(var(--ft-space-7) * 2);
+  padding: var(--ft-space-2);
+  border: var(--ft-rule-default);
+  border-radius: var(--ft-radius-2);
+  background: var(--ft-bg-panel);
+  color: var(--ft-text-primary);
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.schematicNode[data-connected="true"] {
+  border: var(--ft-rule-strong);
+  font-weight: 600;
+}
+
+.schematicNode[aria-pressed="true"] {
+  border: var(--ft-rule-strong);
+  background: var(--ft-training-accent-bg);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: var(--ft-space-1);
+}
+
+.edgeLabels {
+  pointer-events: none;
+}
+
+.edgeLabel {
+  --edge-x: 50;
+  --edge-y: 50;
+  position: absolute;
+  left: calc(var(--edge-x) * 1%);
+  top: calc(var(--edge-y) * 1%);
+  transform: translate(-50%, -50%);
+  max-width: calc(var(--ft-space-7) * 2);
+  padding: var(--ft-space-1) var(--ft-space-2);
+  border: var(--ft-rule-default);
+  border-radius: var(--ft-radius-2);
+  background: var(--ft-bg-panel);
+  color: var(--ft-text-secondary);
+  font-family: var(--ft-font-data);
+  font-size: 0.6875rem;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.edgeLabel[data-active="true"] {
+  border: var(--ft-rule-strong);
+  color: var(--ft-text-primary);
+  font-weight: 600;
+}
+
+.schematicDetail {
+  min-width: 0;
+  padding: var(--ft-space-4);
+  border: var(--ft-rule-default);
+  background: var(--ft-bg-panel);
+}
+
+.schematicDetailHeader {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: var(--ft-space-3);
+}
+
+.clearSelection {
+  min-width: var(--ft-touch-target-min);
+  min-height: var(--ft-touch-target-min);
+  padding-inline: var(--ft-space-3);
+  border: var(--ft-rule-default);
+  border-radius: var(--ft-radius-2);
+  background: var(--ft-bg-inset);
+  color: var(--ft-text-primary);
+  font: inherit;
+  cursor: pointer;
+}
+
+.connectionSection,
+.schematicSourceSection {
+  padding-top: var(--ft-space-3);
+  border-top: var(--ft-rule-default);
+}
+
+.connectionSection ul,
+.schematicSourceSection ul,
+.systemSection ul,
+.sourceSection ul {
+  margin: 0;
+  padding-inline-start: var(--ft-space-5);
+}
+
+.sectionGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ft-space-4);
+}
+
+.systemSection,
+.sourceSection {
+  min-width: 0;
+  padding: var(--ft-space-4);
+  border: var(--ft-rule-default);
+  background: var(--ft-bg-panel);
+}
+
+.sourceSection {
+  border-top: var(--ft-rule-strong);
+}
+
+.emptyState {
+  padding: var(--ft-space-4);
+  border: var(--ft-rule-default);
+  background: var(--ft-bg-inset);
+}
+
+@media (max-width: 1024px) {
+  .page {
+    gap: var(--ft-space-5);
+    padding: var(--ft-space-4);
+  }
+
+  .layout,
+  .schematicWorkspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .indexPanel {
+    display: none;
+  }
+
+  .mobilePicker {
+    display: grid;
+    gap: var(--ft-space-1);
+    color: var(--ft-text-secondary);
+    font-weight: 500;
+  }
+
+  .mobilePicker select {
+    min-height: var(--ft-touch-target-min);
+    width: 100%;
+    padding-inline: var(--ft-space-3);
+    border: var(--ft-rule-default);
+    border-radius: var(--ft-radius-2);
+    background: var(--ft-bg-panel);
+    color: var(--ft-text-primary);
+    font: inherit;
+  }
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: var(--ft-space-3);
+  }
+
+  .sectionGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .schematicContainer {
+    aspect-ratio: 1 / 1;
+  }
+
+  .schematicHeader,
+  .schematicDetailHeader {
+    display: grid;
+  }
+
+  .clearSelection {
+    width: 100%;
+  }
+}

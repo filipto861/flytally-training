@@ -701,3 +701,127 @@ test("P2 PERFORMANCE shows an explicit empty state without Active Flight", async
   await expect(performance).toContainText("No active flight.");
   await expect(performance.getByText("Training view", { exact: true })).toBeVisible();
 });
+
+
+async function openP3Systems(page: Page): Promise<Locator> {
+  await page.goto(`${shellOnBase}${aircraftPath}/systems`);
+  const systems = page.getByRole("main", { name: "Systems workspace" });
+  await expect(systems).toBeVisible();
+  return systems;
+}
+
+test("P3 Systems opens under AIRCRAFT in new shell", async ({ page }, testInfo) => {
+  const systems = await openP3Systems(page);
+
+  await expect(systems).toHaveAttribute("data-ft-systems-page", "true");
+  await expect(
+    systems.getByRole("heading", { name: "Generic Source System", exact: true }),
+  ).toBeVisible();
+
+  const nav = await workspaceNavigation(page, testInfo.project.name);
+  await expect(nav.getByRole("link", { name: "AIRCRAFT", exact: true })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+});
+
+test("P3 published schematic renders source-backed nodes and edges", async ({ page }) => {
+  const systems = await openP3Systems(page);
+
+  for (const label of ["Source A", "Pump A", "Valve A", "Consumer A"]) {
+    await expect(systems.getByRole("button", { name: label, exact: true })).toBeVisible();
+  }
+  await expect(systems.getByText("supply", { exact: true })).toBeVisible();
+  await expect(systems.getByText("delivery", { exact: true })).toBeVisible();
+});
+
+test("P3 node selection updates detail and connections", async ({ page }) => {
+  const systems = await openP3Systems(page);
+  await systems.getByRole("button", { name: "Pump A", exact: true }).click();
+
+  const detail = systems.locator("aside").filter({ hasText: "Connected to" });
+  await expect(detail).toBeVisible();
+  await expect(
+    detail.getByRole("heading", { name: "Pump A", exact: true }),
+  ).toBeVisible();
+  await expect(detail).toContainText("Source A (supply)");
+  await expect(detail).toContainText("Valve A");
+  await expect(detail).toContainText("P3 deterministic fixture");
+  await expect(detail).toContainText("P3-1");
+});
+
+test("P3 keyboard interaction can select a node", async ({ page }) => {
+  const systems = await openP3Systems(page);
+  const source = systems.getByRole("button", { name: "Source A", exact: true });
+  const pump = systems.getByRole("button", { name: "Pump A", exact: true });
+
+  await source.focus();
+  await expect(source).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(pump).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(pump).toHaveAttribute("aria-pressed", "true");
+});
+
+test("P3 Escape clears node selection", async ({ page }) => {
+  const systems = await openP3Systems(page);
+  const pump = systems.getByRole("button", { name: "Pump A", exact: true });
+
+  await pump.click();
+  await expect(pump).toHaveAttribute("aria-pressed", "true");
+  await expect(systems.getByRole("heading", { name: "Pump A", exact: true })).toBeVisible();
+
+  await page.keyboard.press("Escape");
+  await expect(pump).toHaveAttribute("aria-pressed", "false");
+  await expect(
+    systems.getByRole("heading", { name: "Select a component", exact: true }),
+  ).toBeVisible();
+});
+
+test("P3 text-only system works without a schematic", async ({ page }) => {
+  const systems = await openP3Systems(page);
+  const mobilePicker = systems.getByRole("combobox");
+
+  if (await mobilePicker.isVisible()) {
+    await mobilePicker.selectOption("generic-text-system");
+  } else {
+    await systems.getByRole("button", { name: /Generic Text System/ }).click();
+  }
+
+  await expect(
+    systems.getByRole("heading", { name: "Generic Text System", exact: true }),
+  ).toBeVisible();
+  await expect(systems.getByText("Text component A", { exact: true })).toBeVisible();
+  await expect(systems.getByText("Text control A", { exact: true })).toBeVisible();
+  await expect(systems.getByText("Text indication A", { exact: true })).toBeVisible();
+  await expect(systems.getByText("LOGICAL SCHEMATIC", { exact: true })).toHaveCount(0);
+});
+
+test("P3 flag OFF preserves legacy Systems presentation", async ({ page }) => {
+  await page.goto(`${aircraftPath}/systems`);
+
+  await expect(page.locator('[data-ft-shell="true"]')).toHaveCount(0);
+  await expect(page.locator('[data-ft-systems-page="true"]')).toHaveCount(0);
+  await expect(
+    page.getByRole("region", { name: "Systems learning workspace" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Generic Source System", exact: true, level: 2 }),
+  ).toBeVisible();
+});
+
+test("P3 Cockpit Orientation remains separate under TRAINING", async ({ page }, testInfo) => {
+  await page.goto(`${shellOnBase}${aircraftPath}/orientation`);
+
+  await expect(
+    page.getByRole("region", { name: "Cockpit orientation explorer" }),
+  ).toBeVisible();
+  await expect(page.getByText("Region A", { exact: true }).first()).toBeVisible();
+  await expect(page.locator('[data-ft-systems-page="true"]')).toHaveCount(0);
+
+  const nav = await workspaceNavigation(page, testInfo.project.name);
+  await expect(nav.getByRole("link", { name: "TRAINING", exact: true })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+});

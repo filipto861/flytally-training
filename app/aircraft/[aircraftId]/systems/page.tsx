@@ -2,10 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
+import { FtSystemsPage } from "@/components/ft-systems/FtSystemsPage";
 import { SystemsBrowser, type RuntimeSystemLesson } from "@/components/systems-browser";
 import { configurationForAircraftVariant, filterSystemsForConfiguration, resolveSelectedVariant, withVariantQuery } from "@/lib/aircraft-applicability";
 import { getPublishedAircraftModule } from "@/lib/content-repository";
 import { getTrainingContentRepository } from "@/lib/content-store";
+import { isNewShellEnabled } from "@/lib/feature-flags";
 import type { AircraftSystemsContent, TrainingSourceReference } from "@/lib/universal-aircraft-content";
 
 const formatSources = (sources: readonly TrainingSourceReference[] | undefined): string | undefined =>
@@ -31,6 +33,11 @@ export default async function SystemsPage({
   const configuredUniversal = universal
     ? filterSystemsForConfiguration(universal, configurationForAircraftVariant(aircraft, selectedVariant))
     : undefined;
+
+  if (isNewShellEnabled()) {
+    if (!configuredUniversal) notFound();
+    return <FtSystemsPage content={configuredUniversal} />;
+  }
   const systems: readonly RuntimeSystemLesson[] = configuredUniversal ? configuredUniversal.systems.map((system) => ({
     ...system,
     sourceLabel: formatSources(system.sources),

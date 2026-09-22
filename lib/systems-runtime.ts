@@ -19,6 +19,13 @@ export function systemSearchText(system: AircraftSystemLesson): string {
     ...(system.limitations ?? []),
     ...(system.abnormalCues ?? []),
     ...(system.remember ?? []),
+    system.schematic?.title,
+    system.schematic?.description,
+    ...(system.schematic?.nodes.flatMap((node) => [
+      node.label,
+      node.summary,
+    ]) ?? []),
+    ...(system.schematic?.edges.map((edge) => edge.label) ?? []),
   ].filter((value): value is string => Boolean(value)).join("\n").toLocaleLowerCase();
 }
 
