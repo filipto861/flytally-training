@@ -9,7 +9,7 @@
 .page {
   width: 100%;
   gap: var(--ft-space-5);
-  padding: var(--ft-space-5);
+  padding: var(--ft-space-6);
   background: var(--ft-bg-shell);
 }
 
