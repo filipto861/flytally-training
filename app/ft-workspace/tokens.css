@@ -1,9 +1,9 @@
 /*
  * FlyTally Training aircraft-workspace design tokens.
  *
- * These variables are intentionally scoped to .ft-workspace so the redesign can
- * migrate aircraft routes without changing admin, account, or legacy surfaces.
- * Semantic roles are the contract. Concrete values may be calibrated centrally.
+ * UX6 keeps the original semantic contracts but extends them with shell and
+ * interaction geometry so presentation can evolve without hard-coded values in
+ * feature components.
  */
 
 .ft-workspace {
@@ -19,23 +19,33 @@
   --ft-space-5: 24px;
   --ft-space-6: 32px;
   --ft-space-7: 48px;
+  --ft-space-8: 64px;
 
-  /* Radius policy */
+  /* Radius */
   --ft-radius-0: 0;
   --ft-radius-2: 2px;
   --ft-radius-4: 4px;
+  --ft-radius-control: 8px;
+  --ft-radius-panel: 10px;
+  --ft-radius-overlay: 14px;
+
+  /* UX6 shell geometry */
+  --ft-shell-rail-width: 72px;
+  --ft-shell-topbar-height: 64px;
+  --ft-shell-content-max: 1536px;
+  --ft-control-height: 40px;
 
   /* Interaction primitives */
   --ft-touch-target-min: 44px;
-  --ft-fast-path-height-desktop: 44px;
-  --ft-fast-path-height-ipad: 56px;
+  --ft-fast-path-height-desktop: 48px;
+  --ft-fast-path-height-ipad: 58px;
   --ft-focus-width: 2px;
   --ft-focus-offset: 2px;
 
   /* Rules are semantic aliases over the active theme palette. */
   --ft-rule-default: 1px solid var(--ft-border-rule);
   --ft-rule-strong: 1px solid var(--ft-border-strong);
-  --ft-rule-accent: 2px solid var(--ft-text-primary);
+  --ft-rule-accent: 2px solid var(--ft-accent-primary);
   --ft-rule-divider: 1px solid var(--ft-border-rule);
 
   /*
