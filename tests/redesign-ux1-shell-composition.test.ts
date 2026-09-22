@@ -59,7 +59,10 @@ test("UX1 keeps touch layouts full-width enough for four accessible targets", ()
   assert.match(css, /@media \(max-width: 1180px\), \(hover: none\)/);
   assert.match(
     css,
-    /\.fastPathRail\s*\{[\s\S]*width:\s*calc\(100% - var\(--ft-space-4\)\)[\s\S]*--ft-fast-path-height-ipad/,
+    /\.fastPathRail\s*\{[\s\S]*bottom:\s*0[\s\S]*width:\s*100%[\s\S]*--ft-fast-path-height-ipad[\s\S]*safe-area-inset-bottom/,
   );
-  assert.match(css, /min-height:\s*var\(--ft-fast-path-height-ipad\)/);
+  assert.match(
+    css,
+    /\.fastPathLink\s*\{[\s\S]*min-height:\s*var\(--ft-fast-path-height-ipad\)/,
+  );
 });
