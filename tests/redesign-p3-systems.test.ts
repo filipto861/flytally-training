@@ -23,6 +23,7 @@ type TestNode = {
   role: string;
   x: number;
   y: number;
+  summary?: string;
   sources?: TestSource[];
 };
 
