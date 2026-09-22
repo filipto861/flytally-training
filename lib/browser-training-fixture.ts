@@ -1,6 +1,6 @@
 import type { CockpitOrientation } from "./cockpit-orientation";
 import type { StaticTrainingContentSeed } from "./static-content-repository";
-import type { AircraftChecklistContent,AircraftPerformanceContent,AircraftProcedureContent,AircraftSystemsContent,TrainingSourceReference } from "./universal-aircraft-content";
+import type { AircraftChecklistContent,AircraftLimitationsContent,AircraftPerformanceContent,AircraftProcedureContent,AircraftSystemsContent,TrainingSourceReference } from "./universal-aircraft-content";
 import type { AircraftAbnormalEmergencyContent } from "./universal-abnormal-emergency";
 
 export const browserTrainingAircraftId="browser-ci-aircraft";
@@ -101,6 +101,46 @@ const performance:AircraftPerformanceContent={
         inputAxes:["takeoffWeight"],
         outputKeys:["n1Percent","v1","vr","v2","takeoffDistance"],
       },
+    },
+  ],
+};
+
+
+
+const limitationsSource={
+  manualId:"browser-ci-limitations-source",
+  section:"P7 deterministic fixture",
+  pageLabel:"P7-1",
+} satisfies TrainingSourceReference;
+
+const limitations:AircraftLimitationsContent={
+  aircraftId:browserTrainingAircraftId,
+  title:"Browser CI Limitations",
+  sourceNote:"Test-only deterministic limitations fixture.",
+  disclaimer:"Training fixture only.",
+  groups:[
+    {
+      id:"generic-speeds",
+      title:"Generic Speeds",
+      sources:[limitationsSource],
+      items:[
+        {
+          id:"generic-max-speed",
+          label:"Maximum generic speed",
+          value:200,
+          unit:"KIAS",
+          condition:"Generic configuration",
+          notices:[{kind:"caution",text:"Generic caution."}],
+          sources:[limitationsSource],
+        },
+        {
+          id:"generic-min-speed",
+          label:"Minimum generic speed",
+          value:80,
+          unit:"KIAS",
+          sources:[limitationsSource],
+        },
+      ],
     },
   ],
 };
@@ -340,6 +380,7 @@ export const browserTrainingContentSeed:StaticTrainingContentSeed={
   nativeModules:[
     {aircraftId:browserTrainingAircraftId,domain:"checklists",payload:checklist},
     {aircraftId:browserTrainingAircraftId,domain:"performance",payload:performance},
+    {aircraftId:browserTrainingAircraftId,domain:"limitations",payload:limitations},
     {aircraftId:browserTrainingAircraftId,domain:"procedures",payload:procedures},
     {aircraftId:browserTrainingAircraftId,domain:"systems",payload:systems},
     {aircraftId:browserTrainingAircraftId,domain:"abnormal",payload:abnormal},

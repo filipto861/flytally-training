@@ -83,3 +83,65 @@ test("P7 reference implementation is presentation-only and aircraft-agnostic", (
   assert.doesNotMatch(source, /performance-calculator|calculatePerformance/i);
   assert.doesNotMatch(source, /reference-knowledge/i);
 });
+
+
+test("P7.3 shell loads governed limitations for REF without changing PERF", () => {
+  const shell = read("components/ft-shell/FtShell.tsx");
+  const panel = read("components/ft-fast-path/FtFastPathPanel.tsx");
+
+  assert.match(
+    shell,
+    /getPublishedAircraftModule<AircraftLimitationsContent>[\s\S]*"limitations"/,
+  );
+  assert.match(shell, /referenceContent=\{publishedLimitations\}/);
+  assert.match(panel, /<FtFastPathReference/);
+  assert.match(panel, /content=\{referenceContent\}/);
+  assert.match(panel, /<FtPerformancePresentation/);
+  assert.doesNotMatch(panel, /FtFastPathPlaceholder/);
+});
+
+test("P7.3 fast-path REF resolves variant query through the existing applicability resolver", () => {
+  const fast = read("components/ft-fast-path/FtFastPathReference.tsx");
+
+  assert.match(fast, /window\.location\.search/);
+  assert.match(fast, /resolveSelectedVariant/);
+  assert.match(fast, /configurationForAircraftVariant/);
+  assert.match(fast, /filterLimitationsForConfiguration/);
+  assert.match(fast, /withVariantQuery/);
+  assert.doesNotMatch(fast, /aircraft\.model\s*===/i);
+});
+
+test("P7.3 new-shell Reference route shares the same presentation projection and preserves legacy fallback", () => {
+  const route = read("app/aircraft/[aircraftId]/reference/page.tsx");
+
+  assert.match(route, /isNewShellEnabled/);
+  assert.match(route, /filterLimitationsForConfiguration/);
+  assert.match(route, /toReferencePresentation/);
+  assert.match(route, /<FtReferencePage/);
+  assert.match(route, /<AircraftWorkspaceNav/);
+  assert.doesNotMatch(route, /FtShell/);
+});
+
+test("P7.3 REF no longer uses the W3 placeholder", () => {
+  const panel = read("components/ft-fast-path/FtFastPathPanel.tsx");
+
+  assert.match(panel, /FtFastPathReference/);
+  assert.doesNotMatch(panel, /FtFastPathPlaceholder/);
+});
+
+test("P7.4 deterministic browser fixture publishes governed limitations", () => {
+  const fixture = read("lib/browser-training-fixture.ts");
+
+  assert.match(fixture, /browser-ci-limitations-source/);
+  assert.match(fixture, /Maximum generic speed/);
+  assert.match(fixture, /value:200/);
+  assert.match(fixture, /unit:"KIAS"/);
+  assert.match(fixture, /domain:"limitations",payload:limitations/);
+  assert.doesNotMatch(
+    fixture.slice(
+      fixture.indexOf("const limitationsSource"),
+      fixture.indexOf("const systemsSource"),
+    ),
+    /learjet|35a|tfe731|bristell|cessna|boeing|rotax/i,
+  );
+});

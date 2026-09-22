@@ -210,7 +210,6 @@ test("P5.3 fills the existing QRH slot without changing W3 or REF ownership", ()
   assert.match(panel, /activeTab === "qrh"/);
   assert.match(panel, /<FtFastPathQrh emergency=\{emergency\} \/>/);
   assert.match(panel, /activeTab === "perf"/);
-  assert.match(panel, /<FtFastPathPlaceholder tab=\{activeTab\} \/>/);
   assert.match(qrh, /<OperationalEmergency emergency=\{emergency\} \/>/);
   assert.match(qrh, /QRH unavailable/);
 });
