@@ -2,10 +2,25 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
-import { resolveSelectedVariant, withVariantQuery } from "@/lib/aircraft-applicability";
+import {
+  FtReferencePage,
+  type FtReferenceDestination,
+} from "@/components/ft-reference/FtReferencePage";
+import {
+  configurationForAircraftVariant,
+  filterLimitationsForConfiguration,
+  resolveSelectedVariant,
+  withVariantQuery,
+} from "@/lib/aircraft-applicability";
 import { getBundledPerformancePackage } from "@/lib/bundled-performance-content";
-import { getAircraftContentBundle } from "@/lib/content-repository";
+import {
+  getAircraftContentBundle,
+  getPublishedAircraftModule,
+} from "@/lib/content-repository";
 import { getTrainingContentRepository } from "@/lib/content-store";
+import { isNewShellEnabled } from "@/lib/feature-flags";
+import { toReferencePresentation } from "@/lib/reference-presentation";
+import type { AircraftLimitationsContent } from "@/lib/universal-aircraft-content";
 
 export default async function ReferenceHubPage({
   params,
@@ -15,7 +30,15 @@ export default async function ReferenceHubPage({
   searchParams: Promise<{ variant?: string }>;
 }>) {
   const [{ aircraftId }, { variant }] = await Promise.all([params, searchParams]);
-  const bundle = await getAircraftContentBundle(getTrainingContentRepository(), aircraftId);
+  const repository = getTrainingContentRepository();
+  const [bundle, publishedLimitations] = await Promise.all([
+    getAircraftContentBundle(repository, aircraftId),
+    getPublishedAircraftModule<AircraftLimitationsContent>(
+      repository,
+      aircraftId,
+      "limitations",
+    ),
+  ]);
   if (!bundle) notFound();
   const { aircraft, capabilities } = bundle;
   const hasPerformance = capabilities.performance || Boolean(getBundledPerformancePackage(aircraftId));
@@ -29,6 +52,69 @@ export default async function ReferenceHubPage({
     capabilities.weightBalance ? { key: "weight-balance", kicker: "Load", title: "Weight & Balance", text: "Mass, CG and configuration-specific loading limits." } : undefined,
     capabilities.limitations ? { key: "limitations", kicker: "Limits", title: "Limitations", text: "Speeds, weights and operating boundaries." } : undefined,
   ].filter((item): item is { key: string; kicker: string; title: string; text: string } => Boolean(item));
+
+  if (isNewShellEnabled()) {
+    const configuredLimitations = publishedLimitations
+      ? filterLimitationsForConfiguration(
+          publishedLimitations,
+          configurationForAircraftVariant(aircraft, selectedVariant),
+        )
+      : undefined;
+    const reference = toReferencePresentation(configuredLimitations);
+    const destinations: FtReferenceDestination[] = [
+      ...(hasQuickReference
+        ? [{
+            key: "quick-reference",
+            title: "Quick Reference",
+            summary: "Published limitations and source rows in one workspace.",
+            href: `/aircraft/${aircraft.id}/quick-reference`,
+          }]
+        : []),
+      ...(hasPerformance
+        ? [{
+            key: "performance",
+            title: "Performance",
+            summary: "Open the dedicated source-backed performance workspace.",
+            href: `/aircraft/${aircraft.id}/performance`,
+          }]
+        : []),
+      ...(capabilities.weightBalance
+        ? [{
+            key: "weight-balance",
+            title: "Weight & Balance",
+            summary: "Open the aircraft loading and CG workspace.",
+            href: `/aircraft/${aircraft.id}/weight-balance`,
+          }]
+        : []),
+      ...(capabilities.limitations
+        ? [{
+            key: "limitations",
+            title: "Limitations",
+            summary: "Search all published operating limitations.",
+            href: `/aircraft/${aircraft.id}/limitations`,
+          }]
+        : []),
+      ...(capabilities.abnormalEmergency
+        ? [{
+            key: "abnormal",
+            title: "Abnormal & Emergency",
+            summary: "Open the source-backed abnormal and emergency workspace.",
+            href: `/aircraft/${aircraft.id}/abnormal`,
+          }]
+        : []),
+    ];
+
+    if (!reference && !destinations.length) notFound();
+
+    return (
+      <FtReferencePage
+        aircraftId={aircraft.id}
+        selectedVariant={selectedVariant}
+        reference={reference}
+        destinations={destinations}
+      />
+    );
+  }
 
   if (!modules.length && !hasQuickReference && !emergency) notFound();
 

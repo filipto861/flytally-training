@@ -23,6 +23,7 @@ import { mergePerformanceDatasets } from "@/lib/performance-package";
 import { getTrainingSession } from "@/lib/training-session";
 import type {
   AircraftChecklistContent,
+  AircraftLimitationsContent,
   AircraftPerformanceContent,
 } from "@/lib/universal-aircraft-content";
 
@@ -49,6 +50,7 @@ export async function FtShell({
     legacyChecklist,
     publishedPerformance,
     publishedAbnormal,
+    publishedLimitations,
     operationalReadiness,
     session,
   ] = await Promise.all([
@@ -68,6 +70,11 @@ export async function FtShell({
         repository,
         aircraftId,
         "abnormal",
+      ),
+      getPublishedAircraftModule<AircraftLimitationsContent>(
+        repository,
+        aircraftId,
+        "limitations",
       ),
       getOperationalFlightReadiness(aircraftId),
       getTrainingSession(),
@@ -145,6 +152,8 @@ export async function FtShell({
         <FtFastPathPanel
           activeFlight={activeFlight}
           emergency={emergency}
+          referenceAircraft={aircraft}
+          referenceContent={publishedLimitations}
           performanceDatasets={performanceDatasets}
           takeoffCalculator={bundledPerformance?.takeoffCalculator}
         />
