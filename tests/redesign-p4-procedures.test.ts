@@ -375,3 +375,58 @@ test("P4 presentation defines no independent deep-link controller", () => {
     }
   }
 });
+
+
+const proceduresRouteSource = readFileSync(
+  new URL("../app/aircraft/[aircraftId]/procedures/page.tsx", import.meta.url),
+  "utf8",
+);
+
+test("P4 new-shell Procedures route stays gated while legacy flag-off fallback survives", () => {
+  assert.match(proceduresRouteSource, /isNewShellEnabled/);
+  assert.match(proceduresRouteSource, /ProcedureBrowser/);
+  assert.match(proceduresRouteSource, /presentation="new-shell"/);
+  assert.match(proceduresRouteSource, /notFound/);
+
+  for (const pattern of [
+    /FtShell/,
+    /CONTENT_IA/,
+    /aircraftId\s*===\s*["']/,
+    /aircraft\.model\s*===\s*["']/,
+  ]) {
+    assert.doesNotMatch(
+      proceduresRouteSource,
+      pattern,
+      `P4 Procedures route must remain generic and shell-safe; matched ${pattern}`,
+    );
+  }
+
+  assert.match(
+    proceduresRouteSource,
+    /configuredUniversal\?\.procedures\s*\?\?\s*legacy\?\.phases\.map\(/,
+  );
+});
+
+test("P4 flag-on route requires governed universal procedures and does not promote legacy normal-flight content", () => {
+  const newShellStart = proceduresRouteSource.indexOf("if (isNewShellEnabled())");
+  const legacyResolutionStart = proceduresRouteSource.indexOf(
+    "const procedures:",
+    newShellStart,
+  );
+
+  assert.ok(newShellStart >= 0, "new-shell route branch must exist");
+  assert.ok(
+    legacyResolutionStart > newShellStart,
+    "legacy procedure resolution must remain after the new-shell branch",
+  );
+
+  const newShellBlock = proceduresRouteSource.slice(
+    newShellStart,
+    legacyResolutionStart,
+  );
+
+  assert.match(newShellBlock, /if \(!configuredUniversal\) notFound\(\)/);
+  assert.match(newShellBlock, /procedures=\{configuredUniversal\.procedures\}/);
+  assert.match(newShellBlock, /presentation="new-shell"/);
+  assert.doesNotMatch(newShellBlock, /\blegacy\b/);
+});
