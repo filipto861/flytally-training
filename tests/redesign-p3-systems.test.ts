@@ -3,14 +3,59 @@ import test from "node:test";
 
 import { validateContentPayload } from "../lib/content-contracts.ts";
 
-const source = {
+type TestSource = {
+  manualId: string;
+  chapter?: string;
+  section?: string;
+  pageLabel: string;
+};
+
+type TestNode = {
+  id: string;
+  label: string;
+  role: string;
+  x: number;
+  y: number;
+  sources?: TestSource[];
+};
+
+type TestEdge = {
+  id: string;
+  from: string;
+  to: string;
+  direction: string;
+  label?: string;
+  sources?: TestSource[];
+};
+
+type TestSchematic = {
+  version: number;
+  title?: string;
+  description?: string;
+  sources: TestSource[];
+  nodes: TestNode[];
+  edges: TestEdge[];
+};
+
+type TestPayload = {
+  aircraftId: string;
+  title: string;
+  systems: Array<{
+    id: string;
+    title: string;
+    summary: string;
+    schematic?: TestSchematic;
+  }>;
+};
+
+const source: TestSource = {
   manualId: "manual-p3",
   chapter: "27",
   section: "Test system",
   pageLabel: "27-1",
 };
 
-function validPayload() {
+function validPayload(): TestPayload {
   return {
     aircraftId: "test-aircraft",
     title: "Aircraft systems",
@@ -56,6 +101,12 @@ function validPayload() {
   };
 }
 
+function schematicOf(payload: TestPayload): TestSchematic {
+  const schematic = payload.systems[0]?.schematic;
+  assert.ok(schematic);
+  return schematic;
+}
+
 function errorsFor(payload: unknown): readonly string[] {
   return validateContentPayload("systems", payload, "test-aircraft");
 }
@@ -66,14 +117,14 @@ test("P3 valid v1 systems schematic passes universal validation", () => {
 
 test("P3 duplicate schematic node IDs are rejected", () => {
   const payload = validPayload();
-  payload.systems[0].schematic.nodes[1].id = "source-a";
+  schematicOf(payload).nodes[1].id = "source-a";
 
   assert.match(errorsFor(payload).join("\n"), /nodes\[1\]\.id duplicated: source-a/);
 });
 
 test("P3 duplicate edge IDs are rejected", () => {
   const payload = validPayload();
-  payload.systems[0].schematic.edges.push({
+  schematicOf(payload).edges.push({
     id: "source-to-consumer",
     from: "source-a",
     to: "consumer-a",
@@ -86,9 +137,9 @@ test("P3 duplicate edge IDs are rejected", () => {
 
 test("P3 invalid non-finite and out-of-range schematic coordinates are rejected", () => {
   const payload = validPayload();
-  payload.systems[0].schematic.nodes[0].x = Number.NaN;
-  payload.systems[0].schematic.nodes[0].y = -1;
-  payload.systems[0].schematic.nodes[1].x = 101;
+  schematicOf(payload).nodes[0].x = Number.NaN;
+  schematicOf(payload).nodes[0].y = -1;
+  schematicOf(payload).nodes[1].x = 101;
 
   const errors = errorsFor(payload).join("\n");
   assert.match(errors, /nodes\[0\]\.x must be finite within 0\.\.100/);
@@ -98,7 +149,7 @@ test("P3 invalid non-finite and out-of-range schematic coordinates are rejected"
 
 test("P3 dangling schematic edge endpoint is rejected", () => {
   const payload = validPayload();
-  payload.systems[0].schematic.edges[0].to = "missing-node";
+  schematicOf(payload).edges[0].to = "missing-node";
 
   assert.match(
     errorsFor(payload).join("\n"),
@@ -108,14 +159,14 @@ test("P3 dangling schematic edge endpoint is rejected", () => {
 
 test("P3 self-loop schematic edge is rejected", () => {
   const payload = validPayload();
-  payload.systems[0].schematic.edges[0].to = "source-a";
+  schematicOf(payload).edges[0].to = "source-a";
 
   assert.match(errorsFor(payload).join("\n"), /edges\[0\] self-loop not allowed/);
 });
 
 test("P3 empty schematic sources are rejected", () => {
   const payload = validPayload();
-  payload.systems[0].schematic.sources = [];
+  schematicOf(payload).sources = [];
 
   assert.match(
     errorsFor(payload).join("\n"),
@@ -125,18 +176,18 @@ test("P3 empty schematic sources are rejected", () => {
 
 test("P3 explicit empty node and edge sources are rejected while absent sources inherit schematic provenance", () => {
   const inherited = validPayload();
-  delete inherited.systems[0].schematic.nodes[1].sources;
+  delete schematicOf(inherited).nodes[1].sources;
   assert.deepEqual(errorsFor(inherited), []);
 
   const emptyNodeSources = validPayload();
-  emptyNodeSources.systems[0].schematic.nodes[0].sources = [];
+  schematicOf(emptyNodeSources).nodes[0].sources = [];
   assert.match(
     errorsFor(emptyNodeSources).join("\n"),
     /nodes\[0\]\.sources present but empty or malformed/,
   );
 
   const emptyEdgeSources = validPayload();
-  emptyEdgeSources.systems[0].schematic.edges[0].sources = [];
+  schematicOf(emptyEdgeSources).edges[0].sources = [];
   assert.match(
     errorsFor(emptyEdgeSources).join("\n"),
     /edges\[0\]\.sources present but empty or malformed/,
