@@ -3,6 +3,14 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import { configurationForVariant } from "../lib/aircraft-applicability.ts";
+import {
+  legacyOperationalChecklistStorageKey,
+  restoreChecklistSessionWithLegacyMigration,
+  type ChecklistCanonicalStorage,
+  type LegacyOperationalChecklistStorage,
+} from "../lib/checklist-session-migration.ts";
+import { checklistSessionStorageKey } from "../lib/checklist-session.ts";
+import type { RuntimeChecklist } from "../lib/checklist-runtime.ts";
 import { fastPathTabForShortcut, fastPathTabs } from "../lib/fast-path/panel-state.ts";
 import { resolveFastPathQrh } from "../lib/fast-path/qrh-adapter.ts";
 
@@ -224,4 +232,218 @@ test("P5.4 checklist training and fast path share one canonical session contract
   assert.equal((session.match(keyPrefix) ?? []).length, 1);
   assert.doesNotMatch(runner, /flytally:flight-checklist:v1:/);
   assert.doesNotMatch(adapter, /flytally:flight-checklist:v1:/);
+});
+
+
+const migrationChecklist: RuntimeChecklist = {
+  aircraftId: "generic-aircraft",
+  title: "Generic Checklist",
+  phases: [
+    {
+      id: "phase-a",
+      title: "Phase A",
+      items: [
+        { id: "item-a", challenge: "Item A" },
+        { id: "item-b", challenge: "Item B" },
+      ],
+    },
+    {
+      id: "phase-b",
+      title: "Phase B",
+      items: [{ id: "item-c", challenge: "Item C" }],
+    },
+  ],
+};
+
+function memoryCanonical(
+  initial: Readonly<Record<string, string>> = {},
+): ChecklistCanonicalStorage & { values: Map<string, string> } {
+  const values = new Map(Object.entries(initial));
+  return {
+    values,
+    getItem: (key) => values.get(key) ?? null,
+    setItem: (key, value) => {
+      values.set(key, value);
+    },
+  };
+}
+
+function memoryLegacy(
+  initial: Readonly<Record<string, string>> = {},
+): LegacyOperationalChecklistStorage & { values: Map<string, string> } {
+  const values = new Map(Object.entries(initial));
+  return {
+    values,
+    getItem: (key) => values.get(key) ?? null,
+    removeItem: (key) => {
+      values.delete(key);
+    },
+  };
+}
+
+test("P5.5 legacy checklist key matches the pre-existing OperationalChecklist identity", () => {
+  assert.equal(
+    legacyOperationalChecklistStorageKey(migrationChecklist, "variant-a"),
+    "flytally:flight-checklist:v1:generic-aircraft:variant-a:Generic Checklist",
+  );
+});
+
+test("P5.5 valid legacy progress migrates once into the canonical checklist session", () => {
+  const legacyKey = legacyOperationalChecklistStorageKey(
+    migrationChecklist,
+    "variant-a",
+  );
+  const canonicalKey = checklistSessionStorageKey(
+    migrationChecklist,
+    "variant-a",
+  );
+  const canonical = memoryCanonical();
+  const legacy = memoryLegacy({
+    [legacyKey]: JSON.stringify({
+      version: 1,
+      phaseId: "phase-b",
+      completedIds: ["item-a", "item-c"],
+    }),
+  });
+
+  const migrated = restoreChecklistSessionWithLegacyMigration(
+    migrationChecklist,
+    canonical,
+    legacy,
+    "variant-a",
+  );
+
+  assert.equal(migrated.mode, "run");
+  assert.equal(migrated.selectedPhaseId, "phase-b");
+  assert.deepEqual(migrated.completedIds, ["item-a", "item-c"]);
+  assert.deepEqual(migrated.revealedFlowPhaseIds, []);
+  assert.deepEqual(migrated.revealedResponseIds, []);
+  assert.equal(legacy.getItem(legacyKey), null);
+  assert.equal(canonical.getItem(canonicalKey), JSON.stringify(migrated));
+});
+
+test("P5.5 stale legacy phase and item identities reconcile to current checklist content", () => {
+  const legacyKey = legacyOperationalChecklistStorageKey(migrationChecklist);
+  const canonical = memoryCanonical();
+  const legacy = memoryLegacy({
+    [legacyKey]: JSON.stringify({
+      version: 1,
+      phaseId: "removed-phase",
+      completedIds: ["item-a", "removed-item", "item-a"],
+    }),
+  });
+
+  const migrated = restoreChecklistSessionWithLegacyMigration(
+    migrationChecklist,
+    canonical,
+    legacy,
+  );
+
+  assert.equal(migrated.selectedPhaseId, "phase-a");
+  assert.deepEqual(migrated.completedIds, ["item-a"]);
+  assert.equal(legacy.getItem(legacyKey), null);
+});
+
+test("P5.5 malformed or future legacy payload fails closed and is consumed", () => {
+  for (const raw of [
+    "{not-json",
+    JSON.stringify({
+      version: 99,
+      phaseId: "phase-b",
+      completedIds: ["item-a"],
+    }),
+    JSON.stringify({
+      version: 1,
+      phaseId: "phase-b",
+      completedIds: "item-a",
+    }),
+  ]) {
+    const legacyKey = legacyOperationalChecklistStorageKey(migrationChecklist);
+    const canonicalKey = checklistSessionStorageKey(migrationChecklist);
+    const canonical = memoryCanonical();
+    const legacy = memoryLegacy({ [legacyKey]: raw });
+
+    const restored = restoreChecklistSessionWithLegacyMigration(
+      migrationChecklist,
+      canonical,
+      legacy,
+    );
+
+    assert.equal(restored.selectedPhaseId, "phase-a");
+    assert.deepEqual(restored.completedIds, []);
+    assert.equal(legacy.getItem(legacyKey), null);
+    assert.equal(canonical.getItem(canonicalKey), JSON.stringify(restored));
+  }
+});
+
+test("P5.5 existing canonical state is authoritative and legacy state cannot resurrect", () => {
+  const canonicalKey = checklistSessionStorageKey(
+    migrationChecklist,
+    "variant-a",
+  );
+  const legacyKey = legacyOperationalChecklistStorageKey(
+    migrationChecklist,
+    "variant-a",
+  );
+  const canonicalSnapshot = {
+    version: 1,
+    mode: "run",
+    selectedPhaseId: "phase-a",
+    completedIds: ["item-b"],
+    revealedFlowPhaseIds: [],
+    revealedResponseIds: [],
+  };
+  const canonical = memoryCanonical({
+    [canonicalKey]: JSON.stringify(canonicalSnapshot),
+  });
+  const legacy = memoryLegacy({
+    [legacyKey]: JSON.stringify({
+      version: 1,
+      phaseId: "phase-b",
+      completedIds: ["item-a", "item-c"],
+    }),
+  });
+
+  const restored = restoreChecklistSessionWithLegacyMigration(
+    migrationChecklist,
+    canonical,
+    legacy,
+    "variant-a",
+  );
+
+  assert.deepEqual(restored.completedIds, ["item-b"]);
+  assert.equal(restored.selectedPhaseId, "phase-a");
+  assert.equal(legacy.getItem(legacyKey), null);
+
+  // Even if an old shell later recreates the legacy key, canonical progress
+  // remains authoritative and the recreated legacy state is consumed.
+  legacy.values.set(
+    legacyKey,
+    JSON.stringify({
+      version: 1,
+      phaseId: "phase-b",
+      completedIds: ["item-c"],
+    }),
+  );
+  const again = restoreChecklistSessionWithLegacyMigration(
+    migrationChecklist,
+    canonical,
+    legacy,
+    "variant-a",
+  );
+
+  assert.deepEqual(again.completedIds, ["item-b"]);
+  assert.equal(again.selectedPhaseId, "phase-a");
+  assert.equal(legacy.getItem(legacyKey), null);
+});
+
+test("P5.5 fast path and checklist training both invoke the same legacy migration helper", () => {
+  const adapter = read("lib/fast-path/checklist-adapter.ts");
+  const provider = read("components/ft-fast-path/FtFastPathProvider.tsx");
+  const runner = read("components/checklist-runner.tsx");
+
+  assert.match(adapter, /restoreChecklistSessionWithLegacyMigration/);
+  assert.match(provider, /window\.localStorage/);
+  assert.match(runner, /restoreChecklistSessionWithLegacyMigration/);
+  assert.match(runner, /window\.localStorage/);
 });
