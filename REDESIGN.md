@@ -85,8 +85,6 @@ frozen behavior. Candidate for a dedicated cleanup issue.
 
 ---
 
----
-
 ## 3. Current state
 
 ```
@@ -98,8 +96,6 @@ production:                  FT_NEW_SHELL = OFF
 **Playwright projects:** `desktop-chromium`, `mobile-chromium`, `ipad-landscape`, `ipad-portrait`  
 **Pre-P4 baseline:** 252 passed (63 × 4)  
 **P4.7 verified:** 284 passed (71 × 4)
-
----
 
 ---
 
@@ -215,8 +211,6 @@ is possible, without ability to run both shells in parallel.
 
 ---
 
----
-
 ## 5. Release checklist
 
 ### 5.1 C4a — pre-conditions (before any flip)
@@ -288,8 +282,6 @@ is possible, without ability to run both shells in parallel.
 
 ---
 
----
-
 ## 6. Rollback strategy
 
 | Stage | Rollback mechanism | RTO |
@@ -303,8 +295,6 @@ is possible, without ability to run both shells in parallel.
 **Implication:** the C4a observation windows preserve a simple feature-flag
 rollback path before legacy removal. C4b must not proceed until the global
 observation window has completed without a rollback event.
-
----
 
 ---
 
@@ -340,8 +330,6 @@ IDs, "legacy cannot resurrect after canonical write".
 
 ---
 
----
-
 ## 8. Known risks and open questions
 
 ### 8.1 Risks
@@ -362,12 +350,12 @@ IDs, "legacy cannot resurrect after canonical write".
 
 | Question | Status |
 |---|---|
-| Beta / canary / per-user rollout strategy | **Not defined** |
-| Post-C4b rollback mechanism beyond normal code rollback | **Not defined** |
+| Beta / canary / per-user rollout strategy | **Defined:** server-side account-subject allowlist with C4a.0a → C4a.0b → C4a.1 stages |
+| Post-C4b rollback mechanism | **Defined:** no flag rollback; normal code rollback / redeploy only |
 | Release communication plan | **Not defined** |
-| Formal C4 acceptance document | **Does not exist** |
-| S/M/L estimates for P5–C4 | **Not defined** |
-| How to handle feedback from beta users | **Not defined** |
+| Formal standalone C4 acceptance document | **Does not exist**; §5 is the current redesign release checklist |
+| S/M/L estimates for P5–C4 | **P5/P6 defined; C0–C4 still TBD** |
+| Beta feedback handling | Review/triage is required before C4a.1; channel and operating process are **not defined** |
 
 ---
 
