@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  procedureLearnProjection,
   procedureRelevance,
   type ProcedureRelevanceModel,
 } from "../lib/procedure-presentation.ts";
@@ -133,4 +134,137 @@ test("P4 Relevance contains no flight, weather, performance or aircraft inferenc
   assert.deepEqual(model.memoryItems, []);
   assert.deepEqual(model.sources, [source]);
   assertNoInferenceLanguage(model);
+});
+
+
+test("P4 Learn projects linear procedure explanation without mutating execution state", () => {
+  const procedure: AircraftProcedure = {
+    id: "generic-linear-learn",
+    title: "Generic Linear Learn Procedure",
+    steps: [
+      {
+        id: "step-a",
+        action: "Action A",
+        expectedResult: "Expected A",
+        verification: "Verify A",
+        rationale: "Reason A",
+        sources: [source],
+      },
+      {
+        id: "step-b",
+        action: "Action B",
+      },
+    ],
+  };
+
+  const before = JSON.stringify(procedure);
+  const model = procedureLearnProjection(procedure);
+
+  assert.equal(model.kind, "linear");
+  if (model.kind !== "linear") assert.fail("Expected linear Learn projection");
+
+  assert.equal(model.steps.length, 2);
+  assert.deepEqual(model.steps.map((step) => step.id), ["step-a", "step-b"]);
+
+  const first = model.steps[0];
+  const second = model.steps[1];
+  assert.ok(first);
+  assert.ok(second);
+
+  assert.equal(first.action, "Action A");
+  assert.equal(first.expectedResult, "Expected A");
+  assert.equal(first.verification, "Verify A");
+  assert.equal(first.rationale, "Reason A");
+  assert.deepEqual(first.sources, [source]);
+
+  assert.equal(second.action, "Action B");
+  assert.equal(second.expectedResult, undefined);
+  assert.equal(JSON.stringify(procedure), before);
+});
+
+test("P4 Learn exposes graph branch content as read-only training material", () => {
+  const procedure: AircraftGraphProcedure = {
+    id: "generic-graph-learn",
+    title: "Generic Graph Learn Procedure",
+    graph: {
+      version: 1,
+      entryNodeId: "decision-a",
+      nodes: [
+        {
+          id: "action-a",
+          kind: "action",
+          action: "Graph Action A",
+          expectedResult: "Graph Expected A",
+          nextNodeId: "end-d",
+        },
+        {
+          id: "decision-a",
+          kind: "decision",
+          prompt: "Select condition",
+          options: [
+            {
+              id: "condition-a",
+              label: "Condition A",
+              targetNodeId: "action-a",
+            },
+            {
+              id: "condition-b",
+              label: "Condition B",
+              targetNodeId: "note-b",
+            },
+          ],
+        },
+        {
+          id: "note-b",
+          kind: "note",
+          text: "Graph Note B",
+          nextNodeId: "reference-c",
+        },
+        {
+          id: "reference-c",
+          kind: "reference",
+          instruction: "Review Reference C",
+          targets: [{ title: "Reference C" }],
+          nextNodeId: "end-d",
+        },
+        {
+          id: "end-d",
+          kind: "end",
+          label: "Complete",
+        },
+      ],
+    },
+  };
+
+  const before = JSON.stringify(procedure);
+  const model = procedureLearnProjection(procedure);
+
+  assert.equal(model.kind, "graph");
+  if (model.kind !== "graph") assert.fail("Expected graph Learn projection");
+
+  assert.equal(model.nodes.length, 5);
+  assert.deepEqual(
+    model.nodes.map((node) => node.id),
+    ["action-a", "decision-a", "note-b", "reference-c", "end-d"],
+  );
+  assert.deepEqual(
+    model.nodes.map((node) => node.kind),
+    ["ACTION", "DECISION", "NOTE", "REFERENCE", "END"],
+  );
+
+  const action = model.nodes[0];
+  const decision = model.nodes[1];
+  assert.ok(action);
+  assert.ok(decision);
+  assert.equal(action.kind, "ACTION");
+  assert.equal(decision.kind, "DECISION");
+  if (decision.kind === "DECISION") {
+    assert.deepEqual(
+      decision.options.map((option) => option.id),
+      ["condition-a", "condition-b"],
+    );
+  }
+
+  assert.notEqual(model.nodes[0]?.id, procedure.graph.entryNodeId);
+  assert.equal(JSON.stringify(procedure), before);
 });
