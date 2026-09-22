@@ -222,11 +222,13 @@ test("P5.4 checklist training and fast path share one canonical session contract
   const session = read("lib/checklist-session.ts");
 
   assert.match(runner, /checklistSessionStorageKey/);
-  assert.match(runner, /window\.sessionStorage\.getItem/);
+  assert.match(runner, /restoreChecklistSessionWithLegacyMigration/);
+  assert.match(runner, /window\.sessionStorage/);
   assert.match(runner, /window\.sessionStorage\.setItem/);
 
   assert.match(adapter, /checklistSessionStorageKey/);
   assert.match(adapter, /normalizeChecklistSessionSnapshot/);
+  assert.match(adapter, /restoreChecklistSessionWithLegacyMigration/);
 
   const keyPrefix = /flytally-training-checklist-session:/g;
   assert.equal((session.match(keyPrefix) ?? []).length, 1);
@@ -471,4 +473,39 @@ test("P5.6 e2e replaces the QRH placeholder contract and covers legacy checklist
   assert.match(e2e, /Generic Condition A/);
   assert.match(e2e, /P5 legacy checklist progress migrates into the shared new-shell session/);
   assert.doesNotMatch(e2e, /W3 QRH placeholder can open the canonical full page/);
+});
+
+
+test("P5.5 checklist migration remains usable when browser storage throws", () => {
+  const throwingCanonical: ChecklistCanonicalStorage = {
+    getItem: () => {
+      throw new Error("blocked");
+    },
+    setItem: () => {
+      throw new Error("blocked");
+    },
+  };
+  const throwingLegacy: LegacyOperationalChecklistStorage = {
+    getItem: () => {
+      throw new Error("blocked");
+    },
+    removeItem: () => {
+      throw new Error("blocked");
+    },
+  };
+
+  assert.doesNotThrow(() =>
+    restoreChecklistSessionWithLegacyMigration(
+      migrationChecklist,
+      throwingCanonical,
+      throwingLegacy,
+    ),
+  );
+  const restored = restoreChecklistSessionWithLegacyMigration(
+    migrationChecklist,
+    throwingCanonical,
+    throwingLegacy,
+  );
+  assert.equal(restored.selectedPhaseId, "phase-a");
+  assert.deepEqual(restored.completedIds, []);
 });

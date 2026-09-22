@@ -29,6 +29,40 @@ function parseJson(raw: string): unknown | undefined {
   }
 }
 
+function safeGet(
+  storage: Pick<ChecklistCanonicalStorage, "getItem">,
+  key: string,
+): string | null {
+  try {
+    return storage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function safeSet(
+  storage: Pick<ChecklistCanonicalStorage, "setItem">,
+  key: string,
+  value: string,
+): void {
+  try {
+    storage.setItem(key, value);
+  } catch {
+    // Checklist remains usable when browser persistence is unavailable.
+  }
+}
+
+function safeRemove(
+  storage: Pick<LegacyOperationalChecklistStorage, "removeItem">,
+  key: string,
+): void {
+  try {
+    storage.removeItem(key);
+  } catch {
+    // A surviving legacy key is still ignored whenever canonical state exists.
+  }
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
@@ -68,29 +102,29 @@ export function restoreChecklistSessionWithLegacyMigration(
     selectedVariant,
   );
 
-  const canonicalRaw = canonicalStorage.getItem(canonicalKey);
+  const canonicalRaw = safeGet(canonicalStorage, canonicalKey);
   if (canonicalRaw !== null) {
     const canonical = normalizeChecklistSessionSnapshot(
       parseJson(canonicalRaw),
       checklist,
     );
-    canonicalStorage.setItem(canonicalKey, JSON.stringify(canonical));
+    safeSet(canonicalStorage, canonicalKey, JSON.stringify(canonical));
 
     // Once canonical state exists, legacy state is never allowed to take
     // precedence on a later shell transition.
-    if (legacyStorage.getItem(legacyKey) !== null) {
-      legacyStorage.removeItem(legacyKey);
+    if (safeGet(legacyStorage, legacyKey) !== null) {
+      safeRemove(legacyStorage, legacyKey);
     }
     return canonical;
   }
 
-  const legacyRaw = legacyStorage.getItem(legacyKey);
+  const legacyRaw = safeGet(legacyStorage, legacyKey);
   if (legacyRaw === null) {
     return normalizeChecklistSessionSnapshot(undefined, checklist);
   }
 
   // Legacy state is single-use regardless of whether it validates.
-  legacyStorage.removeItem(legacyKey);
+  safeRemove(legacyStorage, legacyKey);
   const legacy = legacySnapshot(parseJson(legacyRaw));
 
   const migrated = normalizeChecklistSessionSnapshot(
@@ -107,6 +141,6 @@ export function restoreChecklistSessionWithLegacyMigration(
     checklist,
   );
 
-  canonicalStorage.setItem(canonicalKey, JSON.stringify(migrated));
+  safeSet(canonicalStorage, canonicalKey, JSON.stringify(migrated));
   return migrated;
 }
