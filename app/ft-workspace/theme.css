@@ -23,6 +23,7 @@
   --ft-text-disabled: #9CA3AF;
 
   --ft-accent: #2F6BFF;
+  --ft-accent-contrast: #FFFFFF;
   --ft-accent-hover: #2457D6;
   --ft-accent-soft: #EAF1FF;
   --ft-focus: #2F6BFF;
@@ -65,6 +66,7 @@
   --ft-text-disabled: #5F6B78;
 
   --ft-accent: #5B8CFF;
+  --ft-accent-contrast: #FFFFFF;
   --ft-accent-hover: #79A3FF;
   --ft-accent-soft: #172A4F;
   --ft-focus: #79A3FF;
