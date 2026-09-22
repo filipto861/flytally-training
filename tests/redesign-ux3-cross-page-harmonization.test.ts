@@ -45,10 +45,10 @@ test("UX3 harmonizes Systems heading and panel shape with the shared workspace",
   assert.match(css, /\.mentalModel\s*\{[\s\S]*border-radius:\s*calc\(var\(--ft-radius-4\) \* 2\)/);
 });
 
-test("UX3 uses the same compact panel radius for fast-path chrome", () => {
+test("UX3/UX6 keeps fast-path chrome on shared workspace radius tokens", () => {
   const css = read("components/ft-fast-path/ft-fast-path.module.css");
 
-  assert.match(css, /\.tabList\s*\{[\s\S]*border-radius:\s*calc\(var\(--ft-radius-4\) \* 2\)/);
+  assert.match(css, /\.tabList\s*\{[\s\S]*border-radius:\s*var\(--ft-radius-panel\)/);
   assert.match(css, /\.currentStep\s*\{[\s\S]*border-radius:\s*calc\(var\(--ft-radius-4\) \* 2\)/);
 });
 
