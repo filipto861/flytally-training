@@ -92,7 +92,7 @@ runtime deployment:          dpl_EfxJq5bdCVVXaE88gMbVdJzXpFPv (UX5 correction SH
 **Pre-P4 baseline:** 252 passed (63 × 4)  
 **P4.7 verified:** 284 passed (71 × 4)
 
-**Production status:** the new shell is live for the single owner as a **development preview**. P0–P7 and UX0–UX4 are complete. The final UX5 light/dark production matrix has been reviewed and is **ready for product-owner visual approval**; UX5 remains incomplete until that explicit approval is given. C0–C3 and final-release hardening still precede C4b.
+**Production status:** the new shell is live for the single owner as a **development preview**. P0–P7 are functionally complete and UX0–UX4 completed the first technical visual/responsive integration. The product owner reviewed the final UX5 matrix and **rejected the visual design as final**. The current shell is therefore a functional development scaffold. **UX6 foundational redesign is now mandatory and C0 is on HOLD until UX6.9 receives explicit product-owner visual approval.**
 
 ---
 
@@ -203,7 +203,7 @@ without a proven blocker.
 - Flag OFF legacy behavior remains available until C4b
 - Node + 4× Playwright green
 
-### 4.4 UX0–UX5 — Full-shell visual integration and UX closure — **ACTIVE**
+### 4.4 UX0–UX5 — First visual integration pass — **SUPERSEDED / VISUAL APPROVAL REJECTED**
 
 > **This phase is mandatory. The current production UI is a functional
 > development scaffold, not the intended final visual state.**
@@ -223,9 +223,9 @@ product rather than polishing incomplete pages one by one.
 | UX2 | Design hierarchy: typography scale, spacing rhythm, surfaces/cards, borders, primary/secondary actions, empty/loading/error states | M — **COMPLETE** |
 | UX3 | Cross-page harmonization across P0–P7 so launch, Procedures, Performance, Systems, Training, Flight and Reference feel like one product | L — **COMPLETE** |
 | UX4 | Responsive + interaction polish: desktop, iPad, phone, keyboard/focus, touch targets, reduced motion, forced colors, screen-reader semantics | M/L — **COMPLETE** |
-| UX5 | Final visual acceptance: screenshot review, regression checks, performance baseline/budget, accessibility sign-off and final product-owner approval | M — **AWAITING OWNER APPROVAL** |
+| UX5 | Final visual acceptance: screenshot review, regression checks, performance baseline/budget, accessibility sign-off and final product-owner approval | M — **VISUAL APPROVAL REJECTED; superseded by UX6** |
 
-**UX overall = L.**
+**UX0–UX5 outcome:** technical consistency and responsive behavior improved, but the final visual direction was rejected by the product owner. These phases are historical input to UX6, not the final design.
 
 **Frozen during UX:** top-level IA (`AIRCRAFT / PROCEDURES / PERFORMANCE / TRAINING / FLIGHT`), W3 fast-path semantics (`CHECKLIST / QRH / PERF / REF`), generic aircraft-agnostic runtime contracts, source governance, and session/state ownership.
 
@@ -244,24 +244,51 @@ presentation details.
 - Performance baseline and agreed regression budget pass
 - Product owner explicitly approves the final visual shell before C4b
 
-### 4.5 Cleanup (C0–C3)
+### 4.5 UX6 — Foundational UI/UX redesign — **ACTIVE**
+
+UX6 is a ground-up presentation redesign. It preserves proven P0–P7 domain behavior, source governance, route ownership and the W3 fast-path semantics, while replacing the shell composition, visual hierarchy and device-specific interaction model.
+
+**Authoritative docs:**
+- `UX6_FOUNDATIONAL_REDESIGN.md`
+- `UX6_0_INVENTORY.md`
+- `UX6_1_SHELL_IA.md`
+- GitHub issue #190
+
+**Frozen top-level IA:** `AIRCRAFT / PROCEDURES / PERFORMANCE / TRAINING / FLIGHT`. Systems remains under AIRCRAFT; Reference remains under FLIGHT.
+
+| Slice | Content | Status |
+|---|---|---|
+| UX6.0 | Redesign reset, contract freeze, repository/presentation inventory, baseline | **COMPLETE ON FEATURE BRANCH** |
+| UX6.1 | Desktop/iPad/mobile shell + IA wireframe/reference concept | **READY FOR PO GATE A** |
+| UX6.2 | Design system + primitives, light/dark | BLOCKED ON GATE A |
+| UX6.3 | Reference screens before broad implementation | BLOCKED ON GATE B |
+| UX6.4 | New shell implementation | planned |
+| UX6.5 | Procedures redesign | planned |
+| UX6.6 | Performance + Flight redesign | planned |
+| UX6.7 | Aircraft/Library + Training + Reference + Systems | planned |
+| UX6.8 | Responsive specialization + accessibility hardening | planned |
+| UX6.9 | Final visual matrix, performance/a11y gate, explicit PO approval | planned |
+
+**UX6 rule:** do not polish the rejected UX5 composition. New visual implementation starts only after the relevant UX6 owner gate.
+
+### 4.6 Cleanup (C0–C3)
 
 | ID | Name | Depends on | Blocker |
 |---|---|---|---|
-| C0 | Operational offline data package | P0–P7 + UX0–UX5 | Yes (before C4b) |
+| C0 | Operational offline data package | P0–P7 + UX6.9 | **HOLD — blocked on final UX6 approval** |
 | C1 | Old route compatibility closure | C0 | Yes |
 | C2 | Remove proven-unused legacy nav/UI | C1 | Yes |
 | C3 | Update architecture docs | C2 | Yes |
 
-### 4.6 C4 — Live preview → final release / legacy removal
+### 4.7 C4 — Live preview → final release / legacy removal
 
-> **Current reality:** the global flag is already ON for this single-user production instance. Treat C4a.1 as a live development-preview state, not as proof that the redesign is complete. Functional closure (P5–P7), UX0–UX5 and C0–C3 still precede C4b.
+> **Current reality:** the global flag is already ON for this single-user production instance. Treat C4a.1 as a live development-preview state, not as proof that the redesign is complete. Functional closure P0–P7 is complete, but **UX6 and C0–C3 still precede C4b**.
 
 | Stage | Action | Rollback | Minimum duration |
 |---|---|---|---|
 | **C4a.0a** | **SKIPPED** — single-user production, direct global flip (2026-09-22) | — | — |
 | **C4a.0b** | **SKIPPED** — no separate beta cohort in single-user production | — | — |
-| **C4a.1** | Global `FT_NEW_SHELL=true` — **ACTIVE development preview since 2026-09-22** | Env change back to `false` | Until P5–P7 + UX0–UX5 + C0–C3 are complete |
+| **C4a.1** | Global `FT_NEW_SHELL=true` — **ACTIVE development preview since 2026-09-22** | Env change back to `false` | Until UX6 + C0–C3 are complete |
 | **C4b** | Finalize new shell as canonical; remove flag and proven-unused legacy code | Code rollback / redeploy only | Only after final acceptance |
 
 **Canary mechanism:** server-side account-subject allowlist
@@ -281,7 +308,7 @@ is possible, without ability to run both shells in parallel.
 
 **Code & tests**
 - [x] P0–P7 merged
-- [ ] UX0–UX5 completed and product-owner approved
+- [ ] UX6.9 completed and product-owner visually approved
 - [ ] C0–C3 merged
 - [x] All four W3 fast-path slots (`CHECKLIST / QRH / PERF / REF`) are functional and not placeholders
 - [x] `npm run verify` green for UX5 correction pass (Node 968 / 967 / 0 / 1; build PASS)
@@ -338,13 +365,13 @@ is possible, without ability to run both shells in parallel.
 - [x] P5 operational fast-path closure complete
 - [x] P6 Training / Scenario / Debrief complete
 - [x] P7 REF closure complete
-- [ ] UX0–UX5 complete
+- [ ] UX6 complete
 - [x] No open P0–P7 functional regressions observed in UX5 release gate
 
 ### 5.3 C4b — flag removal pre-conditions
 
 - [ ] P5–P7 complete
-- [ ] UX0–UX5 complete and visually approved
+- [ ] UX6.9 complete and visually approved
 - [ ] C0–C3 complete
 - [ ] Final-release hardening checklist (§5.1) green
 - [ ] Legacy route traffic measured (~0) where meaningful
@@ -406,7 +433,7 @@ fails closed, and legacy state cannot resurrect after canonical state exists.
 | Legacy `OperationalChecklist` migration | Users lose in-progress state on flip | **Resolved in P5.5** with invariant suite |
 | GitHub Actions billing/runner blocked | Cannot accept external PRs safely | Resolve in GitHub Billing before C4a |
 | No error/regression signal | Blind flip, slow rollback trigger | `/api/release-state` + error visibility before C4a |
-| UX5 visual approval pending | C4b cannot treat redesign as visually accepted | Final 64-screenshot matrix reviewed; explicit product-owner approval still required |
+| UX5 visual design rejected | Current shell cannot be treated as final design | UX6 foundational redesign is active; C0/C4b remain blocked until UX6.9 owner approval |
 | No performance baseline | Cannot detect regression before final acceptance | UX5 baseline + budget before C4b |
 | No a11y audit | Accessibility regressions reach users | UX4/UX5 full-shell a11y gate before C4b |
 | `ProcedureLinearRunner` a11y debt | Compounds in P5+ e2e | Dedicated cleanup issue |
@@ -422,7 +449,7 @@ fails closed, and legacy state cannot resurrect after canonical state exists.
 | Post-C4b rollback mechanism | **Defined:** no flag rollback; normal code rollback / redeploy only |
 | Release communication plan | **Not defined** |
 | Formal standalone C4 acceptance document | **Does not exist**; §5 is the current redesign release checklist |
-| S/M/L estimates for remaining work | **P0–P7 and UX0–UX4 complete; UX5 awaiting owner approval; C0–C4 still TBD** |
+| S/M/L estimates for remaining work | **P0–P7 complete; UX6 is the active redesign phase; C0–C4 remain after UX6** |
 | Beta feedback handling | Review/triage is required before C4a.1; channel and operating process are **not defined** |
 
 ---
@@ -458,3 +485,4 @@ fails closed, and legacy state cannot resurrect after canonical state exists.
 | 2026-09-22 | UX3 merged via PR #187 as squash commit `9da366f3`; targeted 6/6, local gate 954/953/0/1 + build PASS + Playwright 332/332. UX4 becomes next. | Filip Točík + ChatGPT |
 | 2026-09-22 | UX4 merged via PR #188 as squash commit `1c9df1de`; targeted 6/6, local gate 960/959/0/1 + build PASS + Playwright 340/340. UX5 final visual acceptance becomes next. | Filip Točík + ChatGPT |
 | 2026-09-22 | UX5 correction pass merged via PR #189 as `f1ec3264`; local gate TypeScript PASS, UX5 8/8, Node 968/967/0/1, build PASS, Playwright 340/340. Final 64-screenshot light/dark production matrix reviewed in `UX5_VISUAL_AUDIT_02.md`; ready for explicit owner approval. | Filip Točík + ChatGPT |
+| 2026-09-22 | Product owner rejected the UX5 visual design after reviewing the final matrix. UX6 foundational redesign opened in GitHub issue #190; C0 placed on HOLD. UX6.0 inventory and UX6.1 shell/IA concept started on `feat/ux6-0-redesign-reset`. | Filip Točík + ChatGPT |
