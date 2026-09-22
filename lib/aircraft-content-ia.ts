@@ -72,7 +72,7 @@ export const CONTENT_IA: readonly AircraftContentIaDestination[] = [
   {
     key: "flight",
     label: "FLIGHT",
-    href: (aircraftId) => aircraftHref(aircraftId, "fly"),
+    href: (aircraftId) => aircraftHref(aircraftId, "flight"),
     subs: [
       { key: "flight", label: "Flight Brief", href: (aircraftId) => aircraftHref(aircraftId, "flight") },
       { key: "quick-reference", label: "Quick Reference", href: (aircraftId) => aircraftHref(aircraftId, "quick-reference") },
@@ -118,6 +118,10 @@ export function getAircraftContentSectionForPathname(
     ? pathname.slice(base.length + 1)
     : "";
   const firstSegment = relative.split("/")[0];
+
+  // /fly remains a legacy operational deep link, but the new-shell FLIGHT
+  // destination is the P1 /flight workspace.
+  if (firstSegment === "fly") return "flight";
 
   for (const destination of getAircraftContentIa(aircraftId)) {
     const topSegment = destination.href.slice(base.length + 1).split("/")[0];
