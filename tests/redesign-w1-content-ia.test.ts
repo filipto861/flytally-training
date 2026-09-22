@@ -24,7 +24,7 @@ test("W1 content IA exposes exactly five frozen top-level destinations", () => {
       { key: "procedures", label: "PROCEDURES", href: `${base}/procedures` },
       { key: "performance", label: "PERFORMANCE", href: `${base}/performance` },
       { key: "training", label: "TRAINING", href: `${base}/training` },
-      { key: "flight", label: "FLIGHT", href: `${base}/fly` },
+      { key: "flight", label: "FLIGHT", href: `${base}/flight` },
     ],
   );
 });
