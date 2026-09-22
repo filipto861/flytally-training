@@ -2,9 +2,19 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
-import { resolveSelectedVariant, withVariantQuery } from "@/lib/aircraft-applicability";
-import { getAircraftContentBundle } from "@/lib/content-repository";
+import { FtTrainingPage, type FtTrainingModule } from "@/components/ft-training/FtTrainingPage";
+import {
+  configurationForAircraftVariant,
+  resolveSelectedVariant,
+  withVariantQuery,
+} from "@/lib/aircraft-applicability";
+import {
+  getAircraftContentBundle,
+  getPublishedAircraftModule,
+} from "@/lib/content-repository";
 import { getTrainingContentRepository } from "@/lib/content-store";
+import { isNewShellEnabled } from "@/lib/feature-flags";
+import { resolveTrainingScenarioContent } from "@/lib/training-scenario-presentation";
 
 export default async function TrainingHubPage({
   params,
@@ -14,7 +24,11 @@ export default async function TrainingHubPage({
   searchParams: Promise<{ variant?: string }>;
 }>) {
   const [{ aircraftId }, { variant }] = await Promise.all([params, searchParams]);
-  const bundle = await getAircraftContentBundle(getTrainingContentRepository(), aircraftId);
+  const repository = getTrainingContentRepository();
+  const [bundle, publishedAbnormal] = await Promise.all([
+    getAircraftContentBundle(repository, aircraftId),
+    getPublishedAircraftModule<unknown>(repository, aircraftId, "abnormal"),
+  ]);
   if (!bundle) notFound();
   const { aircraft, capabilities } = bundle;
   const selectedVariant = resolveSelectedVariant(variant, aircraft.variants);
@@ -33,6 +47,34 @@ export default async function TrainingHubPage({
     capabilities.avionics ? { key: "avionics", kicker: "Equipment", title: "Avionics", text: "Study avionics installed for the selected configuration." } : undefined,
     capabilities.knowledge ? { key: "knowledge", kicker: "Recall", title: "Knowledge", text: "Check recall and identify weak areas." } : undefined,
   ].filter((item): item is { key: string; kicker: string; title: string; text: string } => Boolean(item));
+
+  if (isNewShellEnabled()) {
+    const configuration = configurationForAircraftVariant(aircraft, selectedVariant);
+    const scenarioTraining = resolveTrainingScenarioContent(
+      publishedAbnormal,
+      configuration,
+    );
+    if (!startHere.length && !modules.length && !scenarioTraining) notFound();
+
+    const toFtModule = (
+      item: { key: string; title: string; text: string },
+    ): FtTrainingModule => ({
+      key: item.key,
+      title: item.title,
+      summary: item.text,
+      href: `/aircraft/${aircraft.id}/${item.key}`,
+    });
+
+    return (
+      <FtTrainingPage
+        aircraftId={aircraft.id}
+        selectedVariant={selectedVariant}
+        startHere={startHere.map(toFtModule)}
+        modules={modules.map(toFtModule)}
+        scenarioTraining={scenarioTraining}
+      />
+    );
+  }
 
   if (!startHere.length && !modules.length) notFound();
 

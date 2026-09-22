@@ -1104,3 +1104,141 @@ test("P4 deep link and selected procedure survive new-shell navigation", async (
     }),
   ).toBeVisible();
 });
+
+
+async function openP6Training(page: Page): Promise<Locator> {
+  await page.goto(`${shellOnBase}${aircraftPath}/training`);
+  const training = page.locator('[data-ft-training-page="true"]');
+  await expect(training).toBeVisible();
+  return training;
+}
+
+async function completeP6FirstScenario(page: Page): Promise<Locator> {
+  const training = await openP6Training(page);
+  const trainer = training.getByRole("region", {
+    name: "Abnormal and emergency scenario trainer",
+  });
+
+  await expect(
+    trainer.getByRole("heading", { name: "Generic Condition A", exact: true }),
+  ).toBeVisible();
+  await trainer
+    .getByRole("button", { name: "Reveal expected response", exact: true })
+    .click();
+  await expect(trainer.getByText("Action A", { exact: true })).toBeVisible();
+  await expect(trainer.getByText("Action B", { exact: true })).toBeVisible();
+  await expect(
+    trainer.getByText("Training explanation A", { exact: true }),
+  ).toBeVisible();
+
+  await trainer.getByRole("button", { name: /^Finish scenario/ }).click();
+  await expect(
+    trainer.getByRole("heading", { name: "Scenario complete.", exact: true }),
+  ).toBeVisible();
+  return trainer;
+}
+
+test("P6 Training opens under the existing TRAINING destination", async ({ page }, testInfo) => {
+  const training = await openP6Training(page);
+
+  await expect(training).toHaveAttribute("data-ft-training-page", "true");
+  await expect(
+    training.getByRole("heading", { name: "Training", exact: true }),
+  ).toBeVisible();
+  await expect(
+    training.getByRole("heading", { name: "Scenario training", exact: true }),
+  ).toBeVisible();
+
+  const nav = await workspaceNavigation(page, testInfo.project.name);
+  await expect(
+    nav.getByRole("link", { name: "TRAINING", exact: true }),
+  ).toHaveAttribute("aria-current", "page");
+});
+
+test("P6 scenario reveal ends in the source-defined debrief", async ({ page }) => {
+  const trainer = await completeP6FirstScenario(page);
+
+  await expect(
+    trainer.getByText("Review the generic response.", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    trainer.getByRole("button", { name: "Repeat now", exact: true }),
+  ).toBeVisible();
+  await expect(
+    trainer.getByRole("button", {
+      name: "Mark for targeted repeat",
+      exact: true,
+    }),
+  ).toBeVisible();
+});
+
+test("P6 targeted repeat is explicit and returns to scenario practice", async ({ page }) => {
+  const trainer = await completeP6FirstScenario(page);
+
+  await trainer
+    .getByRole("button", { name: "Mark for targeted repeat", exact: true })
+    .click();
+  await expect(
+    trainer.getByRole("button", {
+      name: "Remove from repeat queue",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(trainer.getByText("1 queued", { exact: true })).toBeVisible();
+
+  await trainer.getByRole("button", { name: "Practice queue", exact: true }).click();
+  await expect(
+    trainer.getByRole("button", { name: "Reveal expected response", exact: true }),
+  ).toBeVisible();
+});
+
+test("P6 scenario completion writes the shared scenario progress event", async ({ page }) => {
+  await completeP6FirstScenario(page);
+
+  const events = await page.evaluate(() => {
+    const raw = window.localStorage.getItem(
+      "flytally-training-progress:browser-ci-aircraft",
+    );
+    return raw ? JSON.parse(raw) : [];
+  });
+
+  expect(events).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        aircraftId: "browser-ci-aircraft",
+        kind: "scenario",
+        contentId: "generic-condition-a",
+        completed: true,
+      }),
+    ]),
+  );
+  const scenario = events.find(
+    (event: { kind?: string; contentId?: string }) =>
+      event.kind === "scenario" && event.contentId === "generic-condition-a",
+  );
+  expect(scenario?.scorePercent).toBeUndefined();
+  expect(scenario?.weakAreas).toBeUndefined();
+});
+
+test("P6 scenario training does not mutate an ACTIVE D0 flight", async ({ page }) => {
+  await createD0ActiveFlight(page);
+  await completeP6FirstScenario(page);
+
+  await page.goto(`${shellOnBase}${aircraftPath}/flight`);
+  const active = page.getByRole("region", { name: "Active Flight" });
+  await expect(active).toHaveAttribute("data-lifecycle", "ACTIVE");
+  await expect(active).toContainText("LKPR → LOWW");
+});
+
+test("P6 flag OFF preserves the legacy Training hub", async ({ page }) => {
+  await page.goto(`${aircraftPath}/training`);
+
+  await expect(page.locator('[data-ft-training-page="true"]')).toHaveCount(0);
+  await expect(page.locator('[data-ft-shell="true"]')).toHaveCount(0);
+  await expect(
+    page.getByRole("heading", { name: "Learn", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.locator('section[aria-label="Aircraft navigation"]'),
+  ).toBeVisible();
+});
