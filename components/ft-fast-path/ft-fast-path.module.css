@@ -240,11 +240,13 @@
 .indicator {
   padding-inline: var(--ft-space-3);
   border: var(--ft-rule-default);
-  border-radius: calc(var(--ft-radius-4) * 2);
+  border-color: transparent;
+  border-radius: var(--ft-radius-control);
   background: var(--ft-bg-operational);
-  color: var(--ft-text-primary);
-  font-family: var(--ft-font-data);
-  font-weight: 600;
+  color: var(--ft-accent-primary);
+  font-family: var(--ft-font-ui);
+  font-size: 0.76rem;
+  font-weight: 650;
 }
 
 .tab:focus-visible,
@@ -253,7 +255,7 @@
 .fullPageLink:focus-visible,
 .phasePicker select:focus-visible,
 .checklistItem input:focus-visible {
-  outline: var(--ft-focus-width) solid var(--ft-text-primary);
+  outline: var(--ft-focus-width) solid var(--ft-focus-color);
   outline-offset: var(--ft-focus-offset);
 }
 
