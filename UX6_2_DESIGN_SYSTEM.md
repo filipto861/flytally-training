@@ -1,6 +1,6 @@
 # UX6.2 — Design System + Primitives
 
-**Status:** ACTIVE — DESIGN-SYSTEM SPECIMEN READY FOR GATE B REVIEW  
+**Status:** COMPLETE — PRODUCT OWNER GATE B APPROVED  
 **Depends on:** UX6.1 / PO Gate A approved  
 **Scope:** visual language and reusable UI primitives only; no production shell conversion yet.
 
@@ -329,15 +329,18 @@ It is not production functionality and may be deleted or rewritten before UX6.4.
 
 ---
 
-## 16. Gate B
+## 16. Gate B — APPROVED
 
-Product-owner approval should answer:
+Product owner approved the UX6.2 visual direction on 2026-09-22 after reviewing the live Vercel specimen.
 
-1. Does the visual density feel professional and readable?
-2. Is the blue accent strong enough without becoming decorative?
-3. Are light and dark surfaces sufficiently separated?
-4. Does the navigation feel like an application rather than an admin sidebar?
-5. Do controls/panels feel restrained enough?
-6. Should this visual language proceed into the UX6.3 reference screens?
+Approved direction:
+- professional pilot-workspace density;
+- compact navigation rail;
+- aircraft context bar;
+- blue accent system;
+- restrained panel treatment;
+- light/dark peer themes;
+- content-first mobile collapse;
+- integrated operational fast path.
 
-Gate B approval unlocks UX6.3.
+**UX6.3 is unlocked.**
