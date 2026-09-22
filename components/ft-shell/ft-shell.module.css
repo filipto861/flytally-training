@@ -2,27 +2,129 @@
   min-height: 100dvh;
   overflow-x: clip;
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-columns: var(--ft-shell-rail-width) minmax(0, 1fr);
+  grid-template-rows: var(--ft-shell-topbar-height) minmax(0, 1fr);
   background: var(--ft-bg-shell);
   color: var(--ft-text-primary);
   font-family: var(--ft-font-ui);
+}
+
+.sideNav {
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  grid-column: 1;
+  grid-row: 1 / -1;
+  box-sizing: border-box;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ft-space-5);
+  padding: var(--ft-space-4) var(--ft-space-2);
+  border-right: var(--ft-rule-default);
+  background: var(--ft-bg-panel);
+}
+
+.brandMark {
+  width: var(--ft-touch-target-min);
+  height: var(--ft-touch-target-min);
+  display: grid;
+  place-items: center;
+  border-radius: var(--ft-radius-panel);
+  background: var(--ft-accent-primary);
+  color: white;
+  font-family: var(--ft-font-ui);
+  font-size: 0.78rem;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+}
+
+.sideNavItems {
+  width: 100%;
+  display: grid;
+  gap: var(--ft-space-2);
+}
+
+.sideNavLink {
+  position: relative;
+  width: calc(var(--ft-touch-target-min) + var(--ft-space-2));
+  min-height: calc(var(--ft-touch-target-min) + var(--ft-space-2));
+  margin-inline: auto;
+  display: grid;
+  place-items: center;
+  gap: calc(var(--ft-space-1) / 2);
+  box-sizing: border-box;
+  padding: var(--ft-space-1);
+  border: var(--ft-focus-width) solid transparent;
+  border-radius: var(--ft-radius-panel);
+  background: transparent;
+  color: var(--ft-text-metadata);
+  font-family: var(--ft-font-ui);
+  text-decoration: none;
+}
+
+.sideNavLink svg {
+  width: calc(var(--ft-space-5) - var(--ft-space-1));
+  height: calc(var(--ft-space-5) - var(--ft-space-1));
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sideNavLink span {
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.sideNavLink:hover {
+  background: var(--ft-bg-hover);
+  color: var(--ft-text-primary);
+}
+
+.sideNavLink[aria-current="page"] {
+  background: var(--ft-accent-soft);
+  color: var(--ft-accent-primary);
+}
+
+.sideNavLink[aria-current="page"]::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: calc(var(--ft-space-2) * -1);
+  width: calc(var(--ft-space-1) - calc(var(--ft-space-1) / 4));
+  height: calc(var(--ft-space-6) - var(--ft-space-1));
+  border-radius: 0 var(--ft-space-1) var(--ft-space-1) 0;
+  background: var(--ft-accent-primary);
+}
+
+.sideNavTail {
+  margin-top: auto;
+  color: var(--ft-text-disabled);
+  font-family: var(--ft-font-data);
+  letter-spacing: 0.08em;
 }
 
 .topBar {
   position: sticky;
   top: 0;
   z-index: 80;
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+  min-height: var(--ft-shell-topbar-height);
+  box-sizing: border-box;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--ft-space-4);
-  min-height: calc(var(--ft-touch-target-min) + var(--ft-space-4));
-  padding: var(--ft-space-2) var(--ft-space-5);
-  padding-top: calc(var(--ft-space-2) + env(safe-area-inset-top));
+  padding: env(safe-area-inset-top) var(--ft-space-5) 0;
   border-bottom: var(--ft-rule-default);
-  background: var(--ft-bg-panel);
-  box-shadow: 0 var(--ft-space-1) var(--ft-space-4)
-    color-mix(in srgb, var(--ft-text-primary) 6%, transparent);
+  background: color-mix(in srgb, var(--ft-bg-panel) 96%, transparent);
+  backdrop-filter: blur(var(--ft-space-3));
 }
 
 .topBarNavControl {
@@ -31,132 +133,125 @@
 
 .aircraftIdentity {
   min-width: 0;
-  display: grid;
-  gap: var(--ft-space-1);
+  display: flex;
+  align-items: baseline;
+  gap: var(--ft-space-3);
+}
+
+.aircraftEyebrow {
+  color: var(--ft-text-metadata);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.aircraftIdentityLine {
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: var(--ft-space-3);
 }
 
 .aircraftIdentity strong {
-  font-size: 1.05rem;
-  font-weight: 650;
+  overflow: hidden;
+  color: var(--ft-text-primary);
+  font-size: 1rem;
+  font-weight: 700;
   letter-spacing: -0.01em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.aircraftIdentity span,
-.flightPlaceholder {
+.profile {
+  overflow: hidden;
   color: var(--ft-text-metadata);
-  font-family: var(--ft-font-data);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .topBarActions {
+  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: var(--ft-space-2);
 }
 
-.searchTrigger,
-.drawerTrigger,
-.drawerClose {
-  min-width: var(--ft-touch-target-min);
-  min-height: var(--ft-touch-target-min);
-  border: var(--ft-rule-default);
-  border-radius: calc(var(--ft-radius-4) * 2);
-  background: var(--ft-bg-inset);
-  color: var(--ft-text-primary);
-  font: inherit;
-}
-
-.searchTrigger {
-  padding-inline: var(--ft-space-4);
-  color: var(--ft-text-secondary);
-}
-
 .flightPlaceholder {
-  min-height: var(--ft-touch-target-min);
+  min-height: var(--ft-control-height);
   display: inline-flex;
   align-items: center;
-  padding-inline: var(--ft-space-4);
+  gap: var(--ft-space-2);
+  padding-inline: var(--ft-space-3);
   border: var(--ft-rule-default);
-  border-radius: calc(var(--ft-radius-4) * 2);
-  background: var(--ft-bg-operational);
+  border-color: transparent;
+  border-radius: var(--ft-radius-control);
+  background: transparent;
+  color: var(--ft-text-secondary);
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.flightDot,
+.flightDotActive {
+  width: calc(var(--ft-space-2) - calc(var(--ft-space-1) / 4));
+  height: calc(var(--ft-space-2) - calc(var(--ft-space-1) / 4));
+  border-radius: 50%;
+  background: var(--ft-text-disabled);
+}
+
+.flightDotActive {
+  background: var(--ft-state-completed);
 }
 
 .workspace {
   min-width: 0;
-  display: grid;
-  grid-template-columns: calc(var(--ft-space-7) * 4) minmax(0, 1fr);
-}
-
-.sideNav {
-  align-self: stretch;
-  display: flex;
-  flex-direction: column;
-  gap: var(--ft-space-1);
-  padding: var(--ft-space-4) var(--ft-space-3);
-  border-right: var(--ft-rule-default);
-  background: var(--ft-bg-panel);
-}
-
-.sideNavLink,
-.drawerLink {
-  min-height: var(--ft-touch-target-min);
-  display: flex;
-  align-items: center;
-  padding-inline: var(--ft-space-3);
-  border: var(--ft-focus-width) solid transparent;
-  border-radius: calc(var(--ft-radius-4) * 2);
-  color: var(--ft-text-secondary);
-  font-family: var(--ft-font-ui);
-  font-size: 0.78rem;
-  font-weight: 650;
-  letter-spacing: 0.025em;
-  text-decoration: none;
-}
-
-.sideNavLink[aria-current="page"],
-.drawerLink[aria-current="page"] {
-  border-color: var(--ft-border-strong);
-  background: var(--ft-bg-operational);
-  color: var(--ft-text-primary);
-  font-weight: 700;
+  grid-column: 2;
+  grid-row: 2;
+  padding-bottom: calc(var(--ft-fast-path-height-desktop) + var(--ft-space-7));
 }
 
 .content {
   min-width: 0;
   display: grid;
-  justify-items: center;
+  justify-items: stretch;
   align-content: start;
-  padding-inline: var(--ft-space-4);
+  box-sizing: border-box;
+  padding-inline: var(--ft-space-6);
   background: var(--ft-bg-shell);
 }
 
 .content > :global(*) {
-  width: min(100%, calc(var(--ft-space-7) * 26));
+  width: min(100%, var(--ft-shell-content-max));
+  box-sizing: border-box;
+  margin-inline: auto;
 }
 
-/* W1: legacy per-page navigation remains in page markup for flag-off compatibility,
-   but the W0 shell owns navigation whenever it is mounted. */
+/* Legacy per-page navigation remains in page markup for flag-off compatibility,
+   but the UX6 shell owns navigation whenever it is mounted. */
 .content :global(.learner-pilot-nav) {
   display: none;
 }
 
 .fastPathRail {
-  position: sticky;
-  bottom: max(var(--ft-space-3), env(safe-area-inset-bottom));
+  position: fixed;
+  inset-inline-start: calc(50% + var(--ft-shell-rail-width) / 2);
+  bottom: max(var(--ft-space-4), env(safe-area-inset-bottom));
   z-index: 70;
-  justify-self: center;
-  width: min(calc(var(--ft-space-7) * 12), calc(100% - var(--ft-space-6)));
+  transform: translateX(-50%);
+  width: min(calc(var(--ft-space-7) * 8), calc(100% - var(--ft-shell-rail-width) - var(--ft-space-7)));
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   min-height: var(--ft-fast-path-height-desktop);
-  margin-block: var(--ft-space-3);
-  overflow: hidden;
+  box-sizing: border-box;
+  padding: var(--ft-space-1);
   border: var(--ft-rule-strong);
-  border-radius: calc(var(--ft-radius-4) * 3);
-  background: var(--ft-bg-panel);
-  box-shadow: 0 var(--ft-space-2) var(--ft-space-5)
-    color-mix(in srgb, var(--ft-text-primary) 10%, transparent);
+  border-radius: var(--ft-radius-panel);
+  background: color-mix(in srgb, var(--ft-bg-panel) 96%, transparent);
+  box-shadow: 0 var(--ft-space-2) var(--ft-space-6)
+    color-mix(in srgb, var(--ft-text-primary) 14%, transparent);
+  backdrop-filter: blur(var(--ft-space-3));
 }
 
 .fastPathLink {
@@ -164,33 +259,62 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: var(--ft-space-2);
   padding-inline: var(--ft-space-2);
   border: 0;
-  border-inline-end: var(--ft-rule-default);
+  border-radius: var(--ft-radius-control);
   background: transparent;
-  color: var(--ft-text-secondary);
+  color: var(--ft-text-metadata);
   font-family: var(--ft-font-ui);
-  font-size: 0.76rem;
+  font-size: 0.7rem;
   font-weight: 700;
   text-decoration: none;
 }
 
-.fastPathLink[aria-pressed="true"] {
-  background: var(--ft-bg-operational);
+.fastPathLink:hover {
+  background: var(--ft-bg-hover);
   color: var(--ft-text-primary);
 }
 
-.fastPathLink:last-child {
-  border-inline-end: none;
+.fastPathLink[aria-pressed="true"] {
+  background: var(--ft-bg-operational);
+  color: var(--ft-accent-primary);
+}
+
+.fastPathGlyph {
+  width: calc(var(--ft-space-5) - var(--ft-space-1));
+  height: calc(var(--ft-space-5) - var(--ft-space-1));
+  display: grid;
+  place-items: center;
+  border-radius: var(--ft-radius-control);
+  background: var(--ft-bg-inset);
+  font-size: 0.72rem;
 }
 
 .drawerRoot {
   display: none;
 }
 
+.drawerTrigger,
+.drawerClose {
+  min-width: var(--ft-touch-target-min);
+  min-height: var(--ft-touch-target-min);
+  border: 0;
+  border-radius: var(--ft-radius-control);
+  background: transparent;
+  color: var(--ft-text-primary);
+  font: inherit;
+}
+
+.drawerTrigger:hover,
+.drawerClose:hover {
+  background: var(--ft-bg-hover);
+}
+
 .drawerLayer {
   position: fixed;
   inset: 0;
+  z-index: 110;
   display: grid;
 }
 
@@ -198,59 +322,83 @@
   position: absolute;
   inset: 0;
   border: none;
-  background: transparent;
+  background: color-mix(in srgb, var(--ft-text-primary) 24%, transparent);
 }
 
 .drawerPanel {
   position: relative;
   box-sizing: border-box;
-  width: calc(var(--ft-space-7) * 5);
+  width: min(calc(var(--ft-space-7) * 6), 82vw);
   height: 100dvh;
   padding-bottom: env(safe-area-inset-bottom);
   display: grid;
   grid-template-rows: auto 1fr;
   border-right: var(--ft-rule-strong);
   background: var(--ft-bg-panel);
+  box-shadow: var(--ft-space-2) 0 var(--ft-space-6)
+    color-mix(in srgb, var(--ft-text-primary) 14%, transparent);
 }
 
 .drawerHeader {
-  min-height: var(--ft-touch-target-min);
+  min-height: var(--ft-shell-topbar-height);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--ft-space-2);
-  padding: var(--ft-space-2) var(--ft-space-3);
+  padding: env(safe-area-inset-top) var(--ft-space-3) 0;
   border-bottom: var(--ft-rule-default);
 }
 
 .drawerHeader strong {
-  font-family: var(--ft-font-data);
-  font-weight: 600;
+  font-family: var(--ft-font-ui);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
 }
 
 .drawerNav {
   display: flex;
   flex-direction: column;
-  padding-block: var(--ft-space-2);
+  gap: var(--ft-space-1);
+  padding: var(--ft-space-3);
+}
+
+.drawerLink {
+  min-height: var(--ft-touch-target-min);
+  display: flex;
+  align-items: center;
+  padding-inline: var(--ft-space-3);
+  border: var(--ft-focus-width) solid transparent;
+  border-radius: var(--ft-radius-control);
+  color: var(--ft-text-secondary);
+  font-family: var(--ft-font-ui);
+  font-size: 0.86rem;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.drawerLink:hover {
+  background: var(--ft-bg-hover);
+  color: var(--ft-text-primary);
+}
+
+.drawerLink[aria-current="page"] {
+  background: var(--ft-accent-soft);
+  color: var(--ft-accent-primary);
 }
 
 .sideNavLink:focus-visible,
 .drawerLink:focus-visible,
 .fastPathLink:focus-visible,
-.searchTrigger:focus-visible,
 .drawerTrigger:focus-visible,
-.drawerClose:focus-visible {
-  outline: var(--ft-focus-width) solid var(--ft-text-primary);
+.drawerClose:focus-visible,
+.brandMark:focus-visible {
+  outline: var(--ft-focus-width) solid var(--ft-focus-color);
   outline-offset: var(--ft-focus-offset);
 }
 
 @media (max-width: 1180px), (hover: none) {
-  .topBarNavControl,
-  .drawerRoot {
-    display: block;
-  }
-
-  .workspace {
+  .shell {
     grid-template-columns: minmax(0, 1fr);
   }
 
@@ -258,48 +406,81 @@
     display: none;
   }
 
+  .topBar {
+    grid-column: 1;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    padding-inline: var(--ft-space-3);
+  }
+
+  .topBarNavControl,
+  .drawerRoot {
+    display: block;
+  }
+
+  .workspace {
+    grid-column: 1;
+  }
+
+  .content {
+    padding-inline: var(--ft-space-5);
+  }
+
   .fastPathRail {
+    inset-inline: 0;
     bottom: 0;
+    transform: none;
     width: 100%;
-    min-height: calc(
-      var(--ft-fast-path-height-ipad) + env(safe-area-inset-bottom)
-    );
-    margin-block: 0;
-    padding-bottom: env(safe-area-inset-bottom);
+    min-height: calc(var(--ft-fast-path-height-ipad) + env(safe-area-inset-bottom));
+    padding: var(--ft-space-1) var(--ft-space-2) env(safe-area-inset-bottom);
     border-inline: 0;
     border-bottom: 0;
     border-radius: 0;
     background: var(--ft-bg-panel);
+    box-shadow: 0 calc(var(--ft-space-1) * -1) var(--ft-space-5)
+      color-mix(in srgb, var(--ft-text-primary) 10%, transparent);
+    backdrop-filter: none;
   }
 
   .fastPathLink {
     min-height: var(--ft-fast-path-height-ipad);
-    font-family: var(--ft-font-ui);
   }
 }
 
-@media (max-width: 1180px) and (orientation: portrait), (hover: none) and (orientation: portrait) {
+@media (max-width: 48rem) {
   .topBar {
-    grid-template-columns: auto minmax(0, 1fr);
-    padding-inline: var(--ft-space-3);
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: var(--ft-space-2);
+  }
+
+  .aircraftIdentity {
+    display: block;
+  }
+
+  .aircraftEyebrow,
+  .profile,
+  .flightPlaceholder,
+  .topBarActions > :global(button[aria-label^="Open checklist progress"]) {
+    display: none;
   }
 
   .topBarActions {
-    grid-column: 1 / -1;
-    justify-content: stretch;
-  }
-
-  .searchTrigger,
-  .flightPlaceholder {
-    flex: 1 1 auto;
-    justify-content: center;
+    gap: 0;
   }
 
   .content {
     padding-inline: 0;
   }
-}
 
+  .fastPathLink {
+    flex-direction: column;
+    gap: calc(var(--ft-space-1) / 2);
+    font-size: 0.58rem;
+  }
+
+  .fastPathGlyph {
+    background: transparent;
+  }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .shell {
@@ -315,7 +496,7 @@
     outline-offset: calc(var(--ft-focus-offset) * -1);
   }
 
-  .searchTrigger,
+  .brandMark,
   .drawerTrigger,
   .drawerClose,
   .fastPathRail {
