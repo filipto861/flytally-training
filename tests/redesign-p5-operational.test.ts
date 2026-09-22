@@ -206,3 +206,22 @@ test("P5.3 fills the existing QRH slot without changing W3 or REF ownership", ()
   assert.match(qrh, /<OperationalEmergency emergency=\{emergency\} \/>/);
   assert.match(qrh, /QRH unavailable/);
 });
+
+
+test("P5.4 checklist training and fast path share one canonical session contract", () => {
+  const runner = read("components/checklist-runner.tsx");
+  const adapter = read("lib/fast-path/checklist-adapter.ts");
+  const session = read("lib/checklist-session.ts");
+
+  assert.match(runner, /checklistSessionStorageKey/);
+  assert.match(runner, /window\.sessionStorage\.getItem/);
+  assert.match(runner, /window\.sessionStorage\.setItem/);
+
+  assert.match(adapter, /checklistSessionStorageKey/);
+  assert.match(adapter, /normalizeChecklistSessionSnapshot/);
+
+  const keyPrefix = /flytally-training-checklist-session:/g;
+  assert.equal((session.match(keyPrefix) ?? []).length, 1);
+  assert.doesNotMatch(runner, /flytally:flight-checklist:v1:/);
+  assert.doesNotMatch(adapter, /flytally:flight-checklist:v1:/);
+});
