@@ -55,11 +55,14 @@ test("UX5 canonical FLIGHT destination enters P1 while legacy fly remains classi
 });
 
 test("UX5 removes website footer chrome inside the new aircraft application shell", () => {
+  const presentation = read("app/v300-u6-acceptance.css");
   const theme = read("app/ft-workspace/theme.css");
+
   assert.match(
-    theme,
+    presentation,
     /body:has\(\.ft-workspace \[data-ft-shell="true"\]\) \.app-footer[\s\S]*display:\s*none/,
   );
+  assert.doesNotMatch(theme, /\.app-footer|display:\s*none/);
 });
 
 test("UX5 performance source explanation is progressively disclosed", () => {
