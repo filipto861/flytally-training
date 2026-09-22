@@ -2,27 +2,123 @@
   min-height: 100dvh;
   overflow-x: clip;
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-columns: var(--ft-shell-rail-width) minmax(0, 1fr);
   background: var(--ft-bg-shell);
   color: var(--ft-text-primary);
   font-family: var(--ft-font-ui);
+}
+
+.workspace {
+  min-width: 0;
+  min-height: 100dvh;
+  display: grid;
+  grid-template-rows: var(--ft-shell-topbar-height) minmax(0, 1fr);
+  background: var(--ft-bg-shell);
+}
+
+.sideNav {
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  box-sizing: border-box;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ft-space-5);
+  padding: var(--ft-space-4) var(--ft-space-2);
+  border-right: var(--ft-rule-default);
+  background: var(--ft-bg-workspace);
+}
+
+.sideNavMark {
+  width: var(--ft-touch-target-min);
+  height: var(--ft-touch-target-min);
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: var(--ft-radius-panel);
+  background: var(--ft-accent);
+  color: var(--ft-bg-workspace);
+  font-family: var(--ft-font-ui);
+  font-size: var(--ft-type-label);
+  font-weight: 750;
+  letter-spacing: 0.04em;
+}
+
+.sideNavItems {
+  width: 100%;
+  display: grid;
+  gap: var(--ft-space-2);
+}
+
+.sideNavLink {
+  position: relative;
+  width: calc(var(--ft-touch-target-min) + var(--ft-space-2));
+  min-height: calc(var(--ft-touch-target-min) + var(--ft-space-2));
+  margin-inline: auto;
+  display: grid;
+  place-items: center;
+  gap: var(--ft-space-1);
+  padding: var(--ft-space-1);
+  border: var(--ft-focus-width) solid transparent;
+  border-radius: var(--ft-radius-panel);
+  background: transparent;
+  color: var(--ft-text-metadata);
+  font-family: var(--ft-font-ui);
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.sideNavIcon {
+  width: calc(var(--ft-space-5) - var(--ft-space-1));
+  height: calc(var(--ft-space-5) - var(--ft-space-1));
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sideNavLink:hover {
+  background: var(--ft-bg-hover);
+  color: var(--ft-text-primary);
+}
+
+.sideNavLink[aria-current="page"] {
+  background: var(--ft-accent-soft);
+  color: var(--ft-accent);
+}
+
+.sideNavLink[aria-current="page"]::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: calc(var(--ft-space-2) * -1);
+  width: calc(var(--ft-space-1) - var(--ft-focus-width) / 2);
+  height: calc(var(--ft-space-6) - var(--ft-space-1));
+  border-radius: 0 var(--ft-radius-2) var(--ft-radius-2) 0;
+  background: var(--ft-accent);
 }
 
 .topBar {
   position: sticky;
   top: 0;
   z-index: 80;
+  min-width: 0;
+  box-sizing: border-box;
+  min-height: var(--ft-shell-topbar-height);
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: var(--ft-space-4);
-  min-height: calc(var(--ft-touch-target-min) + var(--ft-space-4));
-  padding: var(--ft-space-2) var(--ft-space-5);
-  padding-top: calc(var(--ft-space-2) + env(safe-area-inset-top));
+  gap: var(--ft-space-5);
+  padding-inline: var(--ft-space-6);
+  padding-top: env(safe-area-inset-top);
   border-bottom: var(--ft-rule-default);
-  background: var(--ft-bg-panel);
-  box-shadow: 0 var(--ft-space-1) var(--ft-space-4)
-    color-mix(in srgb, var(--ft-text-primary) 6%, transparent);
+  background: color-mix(in srgb, var(--ft-bg-workspace) 94%, transparent);
+  backdrop-filter: blur(var(--ft-space-3));
 }
 
 .topBarNavControl {
@@ -31,95 +127,83 @@
 
 .aircraftIdentity {
   min-width: 0;
-  display: grid;
-  gap: var(--ft-space-1);
+  display: flex;
+  align-items: baseline;
+  gap: var(--ft-space-2);
+}
+
+.aircraftEyebrow {
+  color: var(--ft-text-metadata);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
 }
 
 .aircraftIdentity strong {
-  font-size: 1.05rem;
-  font-weight: 650;
+  color: var(--ft-text-primary);
+  font-size: var(--ft-type-panel);
+  font-weight: 700;
   letter-spacing: -0.01em;
 }
 
-.aircraftIdentity span,
-.flightPlaceholder {
+.aircraftProfile {
+  overflow: hidden;
   color: var(--ft-text-metadata);
-  font-family: var(--ft-font-data);
-  font-size: 0.72rem;
+  font-size: var(--ft-type-meta);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .topBarActions {
+  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: var(--ft-space-2);
 }
 
-.searchTrigger,
-.drawerTrigger,
-.drawerClose {
-  min-width: var(--ft-touch-target-min);
-  min-height: var(--ft-touch-target-min);
-  border: var(--ft-rule-default);
-  border-radius: calc(var(--ft-radius-4) * 2);
-  background: var(--ft-bg-inset);
-  color: var(--ft-text-primary);
-  font: inherit;
-}
-
-.searchTrigger {
-  padding-inline: var(--ft-space-4);
-  color: var(--ft-text-secondary);
-}
-
-.flightPlaceholder {
-  min-height: var(--ft-touch-target-min);
+.flightActive,
+.flightInactive {
+  min-height: var(--ft-control-height);
   display: inline-flex;
   align-items: center;
-  padding-inline: var(--ft-space-4);
-  border: var(--ft-rule-default);
-  border-radius: calc(var(--ft-radius-4) * 2);
-  background: var(--ft-bg-operational);
-}
-
-.workspace {
-  min-width: 0;
-  display: grid;
-  grid-template-columns: calc(var(--ft-space-7) * 4) minmax(0, 1fr);
-}
-
-.sideNav {
-  align-self: stretch;
-  display: flex;
-  flex-direction: column;
-  gap: var(--ft-space-1);
-  padding: var(--ft-space-4) var(--ft-space-3);
-  border-right: var(--ft-rule-default);
-  background: var(--ft-bg-panel);
-}
-
-.sideNavLink,
-.drawerLink {
-  min-height: var(--ft-touch-target-min);
-  display: flex;
-  align-items: center;
+  gap: var(--ft-space-2);
   padding-inline: var(--ft-space-3);
-  border: var(--ft-focus-width) solid transparent;
-  border-radius: calc(var(--ft-radius-4) * 2);
+  border-radius: var(--ft-radius-4);
   color: var(--ft-text-secondary);
-  font-family: var(--ft-font-ui);
-  font-size: 0.78rem;
-  font-weight: 650;
-  letter-spacing: 0.025em;
-  text-decoration: none;
+  font-size: var(--ft-type-meta);
+  white-space: nowrap;
 }
 
-.sideNavLink[aria-current="page"],
-.drawerLink[aria-current="page"] {
-  border-color: var(--ft-border-strong);
-  background: var(--ft-bg-operational);
+.flightActive {
+  background: var(--ft-accent-soft);
+}
+
+.flightInactive {
+  background: transparent;
+}
+
+.flightActive strong {
   color: var(--ft-text-primary);
-  font-weight: 700;
+  font-family: var(--ft-font-data);
+  font-size: var(--ft-type-meta);
+  font-weight: 650;
+}
+
+.flightStatusDot {
+  width: var(--ft-space-2);
+  height: var(--ft-space-2);
+  flex: 0 0 auto;
+  border-radius: var(--ft-radius-pill);
+  background: var(--ft-text-disabled);
+}
+
+.flightActive .flightStatusDot {
+  background: var(--ft-accent);
+}
+
+.flightStatusLabel {
+  color: var(--ft-text-metadata);
 }
 
 .content {
@@ -127,36 +211,35 @@
   display: grid;
   justify-items: center;
   align-content: start;
-  padding-inline: var(--ft-space-4);
+  padding-inline: var(--ft-space-6);
+  padding-bottom: calc(var(--ft-space-8) + var(--ft-space-7));
   background: var(--ft-bg-shell);
 }
 
 .content > :global(*) {
-  width: min(100%, calc(var(--ft-space-7) * 26));
+  width: min(100%, var(--ft-shell-content-max));
 }
 
-/* W1: legacy per-page navigation remains in page markup for flag-off compatibility,
-   but the W0 shell owns navigation whenever it is mounted. */
 .content :global(.learner-pilot-nav) {
   display: none;
 }
 
 .fastPathRail {
-  position: sticky;
-  bottom: max(var(--ft-space-3), env(safe-area-inset-bottom));
+  position: fixed;
+  left: calc(50% + var(--ft-shell-rail-half));
+  bottom: max(var(--ft-space-4), env(safe-area-inset-bottom));
   z-index: 70;
-  justify-self: center;
-  width: min(calc(var(--ft-space-7) * 12), calc(100% - var(--ft-space-6)));
+  transform: translateX(-50%);
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  min-height: var(--ft-fast-path-height-desktop);
-  margin-block: var(--ft-space-3);
-  overflow: hidden;
-  border: var(--ft-rule-strong);
-  border-radius: calc(var(--ft-radius-4) * 3);
-  background: var(--ft-bg-panel);
-  box-shadow: 0 var(--ft-space-2) var(--ft-space-5)
-    color-mix(in srgb, var(--ft-text-primary) 10%, transparent);
+  min-width: calc(var(--ft-space-7) * 8);
+  padding: var(--ft-space-1);
+  border: var(--ft-rule-default);
+  border-radius: var(--ft-radius-panel);
+  background: color-mix(in srgb, var(--ft-bg-workspace) 96%, transparent);
+  box-shadow: 0 var(--ft-space-2) var(--ft-space-6)
+    color-mix(in srgb, var(--ft-text-primary) 14%, transparent);
+  backdrop-filter: blur(var(--ft-space-3));
 }
 
 .fastPathLink {
@@ -164,93 +247,156 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-inline: var(--ft-space-2);
+  gap: var(--ft-space-2);
+  padding-inline: var(--ft-space-3);
   border: 0;
-  border-inline-end: var(--ft-rule-default);
+  border-radius: var(--ft-radius-4);
   background: transparent;
-  color: var(--ft-text-secondary);
+  color: var(--ft-text-metadata);
   font-family: var(--ft-font-ui);
-  font-size: 0.76rem;
+  font-size: 0.6875rem;
   font-weight: 700;
   text-decoration: none;
 }
 
-.fastPathLink[aria-pressed="true"] {
-  background: var(--ft-bg-operational);
+.fastPathLink:hover {
+  background: var(--ft-bg-hover);
   color: var(--ft-text-primary);
 }
 
-.fastPathLink:last-child {
-  border-inline-end: none;
+.fastPathLink[aria-pressed="true"] {
+  background: var(--ft-accent-soft);
+  color: var(--ft-accent);
+}
+
+.fastPathIcon {
+  width: calc(var(--ft-space-5) - var(--ft-space-1));
+  height: calc(var(--ft-space-5) - var(--ft-space-1));
+  display: grid;
+  place-items: center;
+  border-radius: var(--ft-radius-2);
+  background: var(--ft-bg-inset);
+  font-family: var(--ft-font-data);
+  font-size: var(--ft-type-meta);
+  font-weight: 750;
 }
 
 .drawerRoot {
   display: none;
 }
 
+.drawerTrigger,
+.drawerClose {
+  min-width: var(--ft-touch-target-min);
+  min-height: var(--ft-touch-target-min);
+  border: 0;
+  border-radius: var(--ft-radius-4);
+  background: transparent;
+  color: var(--ft-text-primary);
+  font: inherit;
+}
+
 .drawerLayer {
   position: fixed;
   inset: 0;
+  z-index: 140;
   display: grid;
 }
 
 .drawerBackdrop {
   position: absolute;
   inset: 0;
-  border: none;
-  background: transparent;
+  border: 0;
+  background: color-mix(in srgb, var(--ft-text-primary) 20%, transparent);
 }
 
 .drawerPanel {
   position: relative;
   box-sizing: border-box;
-  width: calc(var(--ft-space-7) * 5);
+  width: calc(var(--ft-space-7) * 6);
+  max-width: calc(100vw - var(--ft-space-7));
   height: 100dvh;
-  padding-bottom: env(safe-area-inset-bottom);
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto minmax(0, 1fr);
+  padding-bottom: env(safe-area-inset-bottom);
   border-right: var(--ft-rule-strong);
-  background: var(--ft-bg-panel);
+  background: var(--ft-bg-workspace);
 }
 
 .drawerHeader {
+  min-height: var(--ft-shell-topbar-height);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--ft-space-3);
+  padding: var(--ft-space-3) var(--ft-space-4);
+  padding-top: calc(var(--ft-space-3) + env(safe-area-inset-top));
+  border-bottom: var(--ft-rule-default);
+}
+
+.drawerHeader > div {
+  min-width: 0;
+  display: grid;
+  gap: var(--ft-space-1);
+}
+
+.drawerHeader span {
+  color: var(--ft-text-metadata);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.drawerHeader strong {
+  color: var(--ft-text-primary);
+  font-size: var(--ft-type-panel);
+  font-weight: 650;
+}
+
+.drawerNav {
+  display: grid;
+  align-content: start;
+  gap: var(--ft-space-1);
+  padding: var(--ft-space-3);
+}
+
+.drawerLink {
   min-height: var(--ft-touch-target-min);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--ft-space-2);
-  padding: var(--ft-space-2) var(--ft-space-3);
-  border-bottom: var(--ft-rule-default);
+  gap: var(--ft-space-3);
+  padding-inline: var(--ft-space-3);
+  border: var(--ft-focus-width) solid transparent;
+  border-radius: var(--ft-radius-4);
+  color: var(--ft-text-secondary);
+  font-family: var(--ft-font-ui);
+  font-size: var(--ft-type-label);
+  font-weight: 650;
+  text-decoration: none;
 }
 
-.drawerHeader strong {
-  font-family: var(--ft-font-data);
-  font-weight: 600;
+.drawerLink:hover {
+  background: var(--ft-bg-hover);
+  color: var(--ft-text-primary);
 }
 
-.drawerNav {
-  display: flex;
-  flex-direction: column;
-  padding-block: var(--ft-space-2);
+.drawerLink[aria-current="page"] {
+  background: var(--ft-accent-soft);
+  color: var(--ft-accent);
 }
 
 .sideNavLink:focus-visible,
 .drawerLink:focus-visible,
 .fastPathLink:focus-visible,
-.searchTrigger:focus-visible,
 .drawerTrigger:focus-visible,
 .drawerClose:focus-visible {
-  outline: var(--ft-focus-width) solid var(--ft-text-primary);
+  outline: var(--ft-focus-width) solid var(--ft-focus);
   outline-offset: var(--ft-focus-offset);
 }
 
 @media (max-width: 1180px), (hover: none) {
-  .topBarNavControl,
-  .drawerRoot {
-    display: block;
-  }
-
-  .workspace {
+  .shell {
     grid-template-columns: minmax(0, 1fr);
   }
 
@@ -258,48 +404,103 @@
     display: none;
   }
 
+  .workspace {
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .topBarNavControl,
+  .drawerRoot {
+    display: block;
+  }
+
+  .topBar {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    min-height: var(--ft-shell-topbar-height);
+    padding-inline: var(--ft-space-3);
+    gap: var(--ft-space-2);
+  }
+
+  .aircraftIdentity {
+    display: grid;
+    gap: 0;
+  }
+
+  .aircraftEyebrow,
+  .aircraftProfile,
+  .flightStatusLabel {
+    display: none;
+  }
+
+  .topBarActions {
+    gap: var(--ft-space-1);
+  }
+
+  .flightActive,
+  .flightInactive {
+    min-width: var(--ft-touch-target-min);
+    min-height: var(--ft-touch-target-min);
+    justify-content: center;
+    padding-inline: var(--ft-space-2);
+  }
+
+  .flightActive strong {
+    display: none;
+  }
+
+  .content {
+    padding-inline: var(--ft-space-4);
+    padding-bottom: calc(var(--ft-fast-path-height-ipad) + var(--ft-space-5));
+  }
+
   .fastPathRail {
+    left: 0;
+    right: 0;
     bottom: 0;
+    transform: none;
+    min-width: 0;
     width: 100%;
-    min-height: calc(
-      var(--ft-fast-path-height-ipad) + env(safe-area-inset-bottom)
-    );
-    margin-block: 0;
-    padding-bottom: env(safe-area-inset-bottom);
+    box-sizing: border-box;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    padding: var(--ft-space-1) var(--ft-space-2)
+      calc(var(--ft-space-1) + env(safe-area-inset-bottom));
     border-inline: 0;
     border-bottom: 0;
     border-radius: 0;
-    background: var(--ft-bg-panel);
+    background: var(--ft-bg-workspace);
+    box-shadow: 0 calc(var(--ft-space-1) * -1) var(--ft-space-5)
+      color-mix(in srgb, var(--ft-text-primary) 10%, transparent);
+    backdrop-filter: none;
   }
 
   .fastPathLink {
     min-height: var(--ft-fast-path-height-ipad);
-    font-family: var(--ft-font-ui);
+    flex-direction: column;
+    gap: 0;
+    padding-inline: var(--ft-space-1);
+    font-size: 0.5625rem;
+  }
+
+  .fastPathIcon {
+    background: transparent;
   }
 }
 
-@media (max-width: 1180px) and (orientation: portrait), (hover: none) and (orientation: portrait) {
-  .topBar {
-    grid-template-columns: auto minmax(0, 1fr);
-    padding-inline: var(--ft-space-3);
-  }
-
-  .topBarActions {
-    grid-column: 1 / -1;
-    justify-content: stretch;
-  }
-
-  .searchTrigger,
-  .flightPlaceholder {
-    flex: 1 1 auto;
-    justify-content: center;
-  }
-
+@media (max-width: 760px) {
   .content {
     padding-inline: 0;
   }
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  .sideNavLink,
+  .drawerLink,
+  .fastPathLink {
+    transition:
+      background-color var(--ft-motion-fast) ease,
+      color var(--ft-motion-fast) ease,
+      border-color var(--ft-motion-fast) ease;
+  }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .shell {
@@ -315,7 +516,6 @@
     outline-offset: calc(var(--ft-focus-offset) * -1);
   }
 
-  .searchTrigger,
   .drawerTrigger,
   .drawerClose,
   .fastPathRail {
