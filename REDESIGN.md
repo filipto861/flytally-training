@@ -63,10 +63,13 @@ document consolidates all of them into one authoritative source.
 | P3 | Systems + 2D Interactive Schematic | `redesign-p3-systems.test.ts` | `8b4e53c8` | `merged` `gated` |
 | P4 | Procedures (Learn / Operate / Relevance) | `redesign-p4-procedures.test.ts` | `738b0c59` | `merged` `gated` |
 | P5 | Operational fast-path closure | `redesign-p5-operational.test.ts` | `b9e910a4` | `merged` `gated` |
+| P6 | Training hub + Scenario + Debrief | `redesign-p6-training.test.ts` | `28a0c014` | `merged` `gated` |
 
 **P4 verification:** `npm run verify` → 886 / 885 / 0 / 1, build PASS; Playwright 284/284 across desktop, mobile, iPad landscape and iPad portrait.
 
 **P5 verification:** `npm run verify` → 908 / 907 / 0 / 1, build PASS; Playwright 288/288 across desktop, mobile, iPad landscape and iPad portrait.
+
+**P6 verification:** targeted 14/14; `npm run verify` → 922 / 921 / 0 / 1, build PASS; Playwright 312/312 across desktop, mobile, iPad landscape and iPad portrait.
 
 **Known debt (out of P4 scope):** `ProcedureLinearRunner` toggle changes
 accessible name (`Complete` → `Uncheck`) together with `aria-pressed`. Pre-existing
@@ -77,7 +80,7 @@ frozen behavior. Candidate for a dedicated cleanup issue.
 ## 3. Current state
 
 ```
-main:                        b9e910a4 (P5 merged)
+main:                        28a0c014 (P6 merged)
 production:                  FT_NEW_SHELL = ON
 runtime deployment:          dpl_EqXB1gwyWrG3FmpUJZt16KAo61DK (P4 runtime SHA 738b0c59)
 ```
@@ -129,7 +132,7 @@ fastPathTabs = ["checklist", "qrh", "perf", "ref"]
 
 **REF decision:** resolved. REF is owned by standalone **P7** and must be complete before final release / C4b.
 
-### 4.2 P6 — Training hub + Scenario + Debrief — **NEXT**
+### 4.2 P6 — Training hub + Scenario + Debrief — **COMPLETE**
 
 Training hub is **not a new top-level destination.** The frozen IA already has
 `TRAINING` (Quick Start / Orientation / Cold & Dark / Progress), and
@@ -169,7 +172,7 @@ its own slice.
 - Flag OFF legacy unchanged
 - Generic fixture + Node + 4× Playwright green
 
-### 4.3 P7 — Reference / REF fast-path closure
+### 4.3 P7 — Reference / REF fast-path closure — **NEXT**
 
 P7 owns the remaining `REF` slot in the frozen W3 fast-path contract. It is a
 standalone slice because reference browsing is a different concern from P5
@@ -330,7 +333,7 @@ is possible, without ability to run both shells in parallel.
 - [x] `FT_NEW_SHELL=true` active in production
 - [x] P0–P4 functional shell available for owner evaluation
 - [x] P5 operational fast-path closure complete
-- [ ] P6 Training / Scenario / Debrief complete
+- [x] P6 Training / Scenario / Debrief complete
 - [ ] P7 REF closure complete
 - [ ] UX0–UX5 complete
 - [ ] No open P0–P7 functional regressions
@@ -445,3 +448,4 @@ fails closed, and legacy state cannot resurrect after canonical state exists.
 | 2026-09-22 | Single-user production override: staged canary/beta skipped; global `FT_NEW_SHELL=true` activated on deployment `dpl_EqXB1gwyWrG3FmpUJZt16KAo61DK`. | Filip Točík + DeepSeek + ChatGPT |
 | 2026-09-22 | Roadmap corrected after live visual review: current shell classified as development preview, REF assigned to P7, and mandatory UX0–UX5 full-shell visual integration added before C4b. | Filip Točík + ChatGPT |
 | 2026-09-22 | P5 merged via PR #182 as squash commit `b9e910a4`; local gate 908/907/0/1 + build PASS + Playwright 288/288. | Filip Točík + ChatGPT |
+| 2026-09-22 | P6 merged via PR #183 as squash commit `28a0c014`; targeted 14/14, local gate 922/921/0/1 + build PASS + Playwright 312/312. | Filip Točík + ChatGPT |
