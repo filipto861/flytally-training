@@ -1257,7 +1257,10 @@ test("P7 REF fast path renders governed published limitations", async ({ page })
     reference.getByText("Maximum generic speed", { exact: true }),
   ).toBeVisible();
   await expect(reference.getByText("200 KIAS", { exact: true })).toBeVisible();
-  await expect(reference.getByText("Generic caution.", { exact: true })).toBeVisible();
+  const caution = reference.locator("p").filter({ hasText: "Generic caution." });
+  await expect(caution).toBeVisible();
+  await expect(caution).toContainText("CAUTION");
+  await expect(caution).toContainText("Generic caution.");
 });
 
 test("P7 REF exposes source provenance only on explicit disclosure", async ({ page }) => {
