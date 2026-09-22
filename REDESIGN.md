@@ -455,3 +455,4 @@ fails closed, and legacy state cannot resurrect after canonical state exists.
 | 2026-09-22 | P7 merged via PR #184 as squash commit `5488a9da`; targeted 10/10, local gate 932/931/0/1 + build PASS + Playwright 332/332. Functional P0–P7 sequence complete; UX0 begins. | Filip Točík + ChatGPT |
 | 2026-09-22 | UX0 + UX1 merged via PR #185 as squash commit `ed4f039d`; targeted 10/10, local gate 942/941/0/1 + build PASS + Playwright 332/332. UX2 becomes next. | Filip Točík + ChatGPT |
 | 2026-09-22 | UX2 merged via PR #186 as squash commit `fab1c37b`; targeted 6/6, local gate 948/947/0/1 + build PASS + Playwright 332/332. UX3 becomes next. | Filip Točík + ChatGPT |
+| 2026-09-22 | UX3 merged via PR #187 as squash commit `9da366f3`; targeted 6/6, local gate 954/953/0/1 + build PASS + Playwright 332/332. UX4 becomes next. | Filip Točík + ChatGPT |
