@@ -714,7 +714,9 @@ test("P3 Systems opens under AIRCRAFT in new shell", async ({ page }, testInfo) 
   const systems = await openP3Systems(page);
 
   await expect(systems).toHaveAttribute("data-ft-systems-page", "true");
-  await expect(systems.getByText("Generic Source System", { exact: true }).first()).toBeVisible();
+  await expect(
+    systems.getByRole("heading", { name: "Generic Source System", exact: true }),
+  ).toBeVisible();
 
   const nav = await workspaceNavigation(page, testInfo.project.name);
   await expect(nav.getByRole("link", { name: "AIRCRAFT", exact: true })).toHaveAttribute(
@@ -737,10 +739,11 @@ test("P3 node selection updates detail and connections", async ({ page }) => {
   const systems = await openP3Systems(page);
   await systems.getByRole("button", { name: "Pump A", exact: true }).click();
 
-  const detail = systems.locator("aside").filter({
-    has: systems.getByRole("heading", { name: "Pump A", exact: true }),
-  });
+  const detail = systems.locator("aside").filter({ hasText: "Connected to" });
   await expect(detail).toBeVisible();
+  await expect(
+    detail.getByRole("heading", { name: "Pump A", exact: true }),
+  ).toBeVisible();
   await expect(detail).toContainText("Source A (supply)");
   await expect(detail).toContainText("Valve A");
   await expect(detail).toContainText("P3 deterministic fixture");
@@ -777,7 +780,7 @@ test("P3 Escape clears node selection", async ({ page }) => {
 
 test("P3 text-only system works without a schematic", async ({ page }) => {
   const systems = await openP3Systems(page);
-  const mobilePicker = systems.getByLabel("System");
+  const mobilePicker = systems.getByRole("combobox");
 
   if (await mobilePicker.isVisible()) {
     await mobilePicker.selectOption("generic-text-system");
@@ -802,7 +805,9 @@ test("P3 flag OFF preserves legacy Systems presentation", async ({ page }) => {
   await expect(
     page.getByRole("region", { name: "Systems learning workspace" }),
   ).toBeVisible();
-  await expect(page.getByText("Generic Source System", { exact: true }).first()).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Generic Source System", exact: true, level: 2 }),
+  ).toBeVisible();
 });
 
 test("P3 Cockpit Orientation remains separate under TRAINING", async ({ page }, testInfo) => {
