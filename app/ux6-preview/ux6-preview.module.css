@@ -933,3 +933,86 @@
     border: 2px solid ButtonText;
   }
 }
+
+.previewSwitcher{display:flex;align-items:center;gap:2px}
+.previewScreenLink,.previewScreenActive{min-height:30px;display:inline-flex;align-items:center;padding:0 8px;border-radius:6px;color:var(--text-muted);font-size:11px;text-decoration:none}
+.previewScreenLink:hover{background:var(--hover);color:var(--text)}
+.previewScreenActive{background:var(--accent-soft);color:var(--accent);font-weight:650}
+.navGlyph{font-family:var(--ft-font-data,ui-monospace,monospace);font-size:10px!important}
+.referenceWorkspace{width:min(100%,1480px);box-sizing:border-box;margin:0 auto;padding:34px 34px 100px}
+.referencePageHeader,.flightHero{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin-bottom:24px}
+.referencePageHeader h1{margin:5px 0;font-size:30px;line-height:1.15;letter-spacing:-.025em}
+.referencePageHeader p,.flightHero p{margin:0;color:var(--text-secondary);font-size:14px}
+.contextChip,.panelHint{align-self:flex-start;padding:7px 10px;border-radius:999px;background:var(--panel);color:var(--text-muted);font-size:11px;font-weight:650}
+.performanceGrid{display:grid;grid-template-columns:minmax(360px,.8fr) minmax(520px,1.2fr);gap:18px}
+.inputPane,.resultPane,.surfaceSection,.briefSection{border:1px solid var(--border);border-radius:10px;background:var(--workspace)}
+.inputPane,.resultPane,.surfaceSection{padding:22px}
+.resultPane{background:linear-gradient(180deg,var(--workspace),var(--panel))}
+.panelHeading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px}
+.panelHeading h2{margin:4px 0 0;font-size:18px}
+.fieldGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:20px}
+.field{display:grid;gap:6px}
+.field>span{color:var(--text-secondary);font-size:12px;font-weight:600}
+.field>div{min-height:42px;display:flex;align-items:center;gap:5px;padding:0 12px;border:1px solid var(--border);border-radius:8px;background:var(--panel);color:var(--text);font-size:14px;font-weight:600;font-variant-numeric:tabular-nums}
+.field small,.resultGrid small,.distanceGrid small{color:var(--text-muted);font-size:.58em;font-weight:600}
+.validBadge,.activeBadge,.availableBadge{display:inline-flex;align-items:center;min-height:26px;padding:0 9px;border-radius:999px;background:var(--success-soft);color:var(--success);font-size:10px;font-weight:750;letter-spacing:.04em}
+.resultGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:6px 0 22px}
+.resultGrid>div,.distanceGrid>div{display:grid;gap:6px}
+.resultGrid span,.distanceGrid span{color:var(--text-muted);font-size:11px;font-weight:650}
+.resultGrid strong{font-family:var(--ft-font-data,ui-monospace,monospace);font-size:30px;font-variant-numeric:tabular-nums}
+.distanceGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;padding:20px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.distanceGrid strong{font-family:var(--ft-font-data,ui-monospace,monospace);font-size:22px;font-variant-numeric:tabular-nums}
+.resultContext{min-height:56px;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;padding-top:18px;color:var(--text-secondary);font-size:12px}
+.resultContext strong{color:var(--text)}
+.resultContext button{border:0;background:transparent;color:var(--accent);font:inherit;font-weight:650}
+.sourceDisclosure{margin-top:16px;border-top:1px solid var(--border);color:var(--text-secondary);font-size:12px}
+.sourceDisclosure summary{padding:16px 2px;color:var(--text-secondary);font-weight:650;cursor:pointer}
+.flightHero{padding:24px 26px;border:1px solid var(--border);border-radius:10px;background:var(--workspace)}
+.flightRoute{display:flex;align-items:baseline;gap:10px;margin:7px 0 8px}
+.flightRoute strong{font-family:var(--ft-font-data,ui-monospace,monospace);font-size:30px;letter-spacing:-.02em}
+.flightRoute span{color:var(--text-muted);font-size:13px}
+.flightRoute b{color:var(--accent);font-size:18px}
+.flightHeroActions{display:flex;align-items:center;gap:8px}
+.flightGrid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.kvList{margin:0;display:grid}
+.kvList>div{display:grid;grid-template-columns:130px 1fr;gap:14px;padding:12px 0;border-bottom:1px solid var(--border)}
+.kvList>div:last-child{border-bottom:0}
+.kvList dt{color:var(--text-muted);font-size:11px;font-weight:650;text-transform:uppercase}
+.kvList dd{margin:0;font-size:13px;font-weight:600}
+.dependencyList{display:grid}
+.dependencyRow{min-height:58px;display:grid;grid-template-columns:9px 1fr auto;align-items:center;gap:12px;border-bottom:1px solid var(--border)}
+.dependencyRow:last-child{border-bottom:0}
+.dependencyRow>div{display:grid;gap:3px}
+.dependencyRow strong{font-size:13px}
+.dependencyRow span{color:var(--text-muted);font-size:11px}
+.dependencyRow b{color:var(--accent);font-size:11px}
+.goodDot,.neutralDot{width:7px;height:7px;border-radius:50%;background:var(--success)}
+.neutralDot{background:var(--border-strong)}
+.briefSection{margin-top:18px;padding:22px}
+.briefStrip{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;overflow:hidden;border:1px solid var(--border);border-radius:8px;background:var(--border)}
+.briefStrip>div{display:grid;gap:5px;padding:16px;background:var(--panel)}
+.briefStrip span{color:var(--text-muted);font-size:11px}
+.briefStrip strong{font-family:var(--ft-font-data,ui-monospace,monospace);font-size:17px;font-variant-numeric:tabular-nums}
+.systemsEmpty{min-height:430px;display:grid;place-items:center;align-content:center;text-align:center;padding:42px;border:1px solid var(--border);border-radius:10px;background:var(--workspace)}
+.emptyIcon{width:52px;height:52px;display:grid;place-items:center;margin-bottom:14px;border-radius:12px;background:var(--panel);color:var(--text-muted);font-size:24px}
+.systemsEmpty h2{margin:7px 0;font-size:22px}
+.systemsEmpty p{max-width:560px;margin:0;color:var(--text-secondary);font-size:14px;line-height:1.55}
+.systemsEmpty>div:not(.emptyIcon){display:flex;gap:10px;margin-top:22px}
+.systemsEmpty small{margin-top:22px;color:var(--text-muted)}
+:global(body):has(.libraryPreview){margin:0;background:#f4f6f8}
+:global(body):has(.libraryPreview) :global(.app-header),:global(body):has(.libraryPreview) :global(.app-footer),:global(body):has(.libraryPreview) :global(.skip-link){display:none!important}
+.libraryPreview{--canvas:#f4f6f8;--workspace:#fff;--panel:#f8fafc;--hover:#f0f4f8;--border:#d9e0e7;--text:#111827;--text-secondary:#4b5563;--text-muted:#6b7280;--accent:#2f6bff;--accent-soft:#eaf1ff;--success:#247a46;--success-soft:#eaf7ef;min-height:100dvh;background:var(--canvas);color:var(--text);font-family:var(--ft-font-ui,"IBM Plex Sans",Inter,system-ui,sans-serif)}
+.libraryPreview[data-theme="dark"]{--canvas:#0b1118;--workspace:#101821;--panel:#16212d;--hover:#1a2633;--border:#263647;--text:#f3f6fa;--text-secondary:#b6c0cc;--text-muted:#8997a6;--accent:#5b8cff;--accent-soft:#172a4f;--success:#6ec28e;--success-soft:#163325}
+.libraryTopbar{min-height:64px;display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:18px;padding:0 28px;border-bottom:1px solid var(--border);background:var(--workspace)}
+.libraryBrand{display:flex;align-items:center;gap:10px}.libraryBrand>span{width:38px;height:38px;display:grid;place-items:center;border-radius:9px;background:var(--accent);color:#fff;font-size:12px;font-weight:750}.libraryBrand div{display:grid}.libraryBrand small{color:var(--text-muted);font-size:9px;letter-spacing:.08em}.libraryBrand strong{font-size:15px}
+.libraryContent{width:min(100%,1240px);box-sizing:border-box;margin:0 auto;padding:54px 30px}
+.libraryHeader{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:26px}.libraryHeader h1{margin:5px 0;font-size:32px}.libraryHeader p{margin:0;color:var(--text-secondary)}
+.librarySearch{width:300px;min-height:42px;display:flex;align-items:center;gap:8px;padding:0 12px;border:1px solid var(--border);border-radius:8px;background:var(--workspace);color:var(--text-muted)}.librarySearch input{width:100%;border:0;outline:0;background:transparent;color:var(--text);font:inherit}
+.aircraftList{display:grid}.aircraftCard{min-height:116px;display:grid;grid-template-columns:62px minmax(0,1fr) auto auto;align-items:center;gap:18px;padding:20px;border:1px solid var(--border);border-radius:10px;background:var(--workspace)}
+.aircraftAvatar{width:54px;height:54px;display:grid;place-items:center;border-radius:12px;background:var(--accent-soft);color:var(--accent);font-family:var(--ft-font-data,ui-monospace,monospace);font-weight:750}
+.aircraftCardCopy h2{margin:5px 0 3px;font-size:19px}.aircraftCardCopy p{margin:0;color:var(--text-secondary);font-size:13px}
+.aircraftMeta{display:grid;gap:3px;color:var(--text-muted);font-size:11px}.aircraftMeta strong{color:var(--text);font-size:12px}
+.aircraftOpen{min-height:42px;padding:0 15px;border:1px solid var(--accent);border-radius:8px;background:var(--accent);color:#fff;font:inherit;font-size:13px;font-weight:650}
+.libraryHint{display:flex;gap:10px;margin-top:18px;padding:16px 18px;border-radius:8px;background:var(--panel);color:var(--text-secondary);font-size:12px}.libraryHint strong{color:var(--text)}
+@media(max-width:1180px){.previewSwitcher{display:none}.performanceGrid{grid-template-columns:1fr}.flightGrid{grid-template-columns:1fr}}
+@media(max-width:760px){.referenceWorkspace{padding:18px 14px 82px}.referencePageHeader,.flightHero{display:block}.referencePageHeader h1{font-size:24px}.contextChip{display:none}.performanceGrid{display:block}.inputPane,.resultPane,.surfaceSection,.briefSection,.flightHero{margin-bottom:12px;padding:16px;border-radius:9px}.fieldGrid{grid-template-columns:1fr 1fr}.resultGrid{grid-template-columns:1fr 1fr}.resultGrid strong{font-size:26px}.flightHeroActions{margin-top:16px}.briefStrip{grid-template-columns:1fr}.libraryTopbar{grid-template-columns:1fr auto;padding-inline:14px}.libraryTopbar .previewSwitcher{display:none}.libraryContent{padding:28px 14px}.libraryHeader{display:grid}.libraryHeader h1{font-size:28px}.librarySearch{width:auto}.aircraftCard{grid-template-columns:50px 1fr}.aircraftMeta{display:none}.aircraftOpen{grid-column:1/-1}.libraryHint{display:grid}}
