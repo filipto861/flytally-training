@@ -39,7 +39,7 @@
   flex: 0 0 auto;
   border-radius: var(--ft-radius-panel);
   background: var(--ft-accent);
-  color: var(--ft-bg-workspace);
+  color: var(--ft-accent-contrast);
   font-family: var(--ft-font-ui);
   font-size: var(--ft-type-label);
   font-weight: 750;
