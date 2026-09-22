@@ -2,7 +2,9 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
+import { configurationForVariant } from "../lib/aircraft-applicability.ts";
 import { fastPathTabForShortcut, fastPathTabs } from "../lib/fast-path/panel-state.ts";
+import { resolveFastPathQrh } from "../lib/fast-path/qrh-adapter.ts";
 
 const read = (path: string) =>
   readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
@@ -84,4 +86,100 @@ test("P5 reusable operational paths remain aircraft-agnostic", () => {
 
   assert.doesNotMatch(source, /learjet|35a|tfe731|bristell|cessna|boeing|rotax/i);
   assert.doesNotMatch(source, /aircraft\.model\s*===/i);
+});
+
+
+const qrhPayload = {
+  aircraftId: "generic-aircraft",
+  title: "Generic Emergency",
+  scenarios: [
+    {
+      id: "applicable",
+      title: "Applicable Emergency",
+      category: "Generic",
+      phase: "In flight",
+      difficulty: "core",
+      minutes: 1,
+      summary: "Training summary that must not enter operational output.",
+      setup: "Training setup that must not enter operational output.",
+      objectives: ["Recognize the condition."],
+      debrief: ["Review the response."],
+      applicability: { equipmentAllOf: ["eq-a"] },
+      stages: [
+        {
+          id: "memory",
+          label: "Immediate action",
+          prompt: "Training prompt.",
+          expectedResponse: ["Action A"],
+          explanation: "Training explanation.",
+          sources: [{ manualId: "generic-source", pageLabel: "1" }],
+        },
+        {
+          id: "filtered-stage",
+          label: "Filtered stage",
+          prompt: "Training prompt.",
+          expectedResponse: ["Action B"],
+          explanation: "Training explanation.",
+          applicability: { equipmentAllOf: ["eq-b"] },
+          sources: [{ manualId: "generic-source", pageLabel: "2" }],
+        },
+      ],
+    },
+    {
+      id: "filtered-scenario",
+      title: "Filtered Emergency",
+      category: "Generic",
+      phase: "In flight",
+      difficulty: "core",
+      minutes: 1,
+      summary: "Filtered summary.",
+      setup: "Filtered setup.",
+      objectives: ["Filtered objective."],
+      debrief: ["Filtered debrief."],
+      applicability: { equipmentAllOf: ["eq-b"] },
+      stages: [
+        {
+          id: "filtered-only-stage",
+          label: "Filtered action",
+          prompt: "Filtered prompt.",
+          expectedResponse: ["Filtered action"],
+          explanation: "Filtered explanation.",
+          sources: [{ manualId: "generic-source", pageLabel: "3" }],
+        },
+      ],
+    },
+  ],
+};
+
+test("P5.2 QRH adapter fails closed for readiness and invalid payloads", () => {
+  const configuration = configurationForVariant(undefined, ["eq-a"]);
+
+  assert.equal(resolveFastPathQrh(qrhPayload, configuration, false), undefined);
+  assert.equal(resolveFastPathQrh({ aircraftId: "generic-aircraft" }, configuration, true), undefined);
+});
+
+test("P5.2 QRH adapter applies existing configuration filtering before projection", () => {
+  const qrh = resolveFastPathQrh(
+    qrhPayload,
+    configurationForVariant(undefined, ["eq-a"]),
+    true,
+  );
+
+  assert.ok(qrh);
+  assert.deepEqual(qrh.scenarios.map((scenario) => scenario.id), ["applicable"]);
+  assert.deepEqual(qrh.scenarios[0]?.stages.map((stage) => stage.id), ["memory"]);
+});
+
+test("P5.2 QRH adapter reuses the operational DTO and strips training interaction", () => {
+  const qrh = resolveFastPathQrh(
+    qrhPayload,
+    configurationForVariant(undefined, ["eq-a"]),
+    true,
+  );
+
+  assert.ok(qrh);
+  const serialized = JSON.stringify(qrh);
+  assert.match(serialized, /Action A/);
+  assert.match(serialized, /generic-source/);
+  assert.doesNotMatch(serialized, /Training summary|Training setup|Recognize the condition|Review the response|Training prompt|Training explanation/);
 });
