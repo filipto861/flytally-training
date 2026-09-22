@@ -28,7 +28,7 @@
   gap: var(--ft-space-5);
   padding: var(--ft-space-4) var(--ft-space-2);
   border-right: var(--ft-rule-default);
-  background: var(--ft-bg-workspace);
+  background: var(--ft-bg-panel);
 }
 
 .sideNavMark {
@@ -89,7 +89,7 @@
 }
 
 .sideNavLink[aria-current="page"] {
-  background: var(--ft-accent-soft);
+  background: var(--ft-bg-operational);
   color: var(--ft-accent);
 }
 
@@ -485,7 +485,7 @@
   }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 47.5rem) {
   .content {
     padding-inline: 0;
   }
