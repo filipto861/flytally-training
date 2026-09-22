@@ -83,16 +83,16 @@ frozen behavior. Candidate for a dedicated cleanup issue.
 ## 3. Current state
 
 ```
-main:                        5488a9da (P7 merged)
+main:                        f99c6dcd (UX5 final visual audit recorded)
 production:                  FT_NEW_SHELL = ON
-runtime deployment:          dpl_EqXB1gwyWrG3FmpUJZt16KAo61DK (P4 runtime SHA 738b0c59)
+runtime deployment:          dpl_EfxJq5bdCVVXaE88gMbVdJzXpFPv (UX5 correction SHA f1ec3264)
 ```
 
 **Playwright projects:** `desktop-chromium`, `mobile-chromium`, `ipad-landscape`, `ipad-portrait`  
 **Pre-P4 baseline:** 252 passed (63 × 4)  
 **P4.7 verified:** 284 passed (71 × 4)
 
-**Production status:** the new shell is live for the single owner as a **development preview**. This is not the final visual design and is not the final release-complete state. Functional slices continue first, followed by an explicit full-shell UX/visual integration phase before legacy removal.
+**Production status:** the new shell is live for the single owner as a **development preview**. P0–P7 and UX0–UX4 are complete. The final UX5 light/dark production matrix has been reviewed and is **ready for product-owner visual approval**; UX5 remains incomplete until that explicit approval is given. C0–C3 and final-release hardening still precede C4b.
 
 ---
 
@@ -221,9 +221,9 @@ product rather than polishing incomplete pages one by one.
 | UX0 | Full-shell visual inventory using real production screenshots on desktop, iPad landscape/portrait and narrow mobile; define target visual principles and measurable layout issues | S — **COMPLETE** |
 | UX1 | Shell composition: content max-width, sidebar proportions, aircraft header/top bar, search/active-flight placement, fast-path rail scale and density | M — **COMPLETE** |
 | UX2 | Design hierarchy: typography scale, spacing rhythm, surfaces/cards, borders, primary/secondary actions, empty/loading/error states | M — **COMPLETE** |
-| UX3 | Cross-page harmonization across P0–P7 so launch, Procedures, Performance, Systems, Training, Flight and Reference feel like one product | L |
-| UX4 | Responsive + interaction polish: desktop, iPad, phone, keyboard/focus, touch targets, reduced motion, forced colors, screen-reader semantics | M/L |
-| UX5 | Final visual acceptance: screenshot review, regression checks, performance baseline/budget, accessibility sign-off and final product-owner approval | M |
+| UX3 | Cross-page harmonization across P0–P7 so launch, Procedures, Performance, Systems, Training, Flight and Reference feel like one product | L — **COMPLETE** |
+| UX4 | Responsive + interaction polish: desktop, iPad, phone, keyboard/focus, touch targets, reduced motion, forced colors, screen-reader semantics | M/L — **COMPLETE** |
+| UX5 | Final visual acceptance: screenshot review, regression checks, performance baseline/budget, accessibility sign-off and final product-owner approval | M — **AWAITING OWNER APPROVAL** |
 
 **UX overall = L.**
 
@@ -280,18 +280,18 @@ is possible, without ability to run both shells in parallel.
 **Note:** In the current single-user production context, staged canary/beta was explicitly skipped by owner decision. Global `FT_NEW_SHELL=true` was performed directly on 2026-09-22 so the incomplete new shell can be evaluated live. **This does not mean the UI is final.** All unchecked items below remain mandatory before the redesign is considered release-complete or before C4b legacy removal.
 
 **Code & tests**
-- [ ] P0–P7 merged
+- [x] P0–P7 merged
 - [ ] UX0–UX5 completed and product-owner approved
 - [ ] C0–C3 merged
-- [ ] All four W3 fast-path slots (`CHECKLIST / QRH / PERF / REF`) are functional and not placeholders
-- [ ] `npm run verify` green on `main`
-- [ ] Current Playwright suite green on all 4 projects (P4 baseline: 284/284)
+- [x] All four W3 fast-path slots (`CHECKLIST / QRH / PERF / REF`) are functional and not placeholders
+- [x] `npm run verify` green for UX5 correction pass (Node 968 / 967 / 0 / 1; build PASS)
+- [x] Current Playwright suite green on all 4 projects (340/340)
 - [ ] No `skip` in redesign-specific tests
 
 **Migration blockers**
-- [ ] Legacy `OperationalChecklist` localStorage → shared checklist session migration implemented, idempotent, fail-closed
-- [ ] Migration invariant: legacy state cannot resurrect after canonical write
-- [ ] Malformed/obsolete legacy payload fails closed
+- [x] Legacy `OperationalChecklist` localStorage → shared checklist session migration implemented, idempotent, fail-closed
+- [x] Migration invariant: legacy state cannot resurrect after canonical write
+- [x] Malformed/obsolete legacy payload fails closed
 
 **CI / infrastructure blockers**
 - [ ] GitHub Actions runner/billing state resolved
@@ -309,7 +309,7 @@ is possible, without ability to run both shells in parallel.
 
 **Performance (baseline before budget)**
 - [ ] Legacy + new shell measured on same target hardware/network
-- [ ] Baseline documented (LCP, route/bundle delta, interaction long tasks)
+- [x] UX5 production navigation baseline documented in `UX5_VISUAL_AUDIT_02.md`
 - [ ] Release regression budget agreed
 - [ ] C4a gates against this budget
 - [ ] `>200 ms` long tasks recorded as candidate guardrail, not as SLA yet
@@ -339,7 +339,7 @@ is possible, without ability to run both shells in parallel.
 - [x] P6 Training / Scenario / Debrief complete
 - [x] P7 REF closure complete
 - [ ] UX0–UX5 complete
-- [ ] No open P0–P7 functional regressions
+- [x] No open P0–P7 functional regressions observed in UX5 release gate
 
 ### 5.3 C4b — flag removal pre-conditions
 
@@ -406,13 +406,13 @@ fails closed, and legacy state cannot resurrect after canonical state exists.
 | Legacy `OperationalChecklist` migration | Users lose in-progress state on flip | **Resolved in P5.5** with invariant suite |
 | GitHub Actions billing/runner blocked | Cannot accept external PRs safely | Resolve in GitHub Billing before C4a |
 | No error/regression signal | Blind flip, slow rollback trigger | `/api/release-state` + error visibility before C4a |
-| Current UI is not release-quality | Functional shell reads as a sparse technical wireframe on desktop | Mandatory UX0–UX5 full-shell redesign after P5–P7 |
+| UX5 visual approval pending | C4b cannot treat redesign as visually accepted | Final 64-screenshot matrix reviewed; explicit product-owner approval still required |
 | No performance baseline | Cannot detect regression before final acceptance | UX5 baseline + budget before C4b |
 | No a11y audit | Accessibility regressions reach users | UX4/UX5 full-shell a11y gate before C4b |
 | `ProcedureLinearRunner` a11y debt | Compounds in P5+ e2e | Dedicated cleanup issue |
-| Learjet `/fly` fail-closed 404 | User-visible on flip | Content governance, tracked separately |
+| Legacy Learjet `/fly` can fail closed | Legacy operational deep link may be unavailable for current content | Canonical top-level FLIGHT now routes to P1 `/flight`; legacy route remains separately governed |
 | Learjet `/systems` fail-closed 404 in new shell | Published `systems` module is absent in production content | Publish governed systems content; not a P3 runtime regression |
-| UX full-shell integration remains substantial | Release slips | P0–P7 merged; UX = L |
+| Learjet Systems content unavailable | Real P3 Systems content cannot receive production visual signoff yet | Publish governed configuration-applicable Systems content before treating this content gap as resolved |
 
 ### 8.2 Open questions
 
@@ -422,7 +422,7 @@ fails closed, and legacy state cannot resurrect after canonical state exists.
 | Post-C4b rollback mechanism | **Defined:** no flag rollback; normal code rollback / redeploy only |
 | Release communication plan | **Not defined** |
 | Formal standalone C4 acceptance document | **Does not exist**; §5 is the current redesign release checklist |
-| S/M/L estimates for remaining work | **P5 M/L, P6 L, P7 M, UX L; C0–C4 still TBD** |
+| S/M/L estimates for remaining work | **P0–P7 and UX0–UX4 complete; UX5 awaiting owner approval; C0–C4 still TBD** |
 | Beta feedback handling | Review/triage is required before C4a.1; channel and operating process are **not defined** |
 
 ---
@@ -457,3 +457,4 @@ fails closed, and legacy state cannot resurrect after canonical state exists.
 | 2026-09-22 | UX2 merged via PR #186 as squash commit `fab1c37b`; targeted 6/6, local gate 948/947/0/1 + build PASS + Playwright 332/332. UX3 becomes next. | Filip Točík + ChatGPT |
 | 2026-09-22 | UX3 merged via PR #187 as squash commit `9da366f3`; targeted 6/6, local gate 954/953/0/1 + build PASS + Playwright 332/332. UX4 becomes next. | Filip Točík + ChatGPT |
 | 2026-09-22 | UX4 merged via PR #188 as squash commit `1c9df1de`; targeted 6/6, local gate 960/959/0/1 + build PASS + Playwright 340/340. UX5 final visual acceptance becomes next. | Filip Točík + ChatGPT |
+| 2026-09-22 | UX5 correction pass merged via PR #189 as `f1ec3264`; local gate TypeScript PASS, UX5 8/8, Node 968/967/0/1, build PASS, Playwright 340/340. Final 64-screenshot light/dark production matrix reviewed in `UX5_VISUAL_AUDIT_02.md`; ready for explicit owner approval. | Filip Točík + ChatGPT |
