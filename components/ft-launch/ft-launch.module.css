@@ -2,7 +2,7 @@
   width: 100%;
   display: grid;
   gap: var(--ft-space-5);
-  padding: var(--ft-space-5);
+  padding: var(--ft-space-6);
   color: var(--ft-text-primary);
   background: var(--ft-bg-shell);
 }
@@ -114,8 +114,8 @@
 .primaryAction {
   padding-inline: var(--ft-space-5);
   border: var(--ft-rule-strong);
-  background: var(--ft-text-primary);
-  color: var(--ft-bg-panel);
+  background: var(--ft-bg-operational);
+  color: var(--ft-text-primary);
 }
 
 .secondaryGrid {
