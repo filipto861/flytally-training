@@ -6,6 +6,7 @@ import {
   filterSystemsForConfiguration,
 } from "../lib/aircraft-applicability.ts";
 import { validateContentPayload } from "../lib/content-contracts.ts";
+import { systemSearchText } from "../lib/systems-runtime.ts";
 import type { AircraftSystemsContent } from "../lib/universal-aircraft-content.ts";
 
 type TestSource = {
@@ -348,4 +349,58 @@ test("P3 edge whose endpoint is filtered out is removed", () => {
     ["node-a"],
   );
   assert.deepEqual(filtered.systems[0]?.schematic?.edges, []);
+});
+
+
+test("P3 systems search indexes schematic user-visible text but not layout metadata", () => {
+  const system: AircraftSystemsContent["systems"][number] = {
+    id: "fuel",
+    title: "Fuel",
+    summary: "Fuel storage and delivery.",
+    schematic: {
+      version: 1,
+      title: "Fuel System",
+      description: "Low pressure fuel delivery",
+      sources: [source],
+      nodes: [
+        {
+          id: "fuel-pump",
+          label: "Fuel Pump",
+          role: "component",
+          x: 42,
+          y: 17,
+          summary: "Engine-driven",
+        },
+        {
+          id: "fuel-manifold",
+          label: "Fuel Manifold",
+          role: "consumer",
+          x: 88,
+          y: 64,
+        },
+      ],
+      edges: [
+        {
+          id: "fuel-supply",
+          from: "fuel-pump",
+          to: "fuel-manifold",
+          direction: "forward",
+          label: "supply",
+        },
+      ],
+    },
+  };
+
+  const search = systemSearchText(system);
+
+  assert.match(search, /fuel system/);
+  assert.match(search, /low pressure fuel delivery/);
+  assert.match(search, /fuel pump/);
+  assert.match(search, /engine-driven/);
+  assert.match(search, /supply/);
+
+  assert.doesNotMatch(search, /\b42\b/);
+  assert.doesNotMatch(search, /\b17\b/);
+  assert.doesNotMatch(search, /fuel-pump/);
+  assert.doesNotMatch(search, /fuel-supply/);
 });
