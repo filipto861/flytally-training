@@ -220,7 +220,7 @@ product rather than polishing incomplete pages one by one.
 |---|---|---|
 | UX0 | Full-shell visual inventory using real production screenshots on desktop, iPad landscape/portrait and narrow mobile; define target visual principles and measurable layout issues | S — **COMPLETE** |
 | UX1 | Shell composition: content max-width, sidebar proportions, aircraft header/top bar, search/active-flight placement, fast-path rail scale and density | M — **COMPLETE** |
-| UX2 | Design hierarchy: typography scale, spacing rhythm, surfaces/cards, borders, primary/secondary actions, empty/loading/error states | M — **NEXT** |
+| UX2 | Design hierarchy: typography scale, spacing rhythm, surfaces/cards, borders, primary/secondary actions, empty/loading/error states | M — **COMPLETE** |
 | UX3 | Cross-page harmonization across P0–P7 so launch, Procedures, Performance, Systems, Training, Flight and Reference feel like one product | L |
 | UX4 | Responsive + interaction polish: desktop, iPad, phone, keyboard/focus, touch targets, reduced motion, forced colors, screen-reader semantics | M/L |
 | UX5 | Final visual acceptance: screenshot review, regression checks, performance baseline/budget, accessibility sign-off and final product-owner approval | M |
@@ -454,3 +454,4 @@ fails closed, and legacy state cannot resurrect after canonical state exists.
 | 2026-09-22 | P6 merged via PR #183 as squash commit `28a0c014`; targeted 14/14, local gate 922/921/0/1 + build PASS + Playwright 312/312. | Filip Točík + ChatGPT |
 | 2026-09-22 | P7 merged via PR #184 as squash commit `5488a9da`; targeted 10/10, local gate 932/931/0/1 + build PASS + Playwright 332/332. Functional P0–P7 sequence complete; UX0 begins. | Filip Točík + ChatGPT |
 | 2026-09-22 | UX0 + UX1 merged via PR #185 as squash commit `ed4f039d`; targeted 10/10, local gate 942/941/0/1 + build PASS + Playwright 332/332. UX2 becomes next. | Filip Točík + ChatGPT |
+| 2026-09-22 | UX2 merged via PR #186 as squash commit `fab1c37b`; targeted 6/6, local gate 948/947/0/1 + build PASS + Playwright 332/332. UX3 becomes next. | Filip Točík + ChatGPT |
