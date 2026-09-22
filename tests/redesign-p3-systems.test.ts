@@ -1,7 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import {
+  configurationForVariant,
+  filterSystemsForConfiguration,
+} from "../lib/aircraft-applicability.ts";
 import { validateContentPayload } from "../lib/content-contracts.ts";
+import type { AircraftSystemsContent } from "../lib/universal-aircraft-content.ts";
 
 type TestSource = {
   manualId: string;
@@ -199,4 +204,148 @@ test("P3 system without schematic remains valid for sparse text-only aircraft co
   delete payload.systems[0].schematic;
 
   assert.deepEqual(errorsFor(payload), []);
+});
+
+
+function applicabilitySystemsFixture(): AircraftSystemsContent {
+  return {
+    aircraftId: "test-aircraft",
+    title: "Aircraft systems",
+    systems: [
+      {
+        id: "applicability-system",
+        title: "Applicability System",
+        summary: "Generic system for nested applicability filtering.",
+        schematic: {
+          version: 1,
+          sources: [source],
+          nodes: [
+            {
+              id: "always",
+              label: "Always",
+              role: "source",
+              x: 10,
+              y: 50,
+            },
+            {
+              id: "variant-x",
+              label: "Variant X",
+              role: "component",
+              x: 50,
+              y: 30,
+              applicability: { variants: ["X"] },
+            },
+            {
+              id: "variant-y",
+              label: "Variant Y",
+              role: "consumer",
+              x: 90,
+              y: 70,
+              applicability: { variants: ["Y"] },
+            },
+          ],
+          edges: [
+            {
+              id: "edge-x",
+              from: "always",
+              to: "variant-x",
+              direction: "forward",
+              applicability: { variants: ["X"] },
+            },
+            {
+              id: "edge-y",
+              from: "always",
+              to: "variant-y",
+              direction: "forward",
+              applicability: { variants: ["Y"] },
+            },
+            {
+              id: "edge-always",
+              from: "always",
+              to: "variant-x",
+              direction: "none",
+            },
+          ],
+        },
+      },
+    ],
+  };
+}
+
+test("P3 nested schematic node applicability filters against configuration", () => {
+  const filtered = filterSystemsForConfiguration(
+    applicabilitySystemsFixture(),
+    configurationForVariant("X"),
+  );
+
+  assert.deepEqual(
+    filtered.systems[0]?.schematic?.nodes.map((node) => node.id),
+    ["always", "variant-x"],
+  );
+});
+
+test("P3 nested schematic edge applicability filters against configuration", () => {
+  const filtered = filterSystemsForConfiguration(
+    applicabilitySystemsFixture(),
+    configurationForVariant("X"),
+  );
+
+  assert.deepEqual(
+    filtered.systems[0]?.schematic?.edges.map((edge) => edge.id),
+    ["edge-x", "edge-always"],
+  );
+});
+
+test("P3 edge whose endpoint is filtered out is removed", () => {
+  const content: AircraftSystemsContent = {
+    aircraftId: "test-aircraft",
+    title: "Aircraft systems",
+    systems: [
+      {
+        id: "dangling-cleanup",
+        title: "Dangling Cleanup",
+        summary: "Generic system for endpoint cleanup.",
+        schematic: {
+          version: 1,
+          sources: [source],
+          nodes: [
+            {
+              id: "node-a",
+              label: "Node A",
+              role: "source",
+              x: 10,
+              y: 50,
+            },
+            {
+              id: "node-b",
+              label: "Node B",
+              role: "consumer",
+              x: 90,
+              y: 50,
+              applicability: { variants: ["X"] },
+            },
+          ],
+          edges: [
+            {
+              id: "a-to-b",
+              from: "node-a",
+              to: "node-b",
+              direction: "forward",
+            },
+          ],
+        },
+      },
+    ],
+  };
+
+  const filtered = filterSystemsForConfiguration(
+    content,
+    configurationForVariant("Y"),
+  );
+
+  assert.deepEqual(
+    filtered.systems[0]?.schematic?.nodes.map((node) => node.id),
+    ["node-a"],
+  );
+  assert.deepEqual(filtered.systems[0]?.schematic?.edges, []);
 });
