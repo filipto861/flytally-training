@@ -317,3 +317,61 @@ test("P4 Operate delegates graph decisions to the existing graph runtime without
     );
   }
 });
+
+
+const proceduresPageSource = readFileSync(
+  new URL("../components/ft-procedures/FtProceduresPage.tsx", import.meta.url),
+  "utf8",
+);
+const proceduresIndexSource = readFileSync(
+  new URL("../components/ft-procedures/FtProcedureIndex.tsx", import.meta.url),
+  "utf8",
+);
+const proceduresDetailSource = readFileSync(
+  new URL("../components/ft-procedures/FtProcedureDetail.tsx", import.meta.url),
+  "utf8",
+);
+const proceduresPresentationSources = [
+  proceduresPageSource,
+  proceduresIndexSource,
+  proceduresDetailSource,
+];
+
+test("P4 new-shell Procedures page owns no session state and defines no second storage key", () => {
+  assert.match(proceduresPageSource, /data-ft-procedures-page="true"/);
+  assert.match(proceduresPageSource, /aria-label="Procedures workspace"/);
+
+  for (const sourceText of proceduresPresentationSources) {
+    for (const pattern of [
+      /sessionStorage/,
+      /localStorage/,
+      /readProcedureSessionV2/,
+      /writeProcedureSessionV2/,
+      /procedureSessionReducer/,
+      /\buseReducer\b/,
+      /ProcedureSessionSnapshotV2/,
+    ]) {
+      assert.doesNotMatch(
+        sourceText,
+        pattern,
+        `P4 presentation must not own procedure session state; matched ${pattern}`,
+      );
+    }
+  }
+});
+
+test("P4 presentation defines no independent deep-link controller", () => {
+  for (const sourceText of proceduresPresentationSources) {
+    for (const pattern of [
+      /window\.location\.hash/,
+      /hashchange/,
+      /history\.replaceState/,
+    ]) {
+      assert.doesNotMatch(
+        sourceText,
+        pattern,
+        `P4 presentation must leave deep-link ownership in ProcedureBrowser; matched ${pattern}`,
+      );
+    }
+  }
+});
