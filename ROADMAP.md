@@ -1,5 +1,8 @@
 # FlyTally Training Roadmap
 
+> **Redesign tracking:** The W/P/C redesign sequence (new shell, legacy retirement)
+> is tracked separately in [`REDESIGN.md`](./REDESIGN.md).
+
 ## Release strategy
 
 FlyTally Training is being built toward one complete first product release: **v1.0**.
