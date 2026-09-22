@@ -448,3 +448,19 @@
     width: 100%;
   }
 }
+
+
+@media (forced-colors: active) {
+  .activeScenario,
+  .stageRail .stageActive,
+  .stageRail .stageDone {
+    outline: var(--ft-focus-width) solid Highlight;
+    outline-offset: calc(var(--ft-focus-offset) * -1);
+  }
+
+  .primaryButton,
+  .secondaryButton,
+  .repeatQueue button {
+    forced-color-adjust: auto;
+  }
+}
