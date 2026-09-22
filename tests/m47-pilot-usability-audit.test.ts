@@ -43,10 +43,11 @@ test("M47 hub copy is short and task-oriented",()=>{
 test("systems and procedures use a single mobile topic picker instead of a second scrolling index",()=>{
   assert.match(systems,/mobilePicker/);
   assert.match(systems,/selectSystem\(event\.target\.value\)/);
-  assert.match(systemsCss,/\.index\{display:none\}/);
+  const mobileIndexHidden = /\.index\s*\{[^}]*display:\s*none\s*;?[^}]*\}/;
+  assert.match(systemsCss,mobileIndexHidden);
   assert.match(procedures,/mobilePicker/);
   assert.match(procedures,/selectProcedure\(event\.target\.value\)/);
-  assert.match(proceduresCss,/\.index\{display:none\}/);
+  assert.match(proceduresCss,mobileIndexHidden);
 });
 
 test("learning source metadata remains available without dominating the page",()=>{
