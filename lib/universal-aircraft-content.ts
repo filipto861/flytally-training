@@ -404,6 +404,54 @@ export type AircraftLimitationsContent = UniversalModuleMetadata & {
   readonly groups: readonly LimitationGroup[];
 };
 
+export type AircraftSystemSchematicNodeRole =
+  | "source"
+  | "component"
+  | "control"
+  | "indication"
+  | "consumer"
+  | "junction";
+
+export type AircraftSystemSchematicDirection =
+  | "forward"
+  | "reverse"
+  | "bidirectional"
+  | "none";
+
+export type AircraftSystemSchematicNode = {
+  readonly id: string;
+  readonly label: string;
+  readonly role: AircraftSystemSchematicNodeRole;
+  /** Normalized logical layout. Presentation-only. Not aviation fact. */
+  readonly x: number;
+  readonly y: number;
+  readonly summary?: string;
+  readonly applicability?: AircraftApplicability;
+  /** If present: non-empty. If absent: inherits schematic.sources. */
+  readonly sources?: readonly TrainingSourceReference[];
+};
+
+export type AircraftSystemSchematicEdge = {
+  readonly id: string;
+  readonly from: string;
+  readonly to: string;
+  readonly direction: AircraftSystemSchematicDirection;
+  readonly label?: string;
+  readonly applicability?: AircraftApplicability;
+  /** If present: non-empty. If absent: inherits schematic.sources. */
+  readonly sources?: readonly TrainingSourceReference[];
+};
+
+export type AircraftSystemSchematic = {
+  readonly version: 1;
+  readonly title?: string;
+  readonly description?: string;
+  readonly nodes: readonly AircraftSystemSchematicNode[];
+  readonly edges: readonly AircraftSystemSchematicEdge[];
+  /** Required, non-empty governed provenance for the logical diagram. */
+  readonly sources: readonly TrainingSourceReference[];
+};
+
 export type AircraftSystemLesson = {
   readonly id: string;
   readonly title: string;
@@ -418,6 +466,8 @@ export type AircraftSystemLesson = {
   readonly remember?: readonly string[];
   readonly applicability?: AircraftApplicability;
   readonly sources?: readonly TrainingSourceReference[];
+  /** Optional logical schematic. Absence is a valid text-only system lesson. */
+  readonly schematic?: AircraftSystemSchematic;
 };
 
 export type AircraftSystemsContent = UniversalModuleMetadata & {
@@ -497,9 +547,18 @@ function validateNotices(value: unknown): boolean {
   return objects(value) && value.every(item => (item.kind === "note" || item.kind === "caution" || item.kind === "warning") && text(item.text));
 }
 
+function validateSourceReference(value: unknown): boolean {
+  return object(value)
+    && text(value.manualId)
+    && text(value.pageLabel)
+    && (value.chapter === undefined || text(value.chapter))
+    && (value.section === undefined || text(value.section))
+    && (value.note === undefined || text(value.note));
+}
+
 function validateSources(value: unknown): boolean {
   if (value === undefined) return true;
-  return objects(value) && value.length > 0 && value.every(item => text(item.manualId) && text(item.pageLabel) && (item.chapter === undefined || text(item.chapter)) && (item.section === undefined || text(item.section)) && (item.note === undefined || text(item.note)));
+  return Array.isArray(value) && value.length > 0 && value.every(validateSourceReference);
 }
 
 function validateMetadata(payload: RecordValue, errors: string[]): void {
@@ -798,6 +857,135 @@ function validateLimitations(payload: RecordValue, errors: string[]): void {
   });
 }
 
+function isSupportedSystemSchematicNodeRole(
+  value: unknown,
+): value is AircraftSystemSchematicNodeRole {
+  return value === "source"
+    || value === "component"
+    || value === "control"
+    || value === "indication"
+    || value === "consumer"
+    || value === "junction";
+}
+
+function isSupportedSystemSchematicDirection(
+  value: unknown,
+): value is AircraftSystemSchematicDirection {
+  return value === "forward"
+    || value === "reverse"
+    || value === "bidirectional"
+    || value === "none";
+}
+
+function validateAircraftSystemSchematic(
+  value: unknown,
+  path: string,
+  errors: string[],
+): void {
+  if (!object(value)) {
+    errors.push(`${path} must be an object`);
+    return;
+  }
+
+  if (value.version !== 1) errors.push(`${path}.version must equal 1`);
+  if (value.title !== undefined && !text(value.title)) {
+    errors.push(`${path}.title must be non-empty text when supplied`);
+  }
+  if (value.description !== undefined && !text(value.description)) {
+    errors.push(`${path}.description must be non-empty text when supplied`);
+  }
+
+  if (!Array.isArray(value.sources) || value.sources.length === 0) {
+    errors.push(`${path}.sources is required and must be non-empty`);
+  } else {
+    value.sources.forEach((source, sourceIndex) => {
+      if (!validateSourceReference(source)) {
+        errors.push(`${path}.sources[${sourceIndex}] is malformed`);
+      }
+    });
+  }
+
+  const nodes = Array.isArray(value.nodes) ? value.nodes : [];
+  if (!Array.isArray(value.nodes) || value.nodes.length === 0) {
+    errors.push(`${path}.nodes must be non-empty`);
+  }
+
+  const nodeIds = new Set<string>();
+  nodes.forEach((candidate, nodeIndex) => {
+    const nodePath = `${path}.nodes[${nodeIndex}]`;
+    if (!object(candidate)) {
+      errors.push(`${nodePath} must be an object`);
+      return;
+    }
+
+    if (!text(candidate.id)) {
+      errors.push(`${nodePath}.id must be a non-empty string`);
+    } else if (nodeIds.has(candidate.id)) {
+      errors.push(`${nodePath}.id duplicated: ${candidate.id}`);
+    } else {
+      nodeIds.add(candidate.id);
+    }
+
+    if (!text(candidate.label)) {
+      errors.push(`${nodePath}.label must be a non-empty string`);
+    }
+    if (!isSupportedSystemSchematicNodeRole(candidate.role)) {
+      errors.push(`${nodePath}.role is unsupported`);
+    }
+    if (!finiteNumber(candidate.x) || candidate.x < 0 || candidate.x > 100) {
+      errors.push(`${nodePath}.x must be finite within 0..100`);
+    }
+    if (!finiteNumber(candidate.y) || candidate.y < 0 || candidate.y > 100) {
+      errors.push(`${nodePath}.y must be finite within 0..100`);
+    }
+    if (candidate.summary !== undefined && !text(candidate.summary)) {
+      errors.push(`${nodePath}.summary must be non-empty text when supplied`);
+    }
+    if (candidate.sources !== undefined && !validateSources(candidate.sources)) {
+      errors.push(`${nodePath}.sources present but empty or malformed`);
+    }
+  });
+
+  const edges = Array.isArray(value.edges) ? value.edges : [];
+  if (!Array.isArray(value.edges)) errors.push(`${path}.edges must be an array`);
+
+  const edgeIds = new Set<string>();
+  edges.forEach((candidate, edgeIndex) => {
+    const edgePath = `${path}.edges[${edgeIndex}]`;
+    if (!object(candidate)) {
+      errors.push(`${edgePath} must be an object`);
+      return;
+    }
+
+    if (!text(candidate.id)) {
+      errors.push(`${edgePath}.id must be a non-empty string`);
+    } else if (edgeIds.has(candidate.id)) {
+      errors.push(`${edgePath}.id duplicated: ${candidate.id}`);
+    } else {
+      edgeIds.add(candidate.id);
+    }
+
+    if (!text(candidate.from) || !nodeIds.has(candidate.from)) {
+      errors.push(`${edgePath}.from references unknown node: ${String(candidate.from)}`);
+    }
+    if (!text(candidate.to) || !nodeIds.has(candidate.to)) {
+      errors.push(`${edgePath}.to references unknown node: ${String(candidate.to)}`);
+    }
+    if (text(candidate.from) && candidate.from === candidate.to) {
+      errors.push(`${edgePath} self-loop not allowed`);
+    }
+    if (!isSupportedSystemSchematicDirection(candidate.direction)) {
+      errors.push(`${edgePath}.direction is unsupported`);
+    }
+    if (candidate.label !== undefined && !text(candidate.label)) {
+      errors.push(`${edgePath}.label must be non-empty text when supplied`);
+    }
+    if (candidate.sources !== undefined && !validateSources(candidate.sources)) {
+      errors.push(`${edgePath}.sources present but empty or malformed`);
+    }
+  });
+}
+
 function validateSystems(payload: RecordValue, errors: string[]): void {
   if (!text(payload.title)) errors.push("systems title is required");
   if (!objects(payload.systems) || payload.systems.length === 0) {
@@ -808,6 +996,9 @@ function validateSystems(payload: RecordValue, errors: string[]): void {
     if (!idTitle(system) || !text(system.summary) || !validateSources(system.sources)) errors.push(`systems[${index}] does not match the system lesson contract`);
     for (const key of ["components", "controls", "indications", "normalOperation", "limitations", "abnormalCues", "remember"] as const) {
       if (system[key] !== undefined && !strings(system[key])) errors.push(`systems[${index}].${key} must be an array of text`);
+    }
+    if (system.schematic !== undefined) {
+      validateAircraftSystemSchematic(system.schematic, `systems[${index}].schematic`, errors);
     }
   });
 }
