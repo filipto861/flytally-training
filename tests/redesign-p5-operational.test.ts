@@ -447,3 +447,28 @@ test("P5.5 fast path and checklist training both invoke the same legacy migratio
   assert.match(runner, /restoreChecklistSessionWithLegacyMigration/);
   assert.match(runner, /window\.localStorage/);
 });
+
+
+test("P5.6 deterministic browser fixture publishes governed abnormal content for QRH acceptance", () => {
+  const fixture = read("lib/browser-training-fixture.ts");
+  const readiness = read("lib/operational-content-readiness.ts");
+
+  assert.match(fixture, /browser-ci-abnormal-source/);
+  assert.match(fixture, /Generic Condition A/);
+  assert.match(fixture, /expectedResponse:\["Action A","Action B"\]/);
+  assert.match(fixture, /domain:"abnormal",payload:abnormal/);
+  assert.match(readiness, /return\{checklists:ready,performance:ready,abnormal:ready\}/);
+  assert.doesNotMatch(
+    fixture.slice(fixture.indexOf("const abnormalSource"), fixture.indexOf("const cockpitOrientation")),
+    /learjet|35a|tfe731|fuel|hydraulic|bleed air/i,
+  );
+});
+
+test("P5.6 e2e replaces the QRH placeholder contract and covers legacy checklist migration", () => {
+  const e2e = read("e2e/shell/aircraft-shell.spec.ts");
+
+  assert.match(e2e, /P5 QRH fast path renders governed operational content without navigation/);
+  assert.match(e2e, /Generic Condition A/);
+  assert.match(e2e, /P5 legacy checklist progress migrates into the shared new-shell session/);
+  assert.doesNotMatch(e2e, /W3 QRH placeholder can open the canonical full page/);
+});

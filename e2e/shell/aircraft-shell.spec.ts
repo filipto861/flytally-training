@@ -260,13 +260,25 @@ test("W3 Ctrl+Shift+2 opens QRH directly", async ({ page }) => {
     "aria-selected",
     "true",
   );
-  await expect(panel.getByRole("heading", { name: "QRH", exact: true })).toBeVisible();
+  await expect(
+    panel.getByRole("region", { name: "Emergency quick reference" }),
+  ).toBeVisible();
 });
 
-test("W3 QRH placeholder can open the canonical full page", async ({ page }) => {
+test("P5 QRH fast path renders governed operational content without navigation", async ({ page }) => {
   const panel = await openFastPath(page, "QRH");
-  await panel.getByRole("link", { name: "Open full page", exact: true }).click();
-  await expect(page).toHaveURL(`${shellOnBase}${aircraftPath}/abnormal`);
+  const qrh = panel.getByRole("region", { name: "Emergency quick reference" });
+
+  await expect(qrh).toBeVisible();
+  await expect(
+    qrh.getByRole("heading", { name: "Generic Condition A", exact: true }),
+  ).toBeVisible();
+  await expect(qrh.getByText("Action A", { exact: true })).toBeVisible();
+  await expect(qrh.getByText("Action B", { exact: true })).toBeVisible();
+  await expect(qrh.getByText(/browser-ci-abnormal-source/)).toBeVisible();
+  await expect(qrh.getByText("Training prompt A", { exact: true })).toHaveCount(0);
+  await expect(qrh.getByText("Training explanation A", { exact: true })).toHaveCount(0);
+  await expect(page).toHaveURL(`${shellOnBase}${aircraftPath}`);
 });
 
 test("W3 checklist state persists after closing and reopening the panel", async ({ page }) => {
@@ -287,6 +299,44 @@ test("W3 checklist state persists after closing and reopening the panel", async 
   await expect(reopened).toBeVisible();
   await expect(reopened.getByRole("checkbox", { name: /Battery/ })).toBeChecked();
   await expect(page).toHaveURL(`${shellOnBase}${aircraftPath}`);
+});
+
+
+
+test("P5 legacy checklist progress migrates into the shared new-shell session", async ({ page }) => {
+  const legacyKey =
+    "flytally:flight-checklist:v1:browser-ci-aircraft:Standard:Browser CI Checklist";
+  const canonicalKey =
+    "flytally-training-checklist-session:browser-ci-aircraft:Standard:Browser%20CI%20Checklist";
+
+  await page.addInitScript(
+    ({ key, value }) => {
+      window.localStorage.setItem(key, value);
+    },
+    {
+      key: legacyKey,
+      value: JSON.stringify({
+        version: 1,
+        phaseId: "before-start",
+        completedIds: ["battery"],
+      }),
+    },
+  );
+
+  const panel = await openFastPath(page, "CHECKLIST");
+  await expect(panel.getByRole("checkbox", { name: /Battery/ })).toBeChecked();
+  await expect(panel.getByRole("checkbox", { name: /Parking brake/ })).not.toBeChecked();
+
+  const storageState = await page.evaluate(
+    ({ legacy, canonical }) => ({
+      legacy: window.localStorage.getItem(legacy),
+      canonical: window.sessionStorage.getItem(canonical),
+    }),
+    { legacy: legacyKey, canonical: canonicalKey },
+  );
+
+  expect(storageState.legacy).toBeNull();
+  expect(storageState.canonical).not.toBeNull();
 });
 
 test("W3 panel is a 520px desktop drawer and a full-screen touch sheet", async ({ page }, testInfo) => {
