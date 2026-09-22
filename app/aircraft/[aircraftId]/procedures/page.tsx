@@ -11,6 +11,7 @@ import {
   withVariantQuery,
 } from "@/lib/aircraft-applicability";
 import { getPublishedAircraftModule } from "@/lib/content-repository";
+import { isNewShellEnabled } from "@/lib/feature-flags";
 import { fingerprintGraphProcedure } from "@/lib/procedure-definition-fingerprint";
 import { getTrainingContentRepository } from "@/lib/content-store";
 import type {
@@ -55,6 +56,29 @@ export default async function ProceduresPage({
   const configuredUniversal = universal
     ? filterProceduresForConfiguration(universal, configuration)
     : undefined;
+
+  if (isNewShellEnabled()) {
+    if (!configuredUniversal) notFound();
+
+    const graphFingerprints = Object.fromEntries(
+      configuredUniversal.procedures
+        .filter(isGraphProcedure)
+        .map((procedure) => [procedure.id, fingerprintGraphProcedure(procedure)]),
+    );
+
+    return (
+      <ProcedureBrowser
+        key={effectiveSnapshotId}
+        aircraftId={aircraft.id}
+        procedures={configuredUniversal.procedures}
+        selectedVariant={selectedVariant}
+        effectiveSnapshotId={effectiveSnapshotId}
+        graphFingerprints={graphFingerprints}
+        sourcePolicy={configuredUniversal.sourcePolicy ?? "faa-approved"}
+        presentation="new-shell"
+      />
+    );
+  }
 
   const procedures: readonly AircraftProcedureDefinition[] =
     configuredUniversal?.procedures ??

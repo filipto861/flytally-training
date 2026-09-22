@@ -1,6 +1,6 @@
 import type { CockpitOrientation } from "./cockpit-orientation";
 import type { StaticTrainingContentSeed } from "./static-content-repository";
-import type { AircraftChecklistContent,AircraftPerformanceContent,AircraftSystemsContent,TrainingSourceReference } from "./universal-aircraft-content";
+import type { AircraftChecklistContent,AircraftPerformanceContent,AircraftProcedureContent,AircraftSystemsContent,TrainingSourceReference } from "./universal-aircraft-content";
 
 export const browserTrainingAircraftId="browser-ci-aircraft";
 
@@ -110,6 +110,97 @@ const systemsSource={
   pageLabel:"P3-1",
 } satisfies TrainingSourceReference;
 
+const proceduresSource={
+  manualId:"browser-ci-procedure-source",
+  section:"P4 deterministic fixture",
+  pageLabel:"P4-1",
+} satisfies TrainingSourceReference;
+
+const procedures:AircraftProcedureContent={
+  aircraftId:browserTrainingAircraftId,
+  title:"Browser CI Procedures",
+  sourcePolicy:"available-sources",
+  procedures:[
+    {
+      id:"generic-linear-procedure",
+      title:"Generic Linear Procedure",
+      phase:"Preparation",
+      summary:"Test-only linear procedure for P4 acceptance.",
+      prerequisites:["Prerequisite A"],
+      completionCriteria:["Completion criterion A"],
+      steps:[
+        {
+          id:"step-a",
+          action:"Action A",
+          expectedResult:"Expected A",
+          verification:"Verify A",
+          rationale:"Reason A",
+          sources:[proceduresSource],
+        },
+        {
+          id:"step-b",
+          action:"Action B",
+          sources:[proceduresSource],
+        },
+      ],
+      sources:[proceduresSource],
+    },
+    {
+      id:"generic-branch-procedure",
+      title:"Generic Branch Procedure",
+      phase:"In flight",
+      summary:"Test-only graph procedure for P4 acceptance.",
+      graph:{
+        version:1,
+        entryNodeId:"decision-a",
+        nodes:[
+          {
+            id:"decision-a",
+            kind:"decision",
+            prompt:"Select condition",
+            options:[
+              {id:"option-a",label:"Condition A",targetNodeId:"action-a"},
+              {id:"option-b",label:"Condition B",targetNodeId:"note-b"},
+            ],
+            sources:[proceduresSource],
+          },
+          {
+            id:"action-a",
+            kind:"action",
+            action:"Graph Action A",
+            expectedResult:"Graph Expected A",
+            rationale:"Graph Reason A",
+            conditionText:"When Condition A applies.",
+            memoryItem:true,
+            nextNodeId:"end-a",
+            sources:[proceduresSource],
+          },
+          {
+            id:"end-a",
+            kind:"end",
+            label:"End A",
+            sources:[proceduresSource],
+          },
+          {
+            id:"note-b",
+            kind:"note",
+            text:"Graph Note B",
+            nextNodeId:"end-b",
+            sources:[proceduresSource],
+          },
+          {
+            id:"end-b",
+            kind:"end",
+            label:"End B",
+            sources:[proceduresSource],
+          },
+        ],
+      },
+      sources:[proceduresSource],
+    },
+  ],
+};
+
 const systems:AircraftSystemsContent={
   aircraftId:browserTrainingAircraftId,
   title:"Browser CI Systems",
@@ -188,6 +279,7 @@ export const browserTrainingContentSeed:StaticTrainingContentSeed={
   nativeModules:[
     {aircraftId:browserTrainingAircraftId,domain:"checklists",payload:checklist},
     {aircraftId:browserTrainingAircraftId,domain:"performance",payload:performance},
+    {aircraftId:browserTrainingAircraftId,domain:"procedures",payload:procedures},
     {aircraftId:browserTrainingAircraftId,domain:"systems",payload:systems},
   ],
   learningContent:[],

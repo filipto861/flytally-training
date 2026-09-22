@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 
+import { FtProceduresPage } from "@/components/ft-procedures/FtProceduresPage";
+import type { FtProcedureOperateProps } from "@/components/ft-procedures/FtProcedureOperate";
 import { appendBrowserProgress } from "@/lib/browser-progress";
 import {
   advanceProcedureGraph,
@@ -231,6 +233,7 @@ export function ProcedureBrowser({
   effectiveSnapshotId,
   graphFingerprints,
   sourcePolicy,
+  presentation = "legacy",
 }: Readonly<{
   aircraftId: string;
   procedures: readonly AircraftProcedureDefinition[];
@@ -238,6 +241,7 @@ export function ProcedureBrowser({
   effectiveSnapshotId: string;
   graphFingerprints: Readonly<Record<string, string>>;
   sourcePolicy: ContentSourcePolicy;
+  presentation?: "legacy" | "new-shell";
 }>) {
   const [query, setQuery] = useState("");
   const [phase, setPhase] = useState(ALL_PHASES);
@@ -476,6 +480,74 @@ export function ProcedureBrowser({
     selected && isGraphProcedure(selected) ? graphStateFor(selected) : undefined;
   const selectedGraphFingerprint =
     selected && isGraphProcedure(selected) ? graphFingerprints[selected.id] : undefined;
+
+  if (presentation === "new-shell") {
+    const statuses = Object.fromEntries(
+      visible.map((procedure) => [procedure.id, procedureStatus(procedure)]),
+    );
+    const operateProps: FtProcedureOperateProps | undefined =
+      selected && selectedIsVisible
+        ? isGraphProcedure(selected)
+          ? selectedGraphState && selectedGraphFingerprint
+            ? {
+                procedure: selected,
+                state: graphExecutionState(selectedGraphState),
+                onAdvance: () =>
+                  dispatch({
+                    type: "advanceGraph",
+                    procedure: selected,
+                    fingerprint: selectedGraphFingerprint,
+                    occurredAt: new Date().toISOString(),
+                  }),
+                onSelectDecision: (optionId) =>
+                  dispatch({
+                    type: "selectGraphDecision",
+                    procedure: selected,
+                    fingerprint: selectedGraphFingerprint,
+                    optionId,
+                    occurredAt: new Date().toISOString(),
+                  }),
+              }
+            : undefined
+          : {
+              procedure: selected,
+              completedStepKeys,
+              onToggleStep: (stepId) => toggleLinearStep(selected, stepId),
+            }
+        : undefined;
+
+    return (
+      <FtProceduresPage
+        procedures={procedures}
+        visibleProcedures={visible}
+        selectedProcedure={selected}
+        selectedProcedureId={selectedId ?? null}
+        selectedProcedureIsVisible={selectedIsVisible}
+        onSelectProcedure={selectProcedure}
+        searchQuery={query}
+        onSearchQueryChange={setQuery}
+        phaseFilter={phase}
+        allPhasesValue={ALL_PHASES}
+        onPhaseFilterChange={setPhase}
+        availablePhases={phases}
+        onClearFilters={clearFilters}
+        statuses={statuses}
+        progressPersistenceLabel={hydrated ? "Progress saved in this tab" : "Restoring…"}
+        sourcePolicy={sourcePolicy}
+        operateProps={operateProps}
+        completionText={selectedStatus?.label}
+        onResetProcedure={selected ? resetSelectedProcedure : undefined}
+        previousProcedure={previousProcedure}
+        nextProcedure={nextProcedure}
+        onPreviousProcedure={
+          previousProcedure ? () => selectProcedure(previousProcedure.id) : undefined
+        }
+        onNextProcedure={
+          nextProcedure ? () => selectProcedure(nextProcedure.id) : undefined
+        }
+      />
+    );
+  }
 
   return (
     <section className={styles.browser} aria-label="Procedure workspace">

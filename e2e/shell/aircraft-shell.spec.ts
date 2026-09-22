@@ -825,3 +825,226 @@ test("P3 Cockpit Orientation remains separate under TRAINING", async ({ page }, 
     "page",
   );
 });
+
+
+async function openP4Procedures(page: Page): Promise<Locator> {
+  await page.goto(`${shellOnBase}${aircraftPath}/procedures`);
+  const procedures = page.locator('[data-ft-procedures-page="true"]');
+  await expect(procedures).toBeVisible();
+  return procedures;
+}
+
+async function selectP4Procedure(
+  procedures: Locator,
+  procedureId: string,
+  title: string,
+): Promise<void> {
+  const mobilePicker = procedures.getByRole("combobox", {
+    name: "Procedure",
+    exact: true,
+  });
+
+  if (await mobilePicker.isVisible()) {
+    await mobilePicker.selectOption(procedureId);
+  } else {
+    await procedures
+      .getByRole("navigation", { name: "Available procedures" })
+      .getByRole("button", { name: new RegExp(title) })
+      .click();
+  }
+
+  await expect(
+    procedures.getByRole("heading", { name: title, exact: true, level: 2 }),
+  ).toBeVisible();
+}
+
+test("P4 Procedures opens under PROCEDURES in new shell", async ({ page }, testInfo) => {
+  const procedures = await openP4Procedures(page);
+
+  await expect(procedures).toHaveAttribute("data-ft-procedures-page", "true");
+  await expect(
+    procedures.getByRole("heading", {
+      name: "Generic Linear Procedure",
+      exact: true,
+      level: 2,
+    }),
+  ).toBeVisible();
+
+  const nav = await workspaceNavigation(page, testInfo.project.name);
+  await expect(
+    nav.getByRole("link", { name: "PROCEDURES", exact: true }),
+  ).toHaveAttribute("aria-current", "page");
+});
+
+test("P4 Learn shows source-defined explanation without changing procedure progress", async ({ page }) => {
+  const procedures = await openP4Procedures(page);
+  await selectP4Procedure(
+    procedures,
+    "generic-linear-procedure",
+    "Generic Linear Procedure",
+  );
+
+  const detail = procedures.getByRole("article", {
+    name: "Procedure: Generic Linear Procedure",
+  });
+  const learn = detail.getByRole("region", { name: "Learn" });
+
+  await expect(detail.getByText("0/2", { exact: true })).toBeVisible();
+  await expect(learn.getByText("STEP 01", { exact: true })).toBeVisible();
+  await expect(learn.getByRole("heading", { name: "Action A", exact: true })).toBeVisible();
+  await expect(learn.getByText("Expected A", { exact: true })).toBeVisible();
+  await expect(learn.getByText("Verify A", { exact: true })).toBeVisible();
+  await expect(learn.getByText("Reason A", { exact: true })).toBeVisible();
+  await expect(detail.getByText("0/2", { exact: true })).toBeVisible();
+});
+
+test("P4 Relevance shows phase prerequisites completion criteria and source condition", async ({ page }) => {
+  const procedures = await openP4Procedures(page);
+
+  await selectP4Procedure(
+    procedures,
+    "generic-branch-procedure",
+    "Generic Branch Procedure",
+  );
+  let relevance = procedures
+    .getByRole("article", { name: "Procedure: Generic Branch Procedure" })
+    .getByRole("region", { name: "Relevance" });
+
+  await expect(relevance.getByText("In flight", { exact: true })).toBeVisible();
+  await expect(
+    relevance.getByText("When Condition A applies.", { exact: true }),
+  ).toBeVisible();
+
+  await selectP4Procedure(
+    procedures,
+    "generic-linear-procedure",
+    "Generic Linear Procedure",
+  );
+  relevance = procedures
+    .getByRole("article", { name: "Procedure: Generic Linear Procedure" })
+    .getByRole("region", { name: "Relevance" });
+
+  await expect(relevance.getByText("Preparation", { exact: true })).toBeVisible();
+  await expect(relevance.getByText("Prerequisite A", { exact: true })).toBeVisible();
+  await expect(
+    relevance.getByText("Completion criterion A", { exact: true }),
+  ).toBeVisible();
+});
+
+test("P4 Operate linear completion uses the existing procedure session", async ({ page }) => {
+  const procedures = await openP4Procedures(page);
+  await selectP4Procedure(
+    procedures,
+    "generic-linear-procedure",
+    "Generic Linear Procedure",
+  );
+
+  let operate = procedures
+    .getByRole("article", { name: "Procedure: Generic Linear Procedure" })
+    .getByRole("region", { name: "Operate" });
+  const firstStep = operate.getByRole("button", {
+    name: "Complete procedure step 1",
+    exact: true,
+  });
+
+  await firstStep.click();
+  const completedFirstStep = operate.getByRole("button", {
+    name: "Uncheck procedure step 1",
+    exact: true,
+  });
+  await expect(completedFirstStep).toHaveAttribute("aria-pressed", "true");
+  await expect(
+    procedures
+      .getByRole("article", { name: "Procedure: Generic Linear Procedure" })
+      .getByText("1/2", { exact: true }),
+  ).toBeVisible();
+
+  await page.reload();
+  await expect(page.locator('[data-ft-procedures-page="true"]')).toBeVisible();
+
+  operate = page
+    .getByRole("article", { name: "Procedure: Generic Linear Procedure" })
+    .getByRole("region", { name: "Operate" });
+  await expect(
+    operate.getByRole("button", {
+      name: "Uncheck procedure step 1",
+      exact: true,
+    }),
+  ).toHaveAttribute("aria-pressed", "true");
+});
+
+test("P4 Operate graph decision follows only the explicit selected branch", async ({ page }) => {
+  const procedures = await openP4Procedures(page);
+  await selectP4Procedure(
+    procedures,
+    "generic-branch-procedure",
+    "Generic Branch Procedure",
+  );
+
+  const operate = procedures
+    .getByRole("article", { name: "Procedure: Generic Branch Procedure" })
+    .getByRole("region", { name: "Operate" });
+
+  await expect(
+    operate.getByRole("heading", { name: "Select condition", exact: true }),
+  ).toBeVisible();
+  await operate.getByRole("button", { name: "Condition A", exact: true }).click();
+
+  await expect(operate.getByText("Graph Action A", { exact: true })).toBeVisible();
+  await expect(operate.getByText("Graph Note B", { exact: true })).toHaveCount(0);
+});
+
+test("P4 Learn can inspect branch content without changing active graph branch", async ({ page }) => {
+  const procedures = await openP4Procedures(page);
+  await selectP4Procedure(
+    procedures,
+    "generic-branch-procedure",
+    "Generic Branch Procedure",
+  );
+
+  const detail = procedures.getByRole("article", {
+    name: "Procedure: Generic Branch Procedure",
+  });
+  const learn = detail.getByRole("region", { name: "Learn" });
+  const operate = detail.getByRole("region", { name: "Operate" });
+
+  await expect(learn.getByText("Graph Note B", { exact: true })).toBeVisible();
+  await expect(
+    operate.getByRole("heading", { name: "Select condition", exact: true }),
+  ).toBeVisible();
+  await expect(operate.getByText("Graph Action A", { exact: true })).toHaveCount(0);
+  await expect(operate.getByText("Graph Note B", { exact: true })).toHaveCount(0);
+});
+
+test("P4 flag OFF preserves legacy ProcedureBrowser presentation", async ({ page }) => {
+  await page.goto(`${aircraftPath}/procedures`);
+
+  await expect(page.locator('[data-ft-shell="true"]')).toHaveCount(0);
+  await expect(page.locator('[data-ft-procedures-page="true"]')).toHaveCount(0);
+  await expect(page.locator('section[aria-label="Procedure workspace"]')).toBeVisible();
+});
+
+test("P4 deep link and selected procedure survive new-shell navigation", async ({ page }) => {
+  const url = `${shellOnBase}${aircraftPath}/procedures#generic-branch-procedure`;
+  await page.goto(url);
+
+  await expect(page.locator('[data-ft-procedures-page="true"]')).toBeVisible();
+  await expect(
+    page.getByRole("heading", {
+      name: "Generic Branch Procedure",
+      exact: true,
+      level: 2,
+    }),
+  ).toBeVisible();
+
+  await page.reload();
+
+  await expect(page.locator('[data-ft-procedures-page="true"]')).toBeVisible();
+  await expect(
+    page.getByRole("heading", {
+      name: "Generic Branch Procedure",
+      exact: true,
+      level: 2,
+    }),
+  ).toBeVisible();
+});
