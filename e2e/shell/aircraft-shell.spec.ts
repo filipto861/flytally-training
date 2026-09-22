@@ -94,7 +94,7 @@ test("W1 top-level IA links navigate to the canonical section routes", async ({ 
     ["PROCEDURES", `${aircraftPath}/procedures`],
     ["PERFORMANCE", `${aircraftPath}/performance`],
     ["TRAINING", `${aircraftPath}/training`],
-    ["FLIGHT", `${aircraftPath}/fly`],
+    ["FLIGHT", `${aircraftPath}/flight`],
   ] as const;
 
   for (const [label, href] of destinations) {
