@@ -259,8 +259,8 @@ UX6 is a ground-up presentation redesign. It preserves proven P0–P7 domain beh
 | Slice | Content | Status |
 |---|---|---|
 | UX6.0 | Redesign reset, contract freeze, repository/presentation inventory, baseline | **COMPLETE ON FEATURE BRANCH** |
-| UX6.1 | Desktop/iPad/mobile shell + IA wireframe/reference concept | **READY FOR PO GATE A** |
-| UX6.2 | Design system + primitives, light/dark | BLOCKED ON GATE A |
+| UX6.1 | Desktop/iPad/mobile shell + IA wireframe/reference concept | **COMPLETE — PO GATE A APPROVED** |
+| UX6.2 | Design system + primitives, light/dark | **ACTIVE** |
 | UX6.3 | Reference screens before broad implementation | BLOCKED ON GATE B |
 | UX6.4 | New shell implementation | planned |
 | UX6.5 | Procedures redesign | planned |
@@ -486,3 +486,4 @@ fails closed, and legacy state cannot resurrect after canonical state exists.
 | 2026-09-22 | UX4 merged via PR #188 as squash commit `1c9df1de`; targeted 6/6, local gate 960/959/0/1 + build PASS + Playwright 340/340. UX5 final visual acceptance becomes next. | Filip Točík + ChatGPT |
 | 2026-09-22 | UX5 correction pass merged via PR #189 as `f1ec3264`; local gate TypeScript PASS, UX5 8/8, Node 968/967/0/1, build PASS, Playwright 340/340. Final 64-screenshot light/dark production matrix reviewed in `UX5_VISUAL_AUDIT_02.md`; ready for explicit owner approval. | Filip Točík + ChatGPT |
 | 2026-09-22 | Product owner rejected the UX5 visual design after reviewing the final matrix. UX6 foundational redesign opened in GitHub issue #190; C0 placed on HOLD. UX6.0 inventory and UX6.1 shell/IA concept started on `feat/ux6-0-redesign-reset`. | Filip Točík + ChatGPT |
+| 2026-09-22 | UX6 Gate A approved by product owner. Shell/IA direction accepted; UX6.2 design-system phase unlocked. | Filip Točík + ChatGPT |
