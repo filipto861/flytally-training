@@ -1,3 +1,4 @@
+import type { CockpitOrientation } from "./cockpit-orientation";
 import type { StaticTrainingContentSeed } from "./static-content-repository";
 import type { AircraftChecklistContent,AircraftPerformanceContent,AircraftSystemsContent,TrainingSourceReference } from "./universal-aircraft-content";
 
@@ -146,6 +147,33 @@ const systems:AircraftSystemsContent={
   ],
 };
 
+const cockpitOrientation:CockpitOrientation={
+  aircraftId:browserTrainingAircraftId,
+  title:"Browser CI Cockpit Orientation",
+  sourceNote:"Test-only deterministic cockpit orientation fixture.",
+  regions:[
+    {
+      id:"region-a",
+      label:"Region A",
+      description:"Test-only deterministic cockpit region.",
+    },
+  ],
+  controls:[
+    {
+      id:"control-a",
+      label:"Control A",
+      regionId:"region-a",
+      description:"Test-only deterministic cockpit control.",
+      checklistItemIds:[],
+      source:{
+        chapter:1,
+        section:"P3 deterministic fixture",
+        manualPage:"P3-O1",
+      },
+    },
+  ],
+};
+
 export const browserTrainingContentSeed:StaticTrainingContentSeed={
   aircraft:[
     {
@@ -164,7 +192,7 @@ export const browserTrainingContentSeed:StaticTrainingContentSeed={
   ],
   learningContent:[],
   normalFlights:[],
-  cockpitOrientations:[],
+  cockpitOrientations:[cockpitOrientation],
   abnormalTrainings:[],
   referenceKnowledge:[],
 };

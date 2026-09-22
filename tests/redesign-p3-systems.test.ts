@@ -422,3 +422,72 @@ test("P3 new-shell Systems route stays gated while legacy flag-off path survives
   assert.doesNotMatch(routeSource, /aircraftId\s*===\s*["']/);
   assert.doesNotMatch(routeSource, /aircraft\.model\s*===\s*["']/);
 });
+
+
+test("P3 non-empty-if-present text fields reject empty strings on schematic title/description/node.summary/edge.label", () => {
+  const emptyTitle = validPayload();
+  schematicOf(emptyTitle).title = "";
+  assert.match(
+    errorsFor(emptyTitle).join("\n"),
+    /schematic\.title must be non-empty text when supplied/,
+  );
+
+  const emptyDescription = validPayload();
+  schematicOf(emptyDescription).description = "";
+  assert.match(
+    errorsFor(emptyDescription).join("\n"),
+    /schematic\.description must be non-empty text when supplied/,
+  );
+
+  const emptySummary = validPayload();
+  schematicOf(emptySummary).nodes[0].summary = "";
+  assert.match(
+    errorsFor(emptySummary).join("\n"),
+    /nodes\[0\]\.summary must be non-empty text when supplied/,
+  );
+
+  const emptyEdgeLabel = validPayload();
+  schematicOf(emptyEdgeLabel).edges[0].label = "";
+  assert.match(
+    errorsFor(emptyEdgeLabel).join("\n"),
+    /edges\[0\]\.label must be non-empty text when supplied/,
+  );
+
+  const whitespaceTitle = validPayload();
+  schematicOf(whitespaceTitle).title = "   ";
+  assert.match(
+    errorsFor(whitespaceTitle).join("\n"),
+    /schematic\.title must be non-empty text when supplied/,
+  );
+});
+
+test("P3 implementation contains no aircraft-specific rendering or runtime branches", () => {
+  const componentPaths = [
+    "components/ft-systems/FtSystemsPage.tsx",
+    "components/ft-systems/FtSystemsIndex.tsx",
+    "components/ft-systems/FtSystemDetail.tsx",
+    "components/ft-systems/FtSystemSchematic.tsx",
+    "components/ft-systems/FtSystemSchematicNode.tsx",
+    "components/ft-systems/FtSystemSchematicDetail.tsx",
+  ] as const;
+
+  const prohibitedPatterns = [
+    /learjet/i,
+    /35a/i,
+    /tfe731/i,
+    /aircraft\.model\s*===/i,
+    /switch\s*\(\s*aircraft\.model\s*\)/i,
+    /system\.id\s*===\s*["']/i,
+  ] as const;
+
+  for (const path of componentPaths) {
+    const sourceText = readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
+    for (const pattern of prohibitedPatterns) {
+      assert.doesNotMatch(
+        sourceText,
+        pattern,
+        `${path} must remain aircraft-agnostic; matched ${pattern}`,
+      );
+    }
+  }
+});
