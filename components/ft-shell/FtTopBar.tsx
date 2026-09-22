@@ -21,24 +21,33 @@ export function FtTopBar({
   navigationControl: ReactNode;
 }>) {
   const current = activeFlight?.lifecycle === "ACTIVE" ? activeFlight : null;
-  const flightStatus = current
-    ? `ACTIVE FLIGHT · ${current.departure.icao} → ${current.destination.icao}`
-    : "ACTIVE FLIGHT · NONE";
 
   return (
     <header className={styles.topBar}>
       <div className={styles.topBarNavControl}>{navigationControl}</div>
 
       <div className={styles.aircraftIdentity}>
+        <span className={styles.aircraftEyebrow}>AIRCRAFT</span>
         <strong>{aircraftIdentity}</strong>
-        <span>Training profile: {trainingProfileLabel}</span>
+        <span className={styles.aircraftProfile}>{trainingProfileLabel}</span>
       </div>
 
       <div className={styles.topBarActions}>
         <FtSearchOverlay aircraftId={aircraftId} aircraftIdentity={aircraftIdentity} />
         <FtFastPathIndicator />
-        <span className={styles.flightPlaceholder} aria-label="Active flight status">
-          {flightStatus}
+        <span
+          className={current ? styles.flightActive : styles.flightInactive}
+          aria-label="Active flight status"
+        >
+          <span className={styles.flightStatusDot} aria-hidden="true" />
+          {current ? (
+            <>
+              <span className={styles.flightStatusLabel}>Active flight</span>
+              <strong>{current.departure.icao} → {current.destination.icao}</strong>
+            </>
+          ) : (
+            <span className={styles.flightStatusLabel}>No active flight</span>
+          )}
         </span>
       </div>
     </header>
