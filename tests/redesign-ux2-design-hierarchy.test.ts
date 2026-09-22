@@ -46,8 +46,9 @@ test("UX2 promotes primary actions without using source or safety semantics", ()
     read("components/ft-performance/ft-performance.module.css"),
   ].join("\n");
 
-  assert.match(sources, /background:\s*var\(--ft-text-primary\)/);
-  assert.match(sources, /color:\s*var\(--ft-bg-panel\)/);
+  assert.match(sources, /background:\s*var\(--ft-bg-operational\)/);
+  assert.match(sources, /border:\s*var\(--ft-rule-strong\)/);
+  assert.match(sources, /font-weight:\s*700/);
   assert.doesNotMatch(
     sources,
     /background:\s*var\(--ft-source-(?:warning|caution|note)\)/,
@@ -82,6 +83,6 @@ test("UX2 removes legacy fallback palette definitions from Training and Referenc
     "components/ft-reference/ft-reference.module.css",
   ]) {
     const css = read(path);
-    assert.doesNotMatch(css, /var\([^,]+,/);
+    assert.doesNotMatch(css, /var\(--[a-z0-9-]+\s*,/i);
   }
 });
