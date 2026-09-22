@@ -74,7 +74,9 @@ test("session and progress identities stay isolated by aircraft configuration", 
 });
 
 test("operational runner preserves progress across mode and phase changes", () => {
-  assert.match(runnerSource, /window\.sessionStorage\.getItem\(storageKey\)/);
+  assert.match(runnerSource, /restoreChecklistSessionWithLegacyMigration/);
+  assert.match(runnerSource, /window\.sessionStorage/);
+  assert.match(runnerSource, /window\.localStorage/);
   assert.match(runnerSource, /window\.sessionStorage\.setItem\(storageKey/);
   assert.match(runnerSource, /onClick=\{\(\) => setMode\(candidate\.key\)\}/);
   assert.match(runnerSource, /onClick=\{\(\) => setSelectedPhaseId\(phase\.id\)\}/);

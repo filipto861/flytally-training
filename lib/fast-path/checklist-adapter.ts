@@ -5,6 +5,10 @@ import {
   type ChecklistSessionSnapshot,
 } from "../checklist-session.ts";
 import type { RuntimeChecklist } from "../checklist-runtime.ts";
+import {
+  restoreChecklistSessionWithLegacyMigration,
+  type LegacyOperationalChecklistStorage,
+} from "../checklist-session-migration.ts";
 
 export type ChecklistSessionStorage = {
   getItem(key: string): string | null;
@@ -22,7 +26,17 @@ export function restoreFastPathChecklistSession(
   checklist: RuntimeChecklist,
   storage: ChecklistSessionStorage,
   selectedVariant?: string,
+  legacyStorage?: LegacyOperationalChecklistStorage,
 ): ChecklistSessionSnapshot {
+  if (legacyStorage) {
+    return restoreChecklistSessionWithLegacyMigration(
+      checklist,
+      storage,
+      legacyStorage,
+      selectedVariant,
+    );
+  }
+
   let raw: unknown;
   try {
     const stored = storage.getItem(storageKey(checklist, selectedVariant));

@@ -84,6 +84,7 @@ export function FtFastPathProvider({
         checklist,
         window.sessionStorage,
         selectedVariant,
+        window.localStorage,
       ),
     );
     setChecklistHydrated(true);

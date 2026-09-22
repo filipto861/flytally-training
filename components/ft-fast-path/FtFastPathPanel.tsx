@@ -6,9 +6,11 @@ import type { ActiveFlight } from "@/lib/active-flight/types";
 import { fastPathTabs, type FastPathTab } from "@/lib/fast-path/panel-state";
 import type { PilotTakeoffCalculatorDefinition } from "@/lib/pilot-takeoff-calculator";
 import type { PerformanceDataset } from "@/lib/universal-aircraft-content";
+import type { OperationalEmergencyContent } from "@/lib/operational-flight-data";
 import { FtPerformancePresentation } from "@/components/ft-performance/FtPerformancePresentation";
 
 import { FtFastPathChecklist } from "./FtFastPathChecklist";
+import { FtFastPathQrh } from "./FtFastPathQrh";
 import { FtFastPathPlaceholder } from "./FtFastPathPlaceholder";
 import { useFtFastPath } from "./FtFastPathProvider";
 import styles from "./ft-fast-path.module.css";
@@ -25,10 +27,12 @@ const TAB_LABELS: Readonly<Record<FastPathTab, string>> = {
 
 export function FtFastPathPanel({
   activeFlight,
+  emergency,
   performanceDatasets,
   takeoffCalculator,
 }: Readonly<{
   activeFlight?: ActiveFlight | null;
+  emergency?: OperationalEmergencyContent;
   performanceDatasets: readonly PerformanceDataset[];
   takeoffCalculator?: PilotTakeoffCalculatorDefinition;
 }>) {
@@ -143,6 +147,8 @@ export function FtFastPathPanel({
         <div className={styles.panelBody}>
           {activeTab === "checklist" ? (
             <FtFastPathChecklist />
+          ) : activeTab === "qrh" ? (
+            <FtFastPathQrh emergency={emergency} />
           ) : activeTab === "perf" ? (
             <FtPerformancePresentation
               aircraftId={aircraftId}

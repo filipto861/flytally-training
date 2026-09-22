@@ -11,8 +11,8 @@ import {
   checklistSessionStorageKey,
   initialChecklistPhaseId,
   nextChecklistPhaseId,
-  normalizeChecklistSessionSnapshot,
 } from "@/lib/checklist-session";
+import { restoreChecklistSessionWithLegacyMigration } from "@/lib/checklist-session-migration";
 import {
   checklistTrainingModes,
   type ChecklistTrainingMode,
@@ -53,21 +53,19 @@ export function ChecklistRunner({
   const nextPhase = nextPhaseId ? checklist.phases.find((phase) => phase.id === nextPhaseId) : undefined;
 
   useEffect(() => {
-    let restored: unknown;
-    try {
-      const raw = window.sessionStorage.getItem(storageKey);
-      restored = raw ? JSON.parse(raw) : undefined;
-    } catch {
-      restored = undefined;
-    }
-    const snapshot = normalizeChecklistSessionSnapshot(restored, checklist);
+    const snapshot = restoreChecklistSessionWithLegacyMigration(
+      checklist,
+      window.sessionStorage,
+      window.localStorage,
+      selectedVariant,
+    );
     setMode(snapshot.mode);
     setSelectedPhaseId(snapshot.selectedPhaseId);
     setCompleted(new Set(snapshot.completedIds));
     setRevealedFlowPhases(new Set(snapshot.revealedFlowPhaseIds));
     setRevealedResponses(new Set(snapshot.revealedResponseIds));
     setHydrated(true);
-  }, [checklist, storageKey]);
+  }, [checklist, selectedVariant, storageKey]);
 
   useEffect(() => {
     if (!hydrated) return;

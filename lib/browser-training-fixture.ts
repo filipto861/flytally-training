@@ -1,6 +1,7 @@
 import type { CockpitOrientation } from "./cockpit-orientation";
 import type { StaticTrainingContentSeed } from "./static-content-repository";
 import type { AircraftChecklistContent,AircraftPerformanceContent,AircraftProcedureContent,AircraftSystemsContent,TrainingSourceReference } from "./universal-aircraft-content";
+import type { AircraftAbnormalEmergencyContent } from "./universal-abnormal-emergency";
 
 export const browserTrainingAircraftId="browser-ci-aircraft";
 
@@ -238,6 +239,66 @@ const systems:AircraftSystemsContent={
   ],
 };
 
+
+
+const abnormalSource={
+  manualId:"browser-ci-abnormal-source",
+  section:"P5 deterministic fixture",
+  pageLabel:"P5-1",
+} satisfies TrainingSourceReference;
+
+const abnormal:AircraftAbnormalEmergencyContent={
+  aircraftId:browserTrainingAircraftId,
+  title:"Browser CI Abnormal & Emergency",
+  scenarios:[
+    {
+      id:"generic-condition-a",
+      title:"Generic Condition A",
+      category:"Generic",
+      phase:"In flight",
+      difficulty:"core",
+      minutes:2,
+      summary:"Test-only training summary for P5 acceptance.",
+      setup:"Test-only training setup for P5 acceptance.",
+      objectives:["Recognize the generic condition."],
+      debrief:["Review the generic response."],
+      boundaryNote:"Test-only source authority boundary.",
+      stages:[
+        {
+          id:"memory-a",
+          label:"Immediate action",
+          prompt:"Training prompt A",
+          expectedResponse:["Action A","Action B"],
+          explanation:"Training explanation A",
+          sources:[abnormalSource],
+        },
+      ],
+    },
+    {
+      id:"generic-condition-b",
+      title:"Generic Condition B",
+      category:"Alternate",
+      phase:"Ground",
+      difficulty:"core",
+      minutes:1,
+      summary:"Second test-only training summary.",
+      setup:"Second test-only training setup.",
+      objectives:["Recognize the alternate condition."],
+      debrief:["Review the alternate response."],
+      stages:[
+        {
+          id:"action-b",
+          label:"Action",
+          prompt:"Training prompt B",
+          expectedResponse:["Action C"],
+          explanation:"Training explanation B",
+          sources:[abnormalSource],
+        },
+      ],
+    },
+  ],
+};
+
 const cockpitOrientation:CockpitOrientation={
   aircraftId:browserTrainingAircraftId,
   title:"Browser CI Cockpit Orientation",
@@ -281,6 +342,7 @@ export const browserTrainingContentSeed:StaticTrainingContentSeed={
     {aircraftId:browserTrainingAircraftId,domain:"performance",payload:performance},
     {aircraftId:browserTrainingAircraftId,domain:"procedures",payload:procedures},
     {aircraftId:browserTrainingAircraftId,domain:"systems",payload:systems},
+    {aircraftId:browserTrainingAircraftId,domain:"abnormal",payload:abnormal},
   ],
   learningContent:[],
   normalFlights:[],

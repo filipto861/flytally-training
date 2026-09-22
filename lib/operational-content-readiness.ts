@@ -40,7 +40,7 @@ export async function getOperationalFlightReadiness(
   };
   if(browserTrainingFixtureEnabled()&&aircraftId===browserTrainingAircraftId){
     const ready={published:true,fresh:true,sourceAuthoritative:true,ready:true} as const;
-    return{checklists:ready,performance:ready,abnormal:unavailable()};
+    return{checklists:ready,performance:ready,abnormal:ready};
   }
   if (process.env.TRAINING_CONTENT_BACKEND?.trim() !== "postgres") return result;
 

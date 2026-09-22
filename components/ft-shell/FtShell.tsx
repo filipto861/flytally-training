@@ -17,6 +17,8 @@ import {
 import { getPublishedAircraftModule } from "@/lib/content-repository";
 import { getTrainingContentRepository } from "@/lib/content-store";
 import { isNewShellEnabled } from "@/lib/feature-flags";
+import { resolveFastPathQrh } from "@/lib/fast-path/qrh-adapter";
+import { getOperationalFlightReadiness } from "@/lib/operational-content-readiness";
 import { mergePerformanceDatasets } from "@/lib/performance-package";
 import { getTrainingSession } from "@/lib/training-session";
 import type {
@@ -41,8 +43,15 @@ export async function FtShell({
 
   const repository = getTrainingContentRepository();
   const bundledPerformance = getBundledPerformancePackage(aircraftId);
-  const [aircraft, universalChecklist, legacyChecklist, publishedPerformance, session] =
-    await Promise.all([
+  const [
+    aircraft,
+    universalChecklist,
+    legacyChecklist,
+    publishedPerformance,
+    publishedAbnormal,
+    operationalReadiness,
+    session,
+  ] = await Promise.all([
       repository.getAircraft(aircraftId),
       getPublishedAircraftModule<AircraftChecklistContent>(
         repository,
@@ -55,6 +64,12 @@ export async function FtShell({
         aircraftId,
         "performance",
       ),
+      getPublishedAircraftModule<unknown>(
+        repository,
+        aircraftId,
+        "abnormal",
+      ),
+      getOperationalFlightReadiness(aircraftId),
       getTrainingSession(),
     ]);
 
@@ -96,6 +111,13 @@ export async function FtShell({
     configuredPublishedPerformance?.datasets ?? [],
     configuredBundledPerformance?.datasets ?? [],
   );
+  const emergency = configuration
+    ? resolveFastPathQrh(
+        publishedAbnormal,
+        configuration,
+        operationalReadiness.abnormal.ready,
+      )
+    : undefined;
   const activeFlight = session
     ? await getActiveFlight(session.subject, aircraftId)
     : undefined;
@@ -122,6 +144,7 @@ export async function FtShell({
         <FtFastPathRail aircraftId={aircraftId} />
         <FtFastPathPanel
           activeFlight={activeFlight}
+          emergency={emergency}
           performanceDatasets={performanceDatasets}
           takeoffCalculator={bundledPerformance?.takeoffCalculator}
         />
