@@ -80,3 +80,9 @@
  * Reserved future application states (not implemented in F0):
  * state.invalid, state.error.
  */
+
+
+/* New-shell aircraft workspaces are application surfaces, not website pages. */
+body:has(.ft-workspace [data-ft-shell="true"]) .app-footer {
+  display: none;
+}
