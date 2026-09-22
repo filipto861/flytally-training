@@ -948,7 +948,11 @@ test("P4 Operate linear completion uses the existing procedure session", async (
   });
 
   await firstStep.click();
-  await expect(firstStep).toHaveAttribute("aria-pressed", "true");
+  const completedFirstStep = operate.getByRole("button", {
+    name: "Uncheck procedure step 1",
+    exact: true,
+  });
+  await expect(completedFirstStep).toHaveAttribute("aria-pressed", "true");
   await expect(
     procedures
       .getByRole("article", { name: "Procedure: Generic Linear Procedure" })
