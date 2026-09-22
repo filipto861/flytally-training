@@ -230,3 +230,78 @@ test("P6.3 ScenarioTrainer delegates transient session state to the deterministi
   assert.doesNotMatch(trainer, /useState/);
   assert.doesNotMatch(trainer, /procedure-graph-runtime/);
 });
+
+
+test("P6.4 debrief remains source-defined and targeted repeat stays explicit", () => {
+  const trainer = read("components/scenario-trainer.tsx");
+
+  assert.match(trainer, /scenario\.debrief\.map/);
+  assert.match(trainer, /Repeat now/);
+  assert.match(trainer, /Mark for targeted repeat/);
+  assert.match(trainer, /Remove from repeat queue/);
+  assert.match(trainer, /Practice queue/);
+
+  for (const pattern of [
+    /scorePercent/,
+    /weakAreas/,
+    /generate/i,
+    /OpenAI/i,
+    /inference/i,
+  ]) {
+    assert.doesNotMatch(
+      trainer,
+      pattern,
+      `Scenario debrief must stay source-defined and unscored; matched ${pattern}`,
+    );
+  }
+});
+
+test("P6.5 scenario completion writes only the existing shared scenario progress event", () => {
+  const trainer = read("components/scenario-trainer.tsx");
+  const progress = read("lib/progress-events.ts");
+
+  assert.match(progress, /"scenario"/);
+  assert.match(trainer, /appendBrowserProgress/);
+  assert.match(trainer, /kind:\s*"scenario"/);
+  assert.match(trainer, /contentId:\s*scenario\.id/);
+  assert.match(trainer, /completed:\s*true/);
+  assert.doesNotMatch(trainer, /scorePercent|weakAreas/);
+});
+
+test("P6.5 Training and scenario implementation cannot mutate the D0 Active Flight lifecycle", () => {
+  const source = [
+    read("components/scenario-trainer.tsx"),
+    read("components/ft-training/FtTrainingPage.tsx"),
+    read("lib/scenario-session.ts"),
+    read("lib/training-scenario-presentation.ts"),
+    read("app/aircraft/[aircraftId]/training/page.tsx"),
+  ].join("\n");
+
+  for (const pattern of [
+    /getActiveFlight/,
+    /createActiveFlight/,
+    /updateActiveFlight/,
+    /deactivateActiveFlight/,
+    /archivePreviousFlight/,
+    /\/api\/active-flight/,
+    /active-flight\/store/,
+  ]) {
+    assert.doesNotMatch(
+      source,
+      pattern,
+      `P6 Training must not own Active Flight lifecycle; matched ${pattern}`,
+    );
+  }
+});
+
+test("P6.5 procedure graph runtime remains separate from scenario training", () => {
+  const source = [
+    read("components/scenario-trainer.tsx"),
+    read("lib/scenario-session.ts"),
+    read("lib/training-scenario-presentation.ts"),
+  ].join("\n");
+
+  assert.doesNotMatch(source, /procedure-graph-runtime/);
+  assert.doesNotMatch(source, /selectProcedureGraphDecision/);
+  assert.doesNotMatch(source, /advanceProcedureGraph/);
+});
