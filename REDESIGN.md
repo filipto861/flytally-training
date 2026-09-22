@@ -62,8 +62,11 @@ document consolidates all of them into one authoritative source.
 | P2 | Performance presentation | `redesign-p2-performance.test.ts` | `1e4944c8` | `merged` `gated` |
 | P3 | Systems + 2D Interactive Schematic | `redesign-p3-systems.test.ts` | `8b4e53c8` | `merged` `gated` |
 | P4 | Procedures (Learn / Operate / Relevance) | `redesign-p4-procedures.test.ts` | `738b0c59` | `merged` `gated` |
+| P5 | Operational fast-path closure | `redesign-p5-operational.test.ts` | `b9e910a4` | `merged` `gated` |
 
 **P4 verification:** `npm run verify` → 886 / 885 / 0 / 1, build PASS; Playwright 284/284 across desktop, mobile, iPad landscape and iPad portrait.
+
+**P5 verification:** `npm run verify` → 908 / 907 / 0 / 1, build PASS; Playwright 288/288 across desktop, mobile, iPad landscape and iPad portrait.
 
 **Known debt (out of P4 scope):** `ProcedureLinearRunner` toggle changes
 accessible name (`Complete` → `Uncheck`) together with `aria-pressed`. Pre-existing
@@ -74,7 +77,7 @@ frozen behavior. Candidate for a dedicated cleanup issue.
 ## 3. Current state
 
 ```
-main:                        8c35b096 (P4 merged + roadmap update)
+main:                        b9e910a4 (P5 merged)
 production:                  FT_NEW_SHELL = ON
 runtime deployment:          dpl_EqXB1gwyWrG3FmpUJZt16KAo61DK (P4 runtime SHA 738b0c59)
 ```
@@ -89,7 +92,7 @@ runtime deployment:          dpl_EqXB1gwyWrG3FmpUJZt16KAo61DK (P4 runtime SHA 73
 
 ## 4. Remaining phases
 
-### 4.1 P5 — Operational fast-path closure
+### 4.1 P5 — Operational fast-path closure — **COMPLETE**
 
 P5 does not introduce a new emergency model. M50 / M54 already own the
 operational QRH layer. P5 fills the existing W3 fast-path slots and unifies
@@ -126,7 +129,7 @@ fastPathTabs = ["checklist", "qrh", "perf", "ref"]
 
 **REF decision:** resolved. REF is owned by standalone **P7** and must be complete before final release / C4b.
 
-### 4.2 P6 — Training hub + Scenario + Debrief
+### 4.2 P6 — Training hub + Scenario + Debrief — **NEXT**
 
 Training hub is **not a new top-level destination.** The frozen IA already has
 `TRAINING` (Quick Start / Orientation / Cold & Dark / Progress), and
@@ -326,7 +329,7 @@ is possible, without ability to run both shells in parallel.
 - [x] Single-user production override documented
 - [x] `FT_NEW_SHELL=true` active in production
 - [x] P0–P4 functional shell available for owner evaluation
-- [ ] P5 operational fast-path closure complete
+- [x] P5 operational fast-path closure complete
 - [ ] P6 Training / Scenario / Debrief complete
 - [ ] P7 REF closure complete
 - [ ] UX0–UX5 complete
@@ -369,7 +372,7 @@ Storage contracts reviewed against current repo.
 |---|---|---|
 | Checklist training `/checklists` | `sessionStorage`, `checklistSessionStorageKey()` | **None** (already shared with W3 fast path) |
 | W3 fast-path checklist | same `checklistSessionStorageKey()` | Already shared |
-| Legacy Fly `OperationalChecklist` | `localStorage`: `flytally:flight-checklist:v1:*` | **Open migration concern** — must be resolved before C4a |
+| Legacy Fly `OperationalChecklist` | `localStorage`: `flytally:flight-checklist:v1:*` | **Resolved in P5.5** — migrated once into canonical shared checklist session |
 | P4 procedure session | existing `ProcedureBrowser` + procedure session | None (P4 reuses existing contract) |
 | D0 Active Flight | `flytally-training:active-flight:v1:<aircraft>` + server | None shell-specific |
 | P2 performance result | `flytally-training:performance-result:v1:<aircraft>:<activeFlight>` | None if key/schema stable |
@@ -380,16 +383,10 @@ Storage contracts reviewed against current repo.
 `contextHash` and re-validates it via `computeContextHash()` on read. No
 "Active Flight hash migration" exists.
 
-**Largest remaining gap:** legacy `OperationalChecklist` localStorage → shared
-checklist session. Migration invariants:
-- Legacy key detected → validate payload → map only known identities →
-  write canonical shared session → mark/import atomically
-- Repeated migration = no-op
-- Malformed/obsolete legacy state = fail closed
-- Legacy state cannot resurrect after canonical write
-
-Exit tests must cover: valid import, invalid payload, idempotence, stale/unknown
-IDs, "legacy cannot resurrect after canonical write".
+**P5.5 migration status:** complete. Legacy `OperationalChecklist` state is
+single-use, reconciled only against current checklist identities, canonical
+state is authoritative, repeated migration is a no-op, malformed/future state
+fails closed, and legacy state cannot resurrect after canonical state exists.
 
 ---
 
@@ -400,7 +397,7 @@ IDs, "legacy cannot resurrect after canonical write".
 | Risk | Impact | Mitigation |
 |---|---|---|
 | REF slot incomplete | Persistent fast path ships with placeholder | P7 owns REF; complete before final release/C4b |
-| Legacy `OperationalChecklist` migration | Users lose in-progress state on flip | P5.5 (M/L), full invariant suite |
+| Legacy `OperationalChecklist` migration | Users lose in-progress state on flip | **Resolved in P5.5** with invariant suite |
 | GitHub Actions billing/runner blocked | Cannot accept external PRs safely | Resolve in GitHub Billing before C4a |
 | No error/regression signal | Blind flip, slow rollback trigger | `/api/release-state` + error visibility before C4a |
 | Current UI is not release-quality | Functional shell reads as a sparse technical wireframe on desktop | Mandatory UX0–UX5 full-shell redesign after P5–P7 |
@@ -409,7 +406,7 @@ IDs, "legacy cannot resurrect after canonical write".
 | `ProcedureLinearRunner` a11y debt | Compounds in P5+ e2e | Dedicated cleanup issue |
 | Learjet `/fly` fail-closed 404 | User-visible on flip | Content governance, tracked separately |
 | Learjet `/systems` fail-closed 404 in new shell | Published `systems` module is absent in production content | Publish governed systems content; not a P3 runtime regression |
-| P5/P6 scope larger than P4 | Release slips | Estimates done; P6 = L |
+| P6/P7 + UX scope remains substantial | Release slips | P5 merged; P6 = L, P7 = M, UX = L |
 
 ### 8.2 Open questions
 
@@ -447,3 +444,4 @@ IDs, "legacy cannot resurrect after canonical write".
 | 2026-09-22 | P4 merged via PR #181 as squash commit `738b0c59`; status `merged` `gated`. | Filip Točík + DeepSeek + ChatGPT |
 | 2026-09-22 | Single-user production override: staged canary/beta skipped; global `FT_NEW_SHELL=true` activated on deployment `dpl_EqXB1gwyWrG3FmpUJZt16KAo61DK`. | Filip Točík + DeepSeek + ChatGPT |
 | 2026-09-22 | Roadmap corrected after live visual review: current shell classified as development preview, REF assigned to P7, and mandatory UX0–UX5 full-shell visual integration added before C4b. | Filip Točík + ChatGPT |
+| 2026-09-22 | P5 merged via PR #182 as squash commit `b9e910a4`; local gate 908/907/0/1 + build PASS + Playwright 288/288. | Filip Točík + ChatGPT |
