@@ -430,3 +430,62 @@ test("P4 flag-on route requires governed universal procedures and does not promo
   assert.match(newShellBlock, /presentation="new-shell"/);
   assert.doesNotMatch(newShellBlock, /\blegacy\b/);
 });
+
+
+test("P4 source authority presentation preserves source-policy distinction", () => {
+  const detailFile = readFileSync(
+    new URL("../components/ft-procedures/FtProcedureDetail.tsx", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(detailFile, /sourcePolicy\s*===\s*"available-sources"/);
+  assert.match(
+    detailFile,
+    /Sources: available training material\. Not FAA-approved\./,
+  );
+
+  for (const pattern of [
+    /sourcePolicy\s*!==\s*"available-sources"/,
+    /sourcePolicy\s*===\s*"faa-approved"/,
+    /sourcePolicy\s*===\s*undefined/,
+  ]) {
+    assert.doesNotMatch(
+      detailFile,
+      pattern,
+      `Source-policy warning must remain exclusive to available-sources; matched ${pattern}`,
+    );
+  }
+});
+
+test("P4 implementation contains no aircraft-specific rendering or relevance branches", () => {
+  const implementationPaths = [
+    "components/ft-procedures/FtProceduresPage.tsx",
+    "components/ft-procedures/FtProcedureIndex.tsx",
+    "components/ft-procedures/FtProcedureDetail.tsx",
+    "components/ft-procedures/FtProcedureLearn.tsx",
+    "components/ft-procedures/FtProcedureOperate.tsx",
+    "components/ft-procedures/FtProcedureRelevance.tsx",
+    "lib/procedure-presentation.ts",
+  ] as const;
+
+  const prohibitedPatterns = [
+    /learjet/i,
+    /35a/i,
+    /tfe731/i,
+    /aircraft\.model\s*===/i,
+    /switch\s*\(\s*aircraft\.model\s*\)/i,
+    /procedure\.id\s*===\s*["']/i,
+    /procedure\.title\.includes\(/i,
+  ] as const;
+
+  for (const path of implementationPaths) {
+    const sourceText = readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
+    for (const pattern of prohibitedPatterns) {
+      assert.doesNotMatch(
+        sourceText,
+        pattern,
+        `${path} must remain aircraft-agnostic; matched ${pattern}`,
+      );
+    }
+  }
+});
