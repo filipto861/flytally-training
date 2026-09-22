@@ -1,15 +1,16 @@
 .trigger {
-  min-height: var(--ft-touch-target-min);
+  min-height: var(--ft-control-height);
   display: inline-flex;
   align-items: center;
   gap: var(--ft-space-2);
   padding-inline: var(--ft-space-3);
   border: var(--ft-rule-default);
-  border-radius: var(--ft-radius-2);
+  border-radius: var(--ft-radius-control);
   background: var(--ft-bg-inset);
-  color: var(--ft-text-primary);
+  color: var(--ft-text-secondary);
   font-family: var(--ft-font-ui);
-  font-weight: 500;
+  font-size: 0.78rem;
+  font-weight: 600;
 }
 
 .shortcutHint {
@@ -76,7 +77,7 @@
   gap: var(--ft-space-2);
   padding-inline: var(--ft-space-3);
   border: var(--ft-rule-default);
-  border-radius: var(--ft-radius-2);
+  border-radius: var(--ft-radius-control);
   background: var(--ft-bg-inset);
 }
 
@@ -111,7 +112,7 @@
   min-height: var(--ft-touch-target-min);
   padding-inline: var(--ft-space-3);
   border: var(--ft-rule-default);
-  border-radius: var(--ft-radius-2);
+  border-radius: var(--ft-radius-control);
   background: var(--ft-bg-inset);
   color: var(--ft-text-secondary);
   font-family: var(--ft-font-data);
@@ -235,7 +236,7 @@
   gap: var(--ft-space-2);
   padding: var(--ft-space-2) var(--ft-space-3);
   border: var(--ft-rule-default);
-  border-radius: var(--ft-radius-2);
+  border-radius: var(--ft-radius-control);
   background: var(--ft-bg-inset);
   color: var(--ft-text-primary);
   font-family: var(--ft-font-ui);
@@ -256,7 +257,7 @@
 .clearRecent:focus-visible,
 .recentButton:focus-visible,
 .emptyLink:focus-visible {
-  outline: var(--ft-focus-width) solid var(--ft-text-primary);
+  outline: var(--ft-focus-width) solid var(--ft-focus-color);
   outline-offset: var(--ft-focus-offset);
 }
 
@@ -313,5 +314,21 @@
   .emptyLink,
   .inputRow {
     forced-color-adjust: auto;
+  }
+}
+
+@media (max-width: 48rem) {
+  .trigger {
+    width: var(--ft-touch-target-min);
+    min-width: var(--ft-touch-target-min);
+    min-height: var(--ft-touch-target-min);
+    justify-content: center;
+    padding-inline: 0;
+    border-color: transparent;
+    background: transparent;
+  }
+
+  .trigger > span:not(.shortcutHint) {
+    display: none;
   }
 }

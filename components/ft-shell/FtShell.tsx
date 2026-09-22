@@ -54,31 +54,31 @@ export async function FtShell({
     operationalReadiness,
     session,
   ] = await Promise.all([
-      repository.getAircraft(aircraftId),
-      getPublishedAircraftModule<AircraftChecklistContent>(
-        repository,
-        aircraftId,
-        "checklists",
-      ),
-      repository.getNormalFlight(aircraftId),
-      getPublishedAircraftModule<AircraftPerformanceContent>(
-        repository,
-        aircraftId,
-        "performance",
-      ),
-      getPublishedAircraftModule<unknown>(
-        repository,
-        aircraftId,
-        "abnormal",
-      ),
-      getPublishedAircraftModule<AircraftLimitationsContent>(
-        repository,
-        aircraftId,
-        "limitations",
-      ),
-      getOperationalFlightReadiness(aircraftId),
-      getTrainingSession(),
-    ]);
+    repository.getAircraft(aircraftId),
+    getPublishedAircraftModule<AircraftChecklistContent>(
+      repository,
+      aircraftId,
+      "checklists",
+    ),
+    repository.getNormalFlight(aircraftId),
+    getPublishedAircraftModule<AircraftPerformanceContent>(
+      repository,
+      aircraftId,
+      "performance",
+    ),
+    getPublishedAircraftModule<unknown>(
+      repository,
+      aircraftId,
+      "abnormal",
+    ),
+    getPublishedAircraftModule<AircraftLimitationsContent>(
+      repository,
+      aircraftId,
+      "limitations",
+    ),
+    getOperationalFlightReadiness(aircraftId),
+    getTrainingSession(),
+  ]);
 
   const aircraftIdentity = aircraft?.displayName ?? aircraftId;
   const trainingProfileLabel =
@@ -94,10 +94,7 @@ export async function FtShell({
     : undefined;
   const configuredChecklist =
     aircraft && universalChecklist && configuration
-      ? filterChecklistForConfiguration(
-          universalChecklist,
-          configuration,
-        )
+      ? filterChecklistForConfiguration(universalChecklist, configuration)
       : undefined;
   const checklist =
     configuredChecklist?.phases.length
@@ -136,6 +133,8 @@ export async function FtShell({
       selectedVariant={selectedVariant}
     >
       <section className={styles.shell} data-ft-shell="true" aria-label="Aircraft workspace shell">
+        <FtSideNav aircraftId={aircraftId} />
+
         <FtTopBar
           aircraftId={aircraftId}
           aircraftIdentity={aircraftIdentity}
@@ -145,7 +144,6 @@ export async function FtShell({
         />
 
         <div className={styles.workspace}>
-          <FtSideNav aircraftId={aircraftId} />
           <div className={styles.content}>{children}</div>
         </div>
 

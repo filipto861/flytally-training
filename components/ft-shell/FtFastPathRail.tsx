@@ -1,8 +1,16 @@
 "use client";
 
-import { ftFastPathDestinations } from "./navigation";
 import { useFtFastPath } from "@/components/ft-fast-path/FtFastPathProvider";
+
+import { ftFastPathDestinations } from "./navigation";
 import styles from "./ft-shell.module.css";
+
+const fastPathGlyph: Record<"checklist" | "qrh" | "perf" | "ref", string> = {
+  checklist: "C",
+  qrh: "!",
+  perf: "P",
+  ref: "R",
+};
 
 export function FtFastPathRail({ aircraftId }: Readonly<{ aircraftId: string }>) {
   const { activeTab, panelOpen, openPanel, shortcutsReady } = useFtFastPath();
@@ -21,7 +29,10 @@ export function FtFastPathRail({ aircraftId }: Readonly<{ aircraftId: string }>)
           aria-pressed={panelOpen && activeTab === destination.key}
           onClick={() => openPanel(destination.key)}
         >
-          {destination.label}
+          <span className={styles.fastPathGlyph} aria-hidden="true">
+            {fastPathGlyph[destination.key]}
+          </span>
+          <span>{destination.label}</span>
         </button>
       ))}
     </nav>

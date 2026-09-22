@@ -1,23 +1,30 @@
 /*
  * FlyTally Training aircraft-workspace theme palette.
  *
- * Light and dark are peer operational themes. These rules only define semantic
- * variables; they deliberately do not restyle legacy descendants during F0.
+ * Light and dark are peer operational themes. Existing semantic token names are
+ * preserved for domain components; UX6 adds interaction accent roles.
  */
 
 .ft-workspace[data-theme="light"] {
-  --ft-bg-shell: #F7F7F5;
+  --ft-bg-shell: #F4F6F8;
   --ft-bg-panel: #FFFFFF;
-  --ft-bg-inset: #F0F1F0;
-  --ft-bg-operational: #EFEFEC;
+  --ft-bg-inset: #F8FAFC;
+  --ft-bg-operational: #EAF1FF;
+  --ft-bg-hover: #F0F4F8;
+  --ft-bg-elevated: #FFFFFF;
 
-  --ft-border-rule: #DCDDDB;
-  --ft-border-strong: #B8BAB7;
+  --ft-border-rule: #D9E0E7;
+  --ft-border-strong: #B8C3CF;
 
-  --ft-text-primary: #1A1C1E;
-  --ft-text-secondary: #5A5D60;
-  --ft-text-metadata: #7A7D80;
-  --ft-text-disabled: #B0B3B5;
+  --ft-text-primary: #111827;
+  --ft-text-secondary: #4B5563;
+  --ft-text-metadata: #6B7280;
+  --ft-text-disabled: #9CA3AF;
+
+  --ft-accent-primary: #2F6BFF;
+  --ft-accent-hover: #2457D6;
+  --ft-accent-soft: #EAF1FF;
+  --ft-focus-color: #2F6BFF;
 
   /* Source safety semantics: preserve source WARNING / CAUTION / NOTE. */
   --ft-source-warning: #B3261E;
@@ -31,28 +38,35 @@
   --ft-state-recalc: #A15C00;
   --ft-state-recalc-bg: #FFF4E5;
   --ft-state-attention: #8A6A00;
-  --ft-state-completed: #2E6B3A;
-  --ft-state-active: #1F2937;
-  --ft-state-previous: #5A5D60;
-  --ft-state-archived: #7A7D80;
+  --ft-state-completed: #247A46;
+  --ft-state-active: #2F6BFF;
+  --ft-state-previous: #4B5563;
+  --ft-state-archived: #6B7280;
 
   --ft-training-accent: #3A4A5C;
   --ft-training-accent-bg: #EEF2F6;
 }
 
 .ft-workspace[data-theme="dark"] {
-  --ft-bg-shell: #0E1013;
-  --ft-bg-panel: #161A1F;
-  --ft-bg-inset: #1D2228;
-  --ft-bg-operational: #1A1E24;
+  --ft-bg-shell: #0B1118;
+  --ft-bg-panel: #101821;
+  --ft-bg-inset: #16212D;
+  --ft-bg-operational: #172A4F;
+  --ft-bg-hover: #1A2633;
+  --ft-bg-elevated: #1B2836;
 
-  --ft-border-rule: #242A32;
-  --ft-border-strong: #333A44;
+  --ft-border-rule: #263647;
+  --ft-border-strong: #3A4C60;
 
-  --ft-text-primary: #E5E7EB;
-  --ft-text-secondary: #A8ACB2;
-  --ft-text-metadata: #7A7F87;
-  --ft-text-disabled: #4A5058;
+  --ft-text-primary: #F3F6FA;
+  --ft-text-secondary: #B6C0CC;
+  --ft-text-metadata: #8997A6;
+  --ft-text-disabled: #5F6B78;
+
+  --ft-accent-primary: #5B8CFF;
+  --ft-accent-hover: #79A3FF;
+  --ft-accent-soft: #172A4F;
+  --ft-focus-color: #79A3FF;
 
   --ft-source-warning: #E57373;
   --ft-source-warning-bg: #2A1818;
@@ -64,10 +78,10 @@
   --ft-state-recalc: #E0A85C;
   --ft-state-recalc-bg: #2A2012;
   --ft-state-attention: #C7A94A;
-  --ft-state-completed: #7BBF88;
-  --ft-state-active: #E5E7EB;
-  --ft-state-previous: #A8ACB2;
-  --ft-state-archived: #7A7F87;
+  --ft-state-completed: #6EC28E;
+  --ft-state-active: #5B8CFF;
+  --ft-state-previous: #B6C0CC;
+  --ft-state-archived: #8997A6;
 
   --ft-training-accent: #9AB0C8;
   --ft-training-accent-bg: #182028;
@@ -80,4 +94,3 @@
  * Reserved future application states (not implemented in F0):
  * state.invalid, state.error.
  */
-
