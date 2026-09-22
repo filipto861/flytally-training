@@ -17,7 +17,7 @@
   position: relative;
   box-sizing: border-box;
   width: calc(var(--ft-space-7) * 10 + var(--ft-space-5) + var(--ft-space-4));
-  height: 100%;
+  height: 100dvh;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   border-inline-start: var(--ft-rule-strong);
@@ -85,6 +85,7 @@
 .panelBody {
   min-height: 0;
   overflow: auto;
+  overscroll-behavior: contain;
   background: var(--ft-bg-panel);
 }
 
@@ -281,12 +282,14 @@
 
   .panel {
     width: 100%;
+    padding-bottom: env(safe-area-inset-bottom);
     border-inline-start: 0;
     animation-name: ft-fast-path-slide-up;
   }
 
   .panelHeader {
     padding: var(--ft-space-3);
+    padding-top: calc(var(--ft-space-3) + env(safe-area-inset-top));
   }
 
   .checklist,
@@ -299,5 +302,23 @@
 @media (prefers-reduced-motion: reduce) {
   .panel {
     animation: none;
+  }
+}
+
+
+@media (forced-colors: active) {
+  .tabActive,
+  .currentStep,
+  .checklistItem[data-complete="true"] {
+    outline: var(--ft-focus-width) solid Highlight;
+    outline-offset: calc(var(--ft-focus-offset) * -1);
+  }
+
+  .tab,
+  .closeButton,
+  .indicator,
+  .fullPageLink,
+  .phasePicker select {
+    forced-color-adjust: auto;
   }
 }
