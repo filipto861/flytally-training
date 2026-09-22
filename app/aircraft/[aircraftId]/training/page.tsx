@@ -48,14 +48,13 @@ export default async function TrainingHubPage({
     capabilities.knowledge ? { key: "knowledge", kicker: "Recall", title: "Knowledge", text: "Check recall and identify weak areas." } : undefined,
   ].filter((item): item is { key: string; kicker: string; title: string; text: string } => Boolean(item));
 
-  if (!startHere.length && !modules.length) notFound();
-
   if (isNewShellEnabled()) {
     const configuration = configurationForAircraftVariant(aircraft, selectedVariant);
     const scenarioTraining = resolveTrainingScenarioContent(
       publishedAbnormal,
       configuration,
     );
+    if (!startHere.length && !modules.length && !scenarioTraining) notFound();
 
     const toFtModule = (
       item: { key: string; title: string; text: string },
@@ -76,6 +75,8 @@ export default async function TrainingHubPage({
       />
     );
   }
+
+  if (!startHere.length && !modules.length) notFound();
 
   return (
     <main className="shell aircraft-detail">

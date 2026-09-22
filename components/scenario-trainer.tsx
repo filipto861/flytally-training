@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useReducer } from "react";
 
 import type {
   RuntimeAbnormalScenario,
@@ -8,6 +8,10 @@ import type {
   RuntimeScenarioSource,
 } from "@/lib/abnormal-runtime";
 import { appendBrowserProgress } from "@/lib/browser-progress";
+import {
+  initialScenarioSessionState,
+  scenarioSessionReducer,
+} from "@/lib/scenario-session";
 import styles from "./scenario-trainer.module.css";
 
 function sourceLabel(reference: RuntimeScenarioSource): string {
@@ -20,12 +24,20 @@ function sourceLabel(reference: RuntimeScenarioSource): string {
 }
 
 export function ScenarioTrainer({ training }: Readonly<{ training: RuntimeAbnormalTraining }>) {
-  const [selectedId, setSelectedId] = useState(training.scenarios[0]?.id ?? "");
-  const [stageIndex, setStageIndex] = useState(0);
-  const [revealed, setRevealed] = useState(false);
-  const [finished, setFinished] = useState(false);
-  const [completedIds, setCompletedIds] = useState<string[]>([]);
-  const [repeatIds, setRepeatIds] = useState<string[]>([]);
+  const [session, dispatch] = useReducer(
+    scenarioSessionReducer,
+    training.scenarios[0]?.id,
+    initialScenarioSessionState,
+  );
+
+  const {
+    selectedId,
+    stageIndex,
+    revealed,
+    finished,
+    completedIds,
+    repeatIds,
+  } = session;
 
   const scenario = training.scenarios.find((item) => item.id === selectedId) ?? training.scenarios[0];
   if (!scenario) return null;
@@ -35,14 +47,14 @@ export function ScenarioTrainer({ training }: Readonly<{ training: RuntimeAbnorm
   const queuedForRepeat = repeatIds.includes(scenario.id);
 
   function openScenario(nextScenario: RuntimeAbnormalScenario) {
-    setSelectedId(nextScenario.id);
-    setStageIndex(0);
-    setRevealed(false);
-    setFinished(false);
+    dispatch({ type: "select", scenarioId: nextScenario.id });
   }
 
-  function finishScenario() {
-    if (!completedIds.includes(scenario.id)) {
+  function advance() {
+    const completing =
+      stageIndex >= scenario.stages.length - 1 &&
+      !completedIds.includes(scenario.id);
+    if (completing) {
       appendBrowserProgress({
         aircraftId: training.aircraftId,
         kind: "scenario",
@@ -51,27 +63,19 @@ export function ScenarioTrainer({ training }: Readonly<{ training: RuntimeAbnorm
         completed: true,
       });
     }
-    setCompletedIds((current) => current.includes(scenario.id) ? current : [...current, scenario.id]);
-    setFinished(true);
-  }
-
-  function advance() {
-    if (stageIndex < scenario.stages.length - 1) {
-      setStageIndex((current) => current + 1);
-      setRevealed(false);
-      return;
-    }
-    finishScenario();
+    dispatch({
+      type: "advance",
+      scenarioId: scenario.id,
+      stageCount: scenario.stages.length,
+    });
   }
 
   function repeatNow() {
-    setStageIndex(0);
-    setRevealed(false);
-    setFinished(false);
+    dispatch({ type: "repeat-now" });
   }
 
   function toggleRepeat() {
-    setRepeatIds((current) => current.includes(scenario.id) ? current.filter((id) => id !== scenario.id) : [...current, scenario.id]);
+    dispatch({ type: "toggle-repeat", scenarioId: scenario.id });
   }
 
   function openRepeatQueue() {
@@ -151,7 +155,7 @@ export function ScenarioTrainer({ training }: Readonly<{ training: RuntimeAbnorm
             {!revealed ? (
               <div className={styles.revealGate}>
                 <p>Say or think through your response before revealing the training answer.</p>
-                <button className={styles.primaryButton} onClick={() => setRevealed(true)} type="button">Reveal expected response</button>
+                <button className={styles.primaryButton} onClick={() => dispatch({ type: "reveal" })} type="button">Reveal expected response</button>
               </div>
             ) : (
               <div className={styles.revealedAnswer}>

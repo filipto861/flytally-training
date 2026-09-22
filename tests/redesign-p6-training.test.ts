@@ -4,6 +4,10 @@ import test from "node:test";
 
 import { configurationForVariant } from "../lib/aircraft-applicability.ts";
 import { resolveTrainingScenarioContent } from "../lib/training-scenario-presentation.ts";
+import {
+  initialScenarioSessionState,
+  scenarioSessionReducer,
+} from "../lib/scenario-session.ts";
 
 const read = (path: string) =>
   readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
@@ -122,4 +126,107 @@ test("P6 implementation remains aircraft-agnostic", () => {
   assert.doesNotMatch(source, /learjet|35a|tfe731|bristell|cessna|boeing|rotax/i);
   assert.doesNotMatch(source, /aircraft\.model\s*===/i);
   assert.doesNotMatch(source, /scenario\.id\s*===\s*["']/i);
+});
+
+
+test("P6.2 new-shell Training supports a scenario-only governed package", () => {
+  const route = read("app/aircraft/[aircraftId]/training/page.tsx");
+  const newShellStart = route.indexOf("if (isNewShellEnabled())");
+  const legacyGate = route.indexOf(
+    "if (!startHere.length && !modules.length) notFound();",
+    newShellStart,
+  );
+
+  assert.ok(newShellStart >= 0);
+  assert.ok(legacyGate > newShellStart);
+  assert.match(
+    route.slice(newShellStart, legacyGate),
+    /!startHere\.length && !modules\.length && !scenarioTraining/,
+  );
+});
+
+test("P6.3 scenario session reducer preserves reveal and stage semantics deterministically", () => {
+  let state = initialScenarioSessionState("scenario-a");
+  assert.equal(state.selectedId, "scenario-a");
+  assert.equal(state.stageIndex, 0);
+  assert.equal(state.revealed, false);
+  assert.equal(state.finished, false);
+
+  state = scenarioSessionReducer(state, { type: "reveal" });
+  assert.equal(state.revealed, true);
+
+  state = scenarioSessionReducer(state, {
+    type: "advance",
+    scenarioId: "scenario-a",
+    stageCount: 2,
+  });
+  assert.equal(state.stageIndex, 1);
+  assert.equal(state.revealed, false);
+  assert.equal(state.finished, false);
+
+  state = scenarioSessionReducer(state, {
+    type: "advance",
+    scenarioId: "scenario-a",
+    stageCount: 2,
+  });
+  assert.equal(state.finished, true);
+  assert.deepEqual(state.completedIds, ["scenario-a"]);
+});
+
+test("P6.3 selecting another scenario resets transient reveal state but preserves evidence", () => {
+  let state = initialScenarioSessionState("scenario-a");
+  state = scenarioSessionReducer(state, {
+    type: "advance",
+    scenarioId: "scenario-a",
+    stageCount: 1,
+  });
+  state = scenarioSessionReducer(state, {
+    type: "toggle-repeat",
+    scenarioId: "scenario-a",
+  });
+  state = scenarioSessionReducer(state, {
+    type: "select",
+    scenarioId: "scenario-b",
+  });
+
+  assert.equal(state.selectedId, "scenario-b");
+  assert.equal(state.stageIndex, 0);
+  assert.equal(state.revealed, false);
+  assert.equal(state.finished, false);
+  assert.deepEqual(state.completedIds, ["scenario-a"]);
+  assert.deepEqual(state.repeatIds, ["scenario-a"]);
+});
+
+test("P6.3 targeted repeat is explicit and does not clear completion evidence", () => {
+  let state = initialScenarioSessionState("scenario-a");
+  state = scenarioSessionReducer(state, {
+    type: "advance",
+    scenarioId: "scenario-a",
+    stageCount: 1,
+  });
+  state = scenarioSessionReducer(state, {
+    type: "toggle-repeat",
+    scenarioId: "scenario-a",
+  });
+  state = scenarioSessionReducer(state, { type: "repeat-now" });
+
+  assert.equal(state.finished, false);
+  assert.equal(state.stageIndex, 0);
+  assert.deepEqual(state.completedIds, ["scenario-a"]);
+  assert.deepEqual(state.repeatIds, ["scenario-a"]);
+
+  state = scenarioSessionReducer(state, {
+    type: "toggle-repeat",
+    scenarioId: "scenario-a",
+  });
+  assert.deepEqual(state.repeatIds, []);
+});
+
+test("P6.3 ScenarioTrainer delegates transient session state to the deterministic reducer", () => {
+  const trainer = read("components/scenario-trainer.tsx");
+
+  assert.match(trainer, /useReducer/);
+  assert.match(trainer, /scenarioSessionReducer/);
+  assert.doesNotMatch(trainer, /useState/);
+  assert.doesNotMatch(trainer, /procedure-graph-runtime/);
 });
