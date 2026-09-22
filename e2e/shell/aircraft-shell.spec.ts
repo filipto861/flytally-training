@@ -1242,3 +1242,85 @@ test("P6 flag OFF preserves the legacy Training hub", async ({ page }) => {
     page.locator('section[aria-label="Aircraft navigation"]'),
   ).toBeVisible();
 });
+
+
+test("P7 REF fast path renders governed published limitations", async ({ page }) => {
+  const panel = await openFastPath(page, "REF");
+  const reference = panel.getByRole("region", { name: "Reference quick access" });
+
+  await expect(reference).toBeVisible();
+  await expect(
+    reference.getByRole("heading", { name: "Quick reference", exact: true }),
+  ).toBeVisible();
+  await expect(reference.getByText("Generic Speeds", { exact: true })).toBeVisible();
+  await expect(
+    reference.getByText("Maximum generic speed", { exact: true }),
+  ).toBeVisible();
+  await expect(reference.getByText("200 KIAS", { exact: true })).toBeVisible();
+  const caution = reference.locator("p").filter({ hasText: "Generic caution." });
+  await expect(caution).toBeVisible();
+  await expect(caution).toContainText("CAUTION");
+  await expect(caution).toContainText("Generic caution.");
+});
+
+test("P7 REF exposes source provenance only on explicit disclosure", async ({ page }) => {
+  const panel = await openFastPath(page, "REF");
+  const reference = panel.getByRole("region", { name: "Reference quick access" });
+  const source = reference.locator("details").filter({ hasText: "Source" }).first();
+
+  await expect(source).not.toHaveAttribute("open", "");
+  await source.getByText("Source", { exact: true }).click();
+  await expect(source).toHaveAttribute("open", "");
+  await expect(source.getByText(/browser-ci-limitations-source/)).toBeVisible();
+});
+
+test("P7 REF preserves the selected variant in the full-reference deep link", async ({ page }) => {
+  await page.goto(`${shellOnBase}${aircraftPath}?variant=Standard`);
+  const rail = page.getByRole("navigation", { name: "Operational fast path" });
+  await rail.getByRole("button", { name: "REF", exact: true }).click();
+
+  const panel = page.getByRole("dialog", { name: "Operational fast path" });
+  await expect(
+    panel.getByRole("link", { name: "Open full reference", exact: true }),
+  ).toHaveAttribute(
+    "href",
+    `${aircraftPath}/reference?variant=Standard`,
+  );
+});
+
+test("P7 new-shell Reference page reuses the REF limitation presentation", async ({ page }, testInfo) => {
+  await page.goto(`${shellOnBase}${aircraftPath}/reference?variant=Standard`);
+  const referencePage = page.locator('[data-ft-reference-page="true"]');
+
+  await expect(referencePage).toBeVisible();
+  await expect(
+    referencePage.getByRole("heading", { name: "Reference", exact: true }),
+  ).toBeVisible();
+  await expect(
+    referencePage.getByText("Maximum generic speed", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    referencePage.getByRole("link", { name: /Limitations/ }),
+  ).toHaveAttribute(
+    "href",
+    `${aircraftPath}/limitations?variant=Standard`,
+  );
+
+  const nav = await workspaceNavigation(page, testInfo.project.name);
+  await expect(
+    nav.getByRole("link", { name: "FLIGHT", exact: true }),
+  ).toHaveAttribute("aria-current", "page");
+});
+
+test("P7 flag OFF preserves the legacy Reference hub", async ({ page }) => {
+  await page.goto(`${aircraftPath}/reference`);
+
+  await expect(page.locator('[data-ft-reference-page="true"]')).toHaveCount(0);
+  await expect(page.locator('[data-ft-shell="true"]')).toHaveCount(0);
+  await expect(
+    page.getByRole("heading", { name: "Reference", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.locator('section[aria-label="Aircraft navigation"]'),
+  ).toBeVisible();
+});

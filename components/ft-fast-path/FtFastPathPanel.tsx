@@ -3,15 +3,19 @@
 import { useEffect, useRef, type KeyboardEvent } from "react";
 
 import type { ActiveFlight } from "@/lib/active-flight/types";
+import type { TrainingAircraft } from "@/lib/aircraft-catalog";
 import { fastPathTabs, type FastPathTab } from "@/lib/fast-path/panel-state";
 import type { PilotTakeoffCalculatorDefinition } from "@/lib/pilot-takeoff-calculator";
-import type { PerformanceDataset } from "@/lib/universal-aircraft-content";
+import type {
+  AircraftLimitationsContent,
+  PerformanceDataset,
+} from "@/lib/universal-aircraft-content";
 import type { OperationalEmergencyContent } from "@/lib/operational-flight-data";
 import { FtPerformancePresentation } from "@/components/ft-performance/FtPerformancePresentation";
 
 import { FtFastPathChecklist } from "./FtFastPathChecklist";
 import { FtFastPathQrh } from "./FtFastPathQrh";
-import { FtFastPathPlaceholder } from "./FtFastPathPlaceholder";
+import { FtFastPathReference } from "./FtFastPathReference";
 import { useFtFastPath } from "./FtFastPathProvider";
 import styles from "./ft-fast-path.module.css";
 
@@ -28,11 +32,18 @@ const TAB_LABELS: Readonly<Record<FastPathTab, string>> = {
 export function FtFastPathPanel({
   activeFlight,
   emergency,
+  referenceAircraft,
+  referenceContent,
   performanceDatasets,
   takeoffCalculator,
 }: Readonly<{
   activeFlight?: ActiveFlight | null;
   emergency?: OperationalEmergencyContent;
+  referenceAircraft?: Pick<
+    TrainingAircraft,
+    "id" | "variants" | "variantProfiles" | "equipmentTags"
+  >;
+  referenceContent?: AircraftLimitationsContent;
   performanceDatasets: readonly PerformanceDataset[];
   takeoffCalculator?: PilotTakeoffCalculatorDefinition;
 }>) {
@@ -158,7 +169,10 @@ export function FtFastPathPanel({
               view="operational"
             />
           ) : (
-            <FtFastPathPlaceholder tab={activeTab} />
+            <FtFastPathReference
+              aircraft={referenceAircraft}
+              content={referenceContent}
+            />
           )}
         </div>
       </div>
