@@ -74,8 +74,9 @@ frozen behavior. Candidate for a dedicated cleanup issue.
 ## 3. Current state
 
 ```
-main:                        738b0c59 (P4 merged)
-production:                  FT_NEW_SHELL = OFF
+main:                        8c35b096 (P4 merged + roadmap update)
+production:                  FT_NEW_SHELL = ON
+runtime deployment:          dpl_EqXB1gwyWrG3FmpUJZt16KAo61DK (P4 runtime SHA 738b0c59)
 ```
 
 **Playwright projects:** `desktop-chromium`, `mobile-chromium`, `ipad-landscape`, `ipad-portrait`  
@@ -182,9 +183,9 @@ its own slice.
 
 | Stage | Action | Rollback | Minimum duration |
 |---|---|---|---|
-| **C4a.0a** | Filip-only canary (account-subject allowlist) | Env change | 24–72 h |
-| **C4a.0b** | Small beta cohort (2–3+ subjects) | Env change | ≥ 7 days |
-| **C4a.1** | Global `FT_NEW_SHELL=true` | Env change | ≥ 2 weeks |
+| **C4a.0a** | **SKIPPED** — single-user production, direct global flip (2026-09-22) | — | — |
+| **C4a.0b** | **SKIPPED** — no separate beta cohort in single-user production | — | — |
+| **C4a.1** | Global `FT_NEW_SHELL=true` — **ACTIVE since 2026-09-22** | Env change back to `false` | ≥ 2 weeks |
 | **C4b** | Remove flag, delete legacy code | Code rollback / redeploy only | — |
 
 **Canary mechanism:** server-side account-subject allowlist
@@ -199,6 +200,12 @@ is possible, without ability to run both shells in parallel.
 ## 5. Release checklist
 
 ### 5.1 C4a — pre-conditions (before any flip)
+
+**Note:** In the current single-user production context, staged canary/beta was
+explicitly skipped by owner decision. Global `FT_NEW_SHELL=true` was performed
+directly on 2026-09-22 so the new shell can be evaluated live. The unchecked
+items below remain release-hardening work before any future multi-user rollout
+or C4b legacy removal.
 
 **Code & tests**
 - [ ] P0–P6 merged
@@ -329,13 +336,14 @@ IDs, "legacy cannot resurrect after canonical write".
 | No a11y audit | Accessibility regressions reach users | Full-shell a11y gate before C4a |
 | `ProcedureLinearRunner` a11y debt | Compounds in P5+ e2e | Dedicated cleanup issue |
 | Learjet `/fly` fail-closed 404 | User-visible on flip | Content governance, tracked separately |
+| Learjet `/systems` fail-closed 404 in new shell | Published `systems` module is absent in production content | Publish governed systems content; not a P3 runtime regression |
 | P5/P6 scope larger than P4 | Release slips | Estimates done; P6 = L |
 
 ### 8.2 Open questions
 
 | Question | Status |
 |---|---|
-| Beta / canary / per-user rollout strategy | **Defined:** server-side account-subject allowlist with C4a.0a → C4a.0b → C4a.1 stages |
+| Beta / canary / per-user rollout strategy | **Owner override 2026-09-22:** skipped for single-user production; direct global flip active |
 | Post-C4b rollback mechanism | **Defined:** no flag rollback; normal code rollback / redeploy only |
 | Release communication plan | **Not defined** |
 | Formal standalone C4 acceptance document | **Does not exist**; §5 is the current redesign release checklist |
@@ -365,3 +373,4 @@ IDs, "legacy cannot resurrect after canonical write".
 | 2026-09-22 | Initial consolidation from working handoff notes | Filip Točík |
 | 2026-09-22 | P4.7 verified (284/284). P5/P6 scope added. C4 split into C4a.0a/0b/1 + C4b. REF, migration, CI identified as C4a blockers. | Filip Točík + DeepSeek + ChatGPT |
 | 2026-09-22 | P4 merged via PR #181 as squash commit `738b0c59`; status `merged` `gated`. | Filip Točík + DeepSeek + ChatGPT |
+| 2026-09-22 | Single-user production override: staged canary/beta skipped; global `FT_NEW_SHELL=true` activated on deployment `dpl_EqXB1gwyWrG3FmpUJZt16KAo61DK`. | Filip Točík + DeepSeek + ChatGPT |
