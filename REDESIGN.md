@@ -64,12 +64,15 @@ document consolidates all of them into one authoritative source.
 | P4 | Procedures (Learn / Operate / Relevance) | `redesign-p4-procedures.test.ts` | `738b0c59` | `merged` `gated` |
 | P5 | Operational fast-path closure | `redesign-p5-operational.test.ts` | `b9e910a4` | `merged` `gated` |
 | P6 | Training hub + Scenario + Debrief | `redesign-p6-training.test.ts` | `28a0c014` | `merged` `gated` |
+| P7 | Reference / REF fast-path closure | `redesign-p7-reference.test.ts` | `5488a9da` | `merged` `gated` |
 
 **P4 verification:** `npm run verify` → 886 / 885 / 0 / 1, build PASS; Playwright 284/284 across desktop, mobile, iPad landscape and iPad portrait.
 
 **P5 verification:** `npm run verify` → 908 / 907 / 0 / 1, build PASS; Playwright 288/288 across desktop, mobile, iPad landscape and iPad portrait.
 
 **P6 verification:** targeted 14/14; `npm run verify` → 922 / 921 / 0 / 1, build PASS; Playwright 312/312 across desktop, mobile, iPad landscape and iPad portrait.
+
+**P7 verification:** targeted 10/10; `npm run verify` → 932 / 931 / 0 / 1, build PASS; Playwright 332/332 across desktop, mobile, iPad landscape and iPad portrait.
 
 **Known debt (out of P4 scope):** `ProcedureLinearRunner` toggle changes
 accessible name (`Complete` → `Uncheck`) together with `aria-pressed`. Pre-existing
@@ -80,7 +83,7 @@ frozen behavior. Candidate for a dedicated cleanup issue.
 ## 3. Current state
 
 ```
-main:                        28a0c014 (P6 merged)
+main:                        5488a9da (P7 merged)
 production:                  FT_NEW_SHELL = ON
 runtime deployment:          dpl_EqXB1gwyWrG3FmpUJZt16KAo61DK (P4 runtime SHA 738b0c59)
 ```
@@ -172,7 +175,7 @@ its own slice.
 - Flag OFF legacy unchanged
 - Generic fixture + Node + 4× Playwright green
 
-### 4.3 P7 — Reference / REF fast-path closure — **NEXT**
+### 4.3 P7 — Reference / REF fast-path closure — **COMPLETE**
 
 P7 owns the remaining `REF` slot in the frozen W3 fast-path contract. It is a
 standalone slice because reference browsing is a different concern from P5
@@ -200,7 +203,7 @@ without a proven blocker.
 - Flag OFF legacy behavior remains available until C4b
 - Node + 4× Playwright green
 
-### 4.4 UX0–UX5 — Full-shell visual integration and UX closure
+### 4.4 UX0–UX5 — Full-shell visual integration and UX closure — **NEXT**
 
 > **This phase is mandatory. The current production UI is a functional
 > development scaffold, not the intended final visual state.**
@@ -334,7 +337,7 @@ is possible, without ability to run both shells in parallel.
 - [x] P0–P4 functional shell available for owner evaluation
 - [x] P5 operational fast-path closure complete
 - [x] P6 Training / Scenario / Debrief complete
-- [ ] P7 REF closure complete
+- [x] P7 REF closure complete
 - [ ] UX0–UX5 complete
 - [ ] No open P0–P7 functional regressions
 
@@ -409,7 +412,7 @@ fails closed, and legacy state cannot resurrect after canonical state exists.
 | `ProcedureLinearRunner` a11y debt | Compounds in P5+ e2e | Dedicated cleanup issue |
 | Learjet `/fly` fail-closed 404 | User-visible on flip | Content governance, tracked separately |
 | Learjet `/systems` fail-closed 404 in new shell | Published `systems` module is absent in production content | Publish governed systems content; not a P3 runtime regression |
-| P6/P7 + UX scope remains substantial | Release slips | P5 merged; P6 = L, P7 = M, UX = L |
+| UX full-shell integration remains substantial | Release slips | P0–P7 merged; UX = L |
 
 ### 8.2 Open questions
 
@@ -449,3 +452,4 @@ fails closed, and legacy state cannot resurrect after canonical state exists.
 | 2026-09-22 | Roadmap corrected after live visual review: current shell classified as development preview, REF assigned to P7, and mandatory UX0–UX5 full-shell visual integration added before C4b. | Filip Točík + ChatGPT |
 | 2026-09-22 | P5 merged via PR #182 as squash commit `b9e910a4`; local gate 908/907/0/1 + build PASS + Playwright 288/288. | Filip Točík + ChatGPT |
 | 2026-09-22 | P6 merged via PR #183 as squash commit `28a0c014`; targeted 14/14, local gate 922/921/0/1 + build PASS + Playwright 312/312. | Filip Točík + ChatGPT |
+| 2026-09-22 | P7 merged via PR #184 as squash commit `5488a9da`; targeted 10/10, local gate 932/931/0/1 + build PASS + Playwright 332/332. Functional P0–P7 sequence complete; UX0 begins. | Filip Točík + ChatGPT |
