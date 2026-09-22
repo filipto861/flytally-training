@@ -275,7 +275,13 @@ test("P5 QRH fast path renders governed operational content without navigation",
   ).toBeVisible();
   await expect(qrh.getByText("Action A", { exact: true })).toBeVisible();
   await expect(qrh.getByText("Action B", { exact: true })).toBeVisible();
-  await expect(qrh.getByText(/browser-ci-abnormal-source/)).toBeVisible();
+
+  const authority = qrh.locator("details").filter({ hasText: "Source & authority" });
+  await expect(authority).not.toHaveAttribute("open", "");
+  await authority.getByText("Source & authority", { exact: true }).click();
+  await expect(authority).toHaveAttribute("open", "");
+  await expect(authority.getByText(/browser-ci-abnormal-source/)).toBeVisible();
+
   await expect(qrh.getByText("Training prompt A", { exact: true })).toHaveCount(0);
   await expect(qrh.getByText("Training explanation A", { exact: true })).toHaveCount(0);
   await expect(page).toHaveURL(`${shellOnBase}${aircraftPath}`);
