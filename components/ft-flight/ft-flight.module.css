@@ -2,7 +2,7 @@
   width: 100%;
   display: grid;
   gap: var(--ft-space-5);
-  padding: var(--ft-space-5);
+  padding: var(--ft-space-6);
   background: var(--ft-bg-shell);
   color: var(--ft-text-primary);
 }
@@ -100,8 +100,8 @@
   padding-inline: var(--ft-space-4);
   border: var(--ft-rule-strong);
   border-radius: calc(var(--ft-radius-4) * 2);
-  background: var(--ft-text-primary);
-  color: var(--ft-bg-panel);
+  background: var(--ft-bg-operational);
+  color: var(--ft-text-primary);
   font-family: var(--ft-font-ui);
   font-weight: 700;
   text-decoration: none;
