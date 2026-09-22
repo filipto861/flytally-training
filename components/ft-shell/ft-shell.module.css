@@ -1,5 +1,5 @@
 .shell {
-  min-height: 100vh;
+  min-height: 100dvh;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
   background: var(--ft-bg-shell);
@@ -8,13 +8,19 @@
 }
 
 .topBar {
+  position: sticky;
+  top: 0;
+  z-index: 80;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--ft-space-4);
-  padding: var(--ft-space-3) var(--ft-space-4);
+  min-height: calc(var(--ft-touch-target-min) + var(--ft-space-4));
+  padding: var(--ft-space-2) var(--ft-space-5);
   border-bottom: var(--ft-rule-default);
   background: var(--ft-bg-panel);
+  box-shadow: 0 var(--ft-space-1) var(--ft-space-4)
+    color-mix(in srgb, var(--ft-text-primary) 6%, transparent);
 }
 
 .topBarNavControl {
@@ -28,18 +34,22 @@
 }
 
 .aircraftIdentity strong {
-  font-weight: 600;
+  font-size: 1.05rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
 }
 
 .aircraftIdentity span,
 .flightPlaceholder {
   color: var(--ft-text-metadata);
   font-family: var(--ft-font-data);
+  font-size: 0.72rem;
 }
 
 .topBarActions {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: var(--ft-space-2);
 }
 
@@ -49,36 +59,39 @@
   min-width: var(--ft-touch-target-min);
   min-height: var(--ft-touch-target-min);
   border: var(--ft-rule-default);
-  border-radius: var(--ft-radius-2);
+  border-radius: calc(var(--ft-radius-4) * 2);
   background: var(--ft-bg-inset);
   color: var(--ft-text-primary);
   font: inherit;
 }
 
 .searchTrigger {
-  padding-inline: var(--ft-space-3);
-  color: var(--ft-text-metadata);
+  padding-inline: var(--ft-space-4);
+  color: var(--ft-text-secondary);
 }
 
 .flightPlaceholder {
   min-height: var(--ft-touch-target-min);
   display: inline-flex;
   align-items: center;
-  padding-inline: var(--ft-space-3);
+  padding-inline: var(--ft-space-4);
   border: var(--ft-rule-default);
+  border-radius: calc(var(--ft-radius-4) * 2);
   background: var(--ft-bg-operational);
 }
 
 .workspace {
   min-width: 0;
   display: grid;
-  grid-template-columns: calc(var(--ft-space-7) * 5) minmax(0, 1fr);
+  grid-template-columns: calc(var(--ft-space-7) * 4) minmax(0, 1fr);
 }
 
 .sideNav {
+  align-self: stretch;
   display: flex;
   flex-direction: column;
-  padding-block: var(--ft-space-3);
+  gap: var(--ft-space-1);
+  padding: var(--ft-space-4) var(--ft-space-3);
   border-right: var(--ft-rule-default);
   background: var(--ft-bg-panel);
 }
@@ -88,23 +101,36 @@
   min-height: var(--ft-touch-target-min);
   display: flex;
   align-items: center;
-  padding-inline: var(--ft-space-4);
-  border-inline-start: var(--ft-focus-width) solid transparent;
+  padding-inline: var(--ft-space-3);
+  border: var(--ft-focus-width) solid transparent;
+  border-radius: calc(var(--ft-radius-4) * 2);
   color: var(--ft-text-secondary);
-  font-family: var(--ft-font-data);
-  font-weight: 500;
+  font-family: var(--ft-font-ui);
+  font-size: 0.78rem;
+  font-weight: 650;
+  letter-spacing: 0.025em;
   text-decoration: none;
-}
+
 
 .sideNavLink[aria-current="page"],
 .drawerLink[aria-current="page"] {
-  border-inline-start-color: var(--ft-text-primary);
+  border-color: var(--ft-border-strong);
+  background: var(--ft-bg-operational);
   color: var(--ft-text-primary);
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .content {
   min-width: 0;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  padding-inline: var(--ft-space-4);
+  background: var(--ft-bg-shell);
+}
+
+.content > :global(*) {
+  width: min(100%, calc(var(--ft-space-7) * 26));
 }
 
 /* W1: legacy per-page navigation remains in page markup for flag-off compatibility,
@@ -115,12 +141,20 @@
 
 .fastPathRail {
   position: sticky;
-  bottom: 0;
+  bottom: var(--ft-space-3);
+  z-index: 70;
+  justify-self: center;
+  width: min(calc(var(--ft-space-7) * 12), calc(100% - var(--ft-space-6)));
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   min-height: var(--ft-fast-path-height-desktop);
-  border-top: var(--ft-rule-default);
-  background: var(--ft-bg-inset);
+  margin-block: var(--ft-space-3);
+  overflow: hidden;
+  border: var(--ft-rule-strong);
+  border-radius: calc(var(--ft-radius-4) * 3);
+  background: var(--ft-bg-panel);
+  box-shadow: 0 var(--ft-space-2) var(--ft-space-5)
+    color-mix(in srgb, var(--ft-text-primary) 10%, transparent);
 }
 
 .fastPathLink {
@@ -132,14 +166,16 @@
   border: 0;
   border-inline-end: var(--ft-rule-default);
   background: transparent;
-  color: var(--ft-text-primary);
-  font-family: var(--ft-font-data);
-  font-weight: 600;
+  color: var(--ft-text-secondary);
+  font-family: var(--ft-font-ui);
+  font-size: 0.76rem;
+  font-weight: 700;
   text-decoration: none;
 }
 
 .fastPathLink[aria-pressed="true"] {
   background: var(--ft-bg-operational);
+  color: var(--ft-text-primary);
 }
 
 .fastPathLink:last-child {
@@ -219,8 +255,11 @@
   }
 
   .fastPathRail {
+    bottom: var(--ft-space-2);
+    width: calc(100% - var(--ft-space-4));
     min-height: var(--ft-fast-path-height-ipad);
-    background: var(--ft-bg-operational);
+    margin-block: var(--ft-space-2);
+    background: var(--ft-bg-panel);
   }
 
   .fastPathLink {
@@ -232,10 +271,21 @@
 @media (max-width: 1180px) and (orientation: portrait), (hover: none) and (orientation: portrait) {
   .topBar {
     grid-template-columns: auto minmax(0, 1fr);
+    padding-inline: var(--ft-space-3);
   }
 
   .topBarActions {
     grid-column: 1 / -1;
-    justify-content: space-between;
+    justify-content: stretch;
+  }
+
+  .searchTrigger,
+  .flightPlaceholder {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+
+  .content {
+    padding-inline: 0;
   }
 }
