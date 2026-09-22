@@ -1,6 +1,6 @@
 # UX6.3 — Reference Screens
 
-**Status:** ACTIVE — REFERENCE SET READY FOR PRODUCT REVIEW  
+**Status:** COMPLETE — PRODUCT OWNER GATE C APPROVED  
 **Depends on:** UX6.2 / PO Gate B approved
 
 ## Purpose
@@ -31,8 +31,17 @@ All preview routes support `?theme=light` and `?theme=dark`.
 
 These routes are visual reference surfaces only. They must not be wired into canonical aircraft routes until Gate C is accepted and UX6.4 begins.
 
-## Gate C
+## Gate C — APPROVED
 
-Product owner should review the five reference surfaces in both themes and at least desktop + mobile widths.
+Product owner approved the reference direction on 2026-09-22 after reviewing the multi-surface preview.
 
-Approval unlocks UX6.4 production shell implementation.
+Approved reference direction:
+- Procedures;
+- Performance;
+- Flight;
+- Aircraft Library;
+- Systems unavailable state;
+- shared light/dark visual language;
+- responsive/content-first direction.
+
+**UX6.4 production shell implementation is unlocked.**
