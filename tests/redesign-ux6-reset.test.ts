@@ -55,10 +55,10 @@ test("UX6 inventory identifies the current desktop width constraint as presentat
   assert.match(inventory, /development scaffold/i);
 });
 
-test("UX6.1 requires owner approval before design-system implementation", () => {
+test("UX6.1 records owner Gate A approval before production design work", () => {
   const concept = read("UX6_1_SHELL_IA.md");
 
-  assert.match(concept, /READY FOR PRODUCT-OWNER GATE A/i);
+  assert.match(concept, /APPROVED — PRODUCT OWNER GATE A PASSED/i);
   assert.match(concept, /five top-level destinations/i);
   assert.match(concept, /Systems and Reference must appear through contextual\/sub-navigation/i);
   assert.match(concept, /bottom sheet/i);
