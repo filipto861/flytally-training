@@ -1,6 +1,6 @@
 # UX6.1 — Shell + IA Reference Concept
 
-**Status:** READY FOR PRODUCT-OWNER GATE A  
+**Status:** APPROVED — PRODUCT OWNER GATE A PASSED  
 **This document is a wireframe/specification, not implementation.**
 
 ## 1. Canonical IA
@@ -234,17 +234,15 @@ The application has no governed Systems content to display.
 
 No generic global 404-style surface.
 
-## 11. Gate A decision required
+## 11. Gate A decision — APPROVED
 
-Before UX6.2 or broad visual code:
+Product owner approved this shell and interaction architecture on 2026-09-22.
 
-Product owner must answer whether this **shell and interaction architecture** is the desired direction.
-
-Approval means:
+Approved direction:
 - five-destination primary IA stays;
 - compact rail/context-bar workspace accepted;
 - desktop task-specific multi-pane layouts accepted;
 - mobile content-first + bottom-sheet navigation accepted;
 - detached desktop fast-path pill is retired.
 
-If rejected, revise UX6.1 without touching the production visual implementation.
+Next phase: **UX6.2 — Design system + primitives.**
