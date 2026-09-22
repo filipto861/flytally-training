@@ -1324,3 +1324,35 @@ test("P7 flag OFF preserves the legacy Reference hub", async ({ page }) => {
     page.locator('section[aria-label="Aircraft navigation"]'),
   ).toBeVisible();
 });
+
+
+test("UX4 key new-shell routes do not overflow the viewport horizontally", async ({ page }) => {
+  for (const href of [
+    aircraftPath,
+    `${aircraftPath}/procedures`,
+    `${aircraftPath}/performance`,
+    `${aircraftPath}/training`,
+    `${aircraftPath}/reference`,
+  ]) {
+    await page.goto(`${shellOnBase}${href}`);
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(overflow).toBeLessThanOrEqual(1);
+  }
+});
+
+test("UX4 fast path returns keyboard focus to the initiating rail action", async ({ page }) => {
+  await page.goto(`${shellOnBase}${aircraftPath}`);
+  const rail = page.getByRole("navigation", { name: "Operational fast path" });
+  const trigger = rail.getByRole("button", { name: "CHECKLIST", exact: true });
+
+  await trigger.focus();
+  await trigger.click();
+  const panel = page.getByRole("dialog", { name: "Operational fast path" });
+  await expect(panel).toBeVisible();
+
+  await page.keyboard.press("Escape");
+  await expect(panel).toHaveCount(0);
+  await expect(trigger).toBeFocused();
+});
