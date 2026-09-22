@@ -2,7 +2,7 @@
   width: 100%;
   display: grid;
   gap: var(--ft-space-5);
-  padding: var(--ft-space-5);
+  padding: var(--ft-space-6);
   background: var(--ft-bg-shell);
   color: var(--ft-text-primary);
 }
@@ -173,8 +173,8 @@
 
 .action {
   border: var(--ft-rule-strong);
-  background: var(--ft-text-primary);
-  color: var(--ft-bg-panel);
+  background: var(--ft-bg-operational);
+  color: var(--ft-text-primary);
   cursor: pointer;
 }
 
