@@ -20,6 +20,11 @@ export function FtTopBar({
   activeFlight?: ActiveFlight | null;
   navigationControl: ReactNode;
 }>) {
+  const current = activeFlight?.lifecycle === "ACTIVE" ? activeFlight : null;
+  const flightStatus = current
+    ? `ACTIVE FLIGHT · ${current.departure.icao} → ${current.destination.icao}`
+    : "ACTIVE FLIGHT · NONE";
+
   return (
     <header className={styles.topBar}>
       <div className={styles.topBarNavControl}>{navigationControl}</div>
