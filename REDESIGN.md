@@ -1,4 +1,4 @@
-# FlyTally Training — Redesign Roadmap (W / P / C)
+# FlyTally Training — Redesign Roadmap (W / P / UX / C)
 
 **Status:** Active  
 **Last updated:** 2026-09-22  
@@ -9,7 +9,7 @@
 
 ## 0. Why this document exists
 
-The redesign sequence (W0–W3 → P0–P6 → C0–C4) was previously tracked across
+The redesign sequence (W0–W3 → P0–P7 → UX0–UX5 → C0–C4) was previously tracked across
 working handoff notes, chat contexts, and executable test contracts. This
 document consolidates all of them into one authoritative source.
 
@@ -83,6 +83,8 @@ runtime deployment:          dpl_EqXB1gwyWrG3FmpUJZt16KAo61DK (P4 runtime SHA 73
 **Pre-P4 baseline:** 252 passed (63 × 4)  
 **P4.7 verified:** 284 passed (71 × 4)
 
+**Production status:** the new shell is live for the single owner as a **development preview**. This is not the final visual design and is not the final release-complete state. Functional slices continue first, followed by an explicit full-shell UX/visual integration phase before legacy removal.
+
 ---
 
 ## 4. Remaining phases
@@ -107,9 +109,8 @@ fastPathTabs = ["checklist", "qrh", "perf", "ref"]
 | P5.4 | Checklist operational convergence (one `checklist-session` contract) | M |
 | P5.5 | Legacy checklist state compatibility (`flytally:flight-checklist:v1:*` → shared session) | **M/L** |
 | P5.6 | Acceptance / fast-path closure (Node + 4× Playwright) | M |
-| P5.7 | REF fast-path closure — **owner to be decided before C4a** | TBD |
 
-**P5 overall = M** (L if REF is included in P5).
+**P5 overall = M/L.** REF is no longer part of P5; it has an explicit standalone owner in P7.
 
 **P5 exit criteria:**
 - W3 tab contract unchanged
@@ -123,9 +124,7 @@ fastPathTabs = ["checklist", "qrh", "perf", "ref"]
 - No aircraft-specific branch
 - Node + 4× Playwright green
 
-**REF decision (blocker before C4a):** the persistent fast path must not ship
-with a placeholder. Either P5.7 is added to P5 or REF gets its own slice with
-an explicit owner.
+**REF decision:** resolved. REF is owned by standalone **P7** and must be complete before final release / C4b.
 
 ### 4.2 P6 — Training hub + Scenario + Debrief
 
@@ -167,26 +166,94 @@ its own slice.
 - Flag OFF legacy unchanged
 - Generic fixture + Node + 4× Playwright green
 
-### 4.3 Cleanup (C0–C3)
+### 4.3 P7 — Reference / REF fast-path closure
+
+P7 owns the remaining `REF` slot in the frozen W3 fast-path contract. It is a
+standalone slice because reference browsing is a different concern from P5
+operational checklist/QRH work and from P6 training scenarios.
+
+P7 must reuse existing source-governed reference/quick-reference content and
+routes where possible. It must not create a parallel reference content model
+without a proven blocker.
+
+| Sub-slice | Content | Size |
+|---|---|---|
+| P7.1 | Read-only inventory: current reference routes, content contracts, W3 REF placeholder, deep-link behavior | S |
+| P7.2 | Generic REF adapter / presentation contract using existing governed reference content | M |
+| P7.3 | Fast-path REF presentation + reference-page convergence | M |
+| P7.4 | Deterministic fixture + Node guards + 4× Playwright acceptance | M |
+
+**P7 overall = M.**
+
+**P7 exit criteria:**
+- W3 `REF` is no longer a placeholder
+- Existing reference content remains source-governed
+- No aircraft-specific rendering branch
+- No second reference content model unless explicitly justified
+- Deep links and selected-aircraft/variant context are preserved
+- Flag OFF legacy behavior remains available until C4b
+- Node + 4× Playwright green
+
+### 4.4 UX0–UX5 — Full-shell visual integration and UX closure
+
+> **This phase is mandatory. The current production UI is a functional
+> development scaffold, not the intended final visual state.**
+
+The current W/P work deliberately prioritized architecture, route ownership,
+state boundaries, content correctness, and deterministic acceptance. The
+information architecture and functional contracts are valuable and remain
+frozen where explicitly stated, but the visual composition is **not frozen**.
+
+The final UX phase runs **after P5, P6 and P7**, so it can redesign the complete
+product rather than polishing incomplete pages one by one.
+
+| Slice | Content | Size |
+|---|---|---|
+| UX0 | Full-shell visual inventory using real production screenshots on desktop, iPad landscape/portrait and narrow mobile; define target visual principles and measurable layout issues | S |
+| UX1 | Shell composition: content max-width, sidebar proportions, aircraft header/top bar, search/active-flight placement, fast-path rail scale and density | M |
+| UX2 | Design hierarchy: typography scale, spacing rhythm, surfaces/cards, borders, primary/secondary actions, empty/loading/error states | M |
+| UX3 | Cross-page harmonization across P0–P7 so launch, Procedures, Performance, Systems, Training, Flight and Reference feel like one product | L |
+| UX4 | Responsive + interaction polish: desktop, iPad, phone, keyboard/focus, touch targets, reduced motion, forced colors, screen-reader semantics | M/L |
+| UX5 | Final visual acceptance: screenshot review, regression checks, performance baseline/budget, accessibility sign-off and final product-owner approval | M |
+
+**UX overall = L.**
+
+**Frozen during UX:** top-level IA (`AIRCRAFT / PROCEDURES / PERFORMANCE / TRAINING / FLIGHT`), W3 fast-path semantics (`CHECKLIST / QRH / PERF / REF`), generic aircraft-agnostic runtime contracts, source governance, and session/state ownership.
+
+**Explicitly allowed to change during UX:** shell dimensions, density, visual
+hierarchy, typography, card/panel composition, spacing, responsive behavior,
+button emphasis, page composition, fast-path visual treatment, and other
+presentation details.
+
+**UX exit criteria:**
+- No page is treated as visually final merely because its functional P-slice is green
+- Desktop no longer reads as an under-filled technical wireframe
+- Main content uses intentional width/density rather than viewport-wide empty space
+- Shell, page headers, actions, panels and fast path have one coherent hierarchy
+- All P0–P7 destinations pass desktop/iPad/mobile screenshot review
+- Keyboard, focus, screen reader, contrast, reduced motion, forced colors and touch targets pass
+- Performance baseline and agreed regression budget pass
+- Product owner explicitly approves the final visual shell before C4b
+
+### 4.5 Cleanup (C0–C3)
 
 | ID | Name | Depends on | Blocker |
 |---|---|---|---|
-| C0 | Operational offline data package | P0–P6 | Yes (before C4a) |
+| C0 | Operational offline data package | P0–P7 + UX0–UX5 | Yes (before C4b) |
 | C1 | Old route compatibility closure | C0 | Yes |
 | C2 | Remove proven-unused legacy nav/UI | C1 | Yes |
 | C3 | Update architecture docs | C2 | Yes |
 
-### 4.4 C4 — Release flip (staged)
+### 4.6 C4 — Live preview → final release / legacy removal
 
-> **Critical:** C4 is not one step. Canary, global flip, and flag removal
-> are three distinct stages separated by observation windows.
+> **Current reality:** the global flag is already ON for this single-user production instance. Treat C4a.1 as a live development-preview state, not as proof that the redesign is complete. Functional closure (P5–P7), UX0–UX5 and C0–C3 still precede C4b.
 
 | Stage | Action | Rollback | Minimum duration |
 |---|---|---|---|
 | **C4a.0a** | **SKIPPED** — single-user production, direct global flip (2026-09-22) | — | — |
 | **C4a.0b** | **SKIPPED** — no separate beta cohort in single-user production | — | — |
-| **C4a.1** | Global `FT_NEW_SHELL=true` — **ACTIVE since 2026-09-22** | Env change back to `false` | ≥ 2 weeks |
-| **C4b** | Remove flag, delete legacy code | Code rollback / redeploy only | — |
+| **C4a.1** | Global `FT_NEW_SHELL=true` — **ACTIVE development preview since 2026-09-22** | Env change back to `false` | Until P5–P7 + UX0–UX5 + C0–C3 are complete |
+| **C4b** | Finalize new shell as canonical; remove flag and proven-unused legacy code | Code rollback / redeploy only | Only after final acceptance |
 
 **Canary mechanism:** server-side account-subject allowlist
 (`FT_NEW_SHELL_CANARY_SUBJECTS`). Allowlist must never enter the client bundle.
@@ -199,18 +266,15 @@ is possible, without ability to run both shells in parallel.
 
 ## 5. Release checklist
 
-### 5.1 C4a — pre-conditions (before any flip)
+### 5.1 Final-release / C4b hardening checklist
 
-**Note:** In the current single-user production context, staged canary/beta was
-explicitly skipped by owner decision. Global `FT_NEW_SHELL=true` was performed
-directly on 2026-09-22 so the new shell can be evaluated live. The unchecked
-items below remain release-hardening work before any future multi-user rollout
-or C4b legacy removal.
+**Note:** In the current single-user production context, staged canary/beta was explicitly skipped by owner decision. Global `FT_NEW_SHELL=true` was performed directly on 2026-09-22 so the incomplete new shell can be evaluated live. **This does not mean the UI is final.** All unchecked items below remain mandatory before the redesign is considered release-complete or before C4b legacy removal.
 
 **Code & tests**
-- [ ] P0–P6 merged
+- [ ] P0–P7 merged
+- [ ] UX0–UX5 completed and product-owner approved
 - [ ] C0–C3 merged
-- [ ] REF fast-path slot has explicit owner and is not a placeholder
+- [ ] All four W3 fast-path slots (`CHECKLIST / QRH / PERF / REF`) are functional and not placeholders
 - [ ] `npm run verify` green on `main`
 - [ ] Current Playwright suite green on all 4 projects (P4 baseline: 284/284)
 - [ ] No `skip` in redesign-specific tests
@@ -257,19 +321,26 @@ or C4b legacy removal.
 - [ ] Bug report channel communicated
 - [ ] Beta cohort identified (subjects, not emails)
 
-### 5.2 C4a.1 — global flip pre-conditions
+### 5.2 Live development-preview acceptance
 
-- [ ] C4a.0a ran 24–72 h with no rollback
-- [ ] C4a.0b ran ≥ 7 days with no rollback
-- [ ] No P0–P6 regression issues open
-- [ ] Beta feedback reviewed and triaged
+- [x] Single-user production override documented
+- [x] `FT_NEW_SHELL=true` active in production
+- [x] P0–P4 functional shell available for owner evaluation
+- [ ] P5 operational fast-path closure complete
+- [ ] P6 Training / Scenario / Debrief complete
+- [ ] P7 REF closure complete
+- [ ] UX0–UX5 complete
+- [ ] No open P0–P7 functional regressions
 
 ### 5.3 C4b — flag removal pre-conditions
 
-- [ ] C4a.1 ran ≥ 2 weeks with no rollback event
-- [ ] Legacy route traffic measured (~0)
+- [ ] P5–P7 complete
+- [ ] UX0–UX5 complete and visually approved
+- [ ] C0–C3 complete
+- [ ] Final-release hardening checklist (§5.1) green
+- [ ] Legacy route traffic measured (~0) where meaningful
 - [ ] Data migration completed (§7)
-- [ ] Architecture docs already reflect new shell as canonical
+- [ ] Architecture docs reflect new shell as canonical
 - [ ] Changelog entry written
 
 ---
@@ -328,12 +399,13 @@ IDs, "legacy cannot resurrect after canonical write".
 
 | Risk | Impact | Mitigation |
 |---|---|---|
-| REF slot has no owner | Persistent fast path ships with placeholder | Decide REF ownership before C4a (§4.1) |
+| REF slot incomplete | Persistent fast path ships with placeholder | P7 owns REF; complete before final release/C4b |
 | Legacy `OperationalChecklist` migration | Users lose in-progress state on flip | P5.5 (M/L), full invariant suite |
 | GitHub Actions billing/runner blocked | Cannot accept external PRs safely | Resolve in GitHub Billing before C4a |
 | No error/regression signal | Blind flip, slow rollback trigger | `/api/release-state` + error visibility before C4a |
-| No performance baseline | Cannot detect regression after flip | Baseline + budget before C4a |
-| No a11y audit | Accessibility regressions reach users | Full-shell a11y gate before C4a |
+| Current UI is not release-quality | Functional shell reads as a sparse technical wireframe on desktop | Mandatory UX0–UX5 full-shell redesign after P5–P7 |
+| No performance baseline | Cannot detect regression before final acceptance | UX5 baseline + budget before C4b |
+| No a11y audit | Accessibility regressions reach users | UX4/UX5 full-shell a11y gate before C4b |
 | `ProcedureLinearRunner` a11y debt | Compounds in P5+ e2e | Dedicated cleanup issue |
 | Learjet `/fly` fail-closed 404 | User-visible on flip | Content governance, tracked separately |
 | Learjet `/systems` fail-closed 404 in new shell | Published `systems` module is absent in production content | Publish governed systems content; not a P3 runtime regression |
@@ -347,7 +419,7 @@ IDs, "legacy cannot resurrect after canonical write".
 | Post-C4b rollback mechanism | **Defined:** no flag rollback; normal code rollback / redeploy only |
 | Release communication plan | **Not defined** |
 | Formal standalone C4 acceptance document | **Does not exist**; §5 is the current redesign release checklist |
-| S/M/L estimates for P5–C4 | **P5/P6 defined; C0–C4 still TBD** |
+| S/M/L estimates for remaining work | **P5 M/L, P6 L, P7 M, UX L; C0–C4 still TBD** |
 | Beta feedback handling | Review/triage is required before C4a.1; channel and operating process are **not defined** |
 
 ---
@@ -374,3 +446,4 @@ IDs, "legacy cannot resurrect after canonical write".
 | 2026-09-22 | P4.7 verified (284/284). P5/P6 scope added. C4 split into C4a.0a/0b/1 + C4b. REF, migration, CI identified as C4a blockers. | Filip Točík + DeepSeek + ChatGPT |
 | 2026-09-22 | P4 merged via PR #181 as squash commit `738b0c59`; status `merged` `gated`. | Filip Točík + DeepSeek + ChatGPT |
 | 2026-09-22 | Single-user production override: staged canary/beta skipped; global `FT_NEW_SHELL=true` activated on deployment `dpl_EqXB1gwyWrG3FmpUJZt16KAo61DK`. | Filip Točík + DeepSeek + ChatGPT |
+| 2026-09-22 | Roadmap corrected after live visual review: current shell classified as development preview, REF assigned to P7, and mandatory UX0–UX5 full-shell visual integration added before C4b. | Filip Točík + ChatGPT |
