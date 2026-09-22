@@ -21,7 +21,7 @@ test("UX0 inventory preserves the frozen five-destination IA", () => {
 test("UX0 explicitly classifies the current shell as a development scaffold", () => {
   const inventory = read("UX0_VISUAL_INVENTORY.md");
 
-  assert.match(inventory, /functional development scaffold/i);
+  assert.match(inventory, /functional\s+development scaffold/i);
   assert.match(inventory, /technical wireframe/i);
   assert.doesNotMatch(inventory, /current UI is final/i);
 });
