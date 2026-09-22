@@ -140,6 +140,7 @@ export async function FtShell({
           aircraftId={aircraftId}
           aircraftIdentity={aircraftIdentity}
           trainingProfileLabel={trainingProfileLabel}
+          activeFlight={activeFlight}
           navigationControl={<FtNavDrawer aircraftId={aircraftId} />}
         />
 

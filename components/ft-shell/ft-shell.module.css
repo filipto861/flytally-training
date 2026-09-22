@@ -259,10 +259,16 @@
   }
 
   .fastPathRail {
-    bottom: max(var(--ft-space-2), env(safe-area-inset-bottom));
-    width: calc(100% - var(--ft-space-4));
-    min-height: var(--ft-fast-path-height-ipad);
-    margin-block: var(--ft-space-2);
+    bottom: 0;
+    width: 100%;
+    min-height: calc(
+      var(--ft-fast-path-height-ipad) + env(safe-area-inset-bottom)
+    );
+    margin-block: 0;
+    padding-bottom: env(safe-area-inset-bottom);
+    border-inline: 0;
+    border-bottom: 0;
+    border-radius: 0;
     background: var(--ft-bg-panel);
   }
 

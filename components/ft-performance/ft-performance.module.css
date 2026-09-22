@@ -17,7 +17,6 @@
 }
 
 .pageHeader h1,
-.explanation h2,
 .presentation h2 {
   margin: 0;
   color: var(--ft-text-primary);
@@ -110,8 +109,8 @@
 
 .metricHint,
 .emptyState p,
-.explanation p,
-.explanation li {
+.explanationBody p,
+.explanationBody li {
   margin: 0;
   color: var(--ft-text-secondary);
   line-height: 1.5;
@@ -226,9 +225,22 @@
   line-height: 1.45;
 }
 
-.explanation h2 {
-  font-size: 1.125rem;
+.explanationSummary {
+  min-height: var(--ft-touch-target-min);
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: var(--ft-text-primary);
+  font-family: var(--ft-font-ui);
+  font-size: 1rem;
   font-weight: 700;
+}
+
+.explanationBody {
+  display: grid;
+  gap: var(--ft-space-3);
+  padding-top: var(--ft-space-3);
+  border-top: var(--ft-rule-default);
 }
 
 .sourceList {
