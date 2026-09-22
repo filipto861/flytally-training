@@ -114,6 +114,13 @@ export default async function Ux6PreviewPage({
                 Dark
               </Link>
             </nav>
+            <nav className={styles.previewSwitcher} aria-label="UX6 reference screens">
+              <Link className={styles.previewScreenActive} href={`/ux6-preview?theme=${selectedTheme}`}>Procedures</Link>
+              <Link className={styles.previewScreenLink} href={`/ux6-preview/performance?theme=${selectedTheme}`}>Performance</Link>
+              <Link className={styles.previewScreenLink} href={`/ux6-preview/flight?theme=${selectedTheme}`}>Flight</Link>
+              <Link className={styles.previewScreenLink} href={`/ux6-preview/library?theme=${selectedTheme}`}>Library</Link>
+              <Link className={styles.previewScreenLink} href={`/ux6-preview/systems?theme=${selectedTheme}`}>Systems</Link>
+            </nav>
           </div>
         </header>
 
