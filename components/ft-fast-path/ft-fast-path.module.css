@@ -21,7 +21,7 @@
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   border-inline-start: var(--ft-rule-strong);
-  background: var(--ft-bg-workspace);
+  background: var(--ft-bg-panel);
   color: var(--ft-text-primary);
   box-shadow: calc(var(--ft-space-2) * -1) 0 var(--ft-space-6) color-mix(in srgb, var(--ft-text-primary) 10%, transparent);
   animation: ft-fast-path-slide-in var(--ft-motion-panel) ease-out;
