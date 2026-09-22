@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 
+import type { ActiveFlight } from "@/lib/active-flight/types";
+
 import { FtFastPathIndicator } from "@/components/ft-fast-path/FtFastPathIndicator";
 import { FtSearchOverlay } from "@/components/ft-search/FtSearchOverlay";
 
@@ -9,11 +11,13 @@ export function FtTopBar({
   aircraftId,
   aircraftIdentity,
   trainingProfileLabel,
+  activeFlight,
   navigationControl,
 }: Readonly<{
   aircraftId: string;
   aircraftIdentity: string;
   trainingProfileLabel: string;
+  activeFlight?: ActiveFlight | null;
   navigationControl: ReactNode;
 }>) {
   return (
@@ -29,7 +33,7 @@ export function FtTopBar({
         <FtSearchOverlay aircraftId={aircraftId} aircraftIdentity={aircraftIdentity} />
         <FtFastPathIndicator />
         <span className={styles.flightPlaceholder} aria-label="Active flight status">
-          ACTIVE FLIGHT · NONE
+          {flightStatus}
         </span>
       </div>
     </header>
