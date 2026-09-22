@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import {
@@ -267,4 +268,52 @@ test("P4 Learn exposes graph branch content as read-only training material", () 
 
   assert.notEqual(model.nodes[0]?.id, procedure.graph.entryNodeId);
   assert.equal(JSON.stringify(procedure), before);
+});
+
+
+const operateSource = readFileSync(
+  new URL("../components/ft-procedures/FtProcedureOperate.tsx", import.meta.url),
+  "utf8",
+);
+
+test("P4 Operate delegates linear ordering and completion to the existing procedure controller", () => {
+  assert.match(operateSource, /ProcedureLinearRunner/);
+  assert.match(operateSource, /ProcedureGraphRunner/);
+
+  for (const pattern of [
+    /\buseState\b/,
+    /\buseEffect\b/,
+    /\buseReducer\b/,
+    /sessionStorage/,
+    /localStorage/,
+    /window\.location\.hash/,
+    /hashchange/,
+    /history\.replaceState/,
+    /procedureStepKey/,
+    /toggleLinearStep/,
+  ]) {
+    assert.doesNotMatch(
+      operateSource,
+      pattern,
+      `FtProcedureOperate must delegate linear execution; matched ${pattern}`,
+    );
+  }
+});
+
+test("P4 Operate delegates graph decisions to the existing graph runtime without adding branch logic", () => {
+  for (const pattern of [
+    /evaluateDecision/,
+    /selectBranch/,
+    /option\.label\s*===/,
+    /option\.targetNodeId\s*===/,
+    /advanceProcedureGraph/,
+    /selectProcedureGraphDecision/,
+    /switch\s*\([^)]*(?:option|decision|branch)/i,
+  ]) {
+    assert.doesNotMatch(
+      operateSource,
+      pattern,
+      `FtProcedureOperate must delegate graph execution; matched ${pattern}`,
+    );
+  }
 });

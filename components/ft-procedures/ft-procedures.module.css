@@ -206,3 +206,17 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+.operateSection {
+  min-width: 0;
+  display: grid;
+  gap: var(--ft-space-4);
+}
+
+.operateBody {
+  min-width: 0;
+  padding: var(--ft-space-3);
+  border: var(--ft-rule-default);
+  border-radius: var(--ft-radius-2);
+  background: var(--ft-bg-panel);
+}
