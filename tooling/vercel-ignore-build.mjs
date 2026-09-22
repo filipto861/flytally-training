@@ -1,6 +1,7 @@
 import { spawnSync } from "node:child_process";
 
 const PRODUCTION_BRANCH = "main";
+const UX6_PREVIEW_BRANCH = "preview/ux6-design-system";
 const normalize = (value) => String(value ?? "").replaceAll("\\", "/").replace(/^\.\/+/, "");
 
 function git(args) {
@@ -31,9 +32,12 @@ function currentGitRef() {
   return String(process.env.VERCEL_GIT_COMMIT_REF ?? gitValue(["branch", "--show-current"])).trim();
 }
 
-function isProductionBuild() {
+function isBuildEnabledForRef() {
   const currentRef = currentGitRef();
-  return process.env.VERCEL_ENV === "production" || process.env.VERCEL_TARGET_ENV === "production" || currentRef === PRODUCTION_BRANCH;
+  return process.env.VERCEL_ENV === "production" ||
+    process.env.VERCEL_TARGET_ENV === "production" ||
+    currentRef === PRODUCTION_BRANCH ||
+    currentRef === UX6_PREVIEW_BRANCH;
 }
 
 function resolveDiffBase() {
@@ -56,7 +60,7 @@ function filesFromArguments(argv) {
   return marker === -1 ? null : argv.slice(marker + 1).filter(Boolean);
 }
 
-if (!isProductionBuild()) {
+if (!isBuildEnabledForRef()) {
   const ref = currentGitRef() || "non-production ref";
   console.log(`Skipping Vercel preview build for ${ref}. Feature branches are validated by GitHub Actions; Vercel builds production only.`);
   process.exit(0);

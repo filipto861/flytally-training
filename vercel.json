@@ -5,7 +5,8 @@
   "git": {
     "deploymentEnabled": {
       "*": false,
-      "main": true
+      "main": true,
+      "preview/ux6-design-system": true
     }
   },
   "ignoreCommand": "node tooling/vercel-ignore-build.mjs"
