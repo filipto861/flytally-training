@@ -183,3 +183,26 @@ test("P5.2 QRH adapter reuses the operational DTO and strips training interactio
   assert.match(serialized, /generic-source/);
   assert.doesNotMatch(serialized, /Training summary|Training setup|Recognize the condition|Review the response|Training prompt|Training explanation/);
 });
+
+
+test("P5.3 shell loads only source-authoritative QRH data through the P5 adapter", () => {
+  const shell = read("components/ft-shell/FtShell.tsx");
+
+  assert.match(shell, /getPublishedAircraftModule<unknown>[\s\S]*"abnormal"/);
+  assert.match(shell, /getOperationalFlightReadiness\(aircraftId\)/);
+  assert.match(shell, /resolveFastPathQrh\([\s\S]*operationalReadiness\.abnormal\.ready/);
+  assert.match(shell, /emergency=\{emergency\}/);
+  assert.doesNotMatch(shell, /normalizeLegacyAbnormalTraining|normalizeUniversalAbnormalEmergency/);
+});
+
+test("P5.3 fills the existing QRH slot without changing W3 or REF ownership", () => {
+  const panel = read("components/ft-fast-path/FtFastPathPanel.tsx");
+  const qrh = read("components/ft-fast-path/FtFastPathQrh.tsx");
+
+  assert.match(panel, /activeTab === "qrh"/);
+  assert.match(panel, /<FtFastPathQrh emergency=\{emergency\} \/>/);
+  assert.match(panel, /activeTab === "perf"/);
+  assert.match(panel, /<FtFastPathPlaceholder tab=\{activeTab\} \/>/);
+  assert.match(qrh, /<OperationalEmergency emergency=\{emergency\} \/>/);
+  assert.match(qrh, /QRH unavailable/);
+});
