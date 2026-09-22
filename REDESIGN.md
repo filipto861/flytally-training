@@ -203,7 +203,7 @@ without a proven blocker.
 - Flag OFF legacy behavior remains available until C4b
 - Node + 4× Playwright green
 
-### 4.4 UX0–UX5 — Full-shell visual integration and UX closure — **NEXT**
+### 4.4 UX0–UX5 — Full-shell visual integration and UX closure — **ACTIVE**
 
 > **This phase is mandatory. The current production UI is a functional
 > development scaffold, not the intended final visual state.**
@@ -218,9 +218,9 @@ product rather than polishing incomplete pages one by one.
 
 | Slice | Content | Size |
 |---|---|---|
-| UX0 | Full-shell visual inventory using real production screenshots on desktop, iPad landscape/portrait and narrow mobile; define target visual principles and measurable layout issues | S |
-| UX1 | Shell composition: content max-width, sidebar proportions, aircraft header/top bar, search/active-flight placement, fast-path rail scale and density | M |
-| UX2 | Design hierarchy: typography scale, spacing rhythm, surfaces/cards, borders, primary/secondary actions, empty/loading/error states | M |
+| UX0 | Full-shell visual inventory using real production screenshots on desktop, iPad landscape/portrait and narrow mobile; define target visual principles and measurable layout issues | S — **COMPLETE** |
+| UX1 | Shell composition: content max-width, sidebar proportions, aircraft header/top bar, search/active-flight placement, fast-path rail scale and density | M — **COMPLETE** |
+| UX2 | Design hierarchy: typography scale, spacing rhythm, surfaces/cards, borders, primary/secondary actions, empty/loading/error states | M — **NEXT** |
 | UX3 | Cross-page harmonization across P0–P7 so launch, Procedures, Performance, Systems, Training, Flight and Reference feel like one product | L |
 | UX4 | Responsive + interaction polish: desktop, iPad, phone, keyboard/focus, touch targets, reduced motion, forced colors, screen-reader semantics | M/L |
 | UX5 | Final visual acceptance: screenshot review, regression checks, performance baseline/budget, accessibility sign-off and final product-owner approval | M |
@@ -453,3 +453,4 @@ fails closed, and legacy state cannot resurrect after canonical state exists.
 | 2026-09-22 | P5 merged via PR #182 as squash commit `b9e910a4`; local gate 908/907/0/1 + build PASS + Playwright 288/288. | Filip Točík + ChatGPT |
 | 2026-09-22 | P6 merged via PR #183 as squash commit `28a0c014`; targeted 14/14, local gate 922/921/0/1 + build PASS + Playwright 312/312. | Filip Točík + ChatGPT |
 | 2026-09-22 | P7 merged via PR #184 as squash commit `5488a9da`; targeted 10/10, local gate 932/931/0/1 + build PASS + Playwright 332/332. Functional P0–P7 sequence complete; UX0 begins. | Filip Točík + ChatGPT |
+| 2026-09-22 | UX0 + UX1 merged via PR #185 as squash commit `ed4f039d`; targeted 10/10, local gate 942/941/0/1 + build PASS + Playwright 332/332. UX2 becomes next. | Filip Točík + ChatGPT |
