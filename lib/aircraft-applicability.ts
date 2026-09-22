@@ -350,7 +350,30 @@ export function filterSystemsForConfiguration(
 ): AircraftSystemsContent {
   return {
     ...content,
-    systems: content.systems.filter((system) => matchesAircraftApplicability(system.applicability, configuration)),
+    systems: content.systems
+      .filter((system) => matchesAircraftApplicability(system.applicability, configuration))
+      .map((system) => {
+        if (!system.schematic) return system;
+
+        const nodes = system.schematic.nodes.filter((node) =>
+          matchesAircraftApplicability(node.applicability, configuration),
+        );
+        const survivingNodeIds = new Set(nodes.map((node) => node.id));
+        const edges = system.schematic.edges.filter((edge) =>
+          matchesAircraftApplicability(edge.applicability, configuration)
+          && survivingNodeIds.has(edge.from)
+          && survivingNodeIds.has(edge.to),
+        );
+
+        return {
+          ...system,
+          schematic: {
+            ...system.schematic,
+            nodes,
+            edges,
+          },
+        };
+      }),
   };
 }
 
