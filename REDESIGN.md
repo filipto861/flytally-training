@@ -61,23 +61,9 @@ document consolidates all of them into one authoritative source.
 | D0 | Active Flight domain | (D0 suite) | `29211612` | `merged` `gated` |
 | P2 | Performance presentation | `redesign-p2-performance.test.ts` | `1e4944c8` | `merged` `gated` |
 | P3 | Systems + 2D Interactive Schematic | `redesign-p3-systems.test.ts` | `8b4e53c8` | `merged` `gated` |
+| P4 | Procedures (Learn / Operate / Relevance) | `redesign-p4-procedures.test.ts` | `738b0c59` | `merged` `gated` |
 
-### 2.4 Procedures (P4) — in progress
-
-**Branch:** `feat/redesign-p4-procedures`  
-**Last commit:** `cff66a7d`  
-**Contract:** `redesign-p4-procedures.test.ts`
-
-| Sub-slice | Content | Status |
-|---|---|---|
-| P4.1 | Procedure presentation helpers | ✅ done |
-| P4.2 | Learn + Relevance views | ✅ done |
-| P4.3 | Operate wrapper | ✅ done |
-| P4.4 | Procedures page / index / detail | ✅ done |
-| P4.5 | ProcedureBrowser integration + route gating | ✅ done |
-| P4.6 | Deterministic procedures fixture | ✅ done (unit gate 884 / 883 / 0 / 1) |
-| P4.7 | Procedures acceptance (e2e) | ✅ done — 284/284 (2026-09-22) |
-| P4.8 | Final gate / PR / merge | 🔲 not started |
+**P4 verification:** `npm run verify` → 886 / 885 / 0 / 1, build PASS; Playwright 284/284 across desktop, mobile, iPad landscape and iPad portrait.
 
 **Known debt (out of P4 scope):** `ProcedureLinearRunner` toggle changes
 accessible name (`Complete` → `Uncheck`) together with `aria-pressed`. Pre-existing
@@ -88,8 +74,7 @@ frozen behavior. Candidate for a dedicated cleanup issue.
 ## 3. Current state
 
 ```
-main:                        8b4e53c8 (P3)
-feat/redesign-p4-procedures: cff66a7d (P4.7 verified)
+main:                        738b0c59 (P4 merged)
 production:                  FT_NEW_SHELL = OFF
 ```
 
@@ -379,3 +364,4 @@ IDs, "legacy cannot resurrect after canonical write".
 |---|---|---|
 | 2026-09-22 | Initial consolidation from working handoff notes | Filip Točík |
 | 2026-09-22 | P4.7 verified (284/284). P5/P6 scope added. C4 split into C4a.0a/0b/1 + C4b. REF, migration, CI identified as C4a blockers. | Filip Točík + DeepSeek + ChatGPT |
+| 2026-09-22 | P4 merged via PR #181 as squash commit `738b0c59`; status `merged` `gated`. | Filip Točík + DeepSeek + ChatGPT |
