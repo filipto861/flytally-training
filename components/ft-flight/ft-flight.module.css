@@ -1,7 +1,7 @@
 .flightPage {
   width: 100%;
   display: grid;
-  gap: var(--ft-space-6);
+  gap: var(--ft-space-5);
   padding: var(--ft-space-6);
   background: var(--ft-bg-shell);
   color: var(--ft-text-primary);
@@ -17,6 +17,7 @@
   margin: 0;
   color: var(--ft-text-secondary);
   font-family: var(--ft-font-data);
+  font-size: 0.78rem;
 }
 
 .pageHeader h1,
@@ -26,40 +27,45 @@
   margin: 0;
   color: var(--ft-text-primary);
   font-family: var(--ft-font-ui);
-  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .pageHeader h1 {
-  font-size: 1.75rem;
-  line-height: 1.2;
+  font-size: 1.875rem;
+  line-height: 1.15;
+  font-weight: 700;
 }
 
 .section h2,
 .brief h2 {
   font-size: 1.25rem;
-  line-height: 1.3;
+  line-height: 1.25;
+  font-weight: 700;
 }
 
 .briefSection h3 {
   font-size: 1rem;
   line-height: 1.3;
+  font-weight: 650;
 }
 
 .eyebrow {
   margin: 0;
   color: var(--ft-text-metadata);
   font-family: var(--ft-font-data);
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
 }
 
 .section,
 .brief {
   display: grid;
-  gap: var(--ft-space-3);
-  padding-block: var(--ft-space-4);
-  border-top: var(--ft-rule-strong);
+  gap: var(--ft-space-4);
+  padding: var(--ft-space-4);
+  border: var(--ft-rule-default);
+  border-radius: calc(var(--ft-radius-4) * 2);
+  background: var(--ft-bg-panel);
 }
 
 .brief {
@@ -69,8 +75,10 @@
 .briefSection {
   display: grid;
   gap: var(--ft-space-2);
-  padding-block: var(--ft-space-3);
-  border-top: var(--ft-rule-default);
+  padding: var(--ft-space-3);
+  border: var(--ft-rule-default);
+  border-radius: calc(var(--ft-radius-4) * 2);
+  background: var(--ft-bg-inset);
 }
 
 .emptyState,
@@ -80,6 +88,7 @@
 
 .emptyState {
   margin: 0;
+  line-height: 1.5;
 }
 
 .primaryAction {
@@ -89,18 +98,22 @@
   justify-content: center;
   width: fit-content;
   padding-inline: var(--ft-space-4);
-  border: var(--ft-rule-default);
+  border: var(--ft-rule-strong);
+  border-radius: calc(var(--ft-radius-4) * 2);
   background: var(--ft-bg-operational);
   color: var(--ft-text-primary);
   font-family: var(--ft-font-ui);
-  font-weight: 600;
+  font-weight: 700;
   text-decoration: none;
 }
 
 .performanceGrid {
+  overflow: hidden;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   border: var(--ft-rule-default);
+  border-radius: calc(var(--ft-radius-4) * 2);
+  background: var(--ft-bg-inset);
 }
 
 .performanceItem {
@@ -123,7 +136,8 @@
 
 .performanceLabel {
   color: var(--ft-text-secondary);
-  font-weight: 600;
+  font-size: 0.72rem;
+  font-weight: 700;
 }
 
 .performanceItem strong {
@@ -132,7 +146,7 @@
 }
 
 .performanceEmpty {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
 }
 
 .primaryAction:focus-visible {
@@ -140,12 +154,12 @@
   outline-offset: var(--ft-focus-offset);
 }
 
-
 .flightSummary,
 .lifecycleNotice {
   display: grid;
   gap: var(--ft-space-2);
   color: var(--ft-text-secondary);
+  line-height: 1.5;
 }
 
 .flightSummary strong,
@@ -174,10 +188,11 @@
   align-items: center;
   justify-content: center;
   border: var(--ft-rule-default);
+  border-radius: calc(var(--ft-radius-4) * 2);
   color: var(--ft-text-primary);
   background: var(--ft-bg-inset);
   font-family: var(--ft-font-ui);
-  font-weight: 600;
+  font-weight: 650;
   text-decoration: none;
 }
 
@@ -235,9 +250,11 @@
   gap: var(--ft-space-4);
   padding: var(--ft-space-5);
   border: var(--ft-rule-strong);
-  border-radius: var(--ft-radius-4);
-  background: var(--ft-bg-shell);
+  border-radius: calc(var(--ft-radius-4) * 2);
+  background: var(--ft-bg-panel);
   color: var(--ft-text-primary);
+  box-shadow: 0 var(--ft-space-2) var(--ft-space-6)
+    color-mix(in srgb, var(--ft-text-primary) 16%, transparent);
 }
 
 .dialogHeader {
@@ -274,7 +291,7 @@
   width: 100%;
   padding-inline: var(--ft-space-3);
   border: var(--ft-rule-default);
-  border-radius: var(--ft-radius-2);
+  border-radius: calc(var(--ft-radius-4) * 2);
   background: var(--ft-bg-inset);
   color: var(--ft-text-primary);
   font: inherit;
@@ -310,10 +327,9 @@
   outline-offset: var(--ft-focus-offset);
 }
 
-
 @media (max-width: 1180px), (hover: none) {
   .flightPage {
-    gap: var(--ft-space-5);
+    gap: var(--ft-space-4);
     padding: var(--ft-space-4);
   }
 
