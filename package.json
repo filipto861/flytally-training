@@ -19,7 +19,8 @@
     "scope:changed": "node tooling/ci-scope.mjs",
     "capture:ux6": "node scripts/capture-ux6-visuals.mjs",
     "verify:ux6": "npm run typecheck && npm test && npm run build && npx playwright test",
-    "verify:ux6:browser": "npm run build && npx playwright test"
+    "verify:ux6:browser": "npm run build && npx playwright test",
+    "capture:ux6:auth-state": "node scripts/capture-ux6-auth-state.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.0",
