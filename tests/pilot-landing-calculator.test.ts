@@ -16,8 +16,11 @@ const approachClimb = load("approach-climb-speed.json");
 const landingDistance = load("landing-distance-flaps40.json");
 const datasets = [vref, landingClimb, approachClimb, landingDistance];
 
-test("B10 landing definition binds the four source datasets explicitly", () => {
+test("B10 landing definition binds governed flaps and the four source datasets explicitly", () => {
   assert.deepEqual(definition, {
+    flapOptions: [
+      { value: "40", label: "40°" },
+    ],
     vrefDatasetId: "learjet-35a-vref",
     landingClimbDatasetId: "learjet-35a-landing-climb-speed",
     approachClimbDatasetId: "learjet-35a-approach-climb-speed",

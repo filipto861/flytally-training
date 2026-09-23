@@ -2,6 +2,8 @@ import type { CockpitOrientation } from "./cockpit-orientation";
 import type { StaticTrainingContentSeed } from "./static-content-repository";
 import type { AircraftChecklistContent,AircraftLimitationsContent,AircraftPerformanceContent,AircraftProcedureContent,AircraftSystemsContent,TrainingSourceReference } from "./universal-aircraft-content";
 import type { AircraftAbnormalEmergencyContent } from "./universal-abnormal-emergency";
+import type { BundledPerformancePackage } from "./performance-package";
+import type { PilotTakeoffCalculatorDefinition } from "./pilot-takeoff-calculator";
 
 export const browserTrainingAircraftId="browser-ci-aircraft";
 
@@ -103,6 +105,63 @@ const performance:AircraftPerformanceContent={
       },
     },
   ],
+};
+
+const browserTakeoffCalculator:PilotTakeoffCalculatorDefinition={
+  id:"browser-takeoff-summary",
+  title:"Browser CI Takeoff Calculator",
+  inputs:{
+    pressureAltitude:{label:"Pressure Altitude",unit:"ft"},
+    oat:{label:"OAT",unit:"°C"},
+    takeoffWeight:{label:"Takeoff Weight",unit:"lb"},
+    flaps:{label:"Flaps"},
+    antiIce:{label:"Anti-ice"},
+  },
+  n1:{
+    antiIceOff:{
+      datasetId:"browser-p2-takeoff-summary",
+      outputKey:"n1Percent",
+      inputs:[{input:"takeoffWeight",axisKey:"takeoffWeight"}],
+    },
+  },
+  flapOptions:[
+    {
+      value:"8",
+      label:"8°",
+      v1:{
+        antiIceOff:{
+          datasetId:"browser-p2-takeoff-summary",
+          outputKey:"v1",
+          inputs:[{input:"takeoffWeight",axisKey:"takeoffWeight"}],
+        },
+      },
+      takeoffDistance:{
+        antiIceOff:{
+          datasetId:"browser-p2-takeoff-summary",
+          outputKey:"takeoffDistance",
+          inputs:[{input:"takeoffWeight",axisKey:"takeoffWeight"}],
+        },
+      },
+      vr:{
+        datasetId:"browser-p2-takeoff-summary",
+        outputKey:"vr",
+        inputs:[{input:"takeoffWeight",axisKey:"takeoffWeight"}],
+      },
+      v2:{
+        datasetId:"browser-p2-takeoff-summary",
+        outputKey:"v2",
+        inputs:[{input:"takeoffWeight",axisKey:"takeoffWeight"}],
+      },
+    },
+  ],
+  placeholders:[],
+  disclaimer:"Deterministic browser test fixture only.",
+};
+
+export const browserTrainingPerformancePackage:BundledPerformancePackage={
+  aircraftId:browserTrainingAircraftId,
+  content:performance,
+  takeoffCalculator:browserTakeoffCalculator,
 };
 
 

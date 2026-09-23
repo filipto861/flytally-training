@@ -77,7 +77,7 @@ test("P2 builds the performance context from the Active Flight dependency snapsh
     aircraftId: "browser-ci-aircraft",
     dependencySnapshotId: "afd1:12345678",
     weight: { value: 12000, unit: "lb" },
-    runway: { identifier: "24" },
+    runway: { identifier: "24", airportIcao: "LKPR" },
     configuration: { flaps: "8", antiIce: false },
     weather: null,
   });

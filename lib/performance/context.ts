@@ -5,6 +5,22 @@ export type FlightPerformanceWeather = {
   readonly oat: number;
 };
 
+export type TakeoffPerformanceSetup = {
+  readonly runway: {
+    readonly identifier: string;
+    readonly airportIcao: string;
+  };
+  readonly weight: {
+    readonly value: number;
+    readonly unit: "kg" | "lb";
+  };
+  readonly configuration: {
+    readonly flaps: string;
+    readonly antiIce: boolean;
+  };
+  readonly weather: FlightPerformanceWeather | null;
+};
+
 export type FlightPerformanceContext = {
   readonly activeFlightId: string;
   readonly aircraftId: string;
@@ -15,6 +31,7 @@ export type FlightPerformanceContext = {
   };
   readonly runway: {
     readonly identifier: string;
+    readonly airportIcao?: string;
   };
   readonly configuration: {
     readonly flaps: string;
@@ -39,6 +56,21 @@ function fnv1a(value: string): string {
   return "p2:" + (hash >>> 0).toString(16).padStart(8, "0");
 }
 
+export function buildTakeoffPerformanceContext(
+  activeFlight: ActiveFlight,
+  setup: TakeoffPerformanceSetup,
+): FlightPerformanceContext {
+  return {
+    activeFlightId: activeFlight.id,
+    aircraftId: activeFlight.aircraftId,
+    dependencySnapshotId: activeFlight.performanceDependency.snapshotId,
+    weight: setup.weight,
+    runway: setup.runway,
+    configuration: setup.configuration,
+    weather: setup.weather,
+  };
+}
+
 export function buildPerformanceContext(
   activeFlight: ActiveFlight,
 ): FlightPerformanceContext | null {
@@ -48,7 +80,10 @@ export function buildPerformanceContext(
     aircraftId: activeFlight.aircraftId,
     dependencySnapshotId: activeFlight.performanceDependency.snapshotId,
     weight: activeFlight.weight,
-    runway: activeFlight.runway,
+    runway: {
+      identifier: activeFlight.runway.identifier,
+      airportIcao: activeFlight.departure.icao,
+    },
     configuration: {
       flaps: activeFlight.configuration.flaps,
       antiIce: activeFlight.configuration.antiIce === true,
@@ -107,12 +142,17 @@ export function diffPerformanceContext(
     });
   }
 
-  if (stored.runway.identifier !== current.runway.identifier) {
+  if (
+    stored.runway.identifier !== current.runway.identifier
+    || stored.runway.airportIcao !== current.runway.airportIcao
+  ) {
+    const runwayLabel = (context: FlightPerformanceContext) =>
+      [context.runway.airportIcao, context.runway.identifier].filter(Boolean).join(" · ");
     changes.push({
       key: "runway",
       label: "Runway",
-      before: stored.runway.identifier,
-      after: current.runway.identifier,
+      before: runwayLabel(stored),
+      after: runwayLabel(current),
     });
   }
 

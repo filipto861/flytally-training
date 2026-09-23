@@ -204,6 +204,193 @@
     color-mix(in srgb, var(--ft-focus) 20%, transparent);
 }
 
+
+.setupGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ft-space-3);
+}
+
+.setupField {
+  min-width: 0;
+  display: grid;
+  gap: var(--ft-space-2);
+  color: var(--ft-text-secondary);
+  font-size: 0.78rem;
+  font-weight: 650;
+}
+
+.setupField > span:first-child {
+  color: var(--ft-text-secondary);
+}
+
+.setupField select,
+.inputWithUnit {
+  min-height: var(--ft-touch-target-min);
+  width: 100%;
+  box-sizing: border-box;
+  border: var(--ft-rule-default);
+  border-radius: var(--ft-radius-4);
+  background: var(--ft-bg-inset);
+  color: var(--ft-text-primary);
+  font: inherit;
+}
+
+.setupField select {
+  padding-inline: var(--ft-space-3);
+}
+
+.inputWithUnit {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  overflow: hidden;
+}
+
+.inputWithUnit input {
+  min-width: 0;
+  width: 100%;
+  min-height: var(--ft-touch-target-min);
+  padding-inline: var(--ft-space-3);
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--ft-text-primary);
+  font: inherit;
+}
+
+.inputWithUnit small,
+.setupField > small {
+  color: var(--ft-text-metadata);
+  font-size: 0.68rem;
+  line-height: 1.4;
+}
+
+.inputWithUnit small {
+  padding-inline: var(--ft-space-3);
+  font-family: var(--ft-font-data);
+}
+
+.contextPanel {
+  display: grid;
+  gap: var(--ft-space-3);
+  padding: var(--ft-space-3);
+  border: var(--ft-rule-default);
+  border-radius: var(--ft-radius-4);
+  background: var(--ft-bg-inset);
+}
+
+.contextPanelHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ft-space-3);
+}
+
+.contextPanelHeader > div {
+  display: grid;
+  gap: var(--ft-space-1);
+}
+
+.contextPanelHeader strong {
+  color: var(--ft-text-primary);
+  font-size: 0.86rem;
+}
+
+.sourceChip {
+  min-height: calc(var(--ft-space-6) - var(--ft-space-1));
+  display: inline-flex;
+  align-items: center;
+  padding-inline: var(--ft-space-2);
+  border-radius: 999px;
+  background: var(--ft-bg-panel);
+  color: var(--ft-text-metadata);
+  font-family: var(--ft-font-data);
+  font-size: 0.62rem;
+  font-weight: 700;
+}
+
+.sourceChip[data-state="ready"] {
+  background: var(--ft-accent-soft);
+  color: var(--ft-accent);
+}
+
+.sourceMeta,
+.requirementNote {
+  margin: 0;
+  color: var(--ft-text-metadata);
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
+
+.fieldMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ft-space-2);
+  padding-inline: 0 !important;
+}
+
+.inlineAction {
+  min-height: var(--ft-touch-target-min);
+  padding-inline: var(--ft-space-2);
+  border: var(--ft-rule-default);
+  border-radius: var(--ft-radius-4);
+  background: var(--ft-bg-panel);
+  color: var(--ft-accent);
+  font: inherit;
+  font-size: 0.68rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.environmentFacts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+  border-top: var(--ft-rule-default);
+}
+
+.environmentFacts > div {
+  display: grid;
+  gap: var(--ft-space-1);
+  padding: var(--ft-space-2) 0;
+  border-bottom: var(--ft-rule-default);
+}
+
+.environmentFacts > div:nth-child(odd) {
+  padding-inline-end: var(--ft-space-3);
+}
+
+.environmentFacts > div:nth-child(even) {
+  padding-inline-start: var(--ft-space-3);
+  border-inline-start: var(--ft-rule-default);
+}
+
+.environmentFacts dt {
+  color: var(--ft-text-metadata);
+  font-family: var(--ft-font-data);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.environmentFacts dd {
+  margin: 0;
+  color: var(--ft-text-primary);
+  font-size: 0.76rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.setupField select:focus-visible,
+.inputWithUnit:focus-within,
+.inlineAction:focus-visible {
+  outline: var(--ft-focus-width) solid var(--ft-focus);
+  outline-offset: var(--ft-focus-offset);
+}
+
 .action,
 .secondaryAction {
   min-height: var(--ft-touch-target-min);
@@ -518,8 +705,16 @@
   }
 
   .flightInputGrid,
-  .inputGrid {
+  .inputGrid,
+  .setupGrid,
+  .environmentFacts {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .environmentFacts > div:nth-child(odd),
+  .environmentFacts > div:nth-child(even) {
+    padding-inline: 0;
+    border-inline-start: 0;
   }
 
   .flightInputGrid > div,
