@@ -41,8 +41,8 @@ test("UX3 harmonizes Systems heading and panel shape with the shared workspace",
   const css = read("components/ft-systems/ft-systems.module.css");
 
   assert.match(css, /\.pageHeader h1\s*\{[\s\S]*font-size:\s*1\.875rem/);
-  assert.match(css, /\.indexPanel\s*\{[\s\S]*border-radius:\s*calc\(var\(--ft-radius-4\) \* 2\)/);
-  assert.match(css, /\.mentalModel\s*\{[\s\S]*border-radius:\s*calc\(var\(--ft-radius-4\) \* 2\)/);
+  assert.match(css, /\.indexPanel\s*\{[\s\S]*border-radius:\s*var\(--ft-radius-panel\)/);
+  assert.match(css, /\.mentalModel\s*\{[\s\S]*border-radius:\s*var\(--ft-radius-4\)/);
 });
 
 test("UX3/UX6 keeps fast-path chrome on shared workspace radius tokens", () => {
