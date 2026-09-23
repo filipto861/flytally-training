@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { AccountActions } from "@/components/account-actions";
 import { PwaInstallCard } from "@/components/pwa-install-card";
 import { getTrainingContentRepository } from "@/lib/content-store";
 
@@ -21,7 +22,10 @@ export default async function HomePage() {
             <strong>FlyTally</strong>
           </span>
         </div>
-        <span className={styles.productLabel}>Aircraft library</span>
+        <div className={styles.topBarActions}>
+          <span className={styles.productLabel}>Aircraft library</span>
+          <AccountActions />
+        </div>
       </header>
 
       <section className={styles.content}>
