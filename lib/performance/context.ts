@@ -5,6 +5,21 @@ export type FlightPerformanceWeather = {
   readonly oat: number;
 };
 
+export type TakeoffPerformanceSetup = {
+  readonly runway: {
+    readonly identifier: string;
+  };
+  readonly weight: {
+    readonly value: number;
+    readonly unit: "kg" | "lb";
+  };
+  readonly configuration: {
+    readonly flaps: string;
+    readonly antiIce: boolean;
+  };
+  readonly weather: FlightPerformanceWeather | null;
+};
+
 export type FlightPerformanceContext = {
   readonly activeFlightId: string;
   readonly aircraftId: string;
@@ -37,6 +52,21 @@ function fnv1a(value: string): string {
     hash = Math.imul(hash, 16777619);
   }
   return "p2:" + (hash >>> 0).toString(16).padStart(8, "0");
+}
+
+export function buildTakeoffPerformanceContext(
+  activeFlight: ActiveFlight,
+  setup: TakeoffPerformanceSetup,
+): FlightPerformanceContext {
+  return {
+    activeFlightId: activeFlight.id,
+    aircraftId: activeFlight.aircraftId,
+    dependencySnapshotId: activeFlight.performanceDependency.snapshotId,
+    weight: setup.weight,
+    runway: setup.runway,
+    configuration: setup.configuration,
+    weather: setup.weather,
+  };
 }
 
 export function buildPerformanceContext(
