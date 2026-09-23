@@ -70,22 +70,6 @@ export default async function ReferenceHubPage({
             href: `/aircraft/${aircraft.id}/quick-reference`,
           }]
         : []),
-      ...(hasPerformance
-        ? [{
-            key: "performance",
-            title: "Performance",
-            summary: "Open the dedicated source-backed performance workspace.",
-            href: `/aircraft/${aircraft.id}/performance`,
-          }]
-        : []),
-      ...(capabilities.weightBalance
-        ? [{
-            key: "weight-balance",
-            title: "Weight & Balance",
-            summary: "Open the aircraft loading and CG workspace.",
-            href: `/aircraft/${aircraft.id}/weight-balance`,
-          }]
-        : []),
       ...(capabilities.limitations
         ? [{
             key: "limitations",
