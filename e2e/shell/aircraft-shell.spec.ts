@@ -40,7 +40,7 @@ test("W1 mounts the new shell without duplicate legacy navigation when the flag 
   const shell = page.locator('[data-ft-shell="true"]');
   await expect(shell).toBeVisible();
   await expect(shell.getByText("Browser CI Aircraft", { exact: true }).first()).toBeVisible();
-  await expect(shell.getByText(/Training profile:/)).toBeVisible();
+  await expect(shell.locator('[aria-label^="Training profile:"]')).toBeVisible();
 
   const legacyNav = page.locator('section[aria-label="Aircraft navigation"]');
   await expect(legacyNav).toBeHidden();
@@ -1333,6 +1333,8 @@ test("UX4 key new-shell routes do not overflow the viewport horizontally", async
     `${aircraftPath}/performance`,
     `${aircraftPath}/training`,
     `${aircraftPath}/reference`,
+    `${aircraftPath}/flight`,
+    `${aircraftPath}/systems`,
   ]) {
     await page.goto(`${shellOnBase}${href}`);
     const overflow = await page.evaluate(
@@ -1356,3 +1358,55 @@ test("UX4 fast path returns keyboard focus to the initiating rail action", async
   await expect(panel).toHaveCount(0);
   await expect(trigger).toBeFocused();
 });
+
+test("UX6.8 compact desktop rail exposes the full five accessible destination names", async ({ page }, testInfo) => {
+  await page.goto(`${shellOnBase}${aircraftPath}`);
+  const nav = await workspaceNavigation(page, testInfo.project.name);
+
+  for (const label of ["AIRCRAFT", "PROCEDURES", "PERFORMANCE", "TRAINING", "FLIGHT"]) {
+    await expect(nav.getByRole("link", { name: label, exact: true })).toBeVisible();
+  }
+});
+
+test("UX6.8 touch Procedures exposes compact selector controls before procedure content", async ({ page }, testInfo) => {
+  await page.goto(`${shellOnBase}${aircraftPath}/procedures`);
+  const procedures = page.locator('[data-ft-procedures-page="true"]');
+  await expect(procedures).toBeVisible();
+
+  const picker = procedures.getByRole("combobox", { name: "Procedure", exact: true });
+
+  if (testInfo.project.name === "desktop-chromium") {
+    await expect(picker).toBeHidden();
+    await expect(
+      procedures.getByRole("navigation", { name: "Available procedures" }),
+    ).toBeVisible();
+    return;
+  }
+
+  await expect(picker).toBeVisible();
+  await expect(procedures.getByText("Filter", { exact: true })).toBeVisible();
+});
+
+test("UX6.8 primary touch shell controls meet the 44px boundary", async ({ page }, testInfo) => {
+  if (testInfo.project.name === "desktop-chromium") return;
+
+  await page.goto(`${shellOnBase}${aircraftPath}`);
+  const trigger = page.getByRole("button", { name: "Open aircraft navigation" });
+  const fastPath = page.getByRole("navigation", { name: "Operational fast path" });
+  const controls = [
+    trigger,
+    fastPath.getByRole("button", { name: "CHECKLIST", exact: true }),
+    fastPath.getByRole("button", { name: "QRH", exact: true }),
+    fastPath.getByRole("button", { name: "PERF", exact: true }),
+    fastPath.getByRole("button", { name: "REF", exact: true }),
+  ];
+
+  for (const control of controls) {
+    const box = await control.boundingBox();
+    expect(box).not.toBeNull();
+    if (!box) continue;
+    expect(box.width).toBeGreaterThanOrEqual(44);
+    expect(box.height).toBeGreaterThanOrEqual(44);
+  }
+});
+
