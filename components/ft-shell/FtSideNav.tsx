@@ -40,7 +40,13 @@ function NavIcon({ name }: Readonly<{ name: string }>) {
 export function FtSideNav({ aircraftId }: Readonly<{ aircraftId: string }>) {
   const pathname = usePathname();
   const mode = getAircraftProductModeForPathname(pathname, aircraftId);
-  if (!mode) return null;
+  if (!mode) {
+    return (
+      <aside className={styles.sideNav} aria-hidden="true">
+        <div className={styles.sideNavMark}>FT</div>
+      </aside>
+    );
+  }
 
   const destinations = getAircraftContentIa(aircraftId, mode);
 

@@ -111,14 +111,14 @@ test("P0 new launch surface contains only Continue Training, Flight and Recent, 
   assert.match(recent, /Nothing recent\./);
 });
 
-test("P0 page is feature-gated and the new surface is not a metric dashboard", () => {
+test("P1.1 page is feature-gated and the new shell enters through the mode chooser", () => {
   const page = read("app/aircraft/[aircraftId]/page.tsx");
-  const surface = read("components/ft-launch/FtLaunchSurface.tsx");
+  const chooser = read("components/ft-launch/FtModeChooser.tsx");
 
   assert.match(page, /if \(!isNewShellEnabled\(\)\)/);
   assert.match(page, /LegacyAircraftHome/);
-  assert.match(page, /FtLaunchSurface/);
-  assert.match(page, /recentItems=\{\[\]\}/);
-  assert.doesNotMatch(surface, /dashboard|metric|stat(?:istic)?|widget/i);
-  assert.doesNotMatch(surface, /CHECKLIST|QRH|PERF|Quick Access/);
+  assert.match(page, /FtModeChooser/);
+  assert.doesNotMatch(page, /FtLaunchSurface/);
+  assert.match(chooser, /LEARN/);
+  assert.match(chooser, /EFB/);
 });

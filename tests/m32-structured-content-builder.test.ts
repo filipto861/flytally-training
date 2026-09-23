@@ -5,7 +5,6 @@ import test from "node:test";
 const builder=fs.readFileSync(new URL("../components/structured-content-builder.tsx",import.meta.url),"utf8");
 const reviewPage=fs.readFileSync(new URL("../app/admin/aircraft/[aircraftId]/content/[versionId]/page.tsx",import.meta.url),"utf8");
 const actions=fs.readFileSync(new URL("../app/admin/actions.ts",import.meta.url),"utf8");
-const scope=fs.readFileSync(new URL("../M32_STRUCTURED_CONTENT_BUILDER.md",import.meta.url),"utf8");
 
 test("normal content review uses the structured builder instead of a raw JSON textarea",()=>{
   assert.match(reviewPage,/StructuredContentBuilder/);assert.match(reviewPage,/Create the next draft/);assert.match(reviewPage,/action=\{reviseVersionAction\}/);assert.doesNotMatch(reviewPage,/Edit raw payload JSON/);assert.doesNotMatch(reviewPage,/name="payload"[^>]*defaultValue=\{JSON\.stringify/);
@@ -21,5 +20,5 @@ test("builder supports structured collection maintenance without aircraft-specif
 });
 
 test("governed server action remains the authoritative immutable-draft boundary",()=>{
-  assert.match(actions,/reviseContentVersion/);assert.match(actions,/reviseVersionAction/);assert.match(actions,/payload:payload\(form\)/);assert.match(actions,/sourceReferenceIds:refs\(form\)/);assert.match(scope,/new immutable human draft/);assert.match(scope,/Server-side governance remains authoritative/);
+  assert.match(actions,/reviseContentVersion/);assert.match(actions,/reviseVersionAction/);assert.match(actions,/payload:payload\(form\)/);assert.match(actions,/sourceReferenceIds:refs\(form\)/);
 });

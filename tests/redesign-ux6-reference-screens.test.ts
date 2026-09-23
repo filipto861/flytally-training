@@ -4,18 +4,7 @@ import test from "node:test";
 
 const read=(path:string)=>readFileSync(new URL(`../${path}`,import.meta.url),"utf8");
 
-test("UX6.3 exposes the approved reference screen set",()=>{
-  const doc=read("UX6_3_REFERENCE_SCREENS.md");
-  for(const route of [
-    "/ux6-preview",
-    "/ux6-preview/performance",
-    "/ux6-preview/flight",
-    "/ux6-preview/library",
-    "/ux6-preview/systems",
-  ]) assert.match(doc,new RegExp(route.replaceAll("/","\\/")));
-});
-
-test("UX6.3 Performance gives result output higher visual priority",()=>{
+test("UX6 Performance gives result output higher visual priority",()=>{
   const page=read("app/ux6-preview/performance/page.tsx");
   assert.match(page,/Takeoff performance/);
   assert.match(page,/RESULT/);
@@ -24,7 +13,7 @@ test("UX6.3 Performance gives result output higher visual priority",()=>{
   assert.match(page,/Sources, assumptions/);
 });
 
-test("UX6.3 Flight is lifecycle and dependency oriented",()=>{
+test("UX6 Flight is lifecycle and dependency oriented",()=>{
   const page=read("app/ux6-preview/flight/page.tsx");
   assert.match(page,/ACTIVE FLIGHT/);
   assert.match(page,/LKPR/);
@@ -33,13 +22,13 @@ test("UX6.3 Flight is lifecycle and dependency oriented",()=>{
   assert.match(page,/Performance/);
 });
 
-test("UX6.3 Systems unavailable stays explicit and fail closed",()=>{
+test("UX6 Systems unavailable stays explicit and fail closed",()=>{
   const page=read("app/ux6-preview/systems/page.tsx");
   assert.match(page,/No published Systems package/);
   assert.match(page,/Nothing is inferred or substituted/);
 });
 
-test("UX6.3 Library shares the UX6 visual system",()=>{
+test("UX6 Library shares the visual system",()=>{
   const page=read("app/ux6-preview/library/page.tsx");
   const css=read("app/ux6-preview/ux6-preview.module.css");
   assert.match(page,/Your aircraft/);

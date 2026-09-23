@@ -15,7 +15,7 @@ test("UX1/UX6 establishes an intentional desktop content frame", () => {
   );
 });
 
-test("UX6 supersedes the UX1 text sidebar with the approved compact rail without changing IA", () => {
+test("P1.1 keeps the compact rail while separating Learn and EFB IA", () => {
   const css = read("components/ft-shell/ft-shell.module.css");
   const ia = read("lib/aircraft-content-ia.ts");
 
@@ -27,11 +27,15 @@ test("UX6 supersedes the UX1 text sidebar with the approved compact rail without
   assert.match(css, /\.sideNavLink\[aria-current="page"\]/);
 
   for (const label of [
-    "AIRCRAFT",
+    "LEARN",
+    "SYSTEMS",
     "PROCEDURES",
+    "LIMITATIONS",
+    "REFERENCE",
+    "FLIGHT BRIEF",
     "PERFORMANCE",
-    "TRAINING",
-    "FLIGHT",
+    "CHECKLIST",
+    "QRH",
   ]) {
     assert.match(ia, new RegExp(`label: "${label}"`));
   }

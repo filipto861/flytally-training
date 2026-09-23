@@ -27,11 +27,11 @@ test("UX6.4 widens the real aircraft workspace without changing page ownership",
   assert.doesNotMatch(shell,/learjet|FC-530|flysimware/i);
 });
 
-test("UX6.4 preserves the five top-level IA destinations and four W3 fast-path actions",()=>{
+test("P1.1 shell exposes separated Learn/EFB IA and preserves four W3 fast-path actions",()=>{
   const ia=read("lib/aircraft-content-ia.ts");
   const nav=read("components/ft-shell/navigation.ts");
 
-  for(const label of ["AIRCRAFT","PROCEDURES","PERFORMANCE","TRAINING","FLIGHT"]){
+  for(const label of ["LEARN","SYSTEMS","PROCEDURES","LIMITATIONS","REFERENCE","FLIGHT BRIEF","PERFORMANCE","CHECKLIST","QRH"]){
     assert.match(ia,new RegExp(`label: "${label}"`));
   }
   for(const label of ["CHECKLIST","QRH","PERF","REF"]){
