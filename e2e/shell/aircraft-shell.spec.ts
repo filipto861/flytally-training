@@ -48,8 +48,8 @@ test("W1 mounts the new shell without duplicate legacy navigation when the flag 
   await expect(legacyNav).toBeHidden();
 });
 
-test("W0 exposes desktop side navigation and touch drawer navigation", async ({ page }, testInfo) => {
-  await page.goto(`${shellOnBase}${aircraftPath}`);
+test("P1.1 exposes Learn/EFB mode controls on desktop and touch navigation", async ({ page }, testInfo) => {
+  await page.goto(`${shellOnBase}${aircraftPath}/learn`);
 
   const shell = page.locator('[data-ft-shell="true"]');
   const sideNav = shell.getByRole("navigation", { name: "Aircraft workspace sections" }).first();
@@ -58,7 +58,9 @@ test("W0 exposes desktop side navigation and touch drawer navigation", async ({ 
   if (testInfo.project.name === "desktop-chromium") {
     await expect(sideNav).toBeVisible();
     await expect(drawerTrigger).toBeHidden();
-    await expect(sideNav.getByRole("link")).toHaveCount(5);
+    await expect(sideNav.getByRole("link", { name: "Learn", exact: true })).toBeVisible();
+    await expect(sideNav.getByRole("link", { name: "Systems", exact: true })).toBeVisible();
+    await expect(sideNav.getByRole("link", { name: "Performance", exact: true })).toHaveCount(0);
     return;
   }
 
@@ -68,17 +70,22 @@ test("W0 exposes desktop side navigation and touch drawer navigation", async ({ 
 
   const drawer = shell.getByRole("dialog", { name: "Aircraft navigation" });
   await expect(drawer).toBeVisible();
+  await expect(drawer.getByRole("link", { name: "LEARN", exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(drawer.getByRole("link", { name: "EFB", exact: true })).toBeVisible();
   const drawerNav = drawer.getByRole("navigation", { name: "Aircraft workspace sections" });
-  await expect(drawerNav.getByRole("link")).toHaveCount(5);
+  await expect(drawerNav.getByRole("link", { name: "Learn", exact: true })).toBeVisible();
+  await expect(drawerNav.getByRole("link", { name: "Performance", exact: true })).toHaveCount(0);
 
   await page.keyboard.press("Escape");
   await expect(drawer).toHaveCount(0);
   await expect(drawerTrigger).toBeFocused();
 });
 
-test("W0 exposes the four operational fast-path destinations", async ({ page }) => {
-  await page.goto(`${shellOnBase}${aircraftPath}`);
+test("P1.1 keeps operational fast path inside EFB only", async ({ page }) => {
+  await page.goto(`${shellOnBase}${aircraftPath}/learn`);
+  await expect(page.getByRole("navigation", { name: "Operational fast path" })).toHaveCount(0);
 
+  await page.goto(`${shellOnBase}${aircraftPath}/efb`);
   const fastPath = page.getByRole("navigation", { name: "Operational fast path" });
   await expect(fastPath).toBeVisible();
   await expect(fastPath.getByRole("button")).toHaveCount(4);
@@ -88,49 +95,16 @@ test("W0 exposes the four operational fast-path destinations", async ({ page }) 
   }
 });
 
-test("W1 top-level IA links navigate to the canonical section routes", async ({ page }, testInfo) => {
-  test.setTimeout(60_000);
+test("P1.1 mode-specific navigation exposes only the selected product surface", async ({ page }, testInfo) => {
+  await page.goto(`${shellOnBase}${aircraftPath}/systems`);
+  let nav = await workspaceNavigation(page, testInfo.project.name);
+  await expect(nav.getByRole("link", { name: "Systems", exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(nav.getByRole("link", { name: "Performance", exact: true })).toHaveCount(0);
 
-  const destinations = [
-    ["AIRCRAFT", aircraftPath],
-    ["PROCEDURES", `${aircraftPath}/procedures`],
-    ["PERFORMANCE", `${aircraftPath}/performance`],
-    ["TRAINING", `${aircraftPath}/training`],
-    ["FLIGHT", `${aircraftPath}/flight`],
-  ] as const;
-
-  for (const [label, href] of destinations) {
-    await page.goto(`${shellOnBase}${aircraftPath}`);
-    const nav = await workspaceNavigation(page, testInfo.project.name);
-    const link = nav.getByRole("link", { name: label, exact: true });
-
-    await expect(link).toHaveAttribute("href", href);
-    await link.click();
-    await expect(page).toHaveURL(`${shellOnBase}${href}`);
-  }
-});
-
-test("W1 active top-level state follows fixture-supported routes", async ({ page }, testInfo) => {
-  test.setTimeout(60_000);
-
-  // Browser CI publishes only checklist + performance content. Use routes that
-  // actually render for that governed fixture; exhaustive legacy sub-route
-  // classification is covered by redesign-w1-content-ia.test.ts.
-  const cases = [
-    [aircraftPath, "AIRCRAFT"],
-    [`${aircraftPath}/checklists`, "PROCEDURES"],
-    [`${aircraftPath}/performance`, "PERFORMANCE"],
-    [`${aircraftPath}/training`, "TRAINING"],
-    [`${aircraftPath}/reference`, "FLIGHT"],
-  ] as const;
-
-  for (const [href, activeLabel] of cases) {
-    await page.goto(`${shellOnBase}${href}`);
-    const nav = await workspaceNavigation(page, testInfo.project.name);
-    await expect(
-      nav.getByRole("link", { name: activeLabel, exact: true }),
-    ).toHaveAttribute("aria-current", "page");
-  }
+  await page.goto(`${shellOnBase}${aircraftPath}/performance`);
+  nav = await workspaceNavigation(page, testInfo.project.name);
+  await expect(nav.getByRole("link", { name: "Performance", exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(nav.getByRole("link", { name: "Systems", exact: true })).toHaveCount(0);
 });
 
 async function openAircraftSearch(page: Page, viaShortcut = false): Promise<Locator> {
@@ -215,7 +189,7 @@ async function waitForFastPathShortcuts(page: Page): Promise<Locator> {
 }
 
 async function openFastPath(page: Page, label: "CHECKLIST" | "QRH" | "PERF" | "REF") {
-  const originalUrl = `${shellOnBase}${aircraftPath}`;
+  const originalUrl = `${shellOnBase}${aircraftPath}/efb`;
   await page.goto(originalUrl);
   const rail = page.getByRole("navigation", { name: "Operational fast path" });
   await rail.getByRole("button", { name: label, exact: true }).click();
@@ -241,7 +215,7 @@ test("W3 Escape closes the fast path panel", async ({ page }) => {
 });
 
 test("W3 Ctrl+Shift+1 opens CHECKLIST directly", async ({ page }) => {
-  await page.goto(`${shellOnBase}${aircraftPath}`);
+  await page.goto(`${shellOnBase}${aircraftPath}/efb`);
   await waitForFastPathShortcuts(page);
   await page.keyboard.press("Control+Shift+1");
   const panel = page.getByRole("dialog", { name: "Operational fast path" });
@@ -365,32 +339,22 @@ test("W3 panel is a 520px desktop drawer and a full-screen touch sheet", async (
   }
 });
 
-test("P0 launch surface Continue Training enters the training workspace", async ({ page }) => {
+test("P1.1 aircraft entry requires an explicit Learn or EFB choice", async ({ page }) => {
   await page.goto(`${shellOnBase}${aircraftPath}`);
 
-  const launch = page.getByRole("main", { name: "Aircraft launch surface" });
+  const launch = page.getByRole("main", { name: "Aircraft mode chooser" });
   await expect(launch).toBeVisible();
-  await expect(
-    launch.getByRole("heading", { name: "Continue Training", exact: true }),
-  ).toBeVisible();
-
-  const action = launch.getByRole("link", { name: "Start training", exact: true });
-  await expect(action).toBeVisible();
-  await action.click();
-  await expect(page).toHaveURL(
-    new RegExp(`${aircraftPath}/training(?:\\?variant=Standard)?$`),
+  await expect(launch.getByRole("heading", { name: "Learn the aircraft", exact: true })).toBeVisible();
+  await expect(launch.getByRole("heading", { name: "Operate the flight", exact: true })).toBeVisible();
+  await expect(launch.getByRole("link", { name: "Open Learn", exact: true })).toHaveAttribute(
+    "href",
+    `${aircraftPath}/learn?variant=Standard`,
   );
-});
-
-test("P0 launch surface exposes the no-active-flight placeholder", async ({ page }) => {
-  await page.goto(`${shellOnBase}${aircraftPath}`);
-
-  const launch = page.getByRole("main", { name: "Aircraft launch surface" });
-  const flight = launch.getByRole("region", { name: "Flight" });
-  await expect(flight).toContainText("No active flight.");
-  await expect(
-    flight.getByRole("link", { name: "Start new flight", exact: true }),
-  ).toBeVisible();
+  await expect(launch.getByRole("link", { name: "Open EFB", exact: true })).toHaveAttribute(
+    "href",
+    `${aircraftPath}/efb?variant=Standard`,
+  );
+  await expect(launch).toContainText("No active flight");
 });
 
 test("P0 launch surface includes Recent without fabricating history", async ({ page }) => {
@@ -777,7 +741,7 @@ async function openP3Systems(page: Page): Promise<Locator> {
   return systems;
 }
 
-test("P3 Systems opens under AIRCRAFT in new shell", async ({ page }, testInfo) => {
+test("P3 Systems opens inside Learn mode", async ({ page }, testInfo) => {
   const systems = await openP3Systems(page);
 
   await expect(systems).toHaveAttribute("data-ft-systems-page", "true");
@@ -786,7 +750,7 @@ test("P3 Systems opens under AIRCRAFT in new shell", async ({ page }, testInfo) 
   ).toBeVisible();
 
   const nav = await workspaceNavigation(page, testInfo.project.name);
-  await expect(nav.getByRole("link", { name: "AIRCRAFT", exact: true })).toHaveAttribute(
+  await expect(nav.getByRole("link", { name: "Systems", exact: true })).toHaveAttribute(
     "aria-current",
     "page",
   );
@@ -877,7 +841,7 @@ test("P3 flag OFF preserves legacy Systems presentation", async ({ page }) => {
   ).toBeVisible();
 });
 
-test("P3 Cockpit Orientation remains separate under TRAINING", async ({ page }, testInfo) => {
+test("P3 Cockpit Orientation remains inside Learn mode", async ({ page }, testInfo) => {
   await page.goto(`${shellOnBase}${aircraftPath}/orientation`);
 
   await expect(
@@ -887,7 +851,7 @@ test("P3 Cockpit Orientation remains separate under TRAINING", async ({ page }, 
   await expect(page.locator('[data-ft-systems-page="true"]')).toHaveCount(0);
 
   const nav = await workspaceNavigation(page, testInfo.project.name);
-  await expect(nav.getByRole("link", { name: "TRAINING", exact: true })).toHaveAttribute(
+  await expect(nav.getByRole("link", { name: "Learn", exact: true })).toHaveAttribute(
     "aria-current",
     "page",
   );
@@ -939,7 +903,7 @@ test("P4 Procedures opens under PROCEDURES in new shell", async ({ page }, testI
 
   const nav = await workspaceNavigation(page, testInfo.project.name);
   await expect(
-    nav.getByRole("link", { name: "PROCEDURES", exact: true }),
+    nav.getByRole("link", { name: "Procedures", exact: true }),
   ).toHaveAttribute("aria-current", "page");
 });
 
@@ -1149,7 +1113,7 @@ async function completeP6FirstScenario(page: Page): Promise<Locator> {
   return trainer;
 }
 
-test("P6 Training opens under the existing TRAINING destination", async ({ page }, testInfo) => {
+test("P6 Training opens as the Learn home", async ({ page }, testInfo) => {
   const training = await openP6Training(page);
 
   await expect(training).toHaveAttribute("data-ft-training-page", "true");
@@ -1162,7 +1126,7 @@ test("P6 Training opens under the existing TRAINING destination", async ({ page 
 
   const nav = await workspaceNavigation(page, testInfo.project.name);
   await expect(
-    nav.getByRole("link", { name: "TRAINING", exact: true }),
+    nav.getByRole("link", { name: "Learn", exact: true }),
   ).toHaveAttribute("aria-current", "page");
 });
 
@@ -1319,7 +1283,7 @@ test("P7 new-shell Reference page reuses the REF limitation presentation", async
 
   const nav = await workspaceNavigation(page, testInfo.project.name);
   await expect(
-    nav.getByRole("link", { name: "FLIGHT", exact: true }),
+    nav.getByRole("link", { name: "Reference", exact: true }),
   ).toHaveAttribute("aria-current", "page");
 });
 
@@ -1356,7 +1320,7 @@ test("UX4 key new-shell routes do not overflow the viewport horizontally", async
 });
 
 test("UX4 fast path returns keyboard focus to the initiating rail action", async ({ page }) => {
-  await page.goto(`${shellOnBase}${aircraftPath}`);
+  await page.goto(`${shellOnBase}${aircraftPath}/efb`);
   const rail = page.getByRole("navigation", { name: "Operational fast path" });
   const trigger = rail.getByRole("button", { name: "CHECKLIST", exact: true });
 
@@ -1370,13 +1334,20 @@ test("UX4 fast path returns keyboard focus to the initiating rail action", async
   await expect(trigger).toBeFocused();
 });
 
-test("UX6.8 compact desktop rail exposes the full five accessible destination names", async ({ page }, testInfo) => {
-  await page.goto(`${shellOnBase}${aircraftPath}`);
-  const nav = await workspaceNavigation(page, testInfo.project.name);
-
-  for (const label of ["AIRCRAFT", "PROCEDURES", "PERFORMANCE", "TRAINING", "FLIGHT"]) {
+test("P1.1 compact rail exposes mode-specific accessible destination names", async ({ page }, testInfo) => {
+  await page.goto(`${shellOnBase}${aircraftPath}/learn`);
+  let nav = await workspaceNavigation(page, testInfo.project.name);
+  for (const label of ["Learn", "Systems", "Procedures", "Limitations", "Reference"]) {
     await expect(nav.getByRole("link", { name: label, exact: true })).toBeVisible();
   }
+  await expect(nav.getByRole("link", { name: "Performance", exact: true })).toHaveCount(0);
+
+  await page.goto(`${shellOnBase}${aircraftPath}/efb`);
+  nav = await workspaceNavigation(page, testInfo.project.name);
+  for (const label of ["Flight Brief", "Performance", "Flight Deck"]) {
+    await expect(nav.getByRole("link", { name: label, exact: true })).toBeVisible();
+  }
+  await expect(nav.getByRole("link", { name: "Systems", exact: true })).toHaveCount(0);
 });
 
 test("UX6.8 touch Procedures exposes compact selector controls before procedure content", async ({ page }, testInfo) => {
