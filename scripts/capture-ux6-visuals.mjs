@@ -112,6 +112,7 @@ try {
         const startedAt = Date.now();
         let status = null;
         let error = null;
+        let performanceCalculated = false;
 
         try {
           const response = await page.goto(url, {
@@ -120,6 +121,24 @@ try {
           });
           status = response?.status() ?? null;
           await page.waitForTimeout(750);
+
+          if (storageStatePath && routeName === "performance") {
+            const calculateButton = page.getByRole("button", {
+              name: /^(Calculate|Recalculate) performance$/,
+            });
+            if (await calculateButton.isVisible().catch(() => false)) {
+              const pressureAltitude = page.locator('input[name="pressureAltitude"]');
+              const oat = page.locator('input[name="oat"]');
+              await pressureAltitude.fill("0");
+              await oat.fill("15");
+              await calculateButton.click();
+              await page
+                .locator('[data-ft-performance-strip="true"]')
+                .waitFor({ state: "visible", timeout: 10_000 });
+              performanceCalculated = true;
+              await page.waitForTimeout(250);
+            }
+          }
         } catch (caught) {
           error = caught instanceof Error ? caught.message : String(caught);
         }
@@ -190,6 +209,7 @@ try {
           status,
           systemsUnavailable,
           legacyUnavailable,
+          performanceCalculated,
           title,
           elapsedMs: Date.now() - startedAt,
           ...diagnostics,
