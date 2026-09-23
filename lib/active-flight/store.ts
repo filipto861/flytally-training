@@ -32,6 +32,17 @@ function jsonObject<T>(value: unknown): T {
   throw new Error("Invalid Active Flight JSON field.");
 }
 
+function jsonNullableObject<T>(value: unknown): T | null {
+  if (value === null) return null;
+  if (value && typeof value === "object") return value as T;
+  if (typeof value === "string") {
+    const parsed: unknown = JSON.parse(value);
+    if (parsed === null) return null;
+    if (parsed && typeof parsed === "object") return parsed as T;
+  }
+  throw new Error("Invalid nullable Active Flight JSON field.");
+}
+
 function mapRow(row: ActiveFlightRow): ActiveFlight {
   return {
     id: row.id,
@@ -40,9 +51,9 @@ function mapRow(row: ActiveFlightRow): ActiveFlight {
     lifecycle: row.lifecycle,
     departure: jsonObject<ActiveFlight["departure"]>(row.departure),
     destination: jsonObject<ActiveFlight["destination"]>(row.destination),
-    runway: jsonObject<ActiveFlight["runway"]>(row.runway),
+    runway: jsonNullableObject<Exclude<ActiveFlight["runway"], null>>(row.runway),
     weight: jsonObject<ActiveFlight["weight"]>(row.weight),
-    configuration: jsonObject<ActiveFlight["configuration"]>(row.configuration),
+    configuration: jsonNullableObject<Exclude<ActiveFlight["configuration"], null>>(row.configuration),
     weather: row.weather == null ? null : jsonObject<ActiveFlight["weather"]>(row.weather),
     performanceDependency: jsonObject<ActiveFlight["performanceDependency"]>(row.performance_dependency),
     brief: row.brief == null ? null : jsonObject<ActiveFlight["brief"]>(row.brief),
@@ -88,9 +99,9 @@ export async function createActiveFlight(
       ${id},${accountSubject},${input.aircraftId},'ACTIVE',
       ${JSON.stringify(input.departure)}::jsonb,
       ${JSON.stringify(input.destination)}::jsonb,
-      ${JSON.stringify(input.runway)}::jsonb,
+      ${JSON.stringify(input.runway ?? null)}::jsonb,
       ${JSON.stringify(input.weight)}::jsonb,
-      ${JSON.stringify(input.configuration)}::jsonb,
+      ${JSON.stringify(input.configuration ?? null)}::jsonb,
       NULL,
       ${JSON.stringify(dependency)}::jsonb,
       ${input.brief == null ? null : JSON.stringify(input.brief)}::jsonb,
@@ -133,9 +144,9 @@ export async function updateActiveFlight(
   const merged = {
     departure: patch.departure ?? current.departure,
     destination: patch.destination ?? current.destination,
-    runway: patch.runway ?? current.runway,
+    runway: patch.runway !== undefined ? patch.runway : current.runway,
     weight: patch.weight ?? current.weight,
-    configuration: patch.configuration ?? current.configuration,
+    configuration: patch.configuration !== undefined ? patch.configuration : current.configuration,
   };
   const dependency = { snapshotId: activeFlightDependencyReference(merged) };
   const brief = patch.brief !== undefined ? patch.brief : current.brief;
