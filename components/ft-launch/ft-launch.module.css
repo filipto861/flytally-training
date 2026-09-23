@@ -28,6 +28,69 @@
   font-weight: 700;
 }
 
+.launchIntro {
+  margin: var(--ft-space-1) 0 0;
+  max-width: 72ch;
+  color: var(--ft-text-secondary);
+  line-height: 1.5;
+}
+
+.modeGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ft-space-4);
+}
+
+.modeCard {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: var(--ft-space-5);
+  padding: var(--ft-space-6);
+  border: var(--ft-rule-default);
+  border-radius: var(--ft-radius-panel);
+  background: var(--ft-bg-panel);
+}
+
+.modeCopy {
+  min-width: 0;
+  display: grid;
+  gap: var(--ft-space-2);
+}
+
+.modeCopy h2,
+.modeCopy p {
+  margin: 0;
+}
+
+.modeCopy h2 {
+  color: var(--ft-text-primary);
+  font-family: var(--ft-font-ui);
+  font-size: 1.25rem;
+  line-height: 1.2;
+}
+
+.modeCopy > p:not(.modeLabel) {
+  max-width: 60ch;
+  color: var(--ft-text-secondary);
+  line-height: 1.5;
+}
+
+.modeLabel {
+  color: var(--ft-accent);
+  font-family: var(--ft-font-data);
+  font-size: 0.7rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+}
+
+.modeStatus {
+  color: var(--ft-text-metadata);
+  font-family: var(--ft-font-data);
+  font-size: var(--ft-type-meta);
+}
+
 .continueSection h2 {
   font-size: 1.25rem;
   line-height: 1.2;
@@ -228,8 +291,15 @@
     padding: var(--ft-space-5);
   }
 
+  .modeGrid,
   .secondaryGrid {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .modeCard {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    padding: var(--ft-space-5);
   }
 
   .primaryAction,
@@ -247,6 +317,7 @@
     font-size: 1.5rem;
   }
 
+  .modeCard,
   .continueSection,
   .secondarySection {
     padding: var(--ft-space-4);
