@@ -51,13 +51,6 @@ export function FtFlightBrief({
         </p>
       </section>
 
-      <section className={styles.briefSection} aria-labelledby="ft-brief-recommendations" data-empty="true">
-        <h3 id="ft-brief-recommendations">Training Recommendations</h3>
-        <p className={styles.emptyState}>
-          {hasActiveFlight ? "No recommendations yet." : "No active flight."}
-        </p>
-      </section>
-
       <section className={styles.briefSection} aria-labelledby="ft-brief-procedures" data-empty="true">
         <h3 id="ft-brief-procedures">Relevant Procedures</h3>
         <p className={styles.emptyState}>
