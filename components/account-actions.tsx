@@ -30,7 +30,7 @@ export function AccountActions(){
 
   if(!session.authenticated){
     return <div className="account-actions" aria-label="Account">
-      <Link className="header-action" href="/api/auth/flytally/start?next=/">Sign in</Link>
+      <Link className="header-action" href="/api/auth/flytally/start?next=/" prefetch={false}>Sign in</Link>
     </div>;
   }
 
