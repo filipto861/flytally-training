@@ -179,7 +179,194 @@ test("W2 Arrow keys move selection and Enter activates the selected result", asy
   await expect(options.nth(1)).toHaveAttribute("aria-selected", "true");
 
   await input.press("Enter");
-  await expect(page).toHaveURL(new RegExp(`${aircraftPath}/performance#browser-takeoff-grid$`));
+  await expect(page).toHaveURL(new RegExp(`${aircraftPath}/performance#browser-takeoff-gridimport { expect, test, type Locator, type Page } from "@playwright/test";
+
+const shellOnBase = "http://127.0.0.1:3001";
+const aircraftPath = "/aircraft/browser-ci-aircraft";
+
+async function workspaceNavigation(
+  page: Page,
+  projectName: string,
+): Promise<Locator> {
+  const shell = page.locator('[data-ft-shell="true"]');
+
+  if (projectName === "desktop-chromium") {
+    return shell
+      .getByRole("navigation", { name: "Aircraft workspace sections" })
+      .first();
+  }
+
+  const trigger = shell.getByRole("button", { name: "Open aircraft navigation" });
+  await expect(trigger).toBeVisible();
+  if ((await trigger.getAttribute("aria-expanded")) !== "true") {
+    await trigger.click();
+  }
+
+  const drawer = shell.getByRole("dialog", { name: "Aircraft navigation" });
+  await expect(drawer).toBeVisible();
+  return drawer.getByRole("navigation", { name: "Aircraft workspace sections" });
+}
+
+test("W0 keeps the legacy aircraft view when FT_NEW_SHELL is off", async ({ page }) => {
+  await page.goto(aircraftPath);
+  await expect(page.locator('[data-ft-shell="true"]')).toHaveCount(0);
+  const legacyNav = page.locator('section[aria-label="Aircraft navigation"]');
+  await expect(legacyNav).toBeVisible();
+  await expect(legacyNav.getByRole("navigation", { name: "Pilot workspace" })).toBeVisible();
+});
+
+test("W1 mounts the new shell without duplicate legacy navigation when the flag is on", async ({ page }) => {
+  await page.goto(`${shellOnBase}${aircraftPath}`);
+
+  const shell = page.locator('[data-ft-shell="true"]');
+  await expect(shell).toBeVisible();
+  await expect(shell.getByText("Browser CI Aircraft", { exact: true }).first()).toBeVisible();
+  const profile = shell.locator('[aria-label^="Training profile:"]');
+  await expect(profile).toHaveCount(1);
+  await expect(profile).toHaveAttribute("aria-label", "Training profile: Standard");
+
+  const legacyNav = page.locator('section[aria-label="Aircraft navigation"]');
+  await expect(legacyNav).toBeHidden();
+});
+
+test("P1.1 exposes Learn/EFB mode controls on desktop and touch navigation", async ({ page }, testInfo) => {
+  await page.goto(`${shellOnBase}${aircraftPath}/learn`);
+
+  const shell = page.locator('[data-ft-shell="true"]');
+  const sideNav = shell.getByRole("navigation", { name: "Aircraft workspace sections" }).first();
+  const drawerTrigger = shell.getByRole("button", { name: "Open aircraft navigation" });
+
+  if (testInfo.project.name === "desktop-chromium") {
+    await expect(sideNav).toBeVisible();
+    await expect(drawerTrigger).toBeHidden();
+    await expect(sideNav.getByRole("link", { name: "Learn", exact: true })).toBeVisible();
+    await expect(sideNav.getByRole("link", { name: "Systems", exact: true })).toBeVisible();
+    await expect(sideNav.getByRole("link", { name: "Performance", exact: true })).toHaveCount(0);
+    return;
+  }
+
+  await expect(sideNav).toBeHidden();
+  await expect(drawerTrigger).toBeVisible();
+  await drawerTrigger.click();
+
+  const drawer = shell.getByRole("dialog", { name: "Aircraft navigation" });
+  await expect(drawer).toBeVisible();
+  await expect(drawer.getByRole("link", { name: "LEARN", exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(drawer.getByRole("link", { name: "EFB", exact: true })).toBeVisible();
+  const drawerNav = drawer.getByRole("navigation", { name: "Aircraft workspace sections" });
+  await expect(drawerNav.getByRole("link", { name: "Learn", exact: true })).toBeVisible();
+  await expect(drawerNav.getByRole("link", { name: "Performance", exact: true })).toHaveCount(0);
+
+  await page.keyboard.press("Escape");
+  await expect(drawer).toHaveCount(0);
+  await expect(drawerTrigger).toBeFocused();
+});
+
+test("P1.1 keeps operational fast path inside EFB only", async ({ page }) => {
+  await page.goto(`${shellOnBase}${aircraftPath}/learn`);
+  await expect(page.getByRole("navigation", { name: "Operational fast path" })).toHaveCount(0);
+
+  await page.goto(`${shellOnBase}${aircraftPath}/efb`);
+  const fastPath = page.getByRole("navigation", { name: "Operational fast path" });
+  await expect(fastPath).toBeVisible();
+  await expect(fastPath.getByRole("button")).toHaveCount(4);
+
+  for (const label of ["CHECKLIST", "QRH", "PERF", "REF"]) {
+    await expect(fastPath.getByRole("button", { name: label, exact: true })).toBeVisible();
+  }
+});
+
+test("P1.1 mode-specific navigation exposes only the selected product surface", async ({ page }, testInfo) => {
+  await page.goto(`${shellOnBase}${aircraftPath}/systems`);
+  let nav = await workspaceNavigation(page, testInfo.project.name);
+  await expect(nav.getByRole("link", { name: "Systems", exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(nav.getByRole("link", { name: "Performance", exact: true })).toHaveCount(0);
+
+  await page.goto(`${shellOnBase}${aircraftPath}/performance`);
+  nav = await workspaceNavigation(page, testInfo.project.name);
+  await expect(nav.getByRole("link", { name: "Performance", exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(nav.getByRole("link", { name: "Systems", exact: true })).toHaveCount(0);
+});
+
+async function openAircraftSearch(page: Page, viaShortcut = false): Promise<Locator> {
+  await page.goto(`${shellOnBase}${aircraftPath}`);
+  const trigger = page.getByRole("button", { name: "Search aircraft workspace" });
+  await expect(trigger).toBeVisible();
+
+  if (viaShortcut) await page.keyboard.press("Control+K");
+  else await trigger.click();
+
+  const dialog = page.getByRole("dialog", { name: "Search Browser CI Aircraft" });
+  await expect(dialog).toBeVisible();
+  return dialog;
+}
+
+test("W2 search trigger opens from click and Ctrl+K", async ({ page }) => {
+  let dialog = await openAircraftSearch(page);
+  await page.keyboard.press("Escape");
+  await expect(dialog).toHaveCount(0);
+
+  dialog = await openAircraftSearch(page, true);
+  await expect(dialog).toBeVisible();
+});
+
+test("W2 Escape closes the search overlay and restores trigger focus", async ({ page }) => {
+  const dialog = await openAircraftSearch(page);
+  await page.keyboard.press("Escape");
+  await expect(dialog).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Search aircraft workspace" })).toBeFocused();
+});
+
+test("W2 empty state exposes deterministic sections and hides absent flight context", async ({ page }) => {
+  const dialog = await openAircraftSearch(page);
+
+  for (const heading of ["RECENT", "QUICK ACCESS", "BROWSE BY TYPE"]) {
+    await expect(dialog.getByRole("heading", { name: heading, exact: true })).toBeVisible();
+  }
+  await expect(dialog.getByRole("heading", { name: "CURRENT FLIGHT", exact: true })).toHaveCount(0);
+});
+
+test("W2 checklist query returns relevant aircraft-scoped results", async ({ page }) => {
+  const dialog = await openAircraftSearch(page);
+  const input = dialog.getByRole("searchbox", { name: "Search Browser CI Aircraft..." });
+  await input.fill("checklist");
+
+  const results = dialog.getByRole("listbox", { name: "Search results" });
+  await expect(results).toBeVisible();
+  await expect(results.getByRole("option", { name: /^Browser CI Checklist\b/ })).toBeVisible();
+});
+
+test("W2 selecting a result navigates to its canonical route", async ({ page }) => {
+  const dialog = await openAircraftSearch(page);
+  const input = dialog.getByRole("searchbox", { name: "Search Browser CI Aircraft..." });
+  await input.fill("Browser CI Checklist");
+
+  const result = dialog.getByRole("option", { name: /^Browser CI Checklist\b/ });
+  await expect(result).toBeVisible();
+  await result.click();
+  await expect(page).toHaveURL(`${shellOnBase}${aircraftPath}/checklists`);
+});
+
+));
+});
+
+test("P1.1 Learn search excludes EFB Performance results and shortcuts", async ({ page }) => {
+  await page.goto(`${shellOnBase}${aircraftPath}/learn`);
+  const trigger = page.getByRole("button", { name: "Search aircraft workspace" });
+  await expect(trigger).toBeVisible();
+  await trigger.click();
+
+  const dialog = page.getByRole("dialog", { name: "Search Browser CI Aircraft" });
+  await expect(dialog.getByRole("link", { name: "Performance", exact: true })).toHaveCount(0);
+
+  const input = dialog.getByRole("searchbox", { name: "Search Browser CI Aircraft..." });
+  await input.fill("performance");
+  await expect(dialog.getByRole("option")).toHaveCount(0);
+});
+
+test("P1.1 EFB chrome does not expose the knowledge search", async ({ page }) => {
+  await page.goto(`${shellOnBase}${aircraftPath}/efb`);
+  await expect(page.getByRole("button", { name: "Search aircraft workspace" })).toHaveCount(0);
 });
 
 async function waitForFastPathShortcuts(page: Page): Promise<Locator> {
