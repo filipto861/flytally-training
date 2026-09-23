@@ -17,7 +17,7 @@
 
 .header h1 {
   color: var(--ft-text-primary);
-  font-size: var(--ft-type-title);
+  font-size: var(--ft-type-page);
   letter-spacing: -0.02em;
 }
 

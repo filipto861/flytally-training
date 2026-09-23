@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
+import { withVariantQuery } from "@/lib/aircraft-applicability";
 import {
   getAircraftContentIa,
   getAircraftProductModeForPathname,
@@ -39,6 +40,8 @@ function NavIcon({ name }: Readonly<{ name: string }>) {
 
 export function FtSideNav({ aircraftId }: Readonly<{ aircraftId: string }>) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const variant = searchParams.get("variant") ?? undefined;
   const mode = getAircraftProductModeForPathname(pathname, aircraftId);
   if (!mode) {
     return (
@@ -67,7 +70,7 @@ export function FtSideNav({ aircraftId }: Readonly<{ aircraftId: string }>) {
           return (
             <Link
               key={destination.key}
-              href={destination.href}
+              href={withVariantQuery(destination.href, variant)}
               className={styles.sideNavLink}
               aria-label={destination.label}
               aria-current={active ? "page" : undefined}

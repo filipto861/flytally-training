@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import type { ReactNode } from "react";
 
+import { withVariantQuery } from "@/lib/aircraft-applicability";
 import type { ActiveFlight } from "@/lib/active-flight/types";
 import {
   aircraftModeHref,
@@ -29,6 +30,8 @@ export function FtTopBar({
   navigationControl: ReactNode;
 }>) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const variant = searchParams.get("variant") ?? undefined;
   const mode = getAircraftProductModeForPathname(pathname, aircraftId);
   const current = activeFlight?.lifecycle === "ACTIVE" ? activeFlight : null;
 
@@ -51,13 +54,13 @@ export function FtTopBar({
         {mode ? (
           <nav className={styles.modeSwitcher} aria-label="Workspace mode">
             <Link
-              href={aircraftModeHref(aircraftId, "learn")}
+              href={withVariantQuery(aircraftModeHref(aircraftId, "learn"), variant)}
               aria-current={mode === "learn" ? "page" : undefined}
             >
               LEARN
             </Link>
             <Link
-              href={aircraftModeHref(aircraftId, "efb")}
+              href={withVariantQuery(aircraftModeHref(aircraftId, "efb"), variant)}
               aria-current={mode === "efb" ? "page" : undefined}
             >
               EFB

@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 
+import { withVariantQuery } from "@/lib/aircraft-applicability";
 import {
   getAircraftContentIa,
   getAircraftProductModeForPathname,
@@ -15,6 +16,8 @@ const focusableSelector = 'a[href],button:not([disabled]),[tabindex]:not([tabind
 
 export function FtNavDrawer({ aircraftId }: Readonly<{ aircraftId: string }>) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const variant = searchParams.get("variant") ?? undefined;
   const mode = getAircraftProductModeForPathname(pathname, aircraftId);
   const destinations = mode ? getAircraftContentIa(aircraftId, mode) : [];
   const [open, setOpen] = useState(false);
@@ -121,7 +124,7 @@ export function FtNavDrawer({ aircraftId }: Readonly<{ aircraftId: string }>) {
                 return (
                   <Link
                     key={destination.key}
-                    href={destination.href}
+                    href={withVariantQuery(destination.href, variant)}
                     className={styles.drawerLink}
                     aria-current={active ? "page" : undefined}
                     onClick={() => setOpen(false)}

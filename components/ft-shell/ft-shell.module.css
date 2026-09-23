@@ -171,7 +171,7 @@
   display: grid;
   place-items: center;
   padding-inline: var(--ft-space-2);
-  border-radius: var(--ft-radius-3);
+  border-radius: var(--ft-radius-2);
   color: var(--ft-text-metadata);
   font-size: var(--ft-type-meta);
   font-weight: 750;
