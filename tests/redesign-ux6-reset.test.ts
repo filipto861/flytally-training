@@ -35,16 +35,14 @@ test("UX6 reset preserves W3 fast-path semantics", () => {
   );
 });
 
-test("UX6 docs classify UX5 visual approval as rejected and C0 as held", () => {
-  const roadmap = read("REDESIGN.md");
-  const brief = read("UX6_FOUNDATIONAL_REDESIGN.md");
+test("P1.1 ROADMAP is the single authoritative active implementation roadmap", () => {
+  const roadmap = read("ROADMAP.md");
 
-  assert.match(roadmap, /VISUAL APPROVAL REJECTED/i);
-  assert.match(roadmap, /C0 is on HOLD/i);
-  assert.match(roadmap, /UX6 foundational redesign/i);
-
-  assert.match(brief, /UX5\s+VISUAL APPROVAL REJECTED/i);
-  assert.match(brief, /C0\s+HOLD/i);
+  assert.match(roadmap, /single authoritative product\/implementation roadmap/i);
+  assert.match(roadmap, /P1\.1 — LEARN \/ EFB product mode split — IN PROGRESS/i);
+  assert.match(roadmap, /P1\.2 — Versioned Performance Snapshot V2/i);
+  assert.match(roadmap, /P1\.3 — Canonical Performance operation controller/i);
+  assert.match(roadmap, /P1\.4 — Flight Brief becomes EFB home/i);
 });
 
 test("UX6 inventory identifies the current desktop width constraint as presentation debt", () => {
