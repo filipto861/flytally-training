@@ -156,26 +156,34 @@ export function FtPerformancePresentation({
       setResult(stored);
 
       if (stored) {
-        setRunwayIdentifier(stored.context.runway.identifier);
+        const sameDeparture = stored.context.runway.airportIcao === current.departure.icao;
+        setRunwayIdentifier(sameDeparture ? stored.context.runway.identifier : "");
         setTakeoffWeight(String(stored.context.weight.value));
         setTakeoffWeightUnit(stored.context.weight.unit);
         setFlaps(stored.context.configuration.flaps);
         setAntiIce(stored.context.configuration.antiIce);
 
-        if (stored.context.weather) {
+        if (sameDeparture && stored.context.weather) {
           setQnh(String(stored.context.weather.qnh));
           setOat(String(stored.context.weather.oat));
           setQnhSource("stored");
           setOatSource("stored");
           qnhManual.current = true;
           oatManual.current = true;
-        } else {
+        } else if (sameDeparture) {
           setQnh("");
           setOat(stored.calculationInputs.oatC === undefined ? "" : String(stored.calculationInputs.oatC));
           setQnhSource("unset");
           setOatSource(stored.calculationInputs.oatC === undefined ? "unset" : "stored");
           qnhManual.current = false;
           oatManual.current = stored.calculationInputs.oatC !== undefined;
+        } else {
+          setQnh("");
+          setOat("");
+          setQnhSource("unset");
+          setOatSource("unset");
+          qnhManual.current = false;
+          oatManual.current = false;
         }
       } else {
         setRunwayIdentifier("");
