@@ -3,6 +3,8 @@ import path from "node:path";
 import { chromium } from "@playwright/test";
 
 const baseUrl = process.env.UX6_BASE_URL ?? "https://training.fly-tally.com";
+const base = new URL(baseUrl);
+const vercelShareToken = base.searchParams.get("_vercel_share");
 const outputRoot = path.resolve(process.cwd(), "ux6-screenshots");
 
 const routes = [
@@ -30,7 +32,8 @@ const browser = await chromium.launch();
 const manifest = {
   version: 1,
   capturedAt: new Date().toISOString(),
-  baseUrl,
+  baseUrl: base.toString(),
+  vercelShareTokenPresent: Boolean(vercelShareToken),
   entries: [],
 };
 
@@ -72,7 +75,11 @@ try {
         consoleErrors.length = 0;
         pageErrors.length = 0;
 
-        const url = new URL(route, baseUrl).toString();
+        const target = new URL(route, base);
+        if (vercelShareToken) {
+          target.searchParams.set("_vercel_share", vercelShareToken);
+        }
+        const url = target.toString();
         const startedAt = Date.now();
         let status = null;
         let error = null;
