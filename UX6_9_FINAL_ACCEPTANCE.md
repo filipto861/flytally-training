@@ -1,6 +1,6 @@
 # UX6.9 — Final Visual Acceptance
 
-**Status:** PREPARED — WAITING FOR UX6.8 BROWSER GATE + FINAL DEPLOYMENT  
+**Status:** CORRECTION PASS ACTIVE — TECHNICAL GATE PASSED, PRODUCTION MATRIX REVIEWED  
 **Depends on:** UX6.8 responsive/a11y acceptance  
 **Product-owner approval is mandatory.**
 
@@ -180,3 +180,30 @@ Until then:
 UX6.9 AWAITING PRODUCT-OWNER APPROVAL
 C0 HOLD
 ```
+
+
+## Production matrix correction pass
+
+The first live production matrix completed after the technical gate passed and exposed three acceptance issues that must be closed before product-owner approval:
+
+1. iPad landscape Procedures must use the compact selector path instead of the permanent desktop index.
+2. The unauthenticated Sign in boundary must not generate cross-origin CSP console errors from framework prefetch.
+3. Performance and Flight require supplemental authenticated captures with a real Active Flight so their primary UX6 states can be reviewed.
+
+Corrections:
+- Procedures compact controls apply at the same 1180 px shell boundary and on non-hover/coarse-pointer devices.
+- the Sign in Link disables framework prefetch; the CSP remains strict at `connect-src 'self'`.
+- the capture matrix now uses the same iPad user agent/device scale as Playwright acceptance.
+- `UX6_STORAGE_STATE` may point to a local Playwright storage-state file for authenticated captures.
+- `npm run capture:ux6:auth-state` provides a local headed sign-in helper; the resulting state file is ignored by git.
+
+Example authenticated capture:
+
+```powershell
+npm run capture:ux6:auth-state
+$env:UX6_STORAGE_STATE="ux6-auth-state.json"
+$env:UX6_BASE_URL="https://training.fly-tally.com"
+npm run capture:ux6
+```
+
+The authenticated matrix supplements the public matrix; it does not replace the unauthenticated account-boundary checks.
