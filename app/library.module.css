@@ -1,0 +1,362 @@
+:global(body):has(.libraryPage) {
+  margin: 0;
+  background: #F4F6F8;
+}
+
+:global(body):has(.libraryPage) :global(.app-header),
+:global(body):has(.libraryPage) :global(.app-footer),
+:global(body):has(.libraryPage) :global(.skip-link) {
+  display: none !important;
+}
+
+:global(body):has(.libraryPage) :global(.app-main-content) {
+  min-height: 100dvh;
+}
+
+.libraryPage {
+  --library-canvas: #F4F6F8;
+  --library-workspace: #FFFFFF;
+  --library-panel: #F8FAFC;
+  --library-hover: #F0F4F8;
+  --library-border: #D9E0E7;
+  --library-border-strong: #B8C3CF;
+  --library-text: #111827;
+  --library-text-secondary: #4B5563;
+  --library-text-muted: #6B7280;
+  --library-accent: #2F6BFF;
+  --library-accent-hover: #2457D6;
+  --library-accent-soft: #EAF1FF;
+  --library-success: #247A46;
+  --library-success-soft: #EAF7EF;
+
+  min-height: 100dvh;
+  background: var(--library-canvas);
+  color: var(--library-text);
+  font-family: "IBM Plex Sans", Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+.topBar {
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 0 28px;
+  border-bottom: 1px solid var(--library-border);
+  background: var(--library-workspace);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brandMark {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: var(--library-accent);
+  color: #FFFFFF;
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: .04em;
+}
+
+.brandCopy {
+  display: grid;
+  line-height: 1.05;
+}
+
+.brandCopy small {
+  color: var(--library-text-muted);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .08em;
+}
+
+.brandCopy strong {
+  margin-top: 3px;
+  font-size: 15px;
+}
+
+.productLabel {
+  color: var(--library-text-muted);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.content {
+  width: min(100%, 1240px);
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: 54px 30px 72px;
+}
+
+.pageHeader {
+  display: grid;
+  gap: 5px;
+  margin-bottom: 26px;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--library-text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+}
+
+.pageHeader h1 {
+  margin: 0;
+  color: var(--library-text);
+  font-size: 32px;
+  line-height: 1.15;
+  letter-spacing: -.025em;
+}
+
+.pageHeader > p:last-child {
+  margin: 0;
+  color: var(--library-text-secondary);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.aircraftList {
+  display: grid;
+  gap: 12px;
+}
+
+.aircraftRow {
+  min-height: 116px;
+  display: grid;
+  grid-template-columns: 62px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+  padding: 20px;
+  border: 1px solid var(--library-border);
+  border-radius: 10px;
+  background: var(--library-workspace);
+  color: var(--library-text);
+  text-decoration: none;
+}
+
+.aircraftRow:hover {
+  border-color: var(--library-border-strong);
+  background: var(--library-hover);
+}
+
+.aircraftRow:focus-visible {
+  outline: 2px solid var(--library-accent);
+  outline-offset: 2px;
+}
+
+.aircraftAvatar {
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--library-accent-soft);
+  color: var(--library-accent);
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-size: 13px;
+  font-weight: 750;
+  letter-spacing: .02em;
+}
+
+.aircraftCopy {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.available {
+  width: fit-content;
+  padding: 4px 7px;
+  border-radius: 999px;
+  background: var(--library-success-soft);
+  color: var(--library-success);
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: .05em;
+}
+
+.aircraftCopy > strong {
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.aircraftCopy > span:last-child {
+  overflow: hidden;
+  color: var(--library-text-secondary);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.openAction {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 15px;
+  border-radius: 8px;
+  background: var(--library-accent);
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.aircraftRow:hover .openAction {
+  background: var(--library-accent-hover);
+}
+
+.emptyState {
+  min-height: 180px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 7px;
+  padding: 32px;
+  border: 1px solid var(--library-border);
+  border-radius: 10px;
+  background: var(--library-workspace);
+  text-align: center;
+}
+
+.emptyState span {
+  max-width: 560px;
+  color: var(--library-text-secondary);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.installArea {
+  margin-top: 20px;
+}
+
+.installArea :global(.pwa-install-card) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+  padding: 18px 20px;
+  border: 1px solid var(--library-border);
+  border-radius: 10px;
+  background: var(--library-panel);
+}
+
+.installArea :global(.pwa-install-copy) {
+  display: grid;
+  gap: 4px;
+}
+
+.installArea :global(.pwa-install-copy span),
+.installArea :global(.pwa-install-help) {
+  color: var(--library-text-secondary);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.installArea :global(.pwa-install-actions) {
+  display: flex;
+  gap: 8px;
+}
+
+.installArea :global(.pwa-install-primary),
+.installArea :global(.pwa-install-secondary) {
+  min-height: 42px;
+  padding: 0 13px;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.installArea :global(.pwa-install-primary) {
+  border: 1px solid var(--library-accent);
+  background: var(--library-accent);
+  color: #FFFFFF;
+}
+
+.installArea :global(.pwa-install-secondary) {
+  border: 1px solid var(--library-border);
+  background: var(--library-workspace);
+  color: var(--library-text);
+}
+
+@media (prefers-color-scheme: dark) {
+  :global(body):has(.libraryPage) {
+    background: #0B1118;
+  }
+
+  .libraryPage {
+    --library-canvas: #0B1118;
+    --library-workspace: #101821;
+    --library-panel: #16212D;
+    --library-hover: #1A2633;
+    --library-border: #263647;
+    --library-border-strong: #3A4C60;
+    --library-text: #F3F6FA;
+    --library-text-secondary: #B6C0CC;
+    --library-text-muted: #8997A6;
+    --library-accent: #5B8CFF;
+    --library-accent-hover: #79A3FF;
+    --library-accent-soft: #172A4F;
+    --library-success: #6EC28E;
+    --library-success-soft: #163325;
+  }
+}
+
+@media (max-width: 720px) {
+  .topBar {
+    min-height: 58px;
+    padding-inline: 14px;
+  }
+
+  .productLabel {
+    display: none;
+  }
+
+  .content {
+    padding: 28px 14px 54px;
+  }
+
+  .pageHeader h1 {
+    font-size: 28px;
+  }
+
+  .aircraftRow {
+    grid-template-columns: 50px minmax(0, 1fr);
+    min-height: 0;
+    padding: 16px;
+  }
+
+  .aircraftAvatar {
+    width: 46px;
+    height: 46px;
+  }
+
+  .openAction {
+    grid-column: 1 / -1;
+    justify-content: center;
+  }
+
+  .installArea :global(.pwa-install-card) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .installArea :global(.pwa-install-actions) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (forced-colors: active) {
+  .aircraftRow,
+  .openAction {
+    outline: 2px solid Highlight;
+  }
+}
