@@ -37,13 +37,20 @@ export type AirportDatasetV1 = {
 
 export type SelectedRunwayContext = {
   readonly airportIcao: string;
+  readonly runwaySurfaceId: string;
   readonly runwayIdent: string;
   readonly airportElevationFt: number;
   readonly runwayEndElevationFt?: number;
   readonly oppositeEndElevationFt?: number;
   readonly headingTrueDeg?: number;
   readonly surfaceLengthFt: number;
+  /**
+   * Compatibility-only alias for legacy calculators. This is the physical
+   * runway surface length from the airport dataset, not a declared TORA.
+   */
   readonly availableTakeoffLengthFt?: number;
+  readonly lengthBasis: "physical-surface-length";
+  readonly dataSource?: AirportDatasetV1["source"];
   readonly surface?: string;
 };
 
