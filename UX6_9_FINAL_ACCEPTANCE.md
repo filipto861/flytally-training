@@ -207,3 +207,16 @@ npm run capture:ux6
 ```
 
 The authenticated matrix supplements the public matrix; it does not replace the unauthenticated account-boundary checks.
+
+
+### Authenticated Performance evidence
+
+Authenticated captures calculate a deterministic in-envelope Performance result before taking the Performance screenshot:
+
+- pressure altitude: 0 ft
+- OAT: 15 °C
+- aircraft/runway/weight/flaps/anti-ice: supplied by the real Active Flight
+
+The capture waits for the real `data-ft-performance-strip` result and records `performanceCalculated: true` in the manifest. Because the result is stored by the production Performance client in local storage, the later Flight screenshot in the same browser context also shows the corresponding Flight Brief performance state.
+
+This is visual-evidence automation only. It does not modify the Performance runtime or insert fabricated results.
