@@ -40,7 +40,9 @@ test("W1 mounts the new shell without duplicate legacy navigation when the flag 
   const shell = page.locator('[data-ft-shell="true"]');
   await expect(shell).toBeVisible();
   await expect(shell.getByText("Browser CI Aircraft", { exact: true }).first()).toBeVisible();
-  await expect(shell.getByText(/Training profile:/)).toBeVisible();
+  const profile = shell.locator('[aria-label^="Training profile:"]');
+  await expect(profile).toHaveCount(1);
+  await expect(profile).toHaveAttribute("aria-label", "Training profile: Standard");
 
   const legacyNav = page.locator('section[aria-label="Aircraft navigation"]');
   await expect(legacyNav).toBeHidden();
@@ -450,7 +452,7 @@ test("P1 Flight page shows the Active Flight empty state", async ({ page }) => {
 
 test("P1 Flight Brief Performance stays visibly empty without active-flight data", async ({ page }) => {
   const flight = await openP1Flight(page);
-  const performance = flight.getByRole("region", { name: "Performance" });
+  const performance = flight.getByRole("region", { name: "Performance", exact: true });
 
   await expect(performance).toHaveAttribute("data-empty", "true");
   await expect(performance.getByText("Flight brief", { exact: true })).toBeVisible();
@@ -592,10 +594,10 @@ test("D0 activates Flight Brief context without inventing downstream brief data"
   const brief = page.getByRole("region", { name: "Flight Brief" });
   await expect(brief).toHaveAttribute("data-flight-context", "active");
 
-  const performance = page.getByRole("region", { name: "Performance" });
+  const performance = page.getByRole("region", { name: "Performance", exact: true });
   await expect(performance).toHaveAttribute("data-empty", "true");
   await expect(performance.getByText("Flight brief", { exact: true })).toBeVisible();
-  await expect(performance).toContainText("No performance computed yet.");
+  await expect(performance).toContainText("No performance computed yet");
   await expect(
     page.getByRole("region", { name: "Flight Considerations" }),
   ).toContainText("No considerations yet.");
@@ -645,8 +647,8 @@ async function calculateP2Performance(page: Page): Promise<Locator> {
 
   const workspace = page.getByRole("main", { name: "Performance workspace" });
   await expect(workspace).toBeVisible();
-  const performance = workspace.getByRole("region", { name: "Performance" });
-  await expect(performance).toContainText("No performance computed yet.");
+  const performance = workspace.getByRole("region", { name: "Performance", exact: true });
+  await expect(performance).toContainText("No performance computed yet");
   await performance.getByRole("button", { name: "Calculate performance", exact: true }).click();
 
   const strip = performance.locator('[data-ft-performance-strip="true"]');
@@ -675,7 +677,7 @@ test("P2 Flight Brief reuses the same performance result with Flight brief conte
   await calculateP2Performance(page);
   await page.goto(`${shellOnBase}${aircraftPath}/flight`);
 
-  const performance = page.getByRole("region", { name: "Performance" });
+  const performance = page.getByRole("region", { name: "Performance", exact: true });
   await expect(performance.getByText("Flight brief", { exact: true })).toBeVisible();
   await expect(performance.locator('[data-metric="takeoffDistance"]')).toContainText("3,100 ft");
 });
@@ -684,7 +686,7 @@ test("P2 PERF fast path reuses the same performance result with Operational cont
   await calculateP2Performance(page);
   const panel = await openFastPath(page, "PERF");
 
-  const performance = panel.getByRole("region", { name: "Performance" });
+  const performance = panel.getByRole("region", { name: "Performance", exact: true });
   await expect(performance.getByText("Operational", { exact: true })).toBeVisible();
   await expect(performance.locator('[data-metric="v2"]')).toContainText("125 KIAS");
 });
@@ -701,7 +703,7 @@ test("P2 dependency change marks stored performance NEEDS RECALCULATION", async 
   await dialog.getByRole("button", { name: "Save flight", exact: true }).click();
   await expect(dialog).toHaveCount(0);
 
-  const performance = page.getByRole("region", { name: "Performance" });
+  const performance = page.getByRole("region", { name: "Performance", exact: true });
   await expect(performance.getByText("NEEDS RECALCULATION", { exact: true })).toBeVisible();
   await expect(performance).toContainText("Weight: 12,000 lb → 13,000 lb");
   await expect(performance.locator('[data-ft-performance-strip="true"]')).toHaveAttribute(
@@ -720,7 +722,7 @@ test("P2 Recalculate replaces stale values with the new dependency context", asy
   await dialog.getByLabel("Weight", { exact: true }).fill("13000");
   await dialog.getByRole("button", { name: "Save flight", exact: true }).click();
 
-  const performance = page.getByRole("region", { name: "Performance" });
+  const performance = page.getByRole("region", { name: "Performance", exact: true });
   await performance.getByRole("button", { name: "Recalculate", exact: true }).click();
 
   await expect(performance.getByText("NEEDS RECALCULATION", { exact: true })).toHaveCount(0);
@@ -752,7 +754,7 @@ test("P2 PERFORMANCE shows an explicit empty state without Active Flight", async
   await page.goto(`${shellOnBase}${aircraftPath}/performance`);
 
   const workspace = page.getByRole("main", { name: "Performance workspace" });
-  const performance = workspace.getByRole("region", { name: "Performance" });
+  const performance = workspace.getByRole("region", { name: "Performance", exact: true });
   await expect(performance).toHaveAttribute("data-empty", "true");
   await expect(performance).toContainText("No active flight.");
   await expect(performance.getByText("Training view", { exact: true })).toBeVisible();
@@ -1333,6 +1335,8 @@ test("UX4 key new-shell routes do not overflow the viewport horizontally", async
     `${aircraftPath}/performance`,
     `${aircraftPath}/training`,
     `${aircraftPath}/reference`,
+    `${aircraftPath}/flight`,
+    `${aircraftPath}/systems`,
   ]) {
     await page.goto(`${shellOnBase}${href}`);
     const overflow = await page.evaluate(
@@ -1356,3 +1360,55 @@ test("UX4 fast path returns keyboard focus to the initiating rail action", async
   await expect(panel).toHaveCount(0);
   await expect(trigger).toBeFocused();
 });
+
+test("UX6.8 compact desktop rail exposes the full five accessible destination names", async ({ page }, testInfo) => {
+  await page.goto(`${shellOnBase}${aircraftPath}`);
+  const nav = await workspaceNavigation(page, testInfo.project.name);
+
+  for (const label of ["AIRCRAFT", "PROCEDURES", "PERFORMANCE", "TRAINING", "FLIGHT"]) {
+    await expect(nav.getByRole("link", { name: label, exact: true })).toBeVisible();
+  }
+});
+
+test("UX6.8 touch Procedures exposes compact selector controls before procedure content", async ({ page }, testInfo) => {
+  await page.goto(`${shellOnBase}${aircraftPath}/procedures`);
+  const procedures = page.locator('[data-ft-procedures-page="true"]');
+  await expect(procedures).toBeVisible();
+
+  const picker = procedures.getByRole("combobox", { name: "Procedure", exact: true });
+
+  if (testInfo.project.name === "desktop-chromium") {
+    await expect(picker).toBeHidden();
+    await expect(
+      procedures.getByRole("navigation", { name: "Available procedures" }),
+    ).toBeVisible();
+    return;
+  }
+
+  await expect(picker).toBeVisible();
+  await expect(procedures.getByText("Filter", { exact: true })).toBeVisible();
+});
+
+test("UX6.8 primary touch shell controls meet the 44px boundary", async ({ page }, testInfo) => {
+  if (testInfo.project.name === "desktop-chromium") return;
+
+  await page.goto(`${shellOnBase}${aircraftPath}`);
+  const trigger = page.getByRole("button", { name: "Open aircraft navigation" });
+  const fastPath = page.getByRole("navigation", { name: "Operational fast path" });
+  const controls = [
+    trigger,
+    fastPath.getByRole("button", { name: "CHECKLIST", exact: true }),
+    fastPath.getByRole("button", { name: "QRH", exact: true }),
+    fastPath.getByRole("button", { name: "PERF", exact: true }),
+    fastPath.getByRole("button", { name: "REF", exact: true }),
+  ];
+
+  for (const control of controls) {
+    const box = await control.boundingBox();
+    expect(box).not.toBeNull();
+    if (!box) continue;
+    expect(box.width).toBeGreaterThanOrEqual(44);
+    expect(box.height).toBeGreaterThanOrEqual(44);
+  }
+});
+

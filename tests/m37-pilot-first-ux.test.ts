@@ -36,7 +36,7 @@ test("pilot home emphasizes operational, learning and reference tasks instead of
 
 test("aircraft library remains a pilot selection screen rather than a governance dashboard", () => {
   assert.match(library, /Select an aircraft to open its training workspace/);
-  assert.match(library, /pilot-aircraft-row/);
+  assert.match(library, /className=\{styles\.aircraftRow\}/);
   assert.doesNotMatch(library, /Module-driven|governed training content|content repository|manual\.publisher|manual\.revision/);
 });
 

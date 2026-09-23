@@ -136,16 +136,16 @@ export async function FtShell({
       selectedVariant={selectedVariant}
     >
       <section className={styles.shell} data-ft-shell="true" aria-label="Aircraft workspace shell">
-        <FtTopBar
-          aircraftId={aircraftId}
-          aircraftIdentity={aircraftIdentity}
-          trainingProfileLabel={trainingProfileLabel}
-          activeFlight={activeFlight}
-          navigationControl={<FtNavDrawer aircraftId={aircraftId} />}
-        />
+        <FtSideNav aircraftId={aircraftId} />
 
         <div className={styles.workspace}>
-          <FtSideNav aircraftId={aircraftId} />
+          <FtTopBar
+            aircraftId={aircraftId}
+            aircraftIdentity={aircraftIdentity}
+            trainingProfileLabel={trainingProfileLabel}
+            activeFlight={activeFlight}
+            navigationControl={<FtNavDrawer aircraftId={aircraftId} />}
+          />
           <div className={styles.content}>{children}</div>
         </div>
 

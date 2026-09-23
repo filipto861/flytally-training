@@ -23,7 +23,8 @@
   border-inline-start: var(--ft-rule-strong);
   background: var(--ft-bg-panel);
   color: var(--ft-text-primary);
-  animation: ft-fast-path-slide-in 180ms ease-out;
+  box-shadow: calc(var(--ft-space-2) * -1) 0 var(--ft-space-6) color-mix(in srgb, var(--ft-text-primary) 10%, transparent);
+  animation: ft-fast-path-slide-in var(--ft-motion-panel) ease-out;
 }
 
 .panelHeader {
@@ -33,7 +34,7 @@
   align-items: center;
   padding: var(--ft-space-2) var(--ft-space-3);
   border-bottom: var(--ft-rule-default);
-  background: var(--ft-bg-panel);
+  background: var(--ft-bg-workspace);
 }
 
 .tabList {
@@ -41,7 +42,7 @@
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   border: var(--ft-rule-default);
-  border-radius: calc(var(--ft-radius-4) * 2);
+  border-radius: var(--ft-radius-panel);
   overflow: hidden;
 }
 
@@ -56,10 +57,11 @@
 .tab {
   border: 0;
   border-inline-end: var(--ft-rule-default);
-  background: var(--ft-bg-inset);
+  background: transparent;
   color: var(--ft-text-secondary);
-  font-family: var(--ft-font-data);
-  font-weight: 500;
+  font-family: var(--ft-font-ui);
+  font-size: var(--ft-type-label);
+  font-weight: 650;
 }
 
 .tab:last-child {
@@ -67,9 +69,9 @@
 }
 
 .tabActive {
-  background: var(--ft-bg-operational);
-  color: var(--ft-text-primary);
-  font-weight: 600;
+  background: var(--ft-accent-soft);
+  color: var(--ft-accent);
+  font-weight: 700;
 }
 
 .closeButton {
@@ -86,7 +88,7 @@
   min-height: 0;
   overflow: auto;
   overscroll-behavior: contain;
-  background: var(--ft-bg-panel);
+  background: var(--ft-bg-workspace);
 }
 
 .checklist {
@@ -238,13 +240,15 @@
 }
 
 .indicator {
+  min-height: var(--ft-control-height);
   padding-inline: var(--ft-space-3);
-  border: var(--ft-rule-default);
-  border-radius: calc(var(--ft-radius-4) * 2);
-  background: var(--ft-bg-operational);
-  color: var(--ft-text-primary);
-  font-family: var(--ft-font-data);
-  font-weight: 600;
+  border: 0;
+  border-radius: var(--ft-radius-4);
+  background: var(--ft-accent-soft);
+  color: var(--ft-accent);
+  font-family: var(--ft-font-ui);
+  font-size: var(--ft-type-meta);
+  font-weight: 700;
 }
 
 .tab:focus-visible,
@@ -253,7 +257,7 @@
 .fullPageLink:focus-visible,
 .phasePicker select:focus-visible,
 .checklistItem input:focus-visible {
-  outline: var(--ft-focus-width) solid var(--ft-text-primary);
+  outline: var(--ft-focus-width) solid var(--ft-focus);
   outline-offset: var(--ft-focus-offset);
 }
 

@@ -163,7 +163,7 @@ export function FtSearchOverlay({
         onClick={openSearch}
       >
         <FtSearchIcon name="search" />
-        <span>SEARCH</span>
+        <span>Search</span>
         <span className={styles.shortcutHint} aria-hidden="true">⌘K</span>
       </button>
 

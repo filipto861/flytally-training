@@ -45,97 +45,129 @@ export function FtProcedureIndex({
       : "";
   const filtersActive = Boolean(searchQuery || phaseFilter !== allPhasesValue);
 
-  return (
-    <>
-      <div className={styles.toolbar}>
-        <label className={styles.searchField}>
-          <span>Search</span>
-          <input
-            aria-label="Search procedures"
-            type="search"
-            value={searchQuery}
-            onChange={(event) => onSearchQueryChange(event.target.value)}
-            placeholder="Action, system, indication…"
-          />
-        </label>
+  const searchControl = (
+    <label className={styles.searchField}>
+      <span>Search</span>
+      <input
+        aria-label="Search procedures"
+        type="search"
+        value={searchQuery}
+        onChange={(event) => onSearchQueryChange(event.target.value)}
+        placeholder="Action, system, indication…"
+      />
+    </label>
+  );
 
-        <label className={styles.phaseField}>
-          <span>Phase</span>
+  const phaseControl = (
+    <label className={styles.phaseField}>
+      <span>Phase</span>
+      <select
+        aria-label="Procedure phase"
+        value={phaseFilter}
+        onChange={(event) => onPhaseFilterChange(event.target.value)}
+      >
+        <option value={allPhasesValue}>All phases</option>
+        {availablePhases.map((phase) => (
+          <option key={phase} value={phase}>
+            {phase}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+
+  return (
+    <div className={styles.indexColumn}>
+      <div className={styles.desktopIndex}>
+        <header className={styles.indexTitle}>
+          <div>
+            <span>PROCEDURES</span>
+            <strong>Procedure index</strong>
+          </div>
+          <b>{procedures.length}</b>
+        </header>
+
+        <div className={styles.toolbar}>
+          {searchControl}
+          {phaseControl}
+        </div>
+
+        <nav className={styles.indexPanel} aria-label="Available procedures">
+          <div className={styles.indexHeader}>
+            <span>{progressPersistenceLabel}</span>
+            {filtersActive ? (
+              <button type="button" onClick={onClearFilters}>
+                Clear filters
+              </button>
+            ) : null}
+          </div>
+
+          <div className={styles.indexList}>
+            {procedures.map((procedure) => {
+              const selected = selectedProcedureId === procedure.id;
+              const status = statuses[procedure.id];
+
+              return (
+                <button
+                  key={procedure.id}
+                  type="button"
+                  className={styles.indexButton}
+                  aria-current={selected ? "page" : undefined}
+                  data-complete={status?.complete ? "true" : "false"}
+                  onClick={() => onSelectProcedure(procedure.id)}
+                >
+                  <span className={styles.indexState} aria-hidden="true" />
+                  <span className={styles.indexCopy}>
+                    <small>{procedure.phase ?? "Procedure"}</small>
+                    <strong>{procedure.title}</strong>
+                  </span>
+                  <span className={styles.indexStatus}>{status?.label ?? "Ready"}</span>
+                </button>
+              );
+            })}
+
+            {!procedures.length ? (
+              <p className={styles.indexEmpty}>No procedure matches the current filters.</p>
+            ) : null}
+          </div>
+        </nav>
+      </div>
+
+      <div className={styles.mobileControls}>
+        <label className={styles.mobilePicker}>
+          <span>Procedure</span>
           <select
-            aria-label="Procedure phase"
-            value={phaseFilter}
-            onChange={(event) => onPhaseFilterChange(event.target.value)}
+            aria-label="Procedure"
+            disabled={!procedures.length}
+            value={selectedVisibleId}
+            onChange={(event) => onSelectProcedure(event.target.value)}
           >
-            <option value={allPhasesValue}>All phases</option>
-            {availablePhases.map((phase) => (
-              <option key={phase} value={phase}>
-                {phase}
+            {!procedures.length ? <option value="">No matches</option> : null}
+            {procedures.length && !selectedVisibleId ? (
+              <option value="">Selected procedure is filtered out</option>
+            ) : null}
+            {procedures.map((procedure) => (
+              <option key={procedure.id} value={procedure.id}>
+                {procedure.phase ? procedure.phase + " · " : ""}
+                {procedure.title}
               </option>
             ))}
           </select>
         </label>
-      </div>
 
-      <nav className={styles.indexPanel} aria-label="Available procedures">
-        <div className={styles.indexHeader}>
+        <details className={styles.mobileFilters}>
+          <summary>Filter</summary>
           <div>
-            <strong>{procedures.length} procedures</strong>
-            <span>{progressPersistenceLabel}</span>
-          </div>
-          {filtersActive ? (
-            <button type="button" onClick={onClearFilters}>
-              Clear
-            </button>
-          ) : null}
-        </div>
-
-        <div className={styles.indexList}>
-          {procedures.map((procedure) => {
-            const selected = selectedProcedureId === procedure.id;
-            const status = statuses[procedure.id];
-
-            return (
-              <button
-                key={procedure.id}
-                type="button"
-                className={styles.indexButton}
-                aria-current={selected ? "page" : undefined}
-                data-complete={status?.complete ? "true" : "false"}
-                onClick={() => onSelectProcedure(procedure.id)}
-              >
-                <span>{procedure.phase ?? "Procedure"}</span>
-                <strong>{procedure.title}</strong>
-                <small>{status?.label ?? "Ready"}</small>
+            {searchControl}
+            {phaseControl}
+            {filtersActive ? (
+              <button type="button" onClick={onClearFilters}>
+                Clear filters
               </button>
-            );
-          })}
-
-          {!procedures.length ? (
-            <p className={styles.indexEmpty}>No procedure matches the current filters.</p>
-          ) : null}
-        </div>
-      </nav>
-
-      <label className={styles.mobilePicker}>
-        <span>Procedure</span>
-        <select
-          aria-label="Procedure"
-          disabled={!procedures.length}
-          value={selectedVisibleId}
-          onChange={(event) => onSelectProcedure(event.target.value)}
-        >
-          {!procedures.length ? <option value="">No matches</option> : null}
-          {procedures.length && !selectedVisibleId ? (
-            <option value="">Selected procedure is filtered out</option>
-          ) : null}
-          {procedures.map((procedure) => (
-            <option key={procedure.id} value={procedure.id}>
-              {procedure.phase ? `${procedure.phase} · ` : ""}
-              {procedure.title}
-            </option>
-          ))}
-        </select>
-      </label>
-    </>
+            ) : null}
+          </div>
+        </details>
+      </div>
+    </div>
   );
 }

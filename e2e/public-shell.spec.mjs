@@ -26,7 +26,7 @@ async function expectNoHorizontalOverflow(page){
 test("aircraft library shell renders responsively",async({page})=>{
   await page.goto("/");
   await expect(page.getByRole("heading",{name:"Your aircraft"})).toBeVisible();
-  await expect(page.locator("main.pilot-library")).toBeVisible();
+  await expect(page.locator('main[data-ux6-library="true"]')).toBeVisible();
   await expectNoHorizontalOverflow(page);
 });
 
@@ -48,7 +48,7 @@ test("keyboard users can skip persistent Training chrome",async({page})=>{
 
 test("deterministic aircraft opens the pilot workspace without overflow",async({page})=>{
   await page.goto("/");
-  const aircraft=page.locator("a.pilot-aircraft-row").filter({hasText:"Browser CI Aircraft"});
+  const aircraft=page.locator('a[href="/aircraft/browser-ci-aircraft"]');
   await expect(aircraft).toBeVisible();
   await aircraft.click();
   await expect(page).toHaveURL(/\/aircraft\/browser-ci-aircraft$/);

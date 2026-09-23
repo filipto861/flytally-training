@@ -1,15 +1,22 @@
 .trigger {
-  min-height: var(--ft-touch-target-min);
+  min-height: var(--ft-control-height);
   display: inline-flex;
   align-items: center;
   gap: var(--ft-space-2);
   padding-inline: var(--ft-space-3);
   border: var(--ft-rule-default);
-  border-radius: var(--ft-radius-2);
+  border-radius: var(--ft-radius-4);
   background: var(--ft-bg-inset);
-  color: var(--ft-text-primary);
+  color: var(--ft-text-secondary);
   font-family: var(--ft-font-ui);
-  font-weight: 500;
+  font-size: var(--ft-type-label);
+  font-weight: 600;
+}
+
+.trigger:hover {
+  border-color: var(--ft-border-strong);
+  background: var(--ft-bg-hover);
+  color: var(--ft-text-primary);
 }
 
 .shortcutHint {
@@ -76,7 +83,7 @@
   gap: var(--ft-space-2);
   padding-inline: var(--ft-space-3);
   border: var(--ft-rule-default);
-  border-radius: var(--ft-radius-2);
+  border-radius: var(--ft-radius-4);
   background: var(--ft-bg-inset);
 }
 
@@ -256,7 +263,7 @@
 .clearRecent:focus-visible,
 .recentButton:focus-visible,
 .emptyLink:focus-visible {
-  outline: var(--ft-focus-width) solid var(--ft-text-primary);
+  outline: var(--ft-focus-width) solid var(--ft-focus);
   outline-offset: var(--ft-focus-offset);
 }
 

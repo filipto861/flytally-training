@@ -60,7 +60,7 @@ test("UX2 uses panel grouping and a common radius across core workspaces", () =>
     const css = read(path);
     assert.match(css, /var\(--ft-bg-panel\)/);
     assert.match(css, /var\(--ft-rule-default\)/);
-    assert.match(css, /calc\(var\(--ft-radius-4\) \* 2\)/);
+    assert.match(css, /var\(--ft-radius-panel\)/);
   }
 });
 

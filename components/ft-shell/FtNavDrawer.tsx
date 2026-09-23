@@ -94,7 +94,10 @@ export function FtNavDrawer({ aircraftId }: Readonly<{ aircraftId: string }>) {
             onKeyDown={trapFocus}
           >
             <div className={styles.drawerHeader}>
-              <strong>NAVIGATION</strong>
+              <div>
+                <span>FLYTALLY TRAINING</span>
+                <strong>Aircraft workspace</strong>
+              </div>
               <button
                 type="button"
                 className={styles.drawerClose}
@@ -119,7 +122,8 @@ export function FtNavDrawer({ aircraftId }: Readonly<{ aircraftId: string }>) {
                     aria-current={active ? "page" : undefined}
                     onClick={() => setOpen(false)}
                   >
-                    {destination.label}
+                    <span>{destination.label}</span>
+                    <span aria-hidden="true">→</span>
                   </Link>
                 );
               })}
