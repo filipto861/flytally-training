@@ -1,12 +1,16 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
-  "regions": ["fra1"],
+  "regions": [
+    "fra1"
+  ],
   "git": {
     "deploymentEnabled": {
       "*": false,
-      "main": true
+      "main": true,
+      "preview/b4-integrated-takeoff-performance": true
     }
   },
-  "ignoreCommand": "node tooling/vercel-ignore-build.mjs"
+  "ignoreCommand": "node tooling/vercel-ignore-build.mjs",
+  "buildCommand": "npm run test:target -- tests/b4-integrated-takeoff-performance.test.ts tests/b1-governed-performance-configuration.test.ts tests/b3-active-flight-context-refactor.test.ts tests/aviation-airport-dataset.test.ts tests/aviation-runway-context.test.ts tests/aviation-metar-route.test.ts tests/aviation-pressure-altitude.test.ts tests/aviation-wind-component.test.ts && npm run typecheck && npm run build"
 }
