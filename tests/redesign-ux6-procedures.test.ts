@@ -41,12 +41,12 @@ test("UX6.5 uses the approved accent and panel tokens without hardcoded palette 
   const css = read("components/ft-procedures/ft-procedures.module.css");
 
   for (const token of [
-    "--ft-accent-primary",
+    "--ft-accent",
     "--ft-accent-soft",
     "--ft-bg-panel",
     "--ft-bg-inset",
     "--ft-radius-panel",
-    "--ft-focus-color",
+    "--ft-focus",
   ]) {
     assert.match(css, new RegExp(token));
   }
