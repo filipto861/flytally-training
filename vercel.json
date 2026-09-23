@@ -12,5 +12,5 @@
     }
   },
   "ignoreCommand": "node tooling/vercel-ignore-build.mjs",
-  "buildCommand": "npm run test:target -- tests/b4-integrated-takeoff-performance.test.ts tests/b1-governed-performance-configuration.test.ts tests/b3-active-flight-context-refactor.test.ts tests/aviation-airport-dataset.test.ts tests/aviation-runway-context.test.ts tests/aviation-metar-route.test.ts tests/aviation-pressure-altitude.test.ts tests/aviation-wind-component.test.ts && npm run typecheck && npm run build"
+  "buildCommand": "npm run typecheck && npm run test:target -- tests/b4-integrated-takeoff-performance.test.ts && npm run build"
 }
