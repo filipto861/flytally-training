@@ -14,13 +14,13 @@ import styles from "./ft-shell.module.css";
 export function FtTopBar({
   aircraftId,
   aircraftIdentity,
-  trainingProfileLabel,
+  aircraftProfileLabel,
   activeFlight,
   navigationControl,
 }: Readonly<{
   aircraftId: string;
   aircraftIdentity: string;
-  trainingProfileLabel: string;
+  aircraftProfileLabel: string;
   activeFlight?: ActiveFlight | null;
   navigationControl: ReactNode;
 }>) {
@@ -39,9 +39,9 @@ export function FtTopBar({
         <strong>{aircraftIdentity}</strong>
         <span
           className={styles.aircraftProfile}
-          aria-label={"Training profile: " + trainingProfileLabel}
+          aria-label={"Aircraft profile: " + aircraftProfileLabel}
         >
-          {trainingProfileLabel}
+          {aircraftProfileLabel}
         </span>
       </div>
 
