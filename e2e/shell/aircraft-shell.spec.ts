@@ -40,9 +40,9 @@ test("W1 mounts the new shell without duplicate legacy navigation when the flag 
   const shell = page.locator('[data-ft-shell="true"]');
   await expect(shell).toBeVisible();
   await expect(shell.getByText("Browser CI Aircraft", { exact: true }).first()).toBeVisible();
-  const profile = shell.locator('[aria-label^="Training profile:"]');
+  const profile = shell.locator('[aria-label^="Aircraft profile:"]');
   await expect(profile).toHaveCount(1);
-  await expect(profile).toHaveAttribute("aria-label", "Training profile: Standard");
+  await expect(profile).toHaveAttribute("aria-label", "Aircraft profile: Standard");
 
   const legacyNav = page.locator('section[aria-label="Aircraft navigation"]');
   await expect(legacyNav).toBeHidden();
