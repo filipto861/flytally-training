@@ -4,8 +4,7 @@
 }
 
 :global(body):has(.libraryPage) :global(.app-header),
-:global(body):has(.libraryPage) :global(.app-footer),
-:global(body):has(.libraryPage) :global(.skip-link) {
+:global(body):has(.libraryPage) :global(.app-footer) {
   display: none !important;
 }
 
@@ -82,10 +81,44 @@
   font-size: 15px;
 }
 
+.topBarActions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
 .productLabel {
   color: var(--library-text-muted);
   font-size: 12px;
   font-weight: 650;
+}
+
+.topBar :global(.account-actions) {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.topBar :global(.header-action) {
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--library-border);
+  border-radius: 8px;
+  background: var(--library-panel);
+  color: var(--library-text);
+  font-size: 12px;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.topBar :global(.header-action:hover) {
+  border-color: var(--library-border-strong);
+  background: var(--library-hover);
+}
+
+.topBar :global(.header-action:focus-visible) {
+  outline: 2px solid var(--library-accent);
+  outline-offset: 2px;
 }
 
 .content {
