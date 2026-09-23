@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 
 import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
 import { FtSystemsPage } from "@/components/ft-systems/FtSystemsPage";
+import { FtSystemsUnavailable } from "@/components/ft-systems/FtSystemsUnavailable";
 import { SystemsBrowser, type RuntimeSystemLesson } from "@/components/systems-browser";
 import { configurationForAircraftVariant, filterSystemsForConfiguration, resolveSelectedVariant, withVariantQuery } from "@/lib/aircraft-applicability";
 import { getPublishedAircraftModule } from "@/lib/content-repository";
@@ -35,7 +36,14 @@ export default async function SystemsPage({
     : undefined;
 
   if (isNewShellEnabled()) {
-    if (!configuredUniversal) notFound();
+    if (!configuredUniversal) {
+      return (
+        <FtSystemsUnavailable
+          aircraftId={aircraft.id}
+          selectedVariant={selectedVariant}
+        />
+      );
+    }
     return <FtSystemsPage content={configuredUniversal} />;
   }
   const systems: readonly RuntimeSystemLesson[] = configuredUniversal ? configuredUniversal.systems.map((system) => ({
