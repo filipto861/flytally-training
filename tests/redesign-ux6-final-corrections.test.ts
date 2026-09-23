@@ -45,3 +45,17 @@ test("UX6.9 capture supports a local authenticated state without committing cred
   assert.match(ignore,/^ux6-auth-state\.json$/m);
   assert.equal(pkg.scripts["capture:ux6:auth-state"],"node scripts/capture-ux6-auth-state.mjs");
 });
+
+
+test("UX6.9 authenticated capture calculates Performance before visual evidence",()=>{
+  const capture=read("scripts/capture-ux6-visuals.mjs");
+
+  assert.match(capture,/storageStatePath && routeName === "performance"/);
+  assert.match(capture,/input\[name="pressureAltitude"\]/);
+  assert.match(capture,/input\[name="oat"\]/);
+  assert.match(capture,/fill\("0"\)/);
+  assert.match(capture,/fill\("15"\)/);
+  assert.match(capture,/data-ft-performance-strip="true"/);
+  assert.match(capture,/performanceCalculated = true/);
+  assert.match(capture,/performanceCalculated,/);
+});
