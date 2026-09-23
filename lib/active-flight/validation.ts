@@ -1,4 +1,10 @@
-import type { ActiveFlight, ActiveFlightInput, ActiveFlightPatch } from "./types.ts";
+import type {
+  ActiveFlight,
+  ActiveFlightConfiguration,
+  ActiveFlightInput,
+  ActiveFlightPatch,
+  ActiveFlightRunway,
+} from "./types.ts";
 
 const ICAO = /^[A-Z0-9]{4}$/;
 const RUNWAY = /^[A-Z0-9]{1,4}[LCR]?$/;
@@ -24,10 +30,16 @@ function airport(value: unknown): ActiveFlightInput["departure"] | null {
   return name ? { icao, name } : { icao };
 }
 
-function runway(value: unknown): ActiveFlightInput["runway"] | null {
+function runway(value: unknown): ActiveFlightRunway | null {
   const row = object(value);
   const identifier = row ? text(row.identifier, 5)?.toUpperCase() : null;
   return identifier && RUNWAY.test(identifier) ? { identifier } : null;
+}
+
+function optionalRunway(value: unknown): ActiveFlightRunway | null | undefined {
+  if (value === undefined) return undefined;
+  if (value === null) return null;
+  return runway(value) ?? undefined;
 }
 
 function weight(value: unknown): ActiveFlightInput["weight"] | null {
@@ -38,13 +50,19 @@ function weight(value: unknown): ActiveFlightInput["weight"] | null {
   return { value: row.value, unit: row.unit };
 }
 
-function configuration(value: unknown): ActiveFlightInput["configuration"] | null {
+function configuration(value: unknown): ActiveFlightConfiguration | null {
   const row = object(value);
   if (!row) return null;
   const flaps = text(row.flaps, 32);
   if (!flaps) return null;
   if (row.antiIce !== undefined && typeof row.antiIce !== "boolean") return null;
   return row.antiIce === undefined ? { flaps } : { flaps, antiIce: row.antiIce };
+}
+
+function optionalConfiguration(value: unknown): ActiveFlightConfiguration | null | undefined {
+  if (value === undefined) return undefined;
+  if (value === null) return null;
+  return configuration(value) ?? undefined;
 }
 
 function brief(value: unknown): ActiveFlightInput["brief"] | undefined | null {
@@ -63,20 +81,22 @@ export function parseActiveFlightInput(value: unknown): ActiveFlightInput | null
   const aircraftId = text(row.aircraftId, 128);
   const departure = airport(row.departure);
   const destination = airport(row.destination);
-  const selectedRunway = runway(row.runway);
+  const selectedRunway = optionalRunway(row.runway);
   const selectedWeight = weight(row.weight);
-  const selectedConfiguration = configuration(row.configuration);
+  const selectedConfiguration = optionalConfiguration(row.configuration);
   const selectedBrief = brief(row.brief);
   if (!aircraftId || !/^[a-zA-Z0-9][a-zA-Z0-9._:-]*$/.test(aircraftId)) return null;
-  if (!departure || !destination || !selectedRunway || !selectedWeight || !selectedConfiguration) return null;
+  if (!departure || !destination || !selectedWeight) return null;
+  if (row.runway !== undefined && selectedRunway === undefined) return null;
+  if (row.configuration !== undefined && selectedConfiguration === undefined) return null;
   if (row.brief !== undefined && selectedBrief === undefined) return null;
   return {
     aircraftId,
     departure,
     destination,
-    runway: selectedRunway,
     weight: selectedWeight,
-    configuration: selectedConfiguration,
+    ...(selectedRunway === undefined ? {} : { runway: selectedRunway }),
+    ...(selectedConfiguration === undefined ? {} : { configuration: selectedConfiguration }),
     ...(selectedBrief === undefined ? {} : { brief: selectedBrief }),
   };
 }
@@ -87,24 +107,32 @@ export function parseActiveFlightPatch(value: unknown): ActiveFlightPatch | null
   const patch: ActiveFlightPatch = {};
   if ("departure" in row) { const parsed = airport(row.departure); if (!parsed) return null; Object.assign(patch,{departure:parsed}); }
   if ("destination" in row) { const parsed = airport(row.destination); if (!parsed) return null; Object.assign(patch,{destination:parsed}); }
-  if ("runway" in row) { const parsed = runway(row.runway); if (!parsed) return null; Object.assign(patch,{runway:parsed}); }
+  if ("runway" in row) {
+    const parsed = optionalRunway(row.runway);
+    if (parsed === undefined) return null;
+    Object.assign(patch,{runway:parsed});
+  }
   if ("weight" in row) { const parsed = weight(row.weight); if (!parsed) return null; Object.assign(patch,{weight:parsed}); }
-  if ("configuration" in row) { const parsed = configuration(row.configuration); if (!parsed) return null; Object.assign(patch,{configuration:parsed}); }
+  if ("configuration" in row) {
+    const parsed = optionalConfiguration(row.configuration);
+    if (parsed === undefined) return null;
+    Object.assign(patch,{configuration:parsed});
+  }
   if ("brief" in row) { const parsed = brief(row.brief); if (parsed === undefined) return null; Object.assign(patch,{brief:parsed}); }
   return Object.keys(patch).length ? patch : null;
 }
 
 export function activeFlightDependencyReference(
-  input: Pick<ActiveFlightInput, "departure" | "destination" | "runway" | "weight" | "configuration">,
+  input: Pick<ActiveFlightInput, "departure" | "destination" | "weight" | "runway" | "configuration">,
 ): string {
   const raw = [
     input.departure.icao,
     input.destination.icao,
-    input.runway.identifier,
+    input.runway?.identifier ?? "",
     String(input.weight.value),
     input.weight.unit,
-    input.configuration.flaps,
-    input.configuration.antiIce ? "1" : "0",
+    input.configuration?.flaps ?? "",
+    input.configuration?.antiIce ? "1" : "0",
   ].join("|");
   let hash = 2166136261;
   for (let index = 0; index < raw.length; index += 1) {
@@ -118,7 +146,9 @@ export function isActiveFlight(value: unknown): value is ActiveFlight {
   const row = object(value);
   if (!row || typeof row.id !== "string" || typeof row.aircraftId !== "string" || typeof row.accountSubject !== "string") return false;
   if (row.lifecycle !== "ACTIVE" && row.lifecycle !== "PREVIOUS" && row.lifecycle !== "ARCHIVED") return false;
-  if (!airport(row.departure) || !airport(row.destination) || !runway(row.runway) || !weight(row.weight) || !configuration(row.configuration)) return false;
+  if (!airport(row.departure) || !airport(row.destination) || !weight(row.weight)) return false;
+  if (row.runway !== null && !runway(row.runway)) return false;
+  if (row.configuration !== null && !configuration(row.configuration)) return false;
   for (const key of ["createdAt","updatedAt","activatedAt"] as const) {
     if (typeof row[key] !== "string" || Number.isNaN(Date.parse(row[key] as string))) return false;
   }
