@@ -263,7 +263,7 @@ UX6 is a ground-up presentation redesign. It preserves proven P0–P7 domain beh
 | UX6.2 | Design system + primitives, light/dark | **COMPLETE — PO GATE B APPROVED** |
 | UX6.3 | Reference screens before broad implementation | **COMPLETE — PO GATE C APPROVED** |
 | UX6.4 | New shell implementation | **ACTIVE** |
-| UX6.5 | Procedures redesign | planned |
+| UX6.5 | Procedures redesign | **ACTIVE — stacked on UX6.4** |
 | UX6.6 | Performance + Flight redesign | planned |
 | UX6.7 | Aircraft/Library + Training + Reference + Systems | planned |
 | UX6.8 | Responsive specialization + accessibility hardening | planned |
@@ -489,3 +489,5 @@ fails closed, and legacy state cannot resurrect after canonical state exists.
 | 2026-09-22 | UX6 Gate A approved by product owner. Shell/IA direction accepted; UX6.2 design-system phase unlocked. | Filip Točík + ChatGPT |
 | 2026-09-22 | UX6 Gate B approved by product owner after live visual preview. Design-system direction accepted; UX6.3 reference-screen phase unlocked. | Filip Točík + ChatGPT |
 | 2026-09-22 | UX6 Gate C approved by product owner after multi-surface preview. UX6.3 complete; UX6.4 production shell implementation unlocked. | Filip Točík + ChatGPT |
+| 2026-09-22 | UX6.5 Procedures implementation started as a stacked branch on UX6.4: integrated navigator controls, Operate-first detail hierarchy, contextual Relevance pane and compact mobile selector/filter controls. | Filip Točík + ChatGPT |
+| 2026-09-23 | UX6.5 Procedures implementation rebased cleanly on current UX6.4 shell head; retained Operate-first hierarchy, integrated desktop procedure navigator, contextual inspector, and compact mobile controls. | Filip Točík + ChatGPT |
