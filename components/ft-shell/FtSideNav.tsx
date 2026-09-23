@@ -47,6 +47,7 @@ export function FtSideNav({ aircraftId }: Readonly<{ aircraftId: string }>) {
               key={destination.key}
               href={destination.href}
               className={styles.sideNavLink}
+              aria-label={destination.label}
               aria-current={active ? "page" : undefined}
               title={destination.label}
             >
