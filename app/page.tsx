@@ -28,7 +28,7 @@ export default async function HomePage() {
         <header className={styles.pageHeader}>
           <p className={styles.eyebrow}>AIRCRAFT LIBRARY</p>
           <h1>Your aircraft</h1>
-          <p>Choose an aircraft to open its source-governed training workspace.</p>
+          <p>Select an aircraft to open its training workspace.</p>
         </header>
 
         <section className={styles.aircraftList} aria-label="Training aircraft">
@@ -49,7 +49,7 @@ export default async function HomePage() {
                 </span>
 
                 <span className={styles.aircraftCopy}>
-                  <small className={styles.available}>AVAILABLE</small>
+                  <small className={styles.available}>Available</small>
                   <strong>{item.displayName}</strong>
                   <span>
                     {item.variants.length
