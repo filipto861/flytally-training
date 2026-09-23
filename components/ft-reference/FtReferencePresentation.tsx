@@ -106,10 +106,24 @@ export function FtReferencePresentation({
         <span>{reference.itemCount} published items</span>
       </header>
 
-      <div className={styles.groups}>
-        {reference.groups.map((group) => (
-          <Group group={group} key={group.id} />
-        ))}
+      <div className={view === "full" ? styles.fullLayout : styles.fastLayout}>
+        {view === "full" ? (
+          <nav className={styles.referenceIndex} aria-label="Reference sections">
+            <span>SECTIONS</span>
+            {reference.groups.map((group) => (
+              <a href={"#reference-group-" + group.id} key={group.id}>
+                <strong>{group.title}</strong>
+                <small>{group.items.length}</small>
+              </a>
+            ))}
+          </nav>
+        ) : null}
+
+        <div className={styles.groups}>
+          {reference.groups.map((group) => (
+            <Group group={group} key={group.id} />
+          ))}
+        </div>
       </div>
 
       {reference.disclaimer || reference.sourceNote ? (
