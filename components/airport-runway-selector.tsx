@@ -84,7 +84,11 @@ export function AirportRunwaySelector({
 
   const handleRunwayChange = (value: string) => {
     setRunwayIdent(value);
-    onChange(selectedAirport ? resolveRunwayEnd(selectedAirport, value) : undefined);
+    onChange(
+      selectedAirport
+        ? resolveRunwayEnd(selectedAirport, value, loadedDataset?.source)
+        : undefined,
+    );
   };
 
   return (
