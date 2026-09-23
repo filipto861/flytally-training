@@ -12,5 +12,5 @@
     }
   },
   "ignoreCommand": "node tooling/vercel-ignore-build.mjs",
-  "buildCommand": "npm run typecheck && npm run test:target -- tests/b3-active-flight-context-refactor.test.ts tests/redesign-d0-active-flight.test.ts tests/redesign-p2-performance.test.ts tests/redesign-ux6-performance-flight.test.ts && npm run build"
+  "buildCommand": "npm run typecheck && npm test && npm run build"
 }
