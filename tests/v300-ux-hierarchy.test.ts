@@ -8,7 +8,7 @@ const read=(file:string)=>fs.readFileSync(path.join(root,file),"utf8");
 
 test("v3.0 U1 keeps aircraft selection ahead of optional PWA installation",()=>{
   const home=read("app/page.tsx");
-  const aircraft=home.indexOf('className="pilot-aircraft-list"');
+  const aircraft=home.indexOf("className={styles.aircraftList}");
   const install=home.indexOf("<PwaInstallCard />");
   assert.ok(aircraft>=0);
   assert.ok(install>aircraft);
