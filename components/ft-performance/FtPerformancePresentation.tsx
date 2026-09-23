@@ -14,22 +14,30 @@ import {
   type PerformanceResult,
 } from "@/lib/performance/client";
 import {
-  buildPerformanceContext,
+  buildTakeoffPerformanceContext,
   diffPerformanceContext,
   isContextValid,
 } from "@/lib/performance/context";
+import { formatObservationZulu } from "@/lib/weather/metar-snapshot-helpers";
 import type { PerformanceDataset } from "@/lib/universal-aircraft-content";
 import { useActiveFlightState } from "@/components/ft-flight/use-active-flight";
 
 import { FtPerformanceContextLabel, type FtPerformanceContextKind } from "./FtPerformanceContextLabel";
 import { FtPerformanceInvalidation } from "./FtPerformanceInvalidation";
 import { FtPerformanceStrip } from "./FtPerformanceStrip";
+import { usePerformanceEnvironment } from "./use-performance-environment";
 import styles from "./ft-performance.module.css";
 
 function numberFromInput(value: string): number | undefined {
   if (!value.trim()) return undefined;
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+function signedKnots(value: number): string {
+  const rounded = Math.round(value);
+  if (rounded === 0) return "0 kt";
+  return `${rounded > 0 ? "+" : ""}${rounded} kt`;
 }
 
 export function FtPerformancePresentation({
@@ -49,11 +57,40 @@ export function FtPerformancePresentation({
 }>) {
   const { flight } = useActiveFlightState(aircraftId, activeFlight);
   const current = flight?.lifecycle === "ACTIVE" ? flight : null;
+  const environment = usePerformanceEnvironment(
+    current?.departure.icao ?? null,
+    current?.runway?.identifier,
+  );
+
   const [result, setResult] = useState<PerformanceResult | null>(null);
-  const [pressureAltitude, setPressureAltitude] = useState("");
-  const [oat, setOat] = useState("");
+  const [takeoffWeight, setTakeoffWeight] = useState("");
+  const [flaps, setFlaps] = useState("");
+  const [antiIce, setAntiIce] = useState(false);
   const [busy, setBusy] = useState(false);
   const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    if (!current) {
+      setTakeoffWeight("");
+      setFlaps("");
+      setAntiIce(false);
+      return;
+    }
+    setTakeoffWeight(String(current.weight.value));
+    setFlaps(
+      current.configuration?.flaps
+      ?? takeoffCalculator?.flapOptions[0]?.value
+      ?? "",
+    );
+    setAntiIce(current.configuration?.antiIce === true);
+  }, [
+    current?.id,
+    current?.weight.value,
+    current?.weight.unit,
+    current?.configuration?.flaps,
+    current?.configuration?.antiIce,
+    takeoffCalculator,
+  ]);
 
   useEffect(() => {
     if (!current) {
@@ -69,18 +106,12 @@ export function FtPerformancePresentation({
         current.id,
       );
       setResult(stored);
-      if (stored) {
-        setPressureAltitude(
-          stored.calculationInputs.pressureAltitudeFt === undefined
-            ? ""
-            : String(stored.calculationInputs.pressureAltitudeFt),
-        );
-        setOat(
-          stored.calculationInputs.oatC === undefined
-            ? ""
-            : String(stored.calculationInputs.oatC),
-        );
-      }
+      if (!stored) return;
+
+      setTakeoffWeight(String(stored.context.weight.value));
+      setFlaps(stored.context.configuration.flaps);
+      setAntiIce(stored.context.configuration.antiIce);
+      environment.setRunwayIdent(stored.context.runway.identifier);
     };
 
     restore();
@@ -89,15 +120,39 @@ export function FtPerformancePresentation({
     return () => window.removeEventListener(PERFORMANCE_RESULT_EVENT, restore);
   }, [aircraftId, current?.id]);
 
-  const currentContext = useMemo(
-    () => current ? buildPerformanceContext(current) : null,
-    [current],
-  );
+  const currentContext = useMemo(() => {
+    if (!current) return null;
+    const weight = numberFromInput(takeoffWeight);
+    if (weight === undefined || weight <= 0) return null;
+
+    return buildTakeoffPerformanceContext(current, {
+      runwayIdentifier: environment.runwayIdent,
+      weight: { value: weight, unit: current.weight.unit },
+      flaps,
+      antiIce,
+      qnh: numberFromInput(environment.qnh.value),
+      oat: numberFromInput(environment.oat.value),
+    });
+  }, [
+    antiIce,
+    current,
+    environment.oat.value,
+    environment.qnh.value,
+    environment.runwayIdent,
+    flaps,
+    takeoffWeight,
+  ]);
+
   const stale = Boolean(
-    currentContext
-    && result
-    && !isContextValid(currentContext, result.context),
+    result
+    && (
+      showInputs
+        ? currentContext && !isContextValid(currentContext, result.context)
+        : current
+          && result.context.dependencySnapshotId !== current.performanceDependency.snapshotId
+    ),
   );
+
   const changes = currentContext && result && stale
     ? diffPerformanceContext(result.context, currentContext)
     : [];
@@ -122,15 +177,8 @@ export function FtPerformancePresentation({
 
   function calculateFromForm() {
     calculate({
-      pressureAltitudeFt: numberFromInput(pressureAltitude),
-      oatC: numberFromInput(oat),
-    });
-  }
-
-  function recalculate() {
-    calculate(result?.calculationInputs ?? {
-      pressureAltitudeFt: numberFromInput(pressureAltitude),
-      oatC: numberFromInput(oat),
+      pressureAltitudeFt: numberFromInput(environment.pressureAltitude.value),
+      oatC: numberFromInput(environment.oat.value),
     });
   }
 
@@ -145,17 +193,24 @@ export function FtPerformancePresentation({
     </div>
   ) : result ? (
     <>
-      {stale ? (
+      {showInputs && stale ? (
         <FtPerformanceInvalidation
           busy={busy}
           changes={changes}
-          onRecalculate={recalculate}
+          onRecalculate={calculateFromForm}
         />
+      ) : null}
+      {!showInputs && stale ? (
+        <div className={styles.briefRecalculate} role="status">
+          <strong>RECALCULATE</strong>
+          <span>Active Flight changed after this result was calculated.</span>
+          <Link href={"/aircraft/" + aircraftId + "/performance"}>Open Performance</Link>
+        </div>
       ) : null}
       <FtPerformanceStrip result={result} stale={stale} />
       <p className={styles.timestamp}>
         {stale
-          ? "Stored result is stale."
+          ? "Stored result requires review."
           : "Calculated " + new Date(result.computedAt).toLocaleString("en-GB")}
       </p>
     </>
@@ -163,7 +218,7 @@ export function FtPerformancePresentation({
     <div className={styles.resultEmpty}>
       <span>RESULT</span>
       <strong>No performance computed yet</strong>
-      <p>Enter the source-required environment values and calculate.</p>
+      <p>Select the runway, confirm the source-backed inputs and calculate.</p>
       {!showInputs ? (
         <Link
           className={styles.secondaryAction}
@@ -174,6 +229,16 @@ export function FtPerformancePresentation({
       ) : null}
     </div>
   );
+
+  const weatherLabel = environment.metar
+    ? `${formatObservationZulu(environment.metar.observedAt)} · ${environment.weatherState === "live" ? "LIVE" : "CACHED"}`
+    : environment.weatherState === "loading"
+      ? "Loading METAR…"
+      : environment.weatherState === "no-report"
+        ? "No METAR report"
+        : environment.weatherState === "error"
+          ? "Weather unavailable"
+          : "No weather";
 
   return (
     <section
@@ -188,82 +253,215 @@ export function FtPerformancePresentation({
         <div className={styles.performanceWorkspace}>
           <section className={styles.inputBlock} aria-label="Performance inputs">
             <header className={styles.paneHeader}>
-              <p className={styles.eyebrow}>INPUTS</p>
-              <h2>Departure conditions</h2>
+              <p className={styles.eyebrow}>TAKEOFF · INPUTS</p>
+              <h2>{current.departure.icao} departure</h2>
               <p className={styles.inputHelp}>
-                Active Flight supplies aircraft, runway, weight and configuration.
+                Runway, weather and configuration are calculation inputs. Active Flight no longer requires them at flight creation.
               </p>
             </header>
 
-            <dl className={styles.flightInputGrid}>
+            <div className={styles.environmentBar}>
               <div>
-                <dt>Runway</dt>
-                <dd>{current.departure.icao} · {current.runway.identifier}</dd>
+                <span>Airport</span>
+                <strong>
+                  {environment.airport
+                    ? `${environment.airport.icao} · ${environment.airport.name}`
+                    : current.departure.icao}
+                </strong>
+                <small>
+                  {environment.airport
+                    ? `${environment.airport.elevationFt.toLocaleString("en-US")} ft field elevation`
+                    : environment.airportState === "error"
+                      ? "Airport data unavailable"
+                      : "Loading airport data…"}
+                </small>
               </div>
               <div>
-                <dt>Weight</dt>
-                <dd>{current.weight.value} {current.weight.unit}</dd>
+                <span>Weather</span>
+                <strong>{weatherLabel}</strong>
+                <small>{environment.metar?.rawText ?? "Manual environment values remain available."}</small>
               </div>
-              <div>
-                <dt>Flaps</dt>
-                <dd>{current.configuration.flaps}</dd>
-              </div>
-              <div>
-                <dt>Anti-ice</dt>
-                <dd>{current.configuration.antiIce ? "ON" : "OFF"}</dd>
-              </div>
-            </dl>
+              <button
+                className={styles.compactAction}
+                disabled={environment.weatherState === "loading"}
+                onClick={() => void environment.refreshWeather()}
+                type="button"
+              >
+                Refresh weather
+              </button>
+            </div>
 
             <div className={styles.inputGrid}>
               <label>
-                Pressure altitude
+                Runway
+                <select
+                  aria-label="Takeoff runway"
+                  disabled={!environment.airport || !environment.runwayOptions.length}
+                  onChange={(event) => environment.setRunwayIdent(event.target.value)}
+                  value={environment.runwayIdent}
+                >
+                  <option value="">Select runway</option>
+                  {environment.runwayOptions.map((option) => (
+                    <option key={`${option.runway.id}-${option.ident}`} value={option.ident}>
+                      {option.ident} · {option.runway.surfaceLengthFt.toLocaleString("en-US")} ft · {option.runway.surface ?? "surface n/a"}
+                    </option>
+                  ))}
+                </select>
+                {environment.runwayContext ? (
+                  <small>
+                    {environment.runwayContext.headingTrueDeg === undefined
+                      ? "Heading n/a"
+                      : `${Math.round(environment.runwayContext.headingTrueDeg)}°T`}
+                    {" · "}
+                    Surface length {environment.runwayContext.surfaceLengthFt.toLocaleString("en-US")} ft — not declared TORA
+                  </small>
+                ) : null}
+              </label>
+
+              <label>
+                Takeoff weight
                 <span>
                   <input
                     inputMode="decimal"
-                    name="pressureAltitude"
-                    onChange={(event) => setPressureAltitude(event.target.value)}
-                    placeholder="0"
+                    min="1"
+                    name="takeoffWeight"
+                    onChange={(event) => setTakeoffWeight(event.target.value)}
                     type="number"
-                    value={pressureAltitude}
+                    value={takeoffWeight}
                   />
-                  <small>ft</small>
+                  <small>{current.weight.unit}</small>
                 </span>
               </label>
+
+              <label>
+                Flaps
+                <select
+                  aria-label="Takeoff flaps"
+                  disabled={!takeoffCalculator?.flapOptions.length}
+                  onChange={(event) => setFlaps(event.target.value)}
+                  value={flaps}
+                >
+                  {(takeoffCalculator?.flapOptions ?? []).map((option) => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
+                </select>
+              </label>
+
+              <label className={styles.toggleInput}>
+                <span>Anti-ice</span>
+                <button
+                  aria-pressed={antiIce}
+                  className={styles.toggleButton}
+                  onClick={() => setAntiIce((value) => !value)}
+                  type="button"
+                >
+                  {antiIce ? "ON" : "OFF"}
+                </button>
+              </label>
+
+              <label>
+                QNH
+                <span>
+                  <input
+                    inputMode="decimal"
+                    name="qnh"
+                    onChange={(event) => environment.setQnhManual(event.target.value)}
+                    step="any"
+                    type="number"
+                    value={environment.qnh.value}
+                  />
+                  <small>hPa</small>
+                </span>
+                <small>
+                  {environment.qnh.mode === "manual" ? "MANUAL" : "AUTO · METAR"}
+                  {environment.qnh.mode === "manual" && environment.metar?.qnhHpa !== undefined ? (
+                    <button className={styles.inlineReset} onClick={environment.resetQnhAuto} type="button">
+                      Reset to automatic
+                    </button>
+                  ) : null}
+                </small>
+              </label>
+
               <label>
                 OAT
                 <span>
                   <input
                     inputMode="decimal"
                     name="oat"
-                    onChange={(event) => setOat(event.target.value)}
-                    placeholder="15"
+                    onChange={(event) => environment.setOatManual(event.target.value)}
                     step="any"
                     type="number"
-                    value={oat}
+                    value={environment.oat.value}
                   />
                   <small>°C</small>
                 </span>
+                <small>
+                  {environment.oat.mode === "manual" ? "MANUAL" : "AUTO · METAR"}
+                  {environment.oat.mode === "manual" && environment.metar?.temperatureC !== undefined ? (
+                    <button className={styles.inlineReset} onClick={environment.resetOatAuto} type="button">
+                      Reset to automatic
+                    </button>
+                  ) : null}
+                </small>
               </label>
+
+              <label>
+                Pressure altitude
+                <span>
+                  <input
+                    inputMode="decimal"
+                    name="pressureAltitude"
+                    onChange={(event) => environment.setPressureAltitudeManual(event.target.value)}
+                    type="number"
+                    value={environment.pressureAltitude.value}
+                  />
+                  <small>ft</small>
+                </span>
+                <small>
+                  {environment.pressureAltitude.mode === "manual"
+                    ? "MANUAL"
+                    : "AUTO · field elevation + QNH"}
+                  {environment.pressureAltitude.mode === "manual" ? (
+                    <button
+                      className={styles.inlineReset}
+                      onClick={environment.resetPressureAltitudeAuto}
+                      type="button"
+                    >
+                      Reset to automatic
+                    </button>
+                  ) : null}
+                </small>
+              </label>
+
+              <div className={styles.windContext}>
+                <span>Runway wind</span>
+                <strong>
+                  {environment.wind
+                    ? `HW ${signedKnots(environment.wind.headwindKt)} · XW ${signedKnots(Math.abs(environment.wind.crosswindKt))}`
+                    : "—"}
+                </strong>
+                <small>Context only unless a source-backed calculator explicitly binds wind.</small>
+              </div>
             </div>
 
             <button
               className={styles.action}
-              disabled={busy}
+              disabled={busy || !currentContext}
               onClick={calculateFromForm}
               type="button"
             >
               {busy
                 ? "Calculating…"
                 : result
-                  ? "Recalculate performance"
-                  : "Calculate performance"}
+                  ? "Recalculate takeoff"
+                  : "Calculate takeoff"}
             </button>
           </section>
 
           <section className={styles.resultPane} aria-label="Performance result">
             <header className={styles.resultHeader}>
               <div>
-                <p className={styles.eyebrow}>RESULT</p>
+                <p className={styles.eyebrow}>TAKEOFF · RESULT</p>
                 <h2>Takeoff</h2>
               </div>
               {result ? (
