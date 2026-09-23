@@ -33,9 +33,9 @@ function localCreate(input: ActiveFlightInput): ActiveFlight {
       aircraftId: input.aircraftId,
       departure: input.departure,
       destination: input.destination,
-      runway: input.runway,
+      runway: input.runway ?? null,
       weight: input.weight,
-      configuration: input.configuration,
+      configuration: input.configuration ?? null,
       brief: input.brief ?? null,
     },
     activeFlightDependencyReference(input),
@@ -48,9 +48,11 @@ function localPatch(flight: ActiveFlight, patch: ActiveFlightPatch): ActiveFligh
   const merged = {
     departure: patch.departure ?? flight.departure,
     destination: patch.destination ?? flight.destination,
-    runway: patch.runway ?? flight.runway,
+    runway: "runway" in patch ? patch.runway ?? null : flight.runway,
     weight: patch.weight ?? flight.weight,
-    configuration: patch.configuration ?? flight.configuration,
+    configuration: "configuration" in patch
+      ? patch.configuration ?? null
+      : flight.configuration,
   };
   const timestamp = new Date().toISOString();
 
