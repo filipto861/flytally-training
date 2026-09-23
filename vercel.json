@@ -1,12 +1,16 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
-  "regions": ["fra1"],
+  "regions": [
+    "fra1"
+  ],
   "git": {
     "deploymentEnabled": {
       "*": false,
-      "main": true
+      "main": true,
+      "preview/b2-runway-provenance": true
     }
   },
-  "ignoreCommand": "node tooling/vercel-ignore-build.mjs"
+  "ignoreCommand": "node tooling/vercel-ignore-build.mjs",
+  "buildCommand": "npm run test:target -- tests/aviation-runway-context.test.ts && npm run build"
 }
