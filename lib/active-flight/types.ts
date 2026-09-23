@@ -40,9 +40,17 @@ export type ActiveFlight = {
   readonly lifecycle: ActiveFlightLifecycle;
   readonly departure: ActiveFlightAirport;
   readonly destination: ActiveFlightAirport;
-  readonly runway: ActiveFlightRunway;
+  /**
+   * Legacy/convenience reference only. Performance owns runway selection per
+   * operation, so an Active Flight may exist before a runway is known.
+   */
+  readonly runway: ActiveFlightRunway | null;
   readonly weight: ActiveFlightWeight;
-  readonly configuration: ActiveFlightConfiguration;
+  /**
+   * Legacy/convenience reference only. Performance owns operation-specific
+   * configuration such as takeoff/landing flaps.
+   */
+  readonly configuration: ActiveFlightConfiguration | null;
   readonly weather: ActiveFlightWeather | null;
   readonly performanceDependency: ActiveFlightPerformanceDependency;
   readonly brief: ActiveFlightBrief | null;
@@ -57,9 +65,9 @@ export type ActiveFlightInput = {
   readonly aircraftId: string;
   readonly departure: ActiveFlightAirport;
   readonly destination: ActiveFlightAirport;
-  readonly runway: ActiveFlightRunway;
+  readonly runway?: ActiveFlightRunway | null;
   readonly weight: ActiveFlightWeight;
-  readonly configuration: ActiveFlightConfiguration;
+  readonly configuration?: ActiveFlightConfiguration | null;
   readonly brief?: ActiveFlightBrief | null;
 };
 
