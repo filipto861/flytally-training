@@ -1,6 +1,7 @@
 import { spawnSync } from "node:child_process";
 
 const PRODUCTION_BRANCH = "main";
+const B3_PREVIEW_BRANCH = "preview/b3-active-flight-minimal-context";
 const normalize = (value) => String(value ?? "").replaceAll("\\", "/").replace(/^\.\/+/, "");
 
 function git(args) {
@@ -33,7 +34,10 @@ function currentGitRef() {
 
 function isProductionBuild() {
   const currentRef = currentGitRef();
-  return process.env.VERCEL_ENV === "production" || process.env.VERCEL_TARGET_ENV === "production" || currentRef === PRODUCTION_BRANCH;
+  return process.env.VERCEL_ENV === "production" ||
+    process.env.VERCEL_TARGET_ENV === "production" ||
+    currentRef === PRODUCTION_BRANCH ||
+    currentRef === B3_PREVIEW_BRANCH;
 }
 
 function resolveDiffBase() {
