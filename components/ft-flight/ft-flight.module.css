@@ -1,8 +1,8 @@
 .flightPage {
   width: 100%;
   display: grid;
-  gap: var(--ft-space-5);
-  padding: var(--ft-space-6);
+  gap: var(--ft-space-4);
+  padding: var(--ft-space-6) 0 var(--ft-space-7);
   background: var(--ft-bg-shell);
   color: var(--ft-text-primary);
 }
@@ -13,11 +13,15 @@
   gap: var(--ft-space-1);
 }
 
+.pageHeader {
+  margin-bottom: var(--ft-space-1);
+}
+
 .pageContext {
   margin: 0;
   color: var(--ft-text-secondary);
   font-family: var(--ft-font-data);
-  font-size: 0.78rem;
+  font-size: 0.76rem;
 }
 
 .pageHeader h1,
@@ -27,7 +31,7 @@
   margin: 0;
   color: var(--ft-text-primary);
   font-family: var(--ft-font-ui);
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
 }
 
 .pageHeader h1 {
@@ -38,13 +42,13 @@
 
 .section h2,
 .brief h2 {
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   line-height: 1.25;
   font-weight: 700;
 }
 
 .briefSection h3 {
-  font-size: 1rem;
+  font-size: 0.9rem;
   line-height: 1.3;
   font-weight: 650;
 }
@@ -53,7 +57,7 @@
   margin: 0;
   color: var(--ft-text-metadata);
   font-family: var(--ft-font-data);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.08em;
 }
@@ -62,23 +66,82 @@
 .brief {
   display: grid;
   gap: var(--ft-space-4);
-  padding: var(--ft-space-4);
+  padding: var(--ft-space-5);
   border: var(--ft-rule-default);
-  border-radius: calc(var(--ft-radius-4) * 2);
+  border-radius: var(--ft-radius-panel);
   background: var(--ft-bg-panel);
 }
 
-.brief {
-  gap: var(--ft-space-4);
+.flightPage > .section:first-of-type {
+  min-height: calc(var(--ft-space-7) * 3.8);
+  align-content: start;
+  background:
+    linear-gradient(
+      135deg,
+      var(--ft-bg-panel),
+      color-mix(in srgb, var(--ft-accent-soft) 28%, var(--ft-bg-panel))
+    );
 }
 
-.briefSection {
+.flightPage > .section:first-of-type[data-lifecycle="ACTIVE"] {
+  background: var(--ft-bg-operational);
+}
+
+.flightPage > .section:first-of-type h2 {
+  font-size: 1rem;
+  color: var(--ft-text-secondary);
+}
+
+.flightSummary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: var(--ft-space-2) var(--ft-space-5);
+  color: var(--ft-text-secondary);
+  line-height: 1.5;
+}
+
+.flightSummary > strong {
+  grid-column: 1 / -1;
+  color: var(--ft-text-primary);
+  font-family: var(--ft-font-data);
+  font-size: 1.875rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.flightSummary > span {
+  color: var(--ft-text-secondary);
+  font-family: var(--ft-font-data);
+  font-size: 0.76rem;
+}
+
+.flightSummary > span:nth-of-type(2) {
+  text-align: end;
+}
+
+.flightSummary .actionRow {
+  grid-column: 1 / -1;
+  margin-top: var(--ft-space-2);
+}
+
+.lifecycleNotice {
   display: grid;
   gap: var(--ft-space-2);
   padding: var(--ft-space-3);
-  border: var(--ft-rule-default);
-  border-radius: calc(var(--ft-radius-4) * 2);
+  border-radius: var(--ft-radius-4);
   background: var(--ft-bg-inset);
+  color: var(--ft-text-secondary);
+  line-height: 1.5;
+}
+
+.lifecycleNotice strong {
+  color: var(--ft-text-primary);
+  font-family: var(--ft-font-ui);
+}
+
+.lifecycleNotice span {
+  font-family: var(--ft-font-data);
 }
 
 .emptyState,
@@ -99,78 +162,24 @@
   width: fit-content;
   padding-inline: var(--ft-space-4);
   border: var(--ft-rule-strong);
-  border-radius: calc(var(--ft-radius-4) * 2);
-  background: var(--ft-bg-operational);
-  color: var(--ft-text-primary);
+  border-color: var(--ft-accent);
+  border-radius: var(--ft-radius-4);
+  background: var(--ft-accent);
+  color: var(--ft-accent-contrast);
   font-family: var(--ft-font-ui);
+  font-size: 0.8rem;
   font-weight: 700;
   text-decoration: none;
 }
 
-.performanceGrid {
-  overflow: hidden;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  border: var(--ft-rule-default);
-  border-radius: calc(var(--ft-radius-4) * 2);
-  background: var(--ft-bg-inset);
-}
-
-.performanceItem {
-  display: grid;
-  gap: var(--ft-space-1);
-  padding: var(--ft-space-3);
-  border-inline-end: var(--ft-rule-default);
-  background: var(--ft-bg-inset);
-}
-
-.performanceItem:last-child {
-  border-inline-end: 0;
-}
-
-.performanceLabel,
-.performanceItem strong,
-.performanceEmpty {
-  font-family: var(--ft-font-data);
-}
-
-.performanceLabel {
-  color: var(--ft-text-secondary);
-  font-size: 0.72rem;
-  font-weight: 700;
-}
-
-.performanceItem strong {
-  color: var(--ft-text-primary);
-  font-size: 1.25rem;
-}
-
-.performanceEmpty {
-  font-size: 0.72rem;
+.primaryAction:hover:not(:disabled) {
+  border-color: var(--ft-accent-hover);
+  background: var(--ft-accent-hover);
 }
 
 .primaryAction:focus-visible {
-  outline: var(--ft-focus-width) solid var(--ft-text-primary);
+  outline: var(--ft-focus-width) solid var(--ft-focus);
   outline-offset: var(--ft-focus-offset);
-}
-
-.flightSummary,
-.lifecycleNotice {
-  display: grid;
-  gap: var(--ft-space-2);
-  color: var(--ft-text-secondary);
-  line-height: 1.5;
-}
-
-.flightSummary strong,
-.lifecycleNotice strong {
-  color: var(--ft-text-primary);
-  font-family: var(--ft-font-ui);
-}
-
-.flightSummary span,
-.lifecycleNotice span {
-  font-family: var(--ft-font-data);
 }
 
 .actionRow,
@@ -188,10 +197,11 @@
   align-items: center;
   justify-content: center;
   border: var(--ft-rule-default);
-  border-radius: calc(var(--ft-radius-4) * 2);
+  border-radius: var(--ft-radius-4);
   color: var(--ft-text-primary);
   background: var(--ft-bg-inset);
   font-family: var(--ft-font-ui);
+  font-size: 0.78rem;
   font-weight: 650;
   text-decoration: none;
 }
@@ -205,6 +215,7 @@
   border-color: transparent;
   background: transparent;
   padding-inline: 0;
+  color: var(--ft-accent);
 }
 
 .iconAction {
@@ -225,6 +236,60 @@
   opacity: 0.6;
 }
 
+.brief {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+  gap: var(--ft-space-3);
+}
+
+.briefHeader {
+  grid-column: 1 / -1;
+  padding-bottom: var(--ft-space-3);
+  border-bottom: var(--ft-rule-default);
+}
+
+.briefSection {
+  min-width: 0;
+  display: grid;
+  align-content: start;
+  gap: var(--ft-space-2);
+  padding: var(--ft-space-3);
+  border-radius: var(--ft-radius-4);
+  background: var(--ft-bg-inset);
+}
+
+.briefSection:first-of-type {
+  grid-column: 1 / -1;
+  padding: var(--ft-space-4);
+  border: var(--ft-rule-default);
+  background: var(--ft-bg-panel);
+}
+
+.briefSection[data-empty="true"] {
+  min-height: calc(var(--ft-space-7) * 2.2);
+}
+
+.briefSection[data-empty="true"] .emptyState {
+  font-size: 0.78rem;
+}
+
+.flightPage > .section:last-child {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: baseline;
+  gap: var(--ft-space-1) var(--ft-space-4);
+  padding: var(--ft-space-4) var(--ft-space-5);
+  background: transparent;
+}
+
+.flightPage > .section:last-child .eyebrow {
+  grid-column: 1 / -1;
+}
+
+.flightPage > .section:last-child .emptyState {
+  justify-self: end;
+  font-size: 0.78rem;
+}
+
 .formError {
   margin: 0;
   color: var(--ft-source-caution);
@@ -234,7 +299,7 @@
 .dialogBackdrop {
   position: fixed;
   inset: 0;
-  z-index: 80;
+  z-index: 100;
   display: grid;
   place-items: center;
   padding: var(--ft-space-4);
@@ -250,8 +315,8 @@
   gap: var(--ft-space-4);
   padding: var(--ft-space-5);
   border: var(--ft-rule-strong);
-  border-radius: calc(var(--ft-radius-4) * 2);
-  background: var(--ft-bg-panel);
+  border-radius: var(--ft-radius-overlay);
+  background: var(--ft-bg-elevated);
   color: var(--ft-text-primary);
   box-shadow: 0 var(--ft-space-2) var(--ft-space-6)
     color-mix(in srgb, var(--ft-text-primary) 16%, transparent);
@@ -289,9 +354,10 @@
 .flightForm select {
   min-height: var(--ft-touch-target-min);
   width: 100%;
+  box-sizing: border-box;
   padding-inline: var(--ft-space-3);
   border: var(--ft-rule-default);
-  border-radius: calc(var(--ft-radius-4) * 2);
+  border-radius: var(--ft-radius-4);
   background: var(--ft-bg-inset);
   color: var(--ft-text-primary);
   font: inherit;
@@ -323,26 +389,64 @@
 .iconAction:focus-visible,
 .flightForm input:focus-visible,
 .flightForm select:focus-visible {
-  outline: var(--ft-focus-width) solid var(--ft-text-primary);
+  outline: var(--ft-focus-width) solid var(--ft-focus);
   outline-offset: var(--ft-focus-offset);
+}
+
+.performanceGrid {
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border: var(--ft-rule-default);
+  border-radius: var(--ft-radius-4);
+  background: var(--ft-bg-inset);
+}
+
+.performanceItem {
+  display: grid;
+  gap: var(--ft-space-1);
+  padding: var(--ft-space-3);
+  border-inline-end: var(--ft-rule-default);
+  background: var(--ft-bg-inset);
+}
+
+.performanceItem:last-child {
+  border-inline-end: 0;
+}
+
+.performanceLabel,
+.performanceItem strong,
+.performanceEmpty {
+  font-family: var(--ft-font-data);
+}
+
+.performanceLabel {
+  color: var(--ft-text-secondary);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.performanceItem strong {
+  color: var(--ft-text-primary);
+  font-size: 1.25rem;
+}
+
+.performanceEmpty {
+  font-size: 0.72rem;
 }
 
 @media (max-width: 1180px), (hover: none) {
   .flightPage {
-    gap: var(--ft-space-4);
-    padding: var(--ft-space-4);
+    padding: var(--ft-space-5) 0 var(--ft-space-7);
   }
 
-  .performanceGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .brief {
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  .performanceItem:nth-child(2) {
-    border-inline-end: 0;
-  }
-
-  .performanceItem:nth-child(-n + 2) {
-    border-bottom: var(--ft-rule-default);
+  .briefHeader,
+  .briefSection:first-of-type {
+    grid-column: auto;
   }
 
   .primaryAction,
@@ -361,5 +465,49 @@
   .flightDialog {
     max-block-size: calc(100vh - var(--ft-space-4) * 2);
     padding: var(--ft-space-4);
+  }
+}
+
+@media (max-width: 48rem) {
+  .flightPage {
+    gap: var(--ft-space-3);
+    padding: var(--ft-space-4) var(--ft-space-3) var(--ft-space-7);
+  }
+
+  .pageHeader h1 {
+    font-size: 1.5rem;
+  }
+
+  .section,
+  .brief {
+    padding: var(--ft-space-4);
+  }
+
+  .flightSummary {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .flightSummary > strong {
+    font-size: 1.5rem;
+  }
+
+  .flightSummary > span:nth-of-type(2) {
+    text-align: start;
+  }
+
+  .flightPage > .section:last-child {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .flightPage > .section:last-child .emptyState {
+    justify-self: start;
+  }
+}
+
+@media (forced-colors: active) {
+  .primaryAction,
+  .secondaryAction {
+    outline: var(--ft-focus-width) solid Highlight;
+    outline-offset: calc(var(--ft-focus-offset) * -1);
   }
 }
