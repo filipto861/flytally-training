@@ -154,6 +154,46 @@
   white-space: nowrap;
 }
 
+
+.modeSwitcher {
+  min-height: var(--ft-control-height);
+  display: inline-grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: var(--ft-space-1);
+  border: var(--ft-rule-default);
+  border-radius: var(--ft-radius-4);
+  background: var(--ft-bg-inset);
+}
+
+.modeSwitcher a {
+  min-width: calc(var(--ft-touch-target-min) + var(--ft-space-2));
+  min-height: calc(var(--ft-control-height) - var(--ft-space-2));
+  display: grid;
+  place-items: center;
+  padding-inline: var(--ft-space-2);
+  border-radius: var(--ft-radius-3);
+  color: var(--ft-text-metadata);
+  font-size: var(--ft-type-meta);
+  font-weight: 750;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+}
+
+.modeSwitcher a:hover {
+  color: var(--ft-text-primary);
+  background: var(--ft-bg-hover);
+}
+
+.modeSwitcher a[aria-current="page"] {
+  color: var(--ft-accent);
+  background: var(--ft-accent-soft);
+}
+
+.modeSwitcher a:focus-visible {
+  outline: var(--ft-focus-width) solid var(--ft-focus);
+  outline-offset: var(--ft-focus-offset);
+}
+
 .topBarActions {
   min-width: 0;
   display: flex;
@@ -444,6 +484,11 @@
 
   .topBarActions {
     gap: var(--ft-space-1);
+  }
+
+  .modeSwitcher a {
+    min-width: var(--ft-touch-target-min);
+    padding-inline: var(--ft-space-1);
   }
 
   .flightActive,

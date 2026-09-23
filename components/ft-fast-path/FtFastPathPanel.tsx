@@ -1,8 +1,10 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, type KeyboardEvent } from "react";
 
 import type { ActiveFlight } from "@/lib/active-flight/types";
+import { getAircraftProductModeForPathname } from "@/lib/aircraft-content-ia";
 import type { TrainingAircraft } from "@/lib/aircraft-catalog";
 import { fastPathTabs, type FastPathTab } from "@/lib/fast-path/panel-state";
 import type { PilotTakeoffCalculatorDefinition } from "@/lib/pilot-takeoff-calculator";
@@ -47,6 +49,7 @@ export function FtFastPathPanel({
   performanceDatasets: readonly PerformanceDataset[];
   takeoffCalculator?: PilotTakeoffCalculatorDefinition;
 }>) {
+  const pathname = usePathname();
   const { aircraftId, panelOpen, activeTab, closePanel, selectTab } = useFtFastPath();
   const panelRef = useRef<HTMLDivElement>(null);
   const returnFocusRef = useRef<HTMLElement | null>(null);
@@ -78,6 +81,7 @@ export function FtFastPathPanel({
     }
   }, [panelOpen]);
 
+  if (getAircraftProductModeForPathname(pathname, aircraftId) !== "efb") return null;
   if (!panelOpen) return null;
 
   function trapFocus(event: KeyboardEvent<HTMLDivElement>) {

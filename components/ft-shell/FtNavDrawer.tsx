@@ -6,6 +6,7 @@ import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 
 import {
   getAircraftContentIa,
+  getAircraftProductModeForPathname,
   isAircraftContentDestinationActive,
 } from "@/lib/aircraft-content-ia";
 import styles from "./ft-shell.module.css";
@@ -14,7 +15,8 @@ const focusableSelector = 'a[href],button:not([disabled]),[tabindex]:not([tabind
 
 export function FtNavDrawer({ aircraftId }: Readonly<{ aircraftId: string }>) {
   const pathname = usePathname();
-  const destinations = getAircraftContentIa(aircraftId);
+  const mode = getAircraftProductModeForPathname(pathname, aircraftId);
+  const destinations = mode ? getAircraftContentIa(aircraftId, mode) : [];
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -35,6 +37,8 @@ export function FtNavDrawer({ aircraftId }: Readonly<{ aircraftId: string }>) {
     window.addEventListener("keydown", onEscape);
     return () => window.removeEventListener("keydown", onEscape);
   }, [open]);
+
+  if (!mode) return null;
 
   function trapFocus(event: KeyboardEvent<HTMLDivElement>) {
     if (event.key !== "Tab") return;
@@ -90,13 +94,13 @@ export function FtNavDrawer({ aircraftId }: Readonly<{ aircraftId: string }>) {
             className={styles.drawerPanel}
             role="dialog"
             aria-modal="true"
-            aria-label="Aircraft navigation"
+            aria-label={mode === "efb" ? "EFB navigation" : "Learn navigation"}
             onKeyDown={trapFocus}
           >
             <div className={styles.drawerHeader}>
               <div>
                 <span>FLYTALLY TRAINING</span>
-                <strong>Aircraft workspace</strong>
+                <strong>{mode === "efb" ? "EFB" : "Learn"}</strong>
               </div>
               <button
                 type="button"
@@ -107,7 +111,7 @@ export function FtNavDrawer({ aircraftId }: Readonly<{ aircraftId: string }>) {
                 ×
               </button>
             </div>
-            <nav className={styles.drawerNav} aria-label="Aircraft workspace sections">
+            <nav className={styles.drawerNav} aria-label={mode === "efb" ? "EFB sections" : "Learn sections"}>
               {destinations.map((destination) => {
                 const active = isAircraftContentDestinationActive(
                   pathname,

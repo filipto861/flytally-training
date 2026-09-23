@@ -1,5 +1,7 @@
 "use client";
 
+import { usePathname } from "next/navigation";
+
 import {
   createContext,
   useCallback,
@@ -11,6 +13,7 @@ import {
   type ReactNode,
 } from "react";
 
+import { getAircraftProductModeForPathname } from "@/lib/aircraft-content-ia";
 import {
   fastPathChecklistProgress,
   restoreFastPathChecklistSession,
@@ -66,6 +69,9 @@ export function FtFastPathProvider({
     reduceFastPathPanelState,
     initialFastPathPanelState,
   );
+  const pathname = usePathname();
+  const operationalMode = getAircraftProductModeForPathname(pathname, aircraftId) === "efb";
+
   const [checklistSnapshot, setChecklistSnapshot] =
     useState<ChecklistSessionSnapshot | undefined>(() =>
       checklist ? normalizeChecklistSessionSnapshot(undefined, checklist) : undefined,
@@ -115,6 +121,12 @@ export function FtFastPathProvider({
   }, []);
 
   useEffect(() => {
+    if (!operationalMode) {
+      closePanel();
+      setShortcutsReady(false);
+      return;
+    }
+
     const handleKeyDown = (event: globalThis.KeyboardEvent) => {
       const tab = fastPathTabForShortcut(event);
       if (tab) {
@@ -134,7 +146,7 @@ export function FtFastPathProvider({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [closePanel, openPanel]);
+  }, [closePanel, openPanel, operationalMode]);
 
   const toggleChecklistItem = useCallback(
     (itemId: string) => {

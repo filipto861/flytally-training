@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 
-import { FtLaunchSurface } from "@/components/ft-launch/FtLaunchSurface";
+import { FtModeChooser } from "@/components/ft-launch/FtModeChooser";
 import { LegacyAircraftHome } from "@/components/legacy-aircraft-home";
 import { resolveSelectedVariant } from "@/lib/aircraft-applicability";
 import { getActiveFlight } from "@/lib/active-flight/store";
@@ -54,13 +54,12 @@ export default async function AircraftPage({
     : [undefined, undefined];
 
   return (
-    <FtLaunchSurface
+    <FtModeChooser
       aircraftId={aircraft.id}
       aircraftName={aircraft.displayName}
       selectedVariant={selectedVariant}
       latestTraining={latestTraining}
       activeFlight={activeFlight}
-      recentItems={[]}
     />
   );
 }
