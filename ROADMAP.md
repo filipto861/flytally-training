@@ -46,7 +46,7 @@ Latest completed functional phase:
 
 Architecture is frozen. Implement sequentially; do not combine phases into one PR.
 
-### P1.1 — LEARN / EFB product mode split — IN PROGRESS
+### P1.1 — LEARN / EFB product mode split — IN PROGRESS · PR #211
 
 Goal: make user intent explicit before entering the aircraft workspace.
 
@@ -222,7 +222,7 @@ After Landing + wind + Partial Power:
 
 ## Active implementation order
 
-1. **P1.1 — LEARN / EFB split** — IN PROGRESS
+1. **P1.1 — LEARN / EFB split** — IN PROGRESS · PR #211
 2. P1.2 — Snapshot V2
 3. P1.3 — canonical Performance operation controller
 4. P1.4 — Flight Brief EFB home
