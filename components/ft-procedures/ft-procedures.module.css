@@ -843,7 +843,9 @@
   }
 
   .detailProgress span {
-    display: none;
+    min-height: var(--ft-control-height);
+    padding-inline: var(--ft-space-2);
+    font-size: 0.64rem;
   }
 
   .detailProgress button {
