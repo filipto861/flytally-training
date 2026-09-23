@@ -33,8 +33,9 @@ test("UX6.5 mobile keeps one compact procedure selector before task content", ()
   assert.match(index, /mobileControls/);
   assert.match(index, /<details className=\{styles\.mobileFilters\}>/);
   assert.match(index, /aria-label="Procedure"/);
-  assert.match(css, /@media \(max-width: 48rem\)/);
+  assert.match(css, /@media \(max-width: 64rem\), \(hover: none\)/);
   assert.match(css, /\.desktopIndex\s*\{[\s\S]*display:\s*none/);
+  assert.match(css, /\.mobileControls\s*\{[\s\S]*display:\s*grid/);
 });
 
 test("UX6.5 uses the approved accent and panel tokens without hardcoded palette values", () => {
