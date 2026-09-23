@@ -38,7 +38,7 @@ export function FtPerformancePage({
         activeFlight={activeFlight}
         datasets={datasets}
         takeoffCalculator={takeoffCalculator}
-        view="training"
+        view="efb"
         showInputs
       />
 
