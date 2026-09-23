@@ -13,6 +13,7 @@ type SearchLink = {
 
 export function FtSearchEmptyState({
   aircraftId,
+  scope = "all",
   recent,
   onRecentQuery,
   onClearRecent,
@@ -20,6 +21,7 @@ export function FtSearchEmptyState({
   currentFlight,
 }: Readonly<{
   aircraftId: string;
+  scope?: "all" | "learn";
   recent: readonly string[];
   onRecentQuery: (query: string) => void;
   onClearRecent: () => void;
@@ -27,17 +29,26 @@ export function FtSearchEmptyState({
   currentFlight?: SearchLink;
 }>) {
   const base = `/aircraft/${aircraftId}`;
-  const quickAccess: readonly SearchLink[] = [
-    { label: "Before Takeoff Checklist", href: `${base}/checklists`, icon: "procedure" },
-    { label: "Engine Failure QRH", href: `${base}/abnormal`, icon: "scenario" },
-    { label: "Memory Items", href: `${base}/procedures`, icon: "memoryItem" },
-    { label: "Limitations", href: `${base}/limitations`, icon: "limitation" },
-  ];
+  const quickAccess: readonly SearchLink[] = scope === "learn"
+    ? [
+        { label: "Checklist training", href: `${base}/checklists`, icon: "procedure" },
+        { label: "Abnormal scenarios", href: `${base}/abnormal`, icon: "scenario" },
+        { label: "Memory Items", href: `${base}/procedures`, icon: "memoryItem" },
+        { label: "Limitations", href: `${base}/limitations`, icon: "limitation" },
+      ]
+    : [
+        { label: "Before Takeoff Checklist", href: `${base}/checklists`, icon: "procedure" },
+        { label: "Engine Failure QRH", href: `${base}/abnormal`, icon: "scenario" },
+        { label: "Memory Items", href: `${base}/procedures`, icon: "memoryItem" },
+        { label: "Limitations", href: `${base}/limitations`, icon: "limitation" },
+      ];
   const browse: readonly SearchLink[] = [
     { label: "Procedures", href: `${base}/procedures`, icon: "procedure" },
     { label: "Limitations", href: `${base}/limitations`, icon: "limitation" },
     { label: "Memory Items", href: `${base}/procedures`, icon: "memoryItem" },
-    { label: "Performance", href: `${base}/performance`, icon: "performance" },
+    ...(scope === "learn"
+      ? []
+      : [{ label: "Performance", href: `${base}/performance`, icon: "performance" as const }]),
     { label: "Systems", href: `${base}/systems`, icon: "system" },
     { label: "Scenarios", href: `${base}/abnormal`, icon: "scenario" },
   ];
