@@ -2,29 +2,20 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-import { getAircraftContentIa } from "../lib/aircraft-content-ia.ts";
+import { getAircraftModeDestinations } from "../lib/aircraft-product-mode.ts";
 import { ftFastPathDestinations } from "../components/ft-shell/navigation.ts";
 
 const read = (path: string) =>
   readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("UX6 reset preserves the frozen five-destination top-level IA", () => {
-  const ia = getAircraftContentIa("ux6-aircraft");
-
+test("P1.1 replaces the mixed five-destination shell with explicit Learn and EFB modes", () => {
   assert.deepEqual(
-    ia.map((destination) => destination.label),
-    ["AIRCRAFT", "PROCEDURES", "PERFORMANCE", "TRAINING", "FLIGHT"],
+    getAircraftModeDestinations("ux6-aircraft", "learn").map((destination) => destination.label),
+    ["Learn", "Systems", "Procedures", "Limitations", "Reference"],
   );
-
-  assert.ok(
-    ia.find((destination) => destination.key === "aircraft")?.subs.some(
-      (destination) => destination.key === "systems",
-    ),
-  );
-  assert.ok(
-    ia.find((destination) => destination.key === "flight")?.subs.some(
-      (destination) => destination.key === "reference",
-    ),
+  assert.deepEqual(
+    getAircraftModeDestinations("ux6-aircraft", "efb").map((destination) => destination.label),
+    ["Flight Brief", "Performance", "Flight Deck"],
   );
 });
 
