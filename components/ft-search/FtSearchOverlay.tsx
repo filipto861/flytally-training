@@ -17,9 +17,11 @@ const focusableSelector = 'a[href],button:not([disabled]),input:not([disabled]),
 export function FtSearchOverlay({
   aircraftId,
   aircraftIdentity,
+  scope = "all",
 }: Readonly<{
   aircraftId: string;
   aircraftIdentity: string;
+  scope?: "all" | "learn";
 }>) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -97,7 +99,10 @@ export function FtSearchOverlay({
           return;
         }
         const payload = (await response.json()) as { results?: AircraftSearchResult[] };
-        const next = Array.isArray(payload.results) ? payload.results : [];
+        const raw = Array.isArray(payload.results) ? payload.results : [];
+        const next = scope === "learn"
+          ? raw.filter((result) => result.type !== "performance")
+          : raw;
         setResults(next);
         setSelectedIndex(next.length ? 0 : -1);
       } catch (error) {
@@ -114,7 +119,7 @@ export function FtSearchOverlay({
       window.clearTimeout(timer);
       controller.abort();
     };
-  }, [aircraftId, open, query]);
+  }, [aircraftId, open, query, scope]);
 
   function moveSelection(direction: 1 | -1) {
     if (!results.length) return;
@@ -204,6 +209,7 @@ export function FtSearchOverlay({
               {query.trim().length < 2 ? (
                 <FtSearchEmptyState
                   aircraftId={aircraftId}
+                  scope={scope}
                   recent={recent}
                   onRecentQuery={setQuery}
                   onClearRecent={() => {
