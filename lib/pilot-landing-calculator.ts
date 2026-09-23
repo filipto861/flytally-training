@@ -2,7 +2,13 @@ import { calculateMultiAxisMetricGrid } from "./performance-calculator.ts";
 import type { PilotTakeoffMetricResult } from "./pilot-takeoff-calculator.ts";
 import type { PerformanceDataset, PerformanceScalar } from "./universal-aircraft-content.ts";
 
+export type PilotLandingFlapOption = {
+  readonly value: string;
+  readonly label: string;
+};
+
 export interface PilotLandingCalculatorDefinition {
+  readonly flapOptions: readonly PilotLandingFlapOption[];
   readonly vrefDatasetId: string;
   readonly landingClimbDatasetId: string;
   readonly approachClimbDatasetId: string;
