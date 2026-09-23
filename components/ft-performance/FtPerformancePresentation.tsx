@@ -108,6 +108,7 @@ export function FtPerformancePresentation({
 
   const qnhManual = useRef(false);
   const oatManual = useRef(false);
+  const previousDeparture = useRef<{ flightId: string; icao: string } | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -198,6 +199,19 @@ export function FtPerformancePresentation({
   }, [aircraftId, current?.id, takeoffCalculator]);
 
   useEffect(() => {
+    if (!current) {
+      previousDeparture.current = null;
+      return;
+    }
+
+    const previous = previousDeparture.current;
+    if (previous?.flightId === current.id && previous.icao !== current.departure.icao) {
+      setRunwayIdentifier("");
+    }
+    previousDeparture.current = { flightId: current.id, icao: current.departure.icao };
+  }, [current?.departure.icao, current?.id]);
+
+  useEffect(() => {
     const icao = current?.departure.icao;
     if (!icao) {
       setMetarSnapshot(null);
@@ -206,6 +220,7 @@ export function FtPerformancePresentation({
     }
 
     const controller = new AbortController();
+    setMetarSnapshot(null);
     setWeatherState("loading");
 
     fetch(`/api/weather/metar?icao=${encodeURIComponent(icao)}`, {
@@ -338,9 +353,8 @@ export function FtPerformancePresentation({
   ]);
 
   const stale = Boolean(
-    currentContext
-    && result
-    && !isContextValid(currentContext, result.context),
+    result
+    && (!currentContext || !isContextValid(currentContext, result.context)),
   );
 
   const changes = currentContext && result && stale
@@ -415,6 +429,7 @@ export function FtPerformancePresentation({
           busy={busy}
           changes={changes}
           onRecalculate={recalculate}
+          recalculateDisabled={!canCalculate}
         />
       ) : null}
       <FtPerformanceStrip result={result} stale={stale} />

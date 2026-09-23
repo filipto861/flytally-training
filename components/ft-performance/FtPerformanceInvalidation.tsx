@@ -8,10 +8,12 @@ export function FtPerformanceInvalidation({
   changes,
   busy,
   onRecalculate,
+  recalculateDisabled = false,
 }: Readonly<{
   changes: readonly PerformanceContextChange[];
   busy: boolean;
   onRecalculate: () => void;
+  recalculateDisabled?: boolean;
 }>) {
   return (
     <div className={styles.invalidation} role="status" data-performance-state="recalc">
@@ -31,7 +33,7 @@ export function FtPerformanceInvalidation({
       ) : null}
       <button
         className={styles.action}
-        disabled={busy}
+        disabled={busy || recalculateDisabled}
         onClick={onRecalculate}
         type="button"
       >

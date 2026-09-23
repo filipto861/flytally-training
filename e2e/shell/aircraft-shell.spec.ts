@@ -724,6 +724,24 @@ test("B4 Recalculate replaces stale values with the new operation-owned weight",
   await expect(performance.locator('[data-metric="takeoffDistance"]')).toContainText("3,500 ft");
 });
 
+test("B4 departure airport change invalidates Takeoff and clears the selected runway", async ({ page }) => {
+  await calculateP2Performance(page);
+  await page.goto(`${shellOnBase}${aircraftPath}/flight`);
+
+  const active = page.getByRole("region", { name: "Active Flight" });
+  await active.getByRole("button", { name: "Edit flight", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Edit flight" });
+  await dialog.getByLabel("Departure ICAO").fill("LKKV");
+  await dialog.getByRole("button", { name: "Save flight", exact: true }).click();
+  await expect(dialog).toHaveCount(0);
+
+  await page.goto(`${shellOnBase}${aircraftPath}/performance`);
+  const performance = page.getByRole("region", { name: "Performance", exact: true });
+  await expect(performance.getByLabel("Takeoff runway")).toHaveValue("");
+  await expect(performance.getByText("NEEDS RECALCULATION", { exact: true })).toBeVisible();
+  await expect(performance.getByRole("button", { name: "Recalculate", exact: true })).toBeDisabled();
+});
+
 test("P2 takeoff strip preserves Round 3.7 order and never exposes VREF", async ({ page }) => {
   const strip = await calculateP2Performance(page);
 
