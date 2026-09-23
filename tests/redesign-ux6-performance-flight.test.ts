@@ -12,7 +12,7 @@ test("UX6.6 Performance is an input/result workspace rather than equal cards", (
   assert.match(presentation, /performanceWorkspace/);
   assert.match(presentation, /Performance inputs/);
   assert.match(presentation, /Performance result/);
-  assert.match(presentation, /Departure conditions/);
+  assert.match(presentation, /departure/);
   assert.match(presentation, /Takeoff/);
 
   assert.match(css, /\.performanceWorkspace\s*\{[\s\S]*grid-template-columns/);
@@ -20,14 +20,20 @@ test("UX6.6 Performance is an input/result workspace rather than equal cards", (
   assert.match(css, /\.metricValue\s*\{[\s\S]*font-size:\s*1\.8rem/);
 });
 
-test("UX6.6 Performance displays only real Active Flight dependency values", () => {
+test("B4 Performance owns runway/weather/config inputs while Active Flight supplies the route", () => {
   const presentation = read("components/ft-performance/FtPerformancePresentation.tsx");
+  const environment = read("components/ft-performance/use-performance-environment.ts");
 
   assert.match(presentation, /current\.departure\.icao/);
-  assert.match(presentation, /current\.runway\.identifier/);
-  assert.match(presentation, /current\.weight\.value/);
-  assert.match(presentation, /current\.configuration\.flaps/);
-  assert.match(presentation, /current\.configuration\.antiIce/);
+  assert.match(presentation, /aria-label="Takeoff runway"/);
+  assert.match(presentation, /takeoffCalculator\?\.flapOptions/);
+  assert.match(presentation, /AUTO · METAR/);
+  assert.match(presentation, /Reset to automatic/);
+  assert.match(presentation, /Calculate takeoff/);
+  assert.match(environment, /loadAirportDataset/);
+  assert.match(environment, /\/api\/weather\/metar\?icao=/);
+  assert.match(environment, /calculatePressureAltitudeFt/);
+  assert.match(environment, /calculateWindComponents/);
   assert.doesNotMatch(presentation, /\b94\.2\b|\b121\b|\b126\b|\b135\b|\b4,820\b/);
 });
 
