@@ -451,12 +451,11 @@ test("P1 Flight Brief Flight Considerations stays visibly empty", async ({ page 
   await expect(section).toContainText("No active flight.");
 });
 
-test("P1 Flight Brief Training Recommendations stays visibly empty", async ({ page }) => {
+test("P1.1 EFB Flight Brief does not expose Training Recommendations", async ({ page }) => {
   const flight = await openP1Flight(page);
-  const section = flight.getByRole("region", { name: "Training Recommendations" });
-
-  await expect(section).toHaveAttribute("data-empty", "true");
-  await expect(section).toContainText("No active flight.");
+  await expect(
+    flight.getByRole("region", { name: "Training Recommendations" }),
+  ).toHaveCount(0);
 });
 
 test("P1 Flight Brief Relevant Procedures stays visibly empty", async ({ page }) => {
@@ -586,7 +585,7 @@ test("D0 activates Flight Brief context without inventing downstream brief data"
   ).toContainText("No considerations yet.");
   await expect(
     page.getByRole("region", { name: "Training Recommendations" }),
-  ).toContainText("No recommendations yet.");
+  ).toHaveCount(0);
   await expect(
     page.getByRole("region", { name: "Relevant Procedures" }),
   ).toContainText("No relevant procedures yet.");
@@ -653,10 +652,10 @@ test("P2 PERFORMANCE top-level renders the source-backed takeoff data strip", as
   await expect(strip.locator('[data-metric="takeoffDistance"]')).toContainText("3,100 ft");
 });
 
-test("P2 PERFORMANCE top-level identifies its Training view context", async ({ page }) => {
+test("P1.1 PERFORMANCE top-level identifies its EFB context", async ({ page }) => {
   await calculateP2Performance(page);
   const workspace = page.getByRole("main", { name: "Performance workspace" });
-  await expect(workspace.getByText("Training view", { exact: true })).toBeVisible();
+  await expect(workspace.getByText("EFB", { exact: true })).toBeVisible();
 });
 
 test("P2 Flight Brief reuses the same performance result with Flight brief context", async ({ page }) => {
@@ -748,7 +747,7 @@ test("P2 PERFORMANCE shows an explicit empty state without Active Flight", async
   const performance = workspace.getByRole("region", { name: "Performance", exact: true });
   await expect(performance).toHaveAttribute("data-empty", "true");
   await expect(performance).toContainText("No active flight.");
-  await expect(performance.getByText("Training view", { exact: true })).toBeVisible();
+  await expect(performance.getByText("EFB", { exact: true })).toBeVisible();
 });
 
 
