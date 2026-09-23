@@ -5,7 +5,13 @@ import { chromium } from "@playwright/test";
 const baseUrl = process.env.UX6_BASE_URL ?? "https://training.fly-tally.com";
 const base = new URL(baseUrl);
 const vercelShareToken = base.searchParams.get("_vercel_share");
+const storageStatePath = process.env.UX6_STORAGE_STATE
+  ? path.resolve(process.cwd(), process.env.UX6_STORAGE_STATE)
+  : undefined;
 const outputRoot = path.resolve(process.cwd(), "ux6-screenshots");
+
+const ipadUserAgent =
+  "Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1";
 
 const routes = [
   ["library", "/"],
@@ -21,10 +27,30 @@ const routes = [
 const themes = ["light", "dark"];
 
 const viewports = [
-  ["desktop", { width: 1664, height: 930, isMobile: false, hasTouch: false }],
-  ["ipad-landscape", { width: 1112, height: 834, isMobile: true, hasTouch: true }],
-  ["ipad-portrait", { width: 834, height: 1112, isMobile: true, hasTouch: true }],
-  ["mobile", { width: 390, height: 844, isMobile: true, hasTouch: true }],
+  ["desktop", { width: 1664, height: 930, isMobile: false, hasTouch: false, deviceScaleFactor: 1 }],
+  [
+    "ipad-landscape",
+    {
+      width: 1112,
+      height: 834,
+      isMobile: true,
+      hasTouch: true,
+      deviceScaleFactor: 2,
+      userAgent: ipadUserAgent,
+    },
+  ],
+  [
+    "ipad-portrait",
+    {
+      width: 834,
+      height: 1112,
+      isMobile: true,
+      hasTouch: true,
+      deviceScaleFactor: 2,
+      userAgent: ipadUserAgent,
+    },
+  ],
+  ["mobile", { width: 390, height: 844, isMobile: true, hasTouch: true, deviceScaleFactor: 1 }],
 ];
 
 await rm(outputRoot, { recursive: true, force: true });
@@ -34,6 +60,7 @@ const manifest = {
   capturedAt: new Date().toISOString(),
   baseUrl: base.toString(),
   vercelShareTokenPresent: Boolean(vercelShareToken),
+  authenticatedCapture: Boolean(storageStatePath),
   entries: [],
 };
 
@@ -47,8 +74,10 @@ try {
         viewport: { width: viewport.width, height: viewport.height },
         isMobile: viewport.isMobile,
         hasTouch: viewport.hasTouch,
-        deviceScaleFactor: 1,
+        deviceScaleFactor: viewport.deviceScaleFactor,
+        userAgent: viewport.userAgent,
         colorScheme: theme,
+        storageState: storageStatePath,
       });
 
       await context.addInitScript((selectedTheme) => {
