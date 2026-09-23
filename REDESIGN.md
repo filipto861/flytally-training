@@ -266,7 +266,7 @@ UX6 is a ground-up presentation redesign. It preserves proven P0–P7 domain beh
 | UX6.5 | Procedures redesign | **ACTIVE — stacked on UX6.4** |
 | UX6.6 | Performance + Flight redesign | **ACTIVE — stacked on UX6.5** |
 | UX6.7 | Aircraft/Library + Training + Reference + Systems | **ACTIVE — stacked on UX6.6** |
-| UX6.8 | Responsive specialization + accessibility hardening | planned |
+| UX6.8 | Responsive specialization + accessibility hardening | **ACTIVE — stacked on UX6.7** |
 | UX6.9 | Final visual matrix, performance/a11y gate, explicit PO approval | planned |
 
 **UX6 rule:** do not polish the rejected UX5 composition. New visual implementation starts only after the relevant UX6 owner gate.
@@ -493,3 +493,4 @@ fails closed, and legacy state cannot resurrect after canonical state exists.
 | 2026-09-23 | UX6.5 Procedures implementation rebased cleanly on current UX6.4 shell head; retained Operate-first hierarchy, integrated desktop procedure navigator, contextual inspector, and compact mobile controls. | Filip Točík + ChatGPT |
 | 2026-09-23 | UX6.6 Performance + Flight redesign restarted cleanly on current UX6.5 head; preserved runtime/state ownership while applying approved input/result and flight-lifecycle layouts. | Filip Točík + ChatGPT |
 | 2026-09-23 | UX6.7 remaining surfaces moved onto the current UX6.6 stack: Aircraft launch, Library, Training, Reference and in-shell governed Systems unavailable state now share the approved UX6 language. | Filip Točík + ChatGPT |
+| 2026-09-23 | UX6.8 responsive/a11y hardening started: full rail accessible names, touch-specialized Procedures on iPad/mobile, expanded overflow coverage and explicit 44px touch-control browser acceptance. | Filip Točík + ChatGPT |
