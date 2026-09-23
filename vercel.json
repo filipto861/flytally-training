@@ -1,12 +1,16 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
-  "regions": ["fra1"],
+  "regions": [
+    "fra1"
+  ],
   "git": {
     "deploymentEnabled": {
       "*": false,
-      "main": true
+      "main": true,
+      "preview/ux6-final-acceptance": true
     }
   },
-  "ignoreCommand": "node tooling/vercel-ignore-build.mjs"
+  "ignoreCommand": "node tooling/vercel-ignore-build.mjs",
+  "buildCommand": "npm run test:target -- tests/m37-pilot-first-ux.test.ts tests/real-standard-product-copy.test.ts tests/redesign-ux2-design-hierarchy.test.ts tests/redesign-ux3-cross-page-harmonization.test.ts tests/redesign-ux6-procedures.test.ts tests/v300-ux-hierarchy.test.ts tests/v322-browser-smoke.test.ts && npm run build"
 }
