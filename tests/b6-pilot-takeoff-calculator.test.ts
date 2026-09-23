@@ -174,3 +174,36 @@ test("UX Round 3 takeoff missing states identify the inputs required by each met
   assert.equal(result.v1.reason, "Enter Pressure Altitude, OAT and Takeoff Weight.");
   assert.equal(result.takeoffDistance.reason, "Enter Pressure Altitude, OAT and Takeoff Weight.");
 });
+
+
+test("B3 unsupported flap selection fails closed instead of reusing the first flap dataset", () => {
+  const result = calculatePilotTakeoffSummary(datasets, definition, {
+    pressureAltitude: 1000,
+    oat: 16,
+    takeoffWeight: 15000,
+    flaps: "99",
+    antiIce: false,
+  });
+
+  for (const metric of [result.v1, result.vr, result.v2, result.takeoffDistance]) {
+    assert.equal(metric.status, "unavailable");
+    assert.match(metric.reason ?? "", /flap configuration is not supported/i);
+  }
+  assert.equal(result.n1.status, "ready");
+});
+
+test("B3 missing flap selection remains an explicit missing-input state", () => {
+  const result = calculatePilotTakeoffSummary(datasets, definition, {
+    pressureAltitude: 1000,
+    oat: 16,
+    takeoffWeight: 15000,
+    flaps: "",
+    antiIce: false,
+  });
+
+  for (const metric of [result.v1, result.vr, result.v2, result.takeoffDistance]) {
+    assert.equal(metric.status, "missing");
+    assert.equal(metric.reason, "Enter Flaps.");
+  }
+  assert.equal(result.n1.status, "ready");
+});

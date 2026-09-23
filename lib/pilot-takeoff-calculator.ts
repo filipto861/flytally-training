@@ -162,8 +162,12 @@ export function calculatePilotTakeoffSummary(
   definition: PilotTakeoffCalculatorDefinition,
   inputs: PilotTakeoffCalculatorInputs,
 ): PilotTakeoffSummary {
-  const flap = definition.flapOptions.find((option) => option.value === inputs.flaps)
-    ?? definition.flapOptions[0];
+  const flap = definition.flapOptions.find((option) => option.value === inputs.flaps);
+  const flapSelectionProblem: PilotTakeoffMetricResult | undefined = !inputs.flaps.trim()
+    ? { status: "missing", reason: `Enter ${definition.inputs.flaps.label}.` }
+    : !flap
+      ? { status: "unavailable", reason: "Selected flap configuration is not supported by the current source package." }
+      : undefined;
 
   const n1Binding = inputs.antiIce ? definition.n1.antiIceOn : definition.n1.antiIceOff;
   const n1 = n1Binding
@@ -178,8 +182,10 @@ export function calculatePilotTakeoffSummary(
   const v1Binding = flap?.v1
     ? (inputs.antiIce ? flap.v1.antiIceOn : flap.v1.antiIceOff)
     : undefined;
-  const v1 = flap?.v1
-    ? v1Binding
+  const v1 = flapSelectionProblem
+    ? flapSelectionProblem
+    : flap?.v1
+      ? v1Binding
       ? evaluateMetric(datasets, v1Binding, inputs, definition, true)
       : {
           status: "unavailable" as const,
@@ -187,13 +193,15 @@ export function calculatePilotTakeoffSummary(
             ? "Anti-ice ON V1 data is not available in the current source package."
             : "V1 source data is unavailable.",
         }
-    : pending(definition.placeholders.find((item) => item.key === "v1")?.milestone ?? "Not yet implemented.");
+      : pending(definition.placeholders.find((item) => item.key === "v1")?.milestone ?? "Not yet implemented.");
 
   const takeoffDistanceBinding = flap?.takeoffDistance
     ? (inputs.antiIce ? flap.takeoffDistance.antiIceOn : flap.takeoffDistance.antiIceOff)
     : undefined;
-  const takeoffDistance = flap?.takeoffDistance
-    ? takeoffDistanceBinding
+  const takeoffDistance = flapSelectionProblem
+    ? flapSelectionProblem
+    : flap?.takeoffDistance
+      ? takeoffDistanceBinding
       ? evaluateMetric(datasets, takeoffDistanceBinding, inputs, definition, true)
       : {
           status: "unavailable" as const,
@@ -201,18 +209,22 @@ export function calculatePilotTakeoffSummary(
             ? "Anti-ice ON takeoff distance data is not available in the current source package."
             : "Takeoff distance source data is unavailable.",
         }
-    : pending(
-        definition.placeholders.find((item) => item.key === "takeoffDistance")?.milestone ?? "Not yet implemented.",
-      );
+      : pending(
+          definition.placeholders.find((item) => item.key === "takeoffDistance")?.milestone ?? "Not yet implemented.",
+        );
 
   return {
     n1,
-    vr: flap
-      ? evaluateMetric(datasets, flap.vr, inputs, definition, true)
-      : { status: "unavailable", reason: "No flap configuration is available." },
-    v2: flap
-      ? evaluateMetric(datasets, flap.v2, inputs, definition, true)
-      : { status: "unavailable", reason: "No flap configuration is available." },
+    vr: flapSelectionProblem
+      ? flapSelectionProblem
+      : flap
+        ? evaluateMetric(datasets, flap.vr, inputs, definition, true)
+        : { status: "unavailable", reason: "No flap configuration is available." },
+    v2: flapSelectionProblem
+      ? flapSelectionProblem
+      : flap
+        ? evaluateMetric(datasets, flap.v2, inputs, definition, true)
+        : { status: "unavailable", reason: "No flap configuration is available." },
     v1,
     takeoffDistance,
   };

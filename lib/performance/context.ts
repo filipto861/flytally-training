@@ -41,7 +41,8 @@ function fnv1a(value: string): string {
 
 export function buildPerformanceContext(
   activeFlight: ActiveFlight,
-): FlightPerformanceContext {
+): FlightPerformanceContext | null {
+  if (!activeFlight.runway || !activeFlight.configuration) return null;
   return {
     activeFlightId: activeFlight.id,
     aircraftId: activeFlight.aircraftId,

@@ -50,14 +50,9 @@ export function FtActiveFlight({
       aircraftId,
       departure: { icao: String(form.get("departure") ?? "").trim().toUpperCase() },
       destination: { icao: String(form.get("destination") ?? "").trim().toUpperCase() },
-      runway: { identifier: String(form.get("runway") ?? "").trim().toUpperCase() },
       weight: {
         value: weightValue,
         unit: form.get("weightUnit") === "lb" ? "lb" : "kg",
-      },
-      configuration: {
-        flaps: String(form.get("flaps") ?? "").trim(),
-        antiIce: form.get("antiIce") === "on",
       },
       brief: null,
     };
@@ -74,9 +69,7 @@ export function FtActiveFlight({
         const updated = await patchClientActiveFlight(current, {
           departure: validated.departure,
           destination: validated.destination,
-          runway: validated.runway,
           weight: validated.weight,
-          configuration: validated.configuration,
         });
         setFlight(updated);
       } else {
@@ -138,10 +131,12 @@ export function FtActiveFlight({
       {current ? (
         <div className={styles.flightSummary}>
           <strong>{current.departure.icao} → {current.destination.icao}</strong>
-          <span>RWY {current.runway.identifier} · ACTIVE</span>
+          <span>{current.runway ? `RWY ${current.runway.identifier}` : "Runway · select in Performance"} · ACTIVE</span>
           <span>
-            {current.weight.value} {current.weight.unit} · FLAPS {current.configuration.flaps}
-            {current.configuration.antiIce ? " · ANTI-ICE ON" : ""}
+            {current.weight.value} {current.weight.unit}
+            {current.configuration
+              ? ` · FLAPS ${current.configuration.flaps}${current.configuration.antiIce ? " · ANTI-ICE ON" : ""}`
+              : " · Configuration · select in Performance"}
           </span>
           <div className={styles.actionRow}>
             <Link
@@ -172,7 +167,10 @@ export function FtActiveFlight({
           {previous ? (
             <div className={styles.lifecycleNotice}>
               <strong>Previous flight</strong>
-              <span>{previous.departure.icao} → {previous.destination.icao} · RWY {previous.runway.identifier}</span>
+              <span>
+                {previous.departure.icao} → {previous.destination.icao}
+                {previous.runway ? ` · RWY ${previous.runway.identifier}` : ""}
+              </span>
               <button className={styles.secondaryAction} type="button" onClick={archive} disabled={busy}>
                 Archive previous flight
               </button>
@@ -244,15 +242,6 @@ export function FtActiveFlight({
                   defaultValue={editing ? editing.destination.icao : ""}
                 />
               </label>
-              <label>
-                Runway
-                <input
-                  name="runway"
-                  required
-                  maxLength={5}
-                  defaultValue={editing ? editing.runway.identifier : ""}
-                />
-              </label>
               <div className={styles.fieldGroup}>
                 <label htmlFor="ft-active-flight-weight">Weight</label>
                 <span className={styles.inlineField}>
@@ -275,23 +264,6 @@ export function FtActiveFlight({
                   </select>
                 </span>
               </div>
-              <label>
-                Flaps
-                <input
-                  name="flaps"
-                  required
-                  maxLength={32}
-                  defaultValue={editing ? editing.configuration.flaps : ""}
-                />
-              </label>
-              <label className={styles.checkboxField}>
-                <input
-                  name="antiIce"
-                  type="checkbox"
-                  defaultChecked={editing ? editing.configuration.antiIce === true : false}
-                />
-                Anti-ice
-              </label>
               <div className={styles.dialogActions}>
                 <button
                   className={styles.secondaryAction}

@@ -85,6 +85,7 @@ test("P2 builds the performance context from the Active Flight dependency snapsh
 
 test("P2 performance context hash is deterministic", () => {
   const context = buildPerformanceContext(activeFlight);
+  assert.ok(context);
   const first = computeContextHash(context);
   assert.equal(computeContextHash(context), first);
   assert.match(first, /^p2:[0-9a-f]{8}$/);
@@ -98,6 +99,9 @@ test("P2 context validity accepts matching dependencies and rejects changed weig
     weight: { value: 13000, unit: "lb" },
     performanceDependency: { snapshotId: "afd1:87654321" },
   });
+  assert.ok(stored);
+  assert.ok(same);
+  assert.ok(changed);
 
   assert.equal(isContextValid(same, stored), true);
   assert.equal(isContextValid(changed, stored), false);
@@ -133,6 +137,7 @@ test("P2 data strip styling uses frozen workspace tokens without hardcoded color
 
 test("P2 takeoff result preserves Round 3.7 N1 V1 VR V2 Distance semantics without VREF", () => {
   const context = buildPerformanceContext(activeFlight);
+  assert.ok(context);
   const result = computePerformance(
     context,
     [summaryDataset],
@@ -195,4 +200,16 @@ test("P2 uses one context-label vocabulary across training, Flight Brief and ope
   assert.match(page, /view="training"/);
   assert.match(brief, /view="brief"/);
   assert.match(fastPath, /view="operational"/);
+});
+
+
+test("B3 performance context fails closed until runway and governed configuration are selected", () => {
+  assert.equal(
+    buildPerformanceContext({
+      ...activeFlight,
+      runway: null,
+      configuration: null,
+    }),
+    null,
+  );
 });

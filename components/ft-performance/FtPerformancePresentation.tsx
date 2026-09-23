@@ -143,6 +143,12 @@ export function FtPerformancePresentation({
         Start active flight
       </Link>
     </div>
+  ) : !currentContext ? (
+    <div className={styles.resultEmpty}>
+      <span>SETUP REQUIRED</span>
+      <strong>Takeoff configuration not selected</strong>
+      <p>Select the departure runway and governed aircraft configuration in Performance before calculating.</p>
+    </div>
   ) : result ? (
     <>
       {stale ? (
@@ -191,14 +197,14 @@ export function FtPerformancePresentation({
               <p className={styles.eyebrow}>INPUTS</p>
               <h2>Departure conditions</h2>
               <p className={styles.inputHelp}>
-                Active Flight supplies aircraft, runway, weight and configuration.
+                Active Flight supplies the route and planning weight. Runway and performance configuration are calculation inputs.
               </p>
             </header>
 
             <dl className={styles.flightInputGrid}>
               <div>
                 <dt>Runway</dt>
-                <dd>{current.departure.icao} · {current.runway.identifier}</dd>
+                <dd>{current.departure.icao} · {current.runway?.identifier ?? "Not selected"}</dd>
               </div>
               <div>
                 <dt>Weight</dt>
@@ -206,11 +212,11 @@ export function FtPerformancePresentation({
               </div>
               <div>
                 <dt>Flaps</dt>
-                <dd>{current.configuration.flaps}</dd>
+                <dd>{current.configuration?.flaps ?? "Not selected"}</dd>
               </div>
               <div>
                 <dt>Anti-ice</dt>
-                <dd>{current.configuration.antiIce ? "ON" : "OFF"}</dd>
+                <dd>{current.configuration ? (current.configuration.antiIce ? "ON" : "OFF") : "Not selected"}</dd>
               </div>
             </dl>
 
@@ -248,7 +254,7 @@ export function FtPerformancePresentation({
 
             <button
               className={styles.action}
-              disabled={busy}
+              disabled={busy || !currentContext}
               onClick={calculateFromForm}
               type="button"
             >
