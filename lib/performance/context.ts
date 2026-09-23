@@ -1,4 +1,4 @@
-import type { ActiveFlight } from "../active-flight/types.ts";
+import type { ActiveFlight, ActiveFlightWeight } from "../active-flight/types.ts";
 
 export type FlightPerformanceWeather = {
   readonly qnh: number;
@@ -23,8 +23,17 @@ export type FlightPerformanceContext = {
   readonly weather: FlightPerformanceWeather | null;
 };
 
+export type TakeoffPerformanceContextInput = {
+  readonly runwayIdentifier: string;
+  readonly weight: ActiveFlightWeight;
+  readonly flaps: string;
+  readonly antiIce: boolean;
+  readonly qnh?: number;
+  readonly oat?: number;
+};
+
 export type PerformanceContextChange = {
-  readonly key: "weight" | "runway" | "flaps" | "antiIce" | "qnh" | "oat";
+  readonly key: "flight" | "weight" | "runway" | "flaps" | "antiIce" | "qnh" | "oat";
   readonly label: string;
   readonly before: string;
   readonly after: string;
@@ -36,12 +45,17 @@ function fnv1a(value: string): string {
     hash ^= value.charCodeAt(index);
     hash = Math.imul(hash, 16777619);
   }
-  return "p2:" + (hash >>> 0).toString(16).padStart(8, "0");
+  return "p3:" + (hash >>> 0).toString(16).padStart(8, "0");
 }
 
+/**
+ * Legacy bridge for already-persisted flights that still carry runway and
+ * configuration. New flights intentionally may not have those fields.
+ */
 export function buildPerformanceContext(
   activeFlight: ActiveFlight,
-): FlightPerformanceContext {
+): FlightPerformanceContext | null {
+  if (!activeFlight.runway || !activeFlight.configuration) return null;
   return {
     activeFlightId: activeFlight.id,
     aircraftId: activeFlight.aircraftId,
@@ -52,15 +66,40 @@ export function buildPerformanceContext(
       flaps: activeFlight.configuration.flaps,
       antiIce: activeFlight.configuration.antiIce === true,
     },
-    // D0 stores the source METAR envelope, not parsed QNH/OAT values.
-    // P2 deliberately does not invent or reparses operational weather here.
     weather: null,
+  };
+}
+
+export function buildTakeoffPerformanceContext(
+  activeFlight: ActiveFlight,
+  input: TakeoffPerformanceContextInput,
+): FlightPerformanceContext | null {
+  const runwayIdentifier = input.runwayIdentifier.trim().toUpperCase();
+  const flaps = input.flaps.trim();
+  if (!runwayIdentifier || !flaps) return null;
+
+  const hasWeather = Number.isFinite(input.qnh) && Number.isFinite(input.oat);
+  return {
+    activeFlightId: activeFlight.id,
+    aircraftId: activeFlight.aircraftId,
+    dependencySnapshotId: activeFlight.performanceDependency.snapshotId,
+    weight: input.weight,
+    runway: { identifier: runwayIdentifier },
+    configuration: {
+      flaps,
+      antiIce: input.antiIce,
+    },
+    weather: hasWeather
+      ? { qnh: input.qnh as number, oat: input.oat as number }
+      : null,
   };
 }
 
 export function computeContextHash(context: FlightPerformanceContext): string {
   return fnv1a(JSON.stringify({
+    activeFlightId: context.activeFlightId,
     aircraftId: context.aircraftId,
+    dependencySnapshotId: context.dependencySnapshotId,
     weight: context.weight,
     runway: context.runway,
     configuration: context.configuration,
@@ -93,13 +132,22 @@ export function diffPerformanceContext(
 ): readonly PerformanceContextChange[] {
   const changes: PerformanceContextChange[] = [];
 
+  if (stored.dependencySnapshotId !== current.dependencySnapshotId) {
+    changes.push({
+      key: "flight",
+      label: "Active Flight",
+      before: "Previous flight context",
+      after: "Current flight context",
+    });
+  }
+
   if (
     stored.weight.value !== current.weight.value
     || stored.weight.unit !== current.weight.unit
   ) {
     changes.push({
       key: "weight",
-      label: "Weight",
+      label: "Takeoff weight",
       before: weightLabel(stored),
       after: weightLabel(current),
     });
@@ -117,7 +165,7 @@ export function diffPerformanceContext(
   if (stored.configuration.flaps !== current.configuration.flaps) {
     changes.push({
       key: "flaps",
-      label: "Flaps",
+      label: "Takeoff flaps",
       before: stored.configuration.flaps,
       after: current.configuration.flaps,
     });
