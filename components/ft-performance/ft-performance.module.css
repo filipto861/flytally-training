@@ -204,6 +204,172 @@
     color-mix(in srgb, var(--ft-focus) 20%, transparent);
 }
 
+.inputGrid select {
+  min-width: 0;
+  width: 100%;
+  min-height: var(--ft-touch-target-min);
+  box-sizing: border-box;
+  padding-inline: var(--ft-space-3);
+  border: var(--ft-rule-default);
+  border-radius: var(--ft-radius-4);
+  background: var(--ft-bg-inset);
+  color: var(--ft-text-primary);
+  font: inherit;
+}
+
+.inputGrid select:focus-visible,
+.compactAction:focus-visible,
+.toggleButton:focus-visible,
+.inlineReset:focus-visible {
+  outline: var(--ft-focus-width) solid var(--ft-focus);
+  outline-offset: var(--ft-focus-offset);
+}
+
+.inputGrid label > small {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ft-space-2);
+  padding-inline: 0;
+  line-height: 1.4;
+}
+
+.environmentBar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) auto;
+  gap: var(--ft-space-3);
+  align-items: stretch;
+  padding-block: var(--ft-space-3);
+  border-block: var(--ft-rule-default);
+}
+
+.environmentBar > div {
+  min-width: 0;
+  display: grid;
+  align-content: start;
+  gap: var(--ft-space-1);
+}
+
+.environmentBar span,
+.windContext > span {
+  color: var(--ft-text-metadata);
+  font-family: var(--ft-font-data);
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.environmentBar strong,
+.windContext strong {
+  overflow-wrap: anywhere;
+  color: var(--ft-text-primary);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.environmentBar small,
+.windContext small {
+  overflow: hidden;
+  color: var(--ft-text-metadata);
+  font-size: 0.68rem;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+}
+
+.environmentBar > div:nth-child(2) small {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.compactAction,
+.toggleButton,
+.inlineReset {
+  min-height: var(--ft-touch-target-min);
+  border: var(--ft-rule-default);
+  border-radius: var(--ft-radius-4);
+  background: var(--ft-bg-inset);
+  color: var(--ft-text-primary);
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.compactAction {
+  align-self: center;
+  padding-inline: var(--ft-space-3);
+}
+
+.compactAction:disabled {
+  color: var(--ft-text-disabled);
+  cursor: default;
+}
+
+.toggleInput {
+  align-content: start;
+}
+
+.toggleButton {
+  width: 100%;
+  color: var(--ft-accent);
+}
+
+.toggleButton[aria-pressed="true"] {
+  border-color: var(--ft-accent);
+  background: var(--ft-accent-soft);
+}
+
+.inlineReset {
+  min-height: var(--ft-control-height);
+  padding-inline: var(--ft-space-2);
+  border-color: transparent;
+  background: transparent;
+  color: var(--ft-accent);
+  font-size: 0.66rem;
+}
+
+.inlineReset:hover {
+  background: var(--ft-bg-hover);
+}
+
+.windContext {
+  min-width: 0;
+  display: grid;
+  align-content: start;
+  gap: var(--ft-space-2);
+  padding: var(--ft-space-3);
+  border: var(--ft-rule-default);
+  border-radius: var(--ft-radius-4);
+  background: var(--ft-bg-inset);
+}
+
+.briefRecalculate {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: var(--ft-space-2);
+  align-items: center;
+  padding: var(--ft-space-2) var(--ft-space-3);
+  border: var(--ft-rule-default);
+  border-color: var(--ft-state-recalc);
+  border-radius: var(--ft-radius-4);
+  background: var(--ft-state-recalc-bg);
+  color: var(--ft-text-secondary);
+  font-size: 0.72rem;
+}
+
+.briefRecalculate strong {
+  color: var(--ft-state-recalc);
+  font-family: var(--ft-font-data);
+}
+
+.briefRecalculate a {
+  color: var(--ft-accent);
+  font-weight: 700;
+  text-decoration: none;
+}
+
 .action,
 .secondaryAction {
   min-height: var(--ft-touch-target-min);
@@ -497,6 +663,15 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .environmentBar {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .compactAction {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+
   .resultPane {
     order: 2;
   }
@@ -519,6 +694,18 @@
 
   .flightInputGrid,
   .inputGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .environmentBar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .compactAction {
+    width: 100%;
+  }
+
+  .briefRecalculate {
     grid-template-columns: minmax(0, 1fr);
   }
 
