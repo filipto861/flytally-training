@@ -6,6 +6,7 @@ import test from "node:test";
 import type { ActiveFlight } from "../lib/active-flight/types.ts";
 import {
   buildPerformanceContext,
+  buildTakeoffPerformanceContext,
   computeContextHash,
   isContextValid,
 } from "../lib/performance/context.ts";
@@ -83,11 +84,37 @@ test("P2 builds the performance context from the Active Flight dependency snapsh
   });
 });
 
+test("B4 builds Takeoff context from Performance-owned runway, weight and configuration", () => {
+  const flightWithoutLegacyInputs: ActiveFlight = {
+    ...activeFlight,
+    runway: null,
+    configuration: null,
+  };
+  const context = buildTakeoffPerformanceContext(flightWithoutLegacyInputs, {
+    runwayIdentifier: "06",
+    weight: { value: 11800, unit: "lb" },
+    flaps: "20",
+    antiIce: false,
+    qnh: 1016,
+    oat: 12,
+  });
+  assert.deepEqual(context, {
+    activeFlightId: "flight-p2-001",
+    aircraftId: "browser-ci-aircraft",
+    dependencySnapshotId: "afd1:12345678",
+    weight: { value: 11800, unit: "lb" },
+    runway: { identifier: "06" },
+    configuration: { flaps: "20", antiIce: false },
+    weather: { qnh: 1016, oat: 12 },
+  });
+});
+
 test("P2 performance context hash is deterministic", () => {
   const context = buildPerformanceContext(activeFlight);
+  assert.ok(context);
   const first = computeContextHash(context);
   assert.equal(computeContextHash(context), first);
-  assert.match(first, /^p2:[0-9a-f]{8}$/);
+  assert.match(first, /^p3:[0-9a-f]{8}$/);
 });
 
 test("P2 context validity accepts matching dependencies and rejects changed weight", () => {
@@ -99,6 +126,9 @@ test("P2 context validity accepts matching dependencies and rejects changed weig
     performanceDependency: { snapshotId: "afd1:87654321" },
   });
 
+  assert.ok(stored);
+  assert.ok(same);
+  assert.ok(changed);
   assert.equal(isContextValid(same, stored), true);
   assert.equal(isContextValid(changed, stored), false);
 });
@@ -133,6 +163,7 @@ test("P2 data strip styling uses frozen workspace tokens without hardcoded color
 
 test("P2 takeoff result preserves Round 3.7 N1 V1 VR V2 Distance semantics without VREF", () => {
   const context = buildPerformanceContext(activeFlight);
+  assert.ok(context);
   const result = computePerformance(
     context,
     [summaryDataset],
