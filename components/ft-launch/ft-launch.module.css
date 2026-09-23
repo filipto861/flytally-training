@@ -1,8 +1,8 @@
 .launchSurface {
   width: 100%;
   display: grid;
-  gap: var(--ft-space-5);
-  padding: var(--ft-space-6);
+  gap: var(--ft-space-4);
+  padding: var(--ft-space-6) 0 var(--ft-space-7);
   color: var(--ft-text-primary);
   background: var(--ft-bg-shell);
 }
@@ -10,7 +10,7 @@
 .launchHeader {
   display: grid;
   gap: var(--ft-space-1);
-  padding-block: var(--ft-space-2);
+  padding-block: var(--ft-space-1);
 }
 
 .launchHeader h1,
@@ -19,7 +19,7 @@
   margin: 0;
   color: var(--ft-text-primary);
   font-family: var(--ft-font-ui);
-  letter-spacing: -0.015em;
+  letter-spacing: -0.02em;
 }
 
 .launchHeader h1 {
@@ -35,7 +35,7 @@
 }
 
 .secondarySection h2 {
-  font-size: 1.0625rem;
+  font-size: 1rem;
   line-height: 1.25;
   font-weight: 700;
 }
@@ -44,7 +44,7 @@
   margin: 0;
   color: var(--ft-text-metadata);
   font-family: var(--ft-font-data);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.08em;
 }
@@ -52,14 +52,17 @@
 .continueSection {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  align-items: end;
-  gap: var(--ft-space-5);
-  padding: var(--ft-space-5);
+  align-items: center;
+  gap: var(--ft-space-6);
+  padding: var(--ft-space-6);
   border: var(--ft-rule-default);
-  border-radius: calc(var(--ft-radius-4) * 2);
-  background: var(--ft-bg-panel);
-  box-shadow: 0 var(--ft-space-1) var(--ft-space-3)
-    color-mix(in srgb, var(--ft-text-primary) 6%, transparent);
+  border-radius: var(--ft-radius-panel);
+  background:
+    linear-gradient(
+      135deg,
+      var(--ft-bg-panel),
+      color-mix(in srgb, var(--ft-bg-operational) 52%, var(--ft-bg-panel))
+    );
 }
 
 .continueCopy {
@@ -82,7 +85,7 @@
 }
 
 .activityTitle {
-  font-size: 1.0625rem;
+  font-size: 1.125rem;
 }
 
 .activityContext {
@@ -95,7 +98,7 @@
   gap: var(--ft-space-3);
   color: var(--ft-text-metadata);
   font-family: var(--ft-font-data);
-  font-size: 0.78rem;
+  font-size: 0.74rem;
 }
 
 .primaryAction,
@@ -105,22 +108,29 @@
   align-items: center;
   justify-content: center;
   width: fit-content;
-  border-radius: calc(var(--ft-radius-4) * 2);
+  border-radius: var(--ft-radius-4);
   text-decoration: none;
   font-family: var(--ft-font-ui);
+  font-size: 0.8rem;
   font-weight: 700;
 }
 
 .primaryAction {
   padding-inline: var(--ft-space-5);
   border: var(--ft-rule-strong);
-  background: var(--ft-bg-operational);
-  color: var(--ft-text-primary);
+  border-color: var(--ft-accent);
+  background: var(--ft-accent);
+  color: var(--ft-accent-contrast);
+}
+
+.primaryAction:hover {
+  border-color: var(--ft-accent-hover);
+  background: var(--ft-accent-hover);
 }
 
 .secondaryGrid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
   gap: var(--ft-space-4);
 }
 
@@ -129,9 +139,9 @@
   display: grid;
   align-content: start;
   gap: var(--ft-space-3);
-  padding: var(--ft-space-4);
+  padding: var(--ft-space-5);
   border: var(--ft-rule-default);
-  border-radius: calc(var(--ft-radius-4) * 2);
+  border-radius: var(--ft-radius-panel);
   background: var(--ft-bg-panel);
 }
 
@@ -139,6 +149,11 @@
   margin: 0;
   color: var(--ft-text-secondary);
   line-height: 1.5;
+}
+
+.secondarySection > .secondaryTitle {
+  font-family: var(--ft-font-data);
+  font-size: 1.35rem;
 }
 
 .secondaryAction {
@@ -149,6 +164,11 @@
   background: var(--ft-bg-inset);
 }
 
+.secondaryAction:hover {
+  border-color: var(--ft-border-strong);
+  background: var(--ft-bg-hover);
+}
+
 .emptyState {
   color: var(--ft-text-metadata);
   line-height: 1.5;
@@ -156,7 +176,7 @@
 
 .recentList {
   display: grid;
-  gap: var(--ft-space-1);
+  gap: 0;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -166,11 +186,18 @@
   min-height: var(--ft-touch-target-min);
   display: grid;
   gap: var(--ft-space-1);
-  padding: var(--ft-space-2) var(--ft-space-3);
-  border-radius: calc(var(--ft-radius-4) * 2);
+  padding: var(--ft-space-3) 0;
+  border-bottom: var(--ft-rule-default);
   color: var(--ft-text-primary);
-  background: var(--ft-bg-inset);
   text-decoration: none;
+}
+
+.recentList li:last-child .recentLink {
+  border-bottom: 0;
+}
+
+.recentLink:hover {
+  color: var(--ft-accent);
 }
 
 .recentLink strong {
@@ -179,26 +206,26 @@
 
 .recentLink span {
   color: var(--ft-text-metadata);
-  font-size: 0.78rem;
+  font-size: 0.74rem;
 }
 
 .primaryAction:focus-visible,
 .secondaryAction:focus-visible,
 .recentLink:focus-visible {
-  outline: var(--ft-focus-width) solid var(--ft-text-primary);
+  outline: var(--ft-focus-width) solid var(--ft-focus);
   outline-offset: var(--ft-focus-offset);
 }
 
 @media (max-width: 1180px), (hover: none) {
   .launchSurface {
     gap: var(--ft-space-4);
-    padding: var(--ft-space-4);
+    padding: var(--ft-space-5) 0 var(--ft-space-7);
   }
 
   .continueSection {
     grid-template-columns: minmax(0, 1fr);
     align-items: start;
-    padding: var(--ft-space-4);
+    padding: var(--ft-space-5);
   }
 
   .secondaryGrid {
@@ -208,5 +235,20 @@
   .primaryAction,
   .secondaryAction {
     width: 100%;
+  }
+}
+
+@media (max-width: 48rem) {
+  .launchSurface {
+    padding: var(--ft-space-4) var(--ft-space-3) var(--ft-space-7);
+  }
+
+  .launchHeader h1 {
+    font-size: 1.5rem;
+  }
+
+  .continueSection,
+  .secondarySection {
+    padding: var(--ft-space-4);
   }
 }
