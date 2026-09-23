@@ -37,11 +37,20 @@ Total: **8 × 4 × 2 = 64 screenshots**.
 
 ## Capture
 
-Run:
+Run against production:
 
 ```bash
-UX6_BASE_URL=<accepted-preview-or-production-url> npm run capture:ux6
+UX6_BASE_URL=https://training.fly-tally.com npm run capture:ux6
 ```
+
+Run against a Vercel share URL:
+
+```powershell
+$env:UX6_BASE_URL="https://<preview>.vercel.app/?_vercel_share=<token>"
+npm run capture:ux6
+```
+
+The capture script preserves the `_vercel_share` token when it navigates from the Library to every aircraft route.
 
 Artifacts:
 
@@ -129,6 +138,14 @@ These timings are diagnostic only and must never be presented as aviation validi
 ## Technical gate before product-owner review
 
 Required evidence:
+
+Run the complete local gate:
+
+```bash
+npm run verify:ux6
+```
+
+This requires:
 
 - TypeScript PASS;
 - full Node suite PASS;
