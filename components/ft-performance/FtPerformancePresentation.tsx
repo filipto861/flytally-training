@@ -134,6 +134,47 @@ export function FtPerformancePresentation({
     });
   }
 
+  const resultContent = !hydrated ? (
+    <div className={styles.emptyState}><p>Loading performance context…</p></div>
+  ) : !current ? (
+    <div className={styles.emptyState}>
+      <p>No active flight. Performance is tied to an explicit Active Flight context.</p>
+      <Link className={styles.secondaryAction} href={"/aircraft/" + aircraftId + "/flight"}>
+        Start active flight
+      </Link>
+    </div>
+  ) : result ? (
+    <>
+      {stale ? (
+        <FtPerformanceInvalidation
+          busy={busy}
+          changes={changes}
+          onRecalculate={recalculate}
+        />
+      ) : null}
+      <FtPerformanceStrip result={result} stale={stale} />
+      <p className={styles.timestamp}>
+        {stale
+          ? "Stored result is stale."
+          : "Calculated " + new Date(result.computedAt).toLocaleString("en-GB")}
+      </p>
+    </>
+  ) : (
+    <div className={styles.resultEmpty}>
+      <span>RESULT</span>
+      <strong>No performance computed yet</strong>
+      <p>Enter the source-required environment values and calculate.</p>
+      {!showInputs ? (
+        <Link
+          className={styles.secondaryAction}
+          href={"/aircraft/" + aircraftId + "/performance"}
+        >
+          Calculate performance
+        </Link>
+      ) : null}
+    </div>
+  );
+
   return (
     <section
       className={styles.presentation}
@@ -143,94 +184,100 @@ export function FtPerformancePresentation({
     >
       <FtPerformanceContextLabel context={view} />
 
-      {!hydrated ? (
-        <div className={styles.emptyState}><p>Loading performance context…</p></div>
-      ) : !current ? (
-        <div className={styles.emptyState}>
-          <p>No active flight. Performance is tied to an explicit Active Flight context.</p>
-          <Link className={styles.secondaryAction} href={`/aircraft/${aircraftId}/flight`}>
-            Start active flight
-          </Link>
-        </div>
-      ) : result ? (
-        <>
-          {stale ? (
-            <FtPerformanceInvalidation
-              busy={busy}
-              changes={changes}
-              onRecalculate={recalculate}
-            />
-          ) : null}
-          <FtPerformanceStrip result={result} stale={stale} />
-          <p className={styles.timestamp}>
-            {stale
-              ? "Stored result is stale."
-              : `Calculated ${new Date(result.computedAt).toLocaleString("en-GB")}`}
-          </p>
-        </>
-      ) : (
-        <div className={styles.emptyState}>
-          <p>No performance computed yet.</p>
-          {!showInputs ? (
-            <Link
-              className={styles.secondaryAction}
-              href={`/aircraft/${aircraftId}/performance`}
-            >
-              Calculate performance
-            </Link>
-          ) : null}
-        </div>
-      )}
-
       {current && showInputs ? (
-        <div className={styles.inputBlock}>
-          <div>
-            <p className={styles.eyebrow}>CALCULATION INPUTS</p>
-            <p className={styles.inputHelp}>
-              Active Flight supplies weight, runway and configuration. Enter
-              only source-required environment values that are not yet stored
-              in the D0 Active Flight model.
-            </p>
-          </div>
-          <div className={styles.inputGrid}>
-            <label>
-              Pressure altitude
-              <input
-                inputMode="decimal"
-                name="pressureAltitude"
-                onChange={(event) => setPressureAltitude(event.target.value)}
-                placeholder="ft"
-                type="number"
-                value={pressureAltitude}
-              />
-            </label>
-            <label>
-              OAT
-              <input
-                inputMode="decimal"
-                name="oat"
-                onChange={(event) => setOat(event.target.value)}
-                placeholder="°C"
-                step="any"
-                type="number"
-                value={oat}
-              />
-            </label>
-          </div>
-          <button
-            className={styles.action}
-            disabled={busy}
-            onClick={calculateFromForm}
-            type="button"
-          >
-            {busy
-              ? "Calculating…"
-              : result
-                ? "Recalculate performance"
-                : "Calculate performance"}
-          </button>
+        <div className={styles.performanceWorkspace}>
+          <section className={styles.inputBlock} aria-label="Performance inputs">
+            <header className={styles.paneHeader}>
+              <p className={styles.eyebrow}>INPUTS</p>
+              <h2>Departure conditions</h2>
+              <p className={styles.inputHelp}>
+                Active Flight supplies aircraft, runway, weight and configuration.
+              </p>
+            </header>
+
+            <dl className={styles.flightInputGrid}>
+              <div>
+                <dt>Runway</dt>
+                <dd>{current.departure.icao} · {current.runway.identifier}</dd>
+              </div>
+              <div>
+                <dt>Weight</dt>
+                <dd>{current.weight.value} {current.weight.unit}</dd>
+              </div>
+              <div>
+                <dt>Flaps</dt>
+                <dd>{current.configuration.flaps}</dd>
+              </div>
+              <div>
+                <dt>Anti-ice</dt>
+                <dd>{current.configuration.antiIce ? "ON" : "OFF"}</dd>
+              </div>
+            </dl>
+
+            <div className={styles.inputGrid}>
+              <label>
+                Pressure altitude
+                <span>
+                  <input
+                    inputMode="decimal"
+                    name="pressureAltitude"
+                    onChange={(event) => setPressureAltitude(event.target.value)}
+                    placeholder="0"
+                    type="number"
+                    value={pressureAltitude}
+                  />
+                  <small>ft</small>
+                </span>
+              </label>
+              <label>
+                OAT
+                <span>
+                  <input
+                    inputMode="decimal"
+                    name="oat"
+                    onChange={(event) => setOat(event.target.value)}
+                    placeholder="15"
+                    step="any"
+                    type="number"
+                    value={oat}
+                  />
+                  <small>°C</small>
+                </span>
+              </label>
+            </div>
+
+            <button
+              className={styles.action}
+              disabled={busy}
+              onClick={calculateFromForm}
+              type="button"
+            >
+              {busy
+                ? "Calculating…"
+                : result
+                  ? "Recalculate performance"
+                  : "Calculate performance"}
+            </button>
+          </section>
+
+          <section className={styles.resultPane} aria-label="Performance result">
+            <header className={styles.resultHeader}>
+              <div>
+                <p className={styles.eyebrow}>RESULT</p>
+                <h2>Takeoff</h2>
+              </div>
+              {result ? (
+                <span className={stale ? styles.resultBadgeStale : styles.resultBadge}>
+                  {stale ? "RECALCULATE" : "CURRENT INPUTS"}
+                </span>
+              ) : null}
+            </header>
+            {resultContent}
+          </section>
         </div>
-      ) : null}
+      ) : (
+        <div className={styles.compactResult}>{resultContent}</div>
+      )}
     </section>
   );
 }
