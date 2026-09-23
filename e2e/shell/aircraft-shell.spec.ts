@@ -40,7 +40,9 @@ test("W1 mounts the new shell without duplicate legacy navigation when the flag 
   const shell = page.locator('[data-ft-shell="true"]');
   await expect(shell).toBeVisible();
   await expect(shell.getByText("Browser CI Aircraft", { exact: true }).first()).toBeVisible();
-  await expect(shell.locator('[aria-label^="Training profile:"]')).toBeVisible();
+  const profile = shell.locator('[aria-label^="Training profile:"]');
+  await expect(profile).toHaveCount(1);
+  await expect(profile).toHaveAttribute("aria-label", "Training profile: Standard");
 
   const legacyNav = page.locator('section[aria-label="Aircraft navigation"]');
   await expect(legacyNav).toBeHidden();
@@ -450,7 +452,7 @@ test("P1 Flight page shows the Active Flight empty state", async ({ page }) => {
 
 test("P1 Flight Brief Performance stays visibly empty without active-flight data", async ({ page }) => {
   const flight = await openP1Flight(page);
-  const performance = flight.getByRole("region", { name: "Performance" });
+  const performance = flight.getByRole("region", { name: "Performance", exact: true });
 
   await expect(performance).toHaveAttribute("data-empty", "true");
   await expect(performance.getByText("Flight brief", { exact: true })).toBeVisible();
@@ -592,10 +594,10 @@ test("D0 activates Flight Brief context without inventing downstream brief data"
   const brief = page.getByRole("region", { name: "Flight Brief" });
   await expect(brief).toHaveAttribute("data-flight-context", "active");
 
-  const performance = page.getByRole("region", { name: "Performance" });
+  const performance = page.getByRole("region", { name: "Performance", exact: true });
   await expect(performance).toHaveAttribute("data-empty", "true");
   await expect(performance.getByText("Flight brief", { exact: true })).toBeVisible();
-  await expect(performance).toContainText("No performance computed yet.");
+  await expect(performance).toContainText("No performance computed yet");
   await expect(
     page.getByRole("region", { name: "Flight Considerations" }),
   ).toContainText("No considerations yet.");
@@ -645,8 +647,8 @@ async function calculateP2Performance(page: Page): Promise<Locator> {
 
   const workspace = page.getByRole("main", { name: "Performance workspace" });
   await expect(workspace).toBeVisible();
-  const performance = workspace.getByRole("region", { name: "Performance" });
-  await expect(performance).toContainText("No performance computed yet.");
+  const performance = workspace.getByRole("region", { name: "Performance", exact: true });
+  await expect(performance).toContainText("No performance computed yet");
   await performance.getByRole("button", { name: "Calculate performance", exact: true }).click();
 
   const strip = performance.locator('[data-ft-performance-strip="true"]');
@@ -675,7 +677,7 @@ test("P2 Flight Brief reuses the same performance result with Flight brief conte
   await calculateP2Performance(page);
   await page.goto(`${shellOnBase}${aircraftPath}/flight`);
 
-  const performance = page.getByRole("region", { name: "Performance" });
+  const performance = page.getByRole("region", { name: "Performance", exact: true });
   await expect(performance.getByText("Flight brief", { exact: true })).toBeVisible();
   await expect(performance.locator('[data-metric="takeoffDistance"]')).toContainText("3,100 ft");
 });
@@ -684,7 +686,7 @@ test("P2 PERF fast path reuses the same performance result with Operational cont
   await calculateP2Performance(page);
   const panel = await openFastPath(page, "PERF");
 
-  const performance = panel.getByRole("region", { name: "Performance" });
+  const performance = panel.getByRole("region", { name: "Performance", exact: true });
   await expect(performance.getByText("Operational", { exact: true })).toBeVisible();
   await expect(performance.locator('[data-metric="v2"]')).toContainText("125 KIAS");
 });
@@ -701,7 +703,7 @@ test("P2 dependency change marks stored performance NEEDS RECALCULATION", async 
   await dialog.getByRole("button", { name: "Save flight", exact: true }).click();
   await expect(dialog).toHaveCount(0);
 
-  const performance = page.getByRole("region", { name: "Performance" });
+  const performance = page.getByRole("region", { name: "Performance", exact: true });
   await expect(performance.getByText("NEEDS RECALCULATION", { exact: true })).toBeVisible();
   await expect(performance).toContainText("Weight: 12,000 lb → 13,000 lb");
   await expect(performance.locator('[data-ft-performance-strip="true"]')).toHaveAttribute(
@@ -720,7 +722,7 @@ test("P2 Recalculate replaces stale values with the new dependency context", asy
   await dialog.getByLabel("Weight", { exact: true }).fill("13000");
   await dialog.getByRole("button", { name: "Save flight", exact: true }).click();
 
-  const performance = page.getByRole("region", { name: "Performance" });
+  const performance = page.getByRole("region", { name: "Performance", exact: true });
   await performance.getByRole("button", { name: "Recalculate", exact: true }).click();
 
   await expect(performance.getByText("NEEDS RECALCULATION", { exact: true })).toHaveCount(0);
@@ -752,7 +754,7 @@ test("P2 PERFORMANCE shows an explicit empty state without Active Flight", async
   await page.goto(`${shellOnBase}${aircraftPath}/performance`);
 
   const workspace = page.getByRole("main", { name: "Performance workspace" });
-  const performance = workspace.getByRole("region", { name: "Performance" });
+  const performance = workspace.getByRole("region", { name: "Performance", exact: true });
   await expect(performance).toHaveAttribute("data-empty", "true");
   await expect(performance).toContainText("No active flight.");
   await expect(performance.getByText("Training view", { exact: true })).toBeVisible();
