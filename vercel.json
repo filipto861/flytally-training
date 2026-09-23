@@ -12,5 +12,5 @@
     }
   },
   "ignoreCommand": "node tooling/vercel-ignore-build.mjs",
-  "buildCommand": "npm run build"
+  "buildCommand": "npm run typecheck > public/b3-type-errors.txt 2>&1 || true; npm run build"
 }
