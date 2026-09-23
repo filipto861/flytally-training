@@ -40,9 +40,11 @@ function mapRow(row: ActiveFlightRow): ActiveFlight {
     lifecycle: row.lifecycle,
     departure: jsonObject<ActiveFlight["departure"]>(row.departure),
     destination: jsonObject<ActiveFlight["destination"]>(row.destination),
-    runway: jsonObject<ActiveFlight["runway"]>(row.runway),
+    runway: row.runway == null ? null : jsonObject<NonNullable<ActiveFlight["runway"]>>(row.runway),
     weight: jsonObject<ActiveFlight["weight"]>(row.weight),
-    configuration: jsonObject<ActiveFlight["configuration"]>(row.configuration),
+    configuration: row.configuration == null
+      ? null
+      : jsonObject<NonNullable<ActiveFlight["configuration"]>>(row.configuration),
     weather: row.weather == null ? null : jsonObject<ActiveFlight["weather"]>(row.weather),
     performanceDependency: jsonObject<ActiveFlight["performanceDependency"]>(row.performance_dependency),
     brief: row.brief == null ? null : jsonObject<ActiveFlight["brief"]>(row.brief),
@@ -88,9 +90,9 @@ export async function createActiveFlight(
       ${id},${accountSubject},${input.aircraftId},'ACTIVE',
       ${JSON.stringify(input.departure)}::jsonb,
       ${JSON.stringify(input.destination)}::jsonb,
-      ${JSON.stringify(input.runway)}::jsonb,
+      ${JSON.stringify(input.runway ?? null)}::jsonb,
       ${JSON.stringify(input.weight)}::jsonb,
-      ${JSON.stringify(input.configuration)}::jsonb,
+      ${JSON.stringify(input.configuration ?? null)}::jsonb,
       NULL,
       ${JSON.stringify(dependency)}::jsonb,
       ${input.brief == null ? null : JSON.stringify(input.brief)}::jsonb,
@@ -133,9 +135,11 @@ export async function updateActiveFlight(
   const merged = {
     departure: patch.departure ?? current.departure,
     destination: patch.destination ?? current.destination,
-    runway: patch.runway ?? current.runway,
+    runway: "runway" in patch ? patch.runway ?? null : current.runway,
     weight: patch.weight ?? current.weight,
-    configuration: patch.configuration ?? current.configuration,
+    configuration: "configuration" in patch
+      ? patch.configuration ?? null
+      : current.configuration,
   };
   const dependency = { snapshotId: activeFlightDependencyReference(merged) };
   const brief = patch.brief !== undefined ? patch.brief : current.brief;
