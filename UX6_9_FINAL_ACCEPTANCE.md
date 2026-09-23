@@ -145,6 +145,8 @@ Run the complete local gate:
 npm run verify:ux6
 ```
 
+Browser-only reruns still require a fresh production build because Playwright serves the compiled `.next` output with `npm start`. Use `npm run verify:ux6:browser` rather than calling `npx playwright test` directly after application-code changes.
+
 This requires:
 
 - TypeScript PASS;
