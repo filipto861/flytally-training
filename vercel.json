@@ -1,12 +1,16 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
-  "regions": ["fra1"],
+  "regions": [
+    "fra1"
+  ],
   "git": {
     "deploymentEnabled": {
       "*": false,
-      "main": true
+      "main": true,
+      "preview/ux6-responsive-a11y": true
     }
   },
-  "ignoreCommand": "node tooling/vercel-ignore-build.mjs"
+  "ignoreCommand": "node tooling/vercel-ignore-build.mjs",
+  "buildCommand": "npm run test:target -- tests/redesign-ux6-responsive-a11y.test.ts && npm run build"
 }
