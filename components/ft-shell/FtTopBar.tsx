@@ -46,7 +46,13 @@ export function FtTopBar({
       </div>
 
       <div className={styles.topBarActions}>
-        <FtSearchOverlay aircraftId={aircraftId} aircraftIdentity={aircraftIdentity} />
+        {mode !== "efb" ? (
+          <FtSearchOverlay
+            aircraftId={aircraftId}
+            aircraftIdentity={aircraftIdentity}
+            scope={mode === "learn" ? "learn" : "all"}
+          />
+        ) : null}
         {mode === "efb" ? <FtFastPathIndicator /> : null}
         {mode === "efb" ? (
           <span
