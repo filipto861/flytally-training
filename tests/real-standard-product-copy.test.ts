@@ -20,5 +20,5 @@ test("aircraft library no longer depends on the legacy normal-flight bundle for 
   assert.match(home, /repository\.listAircraft\(\)/);
   assert.doesNotMatch(home, /getNormalFlight/);
   assert.doesNotMatch(home, /First Flight available|Content in progress/);
-  assert.match(home, /pilot-aircraft-row-status">Available/);
+  assert.match(home, /className=\{styles\.available\}>Available/);
 });
