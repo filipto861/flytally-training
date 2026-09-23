@@ -724,7 +724,7 @@
   }
 }
 
-@media (max-width: 64rem), (hover: none) {
+@media (max-width: 1180px), (hover: none), (pointer: coarse) {
   .page {
     display: block;
     padding: 0 0 var(--ft-space-5);

@@ -17,7 +17,7 @@ test("UX6.8 aircraft profile is explicitly labelled for assistive technology",()
 
 test("UX6.8 Procedures uses the compact control path on touch layouts",()=>{
   const css=read("components/ft-procedures/ft-procedures.module.css");
-  assert.match(css,/@media \(max-width: 64rem\), \(hover: none\)/);
+  assert.match(css,/@media \(max-width: 1180px\), \(hover: none\), \(pointer: coarse\)/);
   assert.match(css,/\.desktopIndex\s*\{[\s\S]*display:\s*none/);
   assert.match(css,/\.mobileControls\s*\{[\s\S]*display:\s*grid/);
   assert.match(css,/color:\s*var\(--ft-accent-contrast\)/);
