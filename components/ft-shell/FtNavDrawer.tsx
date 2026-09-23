@@ -5,16 +5,19 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 
 import {
-  getAircraftContentIa,
-  isAircraftContentDestinationActive,
-} from "@/lib/aircraft-content-ia";
+  getAircraftModeDestinations,
+  getAircraftModeHomeHref,
+  getAircraftProductModeForPathname,
+  isAircraftModeDestinationActive,
+} from "@/lib/aircraft-product-mode";
 import styles from "./ft-shell.module.css";
 
 const focusableSelector = 'a[href],button:not([disabled]),[tabindex]:not([tabindex="-1"])';
 
 export function FtNavDrawer({ aircraftId }: Readonly<{ aircraftId: string }>) {
   const pathname = usePathname();
-  const destinations = getAircraftContentIa(aircraftId);
+  const mode = getAircraftProductModeForPathname(pathname, aircraftId);
+  const destinations = mode ? getAircraftModeDestinations(aircraftId, mode) : [];
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -96,7 +99,7 @@ export function FtNavDrawer({ aircraftId }: Readonly<{ aircraftId: string }>) {
             <div className={styles.drawerHeader}>
               <div>
                 <span>FLYTALLY TRAINING</span>
-                <strong>Aircraft workspace</strong>
+                <strong>{mode === "efb" ? "EFB" : mode === "learn" ? "Learn" : "Choose mode"}</strong>
               </div>
               <button
                 type="button"
@@ -107,27 +110,48 @@ export function FtNavDrawer({ aircraftId }: Readonly<{ aircraftId: string }>) {
                 ×
               </button>
             </div>
-            <nav className={styles.drawerNav} aria-label="Aircraft workspace sections">
-              {destinations.map((destination) => {
-                const active = isAircraftContentDestinationActive(
-                  pathname,
-                  aircraftId,
-                  destination.key,
-                );
-                return (
-                  <Link
-                    key={destination.key}
-                    href={destination.href}
-                    className={styles.drawerLink}
-                    aria-current={active ? "page" : undefined}
-                    onClick={() => setOpen(false)}
-                  >
-                    <span>{destination.label}</span>
-                    <span aria-hidden="true">→</span>
-                  </Link>
-                );
-              })}
-            </nav>
+
+            <div className={styles.drawerModeSwitch} aria-label="Product mode">
+              <Link
+                href={getAircraftModeHomeHref(aircraftId, "learn")}
+                aria-current={mode === "learn" ? "page" : undefined}
+                onClick={() => setOpen(false)}
+              >
+                LEARN
+              </Link>
+              <Link
+                href={getAircraftModeHomeHref(aircraftId, "efb")}
+                aria-current={mode === "efb" ? "page" : undefined}
+                onClick={() => setOpen(false)}
+              >
+                EFB
+              </Link>
+            </div>
+
+            {mode ? (
+              <nav className={styles.drawerNav} aria-label="Aircraft workspace sections">
+                {destinations.map((destination) => {
+                  const active = isAircraftModeDestinationActive(
+                    pathname,
+                    aircraftId,
+                    mode,
+                    destination.key,
+                  );
+                  return (
+                    <Link
+                      key={destination.key}
+                      href={destination.href}
+                      className={styles.drawerLink}
+                      aria-current={active ? "page" : undefined}
+                      onClick={() => setOpen(false)}
+                    >
+                      <span>{destination.label}</span>
+                      <span aria-hidden="true">→</span>
+                    </Link>
+                  );
+                })}
+              </nav>
+            ) : null}
           </div>
         </div>
       ) : null}
