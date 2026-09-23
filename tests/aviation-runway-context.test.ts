@@ -19,16 +19,18 @@ const lkpr = findAirport(dataset, "LKPR");
 if (!lkpr) throw new Error("LKPR fixture missing.");
 
 test("B9-A resolves Prague runway 24 into generic runway context", () => {
-  const context = resolveRunwayEnd(lkpr, "24");
+  const context = resolveRunwayEnd(lkpr, "24", dataset.source);
   assert.ok(context);
   assert.equal(context.airportIcao, "LKPR");
+  assert.equal(context.runwaySurfaceId, "06/24");
   assert.equal(context.runwayIdent, "24");
   assert.equal(context.airportElevationFt, 1247);
   assert.equal(context.runwayEndElevationFt, 1158);
   assert.equal(typeof context.oppositeEndElevationFt, "number");
   assert.equal(context.headingTrueDeg, 245);
   assert.equal(context.surfaceLengthFt, 12189);
-  assert.equal(context.availableTakeoffLengthFt, 12189);
+  assert.equal(context.lengthBasis, "physical-surface-length");
+  assert.deepEqual(context.dataSource, dataset.source);
   assert.equal(context.surface, "CON");
 });
 
@@ -100,4 +102,14 @@ test("B9-A sourced-value helpers protect manual overrides", () => {
   const manual = manualSourcedValue("1000");
   assert.deepEqual(manual, { value: "1000", source: "manual", dirty: true });
   assert.equal(airportAutoFill(manual, "820"), manual);
+});
+
+
+test("B2 runway context never labels physical surface length as declared TORA", () => {
+  const context = resolveRunwayEnd(lkpr, "24", dataset.source);
+  assert.ok(context);
+  assert.equal(context.lengthBasis, "physical-surface-length");
+  assert.equal(context.surfaceLengthFt, 12189);
+  assert.equal(context.dataSource?.id, "ourairports");
+  assert.ok(context.dataSource?.snapshotDate);
 });
