@@ -1,4 +1,5 @@
 import type {
+  AirportDatasetV1,
   AirportRecord,
   RunwayEnd,
   RunwaySurface,
@@ -22,6 +23,7 @@ export function availableRunwayEnds(airport: AirportRecord): readonly AvailableR
 export function resolveRunwayEnd(
   airport: AirportRecord,
   runwayIdent: string,
+  dataSource?: AirportDatasetV1["source"],
 ): SelectedRunwayContext | undefined {
   const normalized = runwayIdent.trim().toUpperCase();
   const match = availableRunwayEnds(airport).find((candidate) => candidate.ident.toUpperCase() === normalized);
@@ -29,6 +31,7 @@ export function resolveRunwayEnd(
   const oppositeEnd = match.runway.ends.find((end) => end !== match.end);
   return {
     airportIcao: airport.icao,
+    runwaySurfaceId: match.runway.id,
     runwayIdent: match.end.ident,
     airportElevationFt: airport.elevationFt,
     runwayEndElevationFt: match.end.elevationFt,
@@ -36,6 +39,8 @@ export function resolveRunwayEnd(
     headingTrueDeg: match.end.headingTrueDeg,
     surfaceLengthFt: match.runway.surfaceLengthFt,
     availableTakeoffLengthFt: match.runway.surfaceLengthFt,
+    lengthBasis: "physical-surface-length",
+    dataSource,
     surface: match.runway.surface,
   };
 }
