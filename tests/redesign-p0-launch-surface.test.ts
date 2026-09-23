@@ -86,32 +86,36 @@ test("P0 launch surface styling consumes frozen workspace tokens without hardcod
   assert.doesNotMatch(css.replaceAll("1180px", ""), /\b\d+(?:\.\d+)?px\b/);
 });
 
-test("P0 Flight uses Active Flight when available and retains an explicit no-flight fallback", () => {
-  const flight = read("components/ft-launch/FtFlightSection.tsx");
+test("P1.1 mode chooser keeps Active Flight context inside the EFB choice", () => {
+  const surface = read("components/ft-launch/FtLaunchSurface.tsx");
   const page = read("app/aircraft/[aircraftId]/page.tsx");
 
-  assert.match(flight, /No active flight\./);
-  assert.match(flight, /Start new flight/);
-  assert.match(flight, /current\.departure\.icao/);
-  assert.match(flight, /current\.destination\.icao/);
-  assert.match(flight, /\/flight/);
+  assert.match(surface, /currentFlight = activeFlight\?\.lifecycle === "ACTIVE"/);
+  assert.match(surface, /aria-label="EFB mode"/);
+  assert.match(surface, /currentFlight\.departure\.icao/);
+  assert.match(surface, /currentFlight\.destination\.icao/);
+  assert.match(surface, /Open Flight Brief/);
   assert.match(page, /getActiveFlight/);
   assert.match(page, /activeFlight=\{activeFlight\}/);
-  assert.doesNotMatch(page, /activeFlight=\{\s*\{/);
 });
 
-test("P0 new launch surface contains only Continue Training, Flight and Recent, not the legacy command surface", () => {
+test("P1.1 aircraft launch surface is an explicit Learn\/EFB chooser", () => {
   const surface = read("components/ft-launch/FtLaunchSurface.tsx");
   const recent = read("components/ft-launch/FtRecent.tsx");
 
-  assert.match(surface, /FtContinueTraining/);
-  assert.match(surface, /FtFlightSection/);
+  assert.match(surface, /aria-label="Aircraft mode chooser"/);
+  assert.match(surface, /aria-label="Learn mode"/);
+  assert.match(surface, /aria-label="EFB mode"/);
+  assert.match(surface, /Learn the aircraft/);
+  assert.match(surface, /Operate the flight/);
+  assert.match(surface, /\/learn/);
+  assert.match(surface, /\/efb/);
   assert.match(surface, /FtRecent/);
-  assert.doesNotMatch(surface, /Quick Access|Open Fly|Open Learn|Open Reference|pilot-command/);
+  assert.doesNotMatch(surface, /FtContinueTraining|FtFlightSection|pilot-command/);
   assert.match(recent, /Nothing recent\./);
 });
 
-test("P0 page is feature-gated and the new surface is not a metric dashboard", () => {
+test("P1.1 page remains feature-gated and the mode chooser is not a metric dashboard", () => {
   const page = read("app/aircraft/[aircraftId]/page.tsx");
   const surface = read("components/ft-launch/FtLaunchSurface.tsx");
 
