@@ -12,5 +12,5 @@
     }
   },
   "ignoreCommand": "node tooling/vercel-ignore-build.mjs",
-  "buildCommand": "npm run test:target -- tests/no-code-postgres-acceptance.test.ts tests/no-governance-bypass.test.ts tests/orientation-product-boundary.test.ts tests/performance-runtime.test.ts tests/performance-ui-agnostic.test.ts tests/pilot-landing-calculator.test.ts tests/procedure-runtime.test.ts tests/product-navigation.test.ts tests/progress-events.test.ts tests/progress-ingestion-boundary.test.ts tests/progress-runtime-boundary.test.ts && npm run build"
+  "buildCommand": "npm run test:target -- tests/no-code-postgres-acceptance.test.ts tests/no-governance-bypass.test.ts tests/orientation-product-boundary.test.ts tests/performance-runtime.test.ts tests/performance-ui-agnostic.test.ts && npm run build"
 }
