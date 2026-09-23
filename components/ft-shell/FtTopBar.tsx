@@ -29,7 +29,12 @@ export function FtTopBar({
       <div className={styles.aircraftIdentity}>
         <span className={styles.aircraftEyebrow}>AIRCRAFT</span>
         <strong>{aircraftIdentity}</strong>
-        <span className={styles.aircraftProfile}>{trainingProfileLabel}</span>
+        <span
+          className={styles.aircraftProfile}
+          aria-label={"Training profile: " + trainingProfileLabel}
+        >
+          {trainingProfileLabel}
+        </span>
       </div>
 
       <div className={styles.topBarActions}>
