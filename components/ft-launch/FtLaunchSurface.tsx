@@ -81,7 +81,7 @@ export function FtLaunchSurface({
         </section>
       </div>
 
-      {recentItems.length ? <FtRecent items={recentItems} /> : null}
+      <FtRecent items={recentItems} />
     </main>
   );
 }
