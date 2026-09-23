@@ -29,7 +29,7 @@ export function FtFlightSection({
           <strong className={styles.secondaryTitle}>
             {current.departure.icao} → {current.destination.icao}
           </strong>
-          <p>RWY {current.runway.identifier} · ACTIVE</p>
+          <p>{current.runway ? `RWY ${current.runway.identifier} · ` : ""}ACTIVE</p>
           <Link
             className={styles.secondaryAction}
             href={withVariantQuery(`/aircraft/${aircraftId}/flight`, selectedVariant)}

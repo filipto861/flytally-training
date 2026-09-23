@@ -41,7 +41,8 @@ function fnv1a(value: string): string {
 
 export function buildPerformanceContext(
   activeFlight: ActiveFlight,
-): FlightPerformanceContext {
+): FlightPerformanceContext | null {
+  if (!activeFlight.runway || !activeFlight.configuration) return null;
   return {
     activeFlightId: activeFlight.id,
     aircraftId: activeFlight.aircraftId,
@@ -52,8 +53,9 @@ export function buildPerformanceContext(
       flaps: activeFlight.configuration.flaps,
       antiIce: activeFlight.configuration.antiIce === true,
     },
-    // D0 stores the source METAR envelope, not parsed QNH/OAT values.
-    // P2 deliberately does not invent or reparses operational weather here.
+    // Transitional B3 compatibility: the legacy Takeoff context only exists
+    // when a runway/configuration has already been selected. B4 replaces this
+    // with operation-owned Performance inputs.
     weather: null,
   };
 }

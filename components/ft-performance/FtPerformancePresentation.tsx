@@ -143,6 +143,12 @@ export function FtPerformancePresentation({
         Start active flight
       </Link>
     </div>
+  ) : !currentContext ? (
+    <div className={styles.resultEmpty}>
+      <span>SETUP</span>
+      <strong>Performance setup required</strong>
+      <p>Select runway and governed aircraft configuration in Performance before calculating.</p>
+    </div>
   ) : result ? (
     <>
       {stale ? (
@@ -184,21 +190,21 @@ export function FtPerformancePresentation({
     >
       <FtPerformanceContextLabel context={view} />
 
-      {current && showInputs ? (
+      {current && currentContext && showInputs ? (
         <div className={styles.performanceWorkspace}>
           <section className={styles.inputBlock} aria-label="Performance inputs">
             <header className={styles.paneHeader}>
               <p className={styles.eyebrow}>INPUTS</p>
               <h2>Departure conditions</h2>
               <p className={styles.inputHelp}>
-                Active Flight supplies aircraft, runway, weight and configuration.
+                Active Flight supplies the flight and planning weight. Runway and governed configuration are calculation inputs.
               </p>
             </header>
 
             <dl className={styles.flightInputGrid}>
               <div>
                 <dt>Runway</dt>
-                <dd>{current.departure.icao} · {current.runway.identifier}</dd>
+                <dd>{current.departure.icao} · {currentContext.runway.identifier}</dd>
               </div>
               <div>
                 <dt>Weight</dt>
@@ -206,11 +212,11 @@ export function FtPerformancePresentation({
               </div>
               <div>
                 <dt>Flaps</dt>
-                <dd>{current.configuration.flaps}</dd>
+                <dd>{currentContext.configuration.flaps}</dd>
               </div>
               <div>
                 <dt>Anti-ice</dt>
-                <dd>{current.configuration.antiIce ? "ON" : "OFF"}</dd>
+                <dd>{currentContext.configuration.antiIce ? "ON" : "OFF"}</dd>
               </div>
             </dl>
 

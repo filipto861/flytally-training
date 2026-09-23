@@ -20,14 +20,15 @@ test("UX6.6 Performance is an input/result workspace rather than equal cards", (
   assert.match(css, /\.metricValue\s*\{[\s\S]*font-size:\s*1\.8rem/);
 });
 
-test("UX6.6 Performance displays only real Active Flight dependency values", () => {
+test("UX6.6 Performance displays only real Active Flight and governed calculation context", () => {
   const presentation = read("components/ft-performance/FtPerformancePresentation.tsx");
 
   assert.match(presentation, /current\.departure\.icao/);
-  assert.match(presentation, /current\.runway\.identifier/);
   assert.match(presentation, /current\.weight\.value/);
-  assert.match(presentation, /current\.configuration\.flaps/);
-  assert.match(presentation, /current\.configuration\.antiIce/);
+  assert.match(presentation, /currentContext\.runway\.identifier/);
+  assert.match(presentation, /currentContext\.configuration\.flaps/);
+  assert.match(presentation, /currentContext\.configuration\.antiIce/);
+  assert.match(presentation, /Performance setup required/);
   assert.doesNotMatch(presentation, /\b94\.2\b|\b121\b|\b126\b|\b135\b|\b4,820\b/);
 });
 
