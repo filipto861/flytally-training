@@ -432,9 +432,9 @@
 
   .aircraftProfile {
     position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
+    width: calc(var(--ft-focus-width) / 2);
+    height: calc(var(--ft-focus-width) / 2);
+    margin: calc(var(--ft-focus-width) / -2);
     padding: 0;
     overflow: hidden;
     clip: rect(0 0 0 0);
