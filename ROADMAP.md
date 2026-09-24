@@ -389,7 +389,9 @@ The detailed future sequence is tracked in **Active implementation order** below
      - TORA + ASDA and source-backed runway wind are required before preview calculation
      - source-supported result presents Assumed Temperature, target N1, V1, VR, V2, corrected Takeoff Distance, Full Rated N1 reference and the governing declared-distance limit
      - the result is explicitly labeled **SOURCE-SUPPORTED TRAINING PREVIEW** and is not written into the operational Takeoff Snapshot V2
-     - targeted helper/controller/UI regression tests added; local verification still required
+     - targeted helper/controller/UI regression tests added
+     - first local gate: typecheck PASS; PP.2/PP.3 tests PASS, but the new preview test exposed a Node ESM JSON-fixture import incompatibility before its test cases could execute
+     - test/runtime boundary corrected so the Node-testable preview core is JSON-import-free and tests load JSON fixtures explicitly through fs; targeted re-run required
      - **follow-up:** manual-weather Partial Power currently has no manual runway-wind input. Add either explicit manual wind entry or an explicit source-safe zero-wind confirmation path before treating manual weather as complete for Partial Power
    - **14.2 Independent 25% rated-thrust source closure — BLOCKED**
      - FlightSafety requires thrust reduction <=25% of rated takeoff thrust for the existing ambient condition
