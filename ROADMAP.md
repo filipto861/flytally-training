@@ -40,13 +40,15 @@ Completed foundations:
 Latest completed functional phase:
 
 - **B4 Integrated Takeoff Performance — merged via PR #210**
-- final local gate: 1025 Node tests passed, 1 skipped, build passed, Playwright 356/356.
+- **P1.1 LEARN / EFB product mode split — merged via PR #211**
+- P1.1 production acceptance identified one local Active Flight top-bar reconciliation inconsistency; follow-up PR #213 closes that gap before P1.2.
+- P1.1 final pre-merge gate: 1031 Node tests passed, 1 skipped, build passed, Playwright 356/356.
 
 ## Phase 1 — LEARN / EFB separation and Performance operation architecture
 
 Architecture is frozen. Implement sequentially; do not combine phases into one PR.
 
-### P1.1 — LEARN / EFB product mode split — IN PROGRESS · PR #211
+### P1.1 — LEARN / EFB product mode split — MERGED · PR #211 · production follow-up PR #213
 
 Goal: make user intent explicit before entering the aircraft workspace.
 
@@ -222,8 +224,8 @@ After Landing + wind + Partial Power:
 
 ## Active implementation order
 
-1. **P1.1 — LEARN / EFB split** — IN PROGRESS · PR #211
-2. P1.2 — Snapshot V2
+1. **P1.1 production follow-up — EFB top-bar Active Flight reconciliation** — IN PROGRESS · PR #213
+2. **P1.2 — Snapshot V2** — NEXT
 3. P1.3 — canonical Performance operation controller
 4. P1.4 — Flight Brief EFB home
 5. B5 — Landing integration
