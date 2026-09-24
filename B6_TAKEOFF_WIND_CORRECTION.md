@@ -37,6 +37,12 @@ FlyTally therefore uses the existing signed runway component convention:
 
 No absolute-value conversion is permitted.
 
+### Do not pre-factor the wind component
+
+FlightSafety Chapter 20 states that the graphical wind corrections use tower winds and already incorporate the regulatory treatment of **50% of headwind** and **150% of tailwind** components.
+
+Therefore the B6 transform input is the actual signed runway wind component derived from APPLIED weather and runway heading. The runtime must **not** multiply the input by 0.5/1.5 before entering the chart-derived transform; doing so would apply the regulatory factor twice.
+
 ### Flaps 8 — direct graphical source available
 
 FlightSafety Learjet 35/36 Pilot Training Manual, Chapter 20 reproduces the applicable Gates Learjet 35A/36A AFM charts:
