@@ -45,6 +45,8 @@ Latest completed functional phase:
 - P1.1 final follow-up gate: 1032 Node tests passed, 1 skipped, build passed, Playwright 360/360.
 - **P1.2 Versioned Performance Snapshot V2 — merged via PR #214**; Takeoff now persists V2 snapshots with explicit provenance and operation-scoped validity inputs, while Landing V2 contract/storage identity is defined for B5.
 - P1.2 final gate: 1041 Node tests passed, 1 skipped, build passed, Playwright 360/360.
+- **P1.3 Canonical Performance operation controller — merged via PR #215**; Takeoff operation state now has one controller for setup, AVAILABLE/APPLIED weather, validity, calculation and V2 persistence.
+- P1.3 final gate: 1050 Node tests passed, 1 skipped, build passed, Playwright 364/364.
 
 ## Phase 1 — LEARN / EFB separation and Performance operation architecture
 
@@ -93,7 +95,7 @@ Legacy v1 migration rule:
 
 `dependencySnapshotId` is audit/debug metadata only, not an operation validity dependency.
 
-### P1.3 — Canonical Performance operation controller — IN PROGRESS · PR #215
+### P1.3 — Canonical Performance operation controller — COMPLETE · PR #215
 
 Introduce one shared operation state owner, conceptually:
 
@@ -120,7 +122,7 @@ Weather rule:
 
 No Takeoff wind correction math in this phase.
 
-### P1.4 — Flight Brief becomes EFB home — PLANNED
+### P1.4 — Flight Brief becomes EFB home — NEXT
 
 Flight Brief is the EFB landing surface.
 
@@ -228,8 +230,8 @@ After Landing + wind + Partial Power:
 
 1. **P1.1 — LEARN / EFB split + Active Flight top-bar reconciliation** — COMPLETE · PR #211 + PR #213
 2. **P1.2 — Snapshot V2** — COMPLETE · PR #214
-3. **P1.3 — canonical Performance operation controller** — IN PROGRESS · PR #215
-4. P1.4 — Flight Brief EFB home
+3. **P1.3 — canonical Performance operation controller** — COMPLETE · PR #215
+4. **P1.4 — Flight Brief EFB home** — NEXT
 5. B5 — Landing integration
 6. Takeoff wind source extraction + runtime
 7. Partial Power source extraction + solver/runtime
