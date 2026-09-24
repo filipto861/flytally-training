@@ -47,7 +47,7 @@ export type PartialPowerN1SourceExtract = {
   readonly cells: readonly PartialPowerN1SourceCell[];
   readonly constraints: {
     readonly antiIce: "OFF";
-    readonly maxN1ReductionPct: number | null;
+    readonly maxN1ReductionPoints: number | null;
     readonly pressureAltitudeLimitFt: number | null;
     readonly operationalUseBlocked: true;
   };
@@ -147,8 +147,8 @@ export function validatePartialPowerN1SourceExtract(
     || constraints.antiIce !== "OFF"
     || constraints.operationalUseBlocked !== true
     || (
-      constraints.maxN1ReductionPct !== null
-      && !finiteNumber(constraints.maxN1ReductionPct)
+      constraints.maxN1ReductionPoints !== null
+      && !finiteNumber(constraints.maxN1ReductionPoints)
     )
     || (
       constraints.pressureAltitudeLimitFt !== null
