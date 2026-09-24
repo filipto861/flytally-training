@@ -209,7 +209,7 @@ The baseline remains the existing governed zero-wind dry-runway calculation. Win
 - regression coverage proving VR/V2/N1 and Landing are unchanged;
 - desktop/iPad/mobile Playwright acceptance before merge.
 
-## Partial Power / Reduced Thrust Takeoff — PP.2 IN PROGRESS · branch `feat/partial-power-assumed-temp-solver`
+## Partial Power / Reduced Thrust Takeoff — PP.3 SOURCE/RUNTIME BOUNDARY COMPLETE · PR #222
 
 Raw source extraction may proceed independently after B6 source/runtime boundaries are frozen.
 
@@ -292,7 +292,7 @@ After wind + Partial Power:
    - provider-neutral adapter with identity/provenance validation — COMPLETE
    - full-rated Takeoff remains independent of declared distances
    - acceptance: typecheck PASS · 31/31 targeted · 4/4 targeted Playwright · 1118 Node / 1117 PASS / 1 SKIP · 388/388 full Playwright
-9. **Partial Power assumed-temperature prerequisites / solver contract** — IN PROGRESS · `feat/partial-power-assumed-temp-solver`
+9. **Partial Power assumed-temperature prerequisites / solver contract** — COMPLETE · PR #221
    - Takeoff Weight Limits Flaps 8° / 20° — ACCEPTED locally
    - prerequisite gate: typecheck PASS + 69/69 targeted tests
    - generic assumed-temperature selector contract — ACCEPTED locally (90/90 PP.2/B6/B7/B8/PP.1 gate)
@@ -300,7 +300,17 @@ After wind + Partial Power:
    - Learjet candidate adapter with Flaps 8 B6 wind preservation / Flaps 20 nonzero-wind fail-closed — ACCEPTED locally
    - local adapter gate: typecheck PASS + 100/100 targeted tests
    - adapter remains N1-free and operational Partial Power N1 stays blocked on unresolved P-6/P-6.1 parenthesized semantics
-10. **Partial Power reduced-N1 source/runtime boundary** — NEXT
+10. **Partial Power reduced-N1 source/runtime boundary** — COMPLETE · PR #222
    - preserve explicit thrust-reverser configuration identity
-   - never interpret unresolved parenthesized cells
-   - candidate evaluations requiring unresolved cells must fail closed unless an authoritative source defines their semantics
+   - exact-source-cell boundary — COMPLETE
+   - anti-ice OFF and TR-4000 <=3000 ft limits enforced
+   - FAA-approved AFMS W1072 Figure 5 bounded Aeronca interpolation — COMPLETE
+   - Aeronca-specific full-rated Takeoff N1 P-5.1 dataset — COMPLETE
+   - Aeronca candidate/N1 integration with 7.7 N1-point limit — COMPLETE as source-supported only
+   - no-reverser and TR-4000 interpolation remain unauthorized
+   - unresolved parenthesized cells remain fail-closed
+   - acceptance: 56/56 targeted · full Node 1181 total / 1180 PASS / 1 SKIP · production build PASS
+11. **Partial Power operational thrust-limit closure** — BLOCKED ON SOURCE
+   - independent FlightSafety <=25% rated-takeoff-thrust reduction check still requires a validated thrust relationship/check
+   - do not convert the 25% thrust limit into an N1-percent approximation
+   - operational Partial Power UI/Snapshot remains disabled until this source dependency is resolved

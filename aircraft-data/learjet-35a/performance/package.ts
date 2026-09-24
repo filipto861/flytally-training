@@ -2,6 +2,7 @@ import approachClimbSpeedJson from "./approach-climb-speed.json";
 import landingClimbSpeedJson from "./landing-climb-speed.json";
 import landingDistanceFlaps40Json from "./landing-distance-flaps40.json";
 import takeoffN1Json from "./takeoff-n1.json";
+import takeoffN1AeroncaJson from "./takeoff-n1-aeronca.json";
 import takeoffWeightLimitFlaps8Json from "./takeoff-weight-limit-flaps8.json";
 import takeoffWeightLimitFlaps20Json from "./takeoff-weight-limit-flaps20.json";
 import takeoffDistanceFlaps20Json from "./takeoff-distance-flaps20.json";
@@ -25,6 +26,7 @@ const approachClimbSpeed = approachClimbSpeedJson as unknown as PerformanceDatas
 const landingClimbSpeed = landingClimbSpeedJson as unknown as PerformanceDataset;
 const landingDistanceFlaps40 = landingDistanceFlaps40Json as unknown as PerformanceDataset;
 const takeoffN1 = takeoffN1Json as unknown as PerformanceDataset;
+const takeoffN1Aeronca = takeoffN1AeroncaJson as unknown as PerformanceDataset;
 const takeoffWeightLimitFlaps8 = takeoffWeightLimitFlaps8Json as unknown as PerformanceDataset;
 const takeoffWeightLimitFlaps20 = takeoffWeightLimitFlaps20Json as unknown as PerformanceDataset;
 const takeoffDistanceFlaps8 = takeoffDistanceFlaps8Json as unknown as PerformanceDataset;
@@ -52,6 +54,7 @@ export const learjet35aPerformancePackage: BundledPerformancePackage = {
       landingClimbSpeed,
       landingDistanceFlaps40,
       takeoffN1,
+      takeoffN1Aeronca,
       takeoffWeightLimitFlaps8,
       takeoffWeightLimitFlaps20,
       takeoffDistanceFlaps8,

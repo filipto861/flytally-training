@@ -1,7 +1,7 @@
 # Partial Power / Reduced Thrust Takeoff
 
-**Status:** PP.2 assumed-temperature prerequisites in progress  
-**Branch:** `feat/partial-power-assumed-temp-solver`  
+**Status:** PP.3 reduced-N1 source/runtime boundary complete · PR #222  
+**Branch:** `feat/partial-power-reduced-n1-boundary`  
 **Scope:** Learjet 35A/36A source-backed Partial Power prerequisites and solver contract. No operational Partial Power output is enabled yet.
 
 ## Purpose
@@ -141,7 +141,7 @@ Do not author production N1 data until these are resolved directly from the sour
 
 The unresolved parenthesized-cell meaning remains an explicit production-data blocker; PP.1 completion means the source evidence has been safely captured, not that the source ambiguity has been guessed away.
 
-### PP.2 — assumed-temperature prerequisites and contract — IN PROGRESS
+### PP.2 — assumed-temperature prerequisites and contract — COMPLETE · PR #221
 
 Prerequisite data accepted locally:
 - governed Takeoff Weight Limits · Flaps 8° (P-7);
@@ -184,21 +184,73 @@ Aircraft adapter inputs are:
 
 The solver must return no solution when any required operational dependency is unavailable or unsupported.
 
-### PP.3 — reduced-N1 source/runtime boundary — NEXT
+### PP.3 — reduced-N1 source/runtime boundary — COMPLETE · PR #222
 
-Declared-distance TORA/ASDA is frozen by PR #220 and the assumed-temperature candidate engine is locally accepted. Operational Partial Power output remains blocked only on the reduced-N1 source/runtime boundary.
+Declared-distance TORA/ASDA is frozen by PR #220 and the assumed-temperature candidate engine is merged via PR #221. Operational Partial Power output remains blocked on the reduced-N1 source/runtime boundary.
 
-The next phase must not infer parenthesized-cell semantics. Safe implementation options are limited to source-defined semantics or explicit fail-closed exclusion of any candidate whose N1 evaluation requires an unresolved parenthesized source cell.
+The first PP.3 local gate is accepted: typecheck PASS + **18/18** PP.3/PP.1 targeted tests.
 
+A fail-closed source boundary is staged in `lib/performance/partial-power-n1.ts`. It deliberately:
+- accepts exact ambient/assumed-temperature source coordinates for all three schedules;
+- rejects assumed temperature at or below ambient for reduced-thrust use;
+- blocks every parenthesized source cell instead of assigning unsupported semantics;
+- enforces anti-ice OFF;
+- enforces the P-6.2 TR-4000 pressure-altitude limit;
+- keeps all three source extracts unregistered from the operational performance package.
+
+### Aeronca interpolation authority
+
+An additional source review found **FAA-approved AFMS W1072 Figure 5** for the Aeronca thrust-reverser nozzle. The published worked example uses:
+- Assumed Temperature: **82°F**;
+- Ambient Temperature: **50°F**;
+- Reduced Thrust Setting: **91% N1**.
+
+Because 82°F is not a CL-102B P-6.1 table breakpoint, that FAA-approved continuous chart is direct evidence that interpolation is intended for the Aeronca schedule. PP.3 therefore stages bounded interpolation for **Aeronca only**, using the P-6.1 numerical grid as the source lattice and the W1072 chart/example as interpolation authority.
+
+The interpolation remains fail-closed:
+- no extrapolation;
+- every required source corner must exist;
+- no interpolation region may touch a parenthesized source cell;
+- no-reverser and TR-4000 interpolation remain unauthorized.
+
+### Aeronca full-rated N1 prerequisite
+
+The 7.7 N1-point reduction limit on P-6.1 must be measured against the **Aeronca-specific full-rated takeoff N1 schedule**, not the existing standard/no-reverser Takeoff N1 dataset. CL-102B P-5.1 is therefore staged as a separate governed dataset:
+- `learjet-35a-takeoff-n1-aeronca-anti-ice-off`;
+- exact source nodes only where published;
+- sparse high-temperature regions preserved fail-closed;
+- parenthesized fractional-altitude caps are not extended beyond the last explicit 1,000-ft node;
+- the parsed 5°F/-15°C, 6,000-ft OCR error is corrected to **95.1% N1** after visual source verification.
+
+The Learjet Aeronca integration now evaluates the PP.2 runway/weight/V1/distance candidate set against:
+1. P-5.1 full-rated N1 at ambient OAT/pressure altitude;
+2. P-6.1 reduced N1 at ambient + assumed temperature;
+3. the P-6.1 maximum **7.7 N1-point** reduction.
+
+It returns `source-supported`, not operational `ready`. FlightSafety also requires thrust reduction not to exceed **25% of rated takeoff thrust for the existing ambient condition**. The current source package does not yet contain a validated N1-to-rated-thrust relationship for that independent check, so operational use remains explicitly blocked.
+
+Current source review still contains no authoritative legend defining the P-6/P-6.1 parentheses. Until such a definition is found, those cells remain blocked.
+
+PP.3 final acceptance on 2026-09-24:
+- targeted PP.2/PP.3/PP.1 regression: **56/56 PASS**;
+- full Node suite: **1181 total / 1180 PASS / 0 FAIL / 1 SKIP**;
+- production build: **PASS**;
+- no UI or current operational Takeoff path was enabled by PP.3.
+
+The remaining blocker is deliberately outside PP.3: the FlightSafety requirement that thrust reduction not exceed **25% of rated takeoff thrust for the existing ambient condition**. No N1-percent shortcut is permitted without source-backed evidence establishing that relationship.
+
+For eventual operational enablement:
 1. find the highest source-supported Assumed Temperature satisfying the runway and weight constraint;
 2. calculate V1 using that Assumed Temperature;
 3. calculate reduced N1 from the applicable configuration-specific N1 schedule;
 4. apply all source limits and fail-closed boundaries;
 5. persist the assumed temperature, configuration identity, TORA, ASDA, applied wind and source dataset identities in Snapshot V2.
 
-### PP.4 — acceptance
+### PP.4 — operational enablement / acceptance — BLOCKED ON SOURCE
 
-Required acceptance includes:
+Do not begin operational UI/Snapshot enablement until the independent 25% rated-takeoff-thrust requirement can be evaluated from authoritative source data.
+
+Required acceptance will include:
 
 - exact source-node tests for all three N1 schedules;
 - bounded interpolation tests only where explicitly authorized;
