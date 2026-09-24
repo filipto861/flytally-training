@@ -820,6 +820,51 @@ test("B5 Flight Brief reuses the Landing snapshot and shared Landing editor", as
   await expect(edit).toBeFocused();
 });
 
+test("B5 destination change invalidates Landing without invalidating Takeoff", async ({ page }) => {
+  await createD0ActiveFlight(page);
+  await page.goto(`${shellOnBase}${aircraftPath}/performance`);
+
+  const workspace = page.getByRole("main", { name: "Performance workspace" });
+  const takeoff = workspace.getByRole("region", { name: "Performance", exact: true });
+  await takeoff.getByLabel("Takeoff runway").selectOption("24");
+  await takeoff.getByLabel("QNH").fill("1013.25");
+  await takeoff.getByLabel("OAT").fill("15");
+  await takeoff.getByRole("button", { name: "Calculate Takeoff", exact: true }).click();
+
+  const landing = workspace.getByRole("region", { name: "Landing Performance", exact: true });
+  await landing.getByLabel("Landing runway").selectOption({ index: 1 });
+  await landing.getByLabel("Landing QNH").fill("1013.25");
+  await landing.getByLabel("Landing OAT").fill("15");
+  await landing.getByRole("button", { name: "Calculate Landing", exact: true }).click();
+
+  await page.goto(`${shellOnBase}${aircraftPath}/flight`);
+  const active = page.getByRole("region", { name: "Active Flight" });
+  await active.getByRole("button", { name: "Edit flight", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Edit flight" });
+  await dialog.getByLabel("Destination ICAO").fill("EDDM");
+  await dialog.getByRole("button", { name: "Save flight", exact: true }).click();
+  await expect(dialog).toHaveCount(0);
+
+  await page.goto(`${shellOnBase}${aircraftPath}/performance`);
+  const refreshed = page.getByRole("main", { name: "Performance workspace" });
+  const takeoffAfter = refreshed.getByRole("region", { name: "Performance", exact: true });
+  const landingAfter = refreshed.getByRole("region", { name: "Landing Performance", exact: true });
+
+  await expect(takeoffAfter.locator('[data-ft-performance-strip="true"]')).toHaveAttribute(
+    "data-stale",
+    "false",
+  );
+  await expect(takeoffAfter.getByLabel("Takeoff runway")).toHaveValue("24");
+
+  await expect(landingAfter.locator('[data-ft-landing-performance-strip="true"]')).toHaveAttribute(
+    "data-stale",
+    "true",
+  );
+  await expect(landingAfter.getByLabel("Landing runway")).toHaveValue("");
+  await expect(landingAfter.getByText("NEEDS RECALCULATION", { exact: true })).toBeVisible();
+  await expect(landingAfter.getByRole("button", { name: "Recalculate", exact: true })).toBeDisabled();
+});
+
 test("P2 PERF fast path reuses the same performance result with Operational context", async ({ page }) => {
   await calculateP2Performance(page);
   const panel = await openFastPath(page, "PERF");
