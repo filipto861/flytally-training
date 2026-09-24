@@ -25,7 +25,8 @@ test("current roadmap supersedes historical v3.0 sequencing with the LEARN/EFB a
   assert.match(roadmap,/single authoritative product\/implementation roadmap/i);
   assert.match(roadmap,/LEARN.*aircraft knowledge/i);
   assert.match(roadmap,/EFB.*operational flight tools/i);
-  assert.match(roadmap,/P1\.1 — LEARN \/ EFB product mode split — IN PROGRESS/);
+  assert.match(roadmap,/P1\.1 — LEARN \/ EFB product mode split — MERGED/);
+  assert.match(roadmap,/P1\.1 production follow-up — EFB top-bar Active Flight reconciliation.*IN PROGRESS.*PR #213/);
 });
 
 

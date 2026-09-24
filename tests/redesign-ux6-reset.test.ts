@@ -30,7 +30,8 @@ test("P1.1 ROADMAP is the single authoritative active implementation roadmap", (
   const roadmap = read("ROADMAP.md");
 
   assert.match(roadmap, /single authoritative product\/implementation roadmap/i);
-  assert.match(roadmap, /P1\.1 — LEARN \/ EFB product mode split — IN PROGRESS/i);
+  assert.match(roadmap, /P1\.1 — LEARN \/ EFB product mode split — MERGED/i);
+  assert.match(roadmap, /P1\.1 production follow-up — EFB top-bar Active Flight reconciliation.*IN PROGRESS.*PR #213/i);
   assert.match(roadmap, /P1\.2 — Versioned Performance Snapshot V2/i);
   assert.match(roadmap, /P1\.3 — Canonical Performance operation controller/i);
   assert.match(roadmap, /P1\.4 — Flight Brief becomes EFB home/i);
