@@ -1,7 +1,7 @@
 # Partial Power / Reduced Thrust Takeoff
 
-**Status:** PP.2 assumed-temperature prerequisites in progress  
-**Branch:** `feat/partial-power-assumed-temp-solver`  
+**Status:** PP.3 reduced-N1 source/runtime boundary in progress  
+**Branch:** `feat/partial-power-reduced-n1-boundary`  
 **Scope:** Learjet 35A/36A source-backed Partial Power prerequisites and solver contract. No operational Partial Power output is enabled yet.
 
 ## Purpose
@@ -141,7 +141,7 @@ Do not author production N1 data until these are resolved directly from the sour
 
 The unresolved parenthesized-cell meaning remains an explicit production-data blocker; PP.1 completion means the source evidence has been safely captured, not that the source ambiguity has been guessed away.
 
-### PP.2 — assumed-temperature prerequisites and contract — IN PROGRESS
+### PP.2 — assumed-temperature prerequisites and contract — COMPLETE · PR #221
 
 Prerequisite data accepted locally:
 - governed Takeoff Weight Limits · Flaps 8° (P-7);
@@ -184,11 +184,21 @@ Aircraft adapter inputs are:
 
 The solver must return no solution when any required operational dependency is unavailable or unsupported.
 
-### PP.3 — reduced-N1 source/runtime boundary — NEXT
+### PP.3 — reduced-N1 source/runtime boundary — IN PROGRESS
 
-Declared-distance TORA/ASDA is frozen by PR #220 and the assumed-temperature candidate engine is locally accepted. Operational Partial Power output remains blocked only on the reduced-N1 source/runtime boundary.
+Declared-distance TORA/ASDA is frozen by PR #220 and the assumed-temperature candidate engine is merged via PR #221. Operational Partial Power output remains blocked on the reduced-N1 source/runtime boundary.
 
-The next phase must not infer parenthesized-cell semantics. Safe implementation options are limited to source-defined semantics or explicit fail-closed exclusion of any candidate whose N1 evaluation requires an unresolved parenthesized source cell.
+A fail-closed exact-source-cell boundary is staged in `lib/performance/partial-power-n1.ts`. It deliberately:
+- accepts only exact ambient/assumed-temperature source coordinates;
+- rejects assumed temperature at or below ambient for reduced-thrust use;
+- blocks every parenthesized source cell instead of assigning unsupported semantics;
+- enforces anti-ice OFF;
+- enforces the P-6.2 TR-4000 pressure-altitude limit;
+- performs no interpolation or extrapolation;
+- returns a non-operational `source-value` status rather than a production-ready result;
+- keeps all three source extracts unregistered from the operational performance package.
+
+Current source review still contains no authoritative legend defining the P-6/P-6.1 parentheses. Until such a definition is found, parenthesized cells remain blocked. Interpolation for reduced N1 is also not enabled by this boundary.
 
 1. find the highest source-supported Assumed Temperature satisfying the runway and weight constraint;
 2. calculate V1 using that Assumed Temperature;
