@@ -134,8 +134,20 @@ export function resolveTakeoffDeclaredDistanceConstraint(
     return { status: "missing", missing };
   }
 
-  const toraFt = distances.tora.valueFt;
-  const asdaFt = distances.asda.valueFt;
+  const tora = distances.tora;
+  const asda = distances.asda;
+  if (!tora || !asda) {
+    return {
+      status: "missing",
+      missing: [
+        ...(tora ? [] : ["TORA" as const]),
+        ...(asda ? [] : ["ASDA" as const]),
+      ],
+    };
+  }
+
+  const toraFt = tora.valueFt;
+  const asdaFt = asda.valueFt;
   const usableTakeoffFieldLengthFt = Math.min(toraFt, asdaFt);
 
   return {
