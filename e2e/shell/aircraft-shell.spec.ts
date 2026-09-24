@@ -686,7 +686,10 @@ test("B6 Takeoff wind correction uses APPLIED weather and explicit newer-METAR r
         rawText: `LKPR B6 FIXTURE 240${String(windSpeedKt).padStart(2, "0")}KT 15/08 Q1013`,
         temperatureC: 15,
         qnhHpa: 1013.25,
-        windDirectionTrueDeg: 240,
+        // LKPR RWY 24 is 245°T in the bundled OurAirports snapshot.
+        // Align the deterministic fixture exactly with the selected runway so
+        // the signed headwind component is exactly windSpeedKt.
+        windDirectionTrueDeg: 245,
         windSpeedKt,
         windVariable: false,
         windCalm: false,
