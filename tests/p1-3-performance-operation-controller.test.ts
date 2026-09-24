@@ -195,11 +195,21 @@ test("B6 apply-latest keeps APPLIED weather and result atomic until recalculatio
   );
   const presentation = read("components/ft-performance/FtPerformancePresentation.tsx");
 
-  assert.match(applyBlock, /if \(result\) \{[\s\S]*calculateWithWeather\(nextWeather\);[\s\S]*return;/);
+  assert.match(
+    controller,
+    /const hasDisplayedCalculation = thrustMode === "partial-power"[\s\S]*Boolean\(partialPowerPreview\)[\s\S]*Boolean\(result\)/,
+  );
+  assert.match(
+    applyBlock,
+    /if \(hasDisplayedCalculation\) \{[\s\S]*calculateWithWeather\(nextWeather\);[\s\S]*return;/,
+  );
   assert.doesNotMatch(
     applyBlock.slice(
-      applyBlock.indexOf("if (result)"),
-      applyBlock.indexOf("return;", applyBlock.indexOf("if (result)")) + "return;".length,
+      applyBlock.indexOf("if (hasDisplayedCalculation)"),
+      applyBlock.indexOf(
+        "return;",
+        applyBlock.indexOf("if (hasDisplayedCalculation)"),
+      ) + "return;".length,
     ),
     /setAppliedWeather\(nextWeather\)/,
   );
