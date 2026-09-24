@@ -405,7 +405,7 @@ export function useLandingPerformanceOperation({
     ? diffLandingSnapshotV2Dependencies(storedState.snapshot, {
         variant: selectedVariant ?? null,
         pressureAltitudeFt,
-        calculatorId: landingCalculator ? "landing-calculator" : null,
+        calculatorId: null,
         datasetIds: currentSourceDatasetIds,
       })
     : [];
@@ -534,7 +534,7 @@ export function useLandingPerformanceOperation({
           oatSource,
           observation: observation ? weatherObservationRefV2(observation) : null,
           datasetIds: currentSourceDatasetIds,
-          calculatorId: "landing-calculator",
+          calculatorId: null,
         },
       );
 
