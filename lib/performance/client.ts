@@ -8,6 +8,10 @@ import {
   type PilotTakeoffCalculatorDefinition,
   type PilotTakeoffMetricResult,
 } from "../pilot-takeoff-calculator.ts";
+import {
+  calculatePilotLandingSummary,
+  type PilotLandingCalculatorDefinition,
+} from "../pilot-landing-calculator.ts";
 import type {
   PerformanceDataset,
   PerformanceScalar,
@@ -19,9 +23,16 @@ import {
   type FlightPerformanceContext,
 } from "./context.ts";
 import {
+  computeLandingContextHash,
+  type LandingPerformanceContext,
+} from "./landing-context.ts";
+import {
+  isLandingSnapshotV2,
   isTakeoffSnapshotV2,
+  landingSnapshotRequiresRecalculation,
   performanceSnapshotV2Key,
   takeoffSnapshotRequiresRecalculation,
+  type LandingSnapshotV2,
   type PerformanceInputProvenance,
   type TakeoffSnapshotV2,
   type WeatherObservationRefV2,
@@ -43,6 +54,34 @@ export type PerformanceResult = {
   readonly computedAt: string;
   readonly source: "takeoff-calculator" | "multi-axis-metric-grid";
   readonly calculationInputs: PerformanceCalculationInputs;
+};
+
+export type LandingPerformanceResult = {
+  readonly context: LandingPerformanceContext;
+  readonly contextHash: string;
+  readonly vref: PilotTakeoffMetricResult;
+  readonly landingClimbSpeed: PilotTakeoffMetricResult;
+  readonly approachClimbSpeed: PilotTakeoffMetricResult;
+  readonly landingDistance: PilotTakeoffMetricResult;
+  readonly computedAt: string;
+  readonly source: "landing-calculator";
+  readonly calculationInputs: PerformanceCalculationInputs;
+};
+
+export type LandingPerformanceReadState = {
+  readonly result: LandingPerformanceResult;
+  readonly snapshot: LandingSnapshotV2;
+  readonly requiresRecalculation: boolean;
+};
+
+export type LandingSnapshotWriteOptions = {
+  readonly variant?: string | null;
+  readonly runwayContext: SelectedRunwayContext;
+  readonly qnhSource: Exclude<PerformanceInputProvenance, "legacy-unknown">;
+  readonly oatSource: Exclude<PerformanceInputProvenance, "legacy-unknown">;
+  readonly observation: WeatherObservationRefV2 | null;
+  readonly datasetIds: readonly string[];
+  readonly calculatorId?: string | null;
 };
 
 export interface PerformanceResultStorage {
@@ -699,6 +738,233 @@ export function writeTakeoffPerformanceResultV2(
   return snapshot;
 }
 
+
+function landingWeightLb(context: LandingPerformanceContext): number {
+  return context.weight.unit === "lb"
+    ? context.weight.value
+    : context.weight.value * 2.2046226218;
+}
+
+export function landingSourceDatasetIds(
+  definition: PilotLandingCalculatorDefinition | undefined,
+): readonly string[] {
+  if (!definition) return [];
+  return [...new Set([
+    definition.vrefDatasetId,
+    definition.landingClimbDatasetId,
+    definition.approachClimbDatasetId,
+    definition.landingDistanceDatasetId,
+  ])].sort();
+}
+
+export function computeLandingPerformance(
+  context: LandingPerformanceContext,
+  datasets: readonly PerformanceDataset[],
+  definition: PilotLandingCalculatorDefinition | undefined,
+  inputs: PerformanceCalculationInputs = {},
+  now = new Date().toISOString(),
+): LandingPerformanceResult {
+  const unavailable = pending("No source-backed landing calculator is available.");
+  const summary = definition
+    ? calculatePilotLandingSummary(datasets, definition, {
+        grossWeight: landingWeightLb(context),
+        pressureAltitude: inputs.pressureAltitudeFt,
+        oat: inputs.oatC,
+      })
+    : {
+        vrefKias: unavailable,
+        landingClimbSpeed: unavailable,
+        approachClimbSpeed: unavailable,
+        landingDistanceFt: unavailable,
+      };
+
+  return {
+    context,
+    contextHash: computeLandingContextHash(context),
+    vref: summary.vrefKias,
+    landingClimbSpeed: summary.landingClimbSpeed,
+    approachClimbSpeed: summary.approachClimbSpeed,
+    landingDistance: summary.landingDistanceFt,
+    computedAt: new Date(now).toISOString(),
+    source: "landing-calculator",
+    calculationInputs: inputs,
+  };
+}
+
+function landingCalculationId(result: LandingPerformanceResult): string {
+  return [
+    "landing",
+    result.context.activeFlightId,
+    result.contextHash,
+    result.computedAt,
+  ].join(":");
+}
+
+export function createLandingSnapshotV2(
+  result: LandingPerformanceResult,
+  options: LandingSnapshotWriteOptions,
+): LandingSnapshotV2 {
+  if (
+    options.runwayContext.airportIcao !== result.context.runway.airportIcao
+    || options.runwayContext.runwayIdent !== result.context.runway.identifier
+  ) {
+    throw new Error("Landing Snapshot V2 runway provenance does not match the calculated context.");
+  }
+
+  const metarBound = options.qnhSource === "metar" || options.oatSource === "metar";
+  if (metarBound && !options.observation) {
+    throw new Error("METAR-sourced Landing Snapshot V2 weather requires an observation reference.");
+  }
+  if (
+    options.observation
+    && metarBound
+    && options.observation.station.toUpperCase() !== options.runwayContext.airportIcao.toUpperCase()
+  ) {
+    throw new Error("Snapshot V2 METAR station does not match the Landing airport.");
+  }
+
+  return {
+    schemaVersion: 2,
+    operation: "LANDING",
+    identity: {
+      calculationId: landingCalculationId(result),
+      activeFlightId: result.context.activeFlightId,
+      aircraftId: result.context.aircraftId,
+      variant: options.variant?.trim() || null,
+    },
+    audit: {
+      activeFlightDependencySnapshotId: result.context.dependencySnapshotId,
+    },
+    inputs: {
+      runway: {
+        airportIcao: options.runwayContext.airportIcao,
+        identifier: options.runwayContext.runwayIdent,
+        provenance: "airport-db",
+        runwaySurfaceId: options.runwayContext.runwaySurfaceId,
+        surfaceLengthFt: options.runwayContext.surfaceLengthFt,
+        lengthBasis: options.runwayContext.lengthBasis,
+        ...(options.runwayContext.dataSource
+          ? { dataSource: options.runwayContext.dataSource }
+          : {}),
+      },
+      weight: result.context.weight,
+      configuration: result.context.configuration,
+      weather: {
+        observation: metarBound ? options.observation : null,
+        qnhHpa: {
+          value: result.context.weather.qnh,
+          source: options.qnhSource,
+        },
+        oatC: {
+          value: result.context.weather.oat,
+          source: options.oatSource,
+        },
+      },
+    },
+    derived: {
+      ...(result.calculationInputs.pressureAltitudeFt === undefined
+        ? {}
+        : { pressureAltitudeFt: result.calculationInputs.pressureAltitudeFt }),
+    },
+    source: {
+      runtime: result.source,
+      calculatorId: options.calculatorId ?? null,
+      datasetIds: [...new Set(options.datasetIds)].sort(),
+    },
+    result: {
+      vref: result.vref,
+      landingClimbSpeed: result.landingClimbSpeed,
+      approachClimbSpeed: result.approachClimbSpeed,
+      landingDistance: result.landingDistance,
+    },
+    calculatedAt: result.computedAt,
+    migration: null,
+  };
+}
+
+export function landingPerformanceResultFromSnapshotV2(
+  snapshot: LandingSnapshotV2,
+): LandingPerformanceResult {
+  const context: LandingPerformanceContext = {
+    activeFlightId: snapshot.identity.activeFlightId,
+    aircraftId: snapshot.identity.aircraftId,
+    dependencySnapshotId:
+      snapshot.audit.activeFlightDependencySnapshotId ?? "snapshot-v2:audit-unavailable",
+    weight: snapshot.inputs.weight,
+    runway: {
+      identifier: snapshot.inputs.runway.identifier,
+      airportIcao: snapshot.inputs.runway.airportIcao,
+    },
+    configuration: snapshot.inputs.configuration,
+    weather: {
+      qnh: snapshot.inputs.weather.qnhHpa!.value,
+      oat: snapshot.inputs.weather.oatC!.value,
+    },
+  };
+
+  return {
+    context,
+    contextHash: computeLandingContextHash(context),
+    vref: snapshot.result.vref,
+    landingClimbSpeed: snapshot.result.landingClimbSpeed,
+    approachClimbSpeed: snapshot.result.approachClimbSpeed,
+    landingDistance: snapshot.result.landingDistance,
+    computedAt: snapshot.calculatedAt,
+    source: "landing-calculator",
+    calculationInputs: {
+      ...(snapshot.derived.pressureAltitudeFt === undefined
+        ? {}
+        : { pressureAltitudeFt: snapshot.derived.pressureAltitudeFt }),
+      oatC: snapshot.inputs.weather.oatC!.value,
+    },
+  };
+}
+
+export function readLandingPerformanceState(
+  storage: PerformanceResultStorage,
+  aircraftId: string,
+  activeFlightId: string,
+): LandingPerformanceReadState | null {
+  const key = performanceSnapshotV2Key("LANDING", aircraftId, activeFlightId);
+  const raw = storage.getItem(key);
+  if (raw === null) return null;
+
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (
+      !isLandingSnapshotV2(parsed)
+      || parsed.identity.aircraftId !== aircraftId
+      || parsed.identity.activeFlightId !== activeFlightId
+    ) {
+      return null;
+    }
+    return {
+      snapshot: parsed,
+      result: landingPerformanceResultFromSnapshotV2(parsed),
+      requiresRecalculation: landingSnapshotRequiresRecalculation(parsed),
+    };
+  } catch {
+    return null;
+  }
+}
+
+export function writeLandingPerformanceResultV2(
+  storage: PerformanceResultStorage,
+  result: LandingPerformanceResult,
+  options: LandingSnapshotWriteOptions,
+): LandingSnapshotV2 {
+  const snapshot = createLandingSnapshotV2(result, options);
+  storage.setItem(
+    performanceSnapshotV2Key(
+      "LANDING",
+      result.context.aircraftId,
+      result.context.activeFlightId,
+    ),
+    JSON.stringify(snapshot),
+  );
+  return snapshot;
+}
+
 /**
  * Legacy v1 writer retained as a compatibility/test seam during P1.2.
  * New EFB calculations must use writeTakeoffPerformanceResultV2().
@@ -720,4 +986,5 @@ export function clearPerformanceResult(
 ): void {
   storage.removeItem(performanceResultKey(aircraftId, activeFlightId));
   storage.removeItem(performanceSnapshotV2Key("TAKEOFF", aircraftId, activeFlightId));
+  storage.removeItem(performanceSnapshotV2Key("LANDING", aircraftId, activeFlightId));
 }
