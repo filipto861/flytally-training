@@ -629,7 +629,9 @@ export function readTakeoffPerformanceState(
         || parsed.identity.aircraftId !== aircraftId
         || parsed.identity.activeFlightId !== activeFlightId
       ) {
-        storage.removeItem(v2Key);
+        // An existing V2 key is authoritative. Keep it in place and fail
+        // closed rather than deleting it and resurrecting retained v1 data
+        // on the next read.
         return null;
       }
       return {
@@ -639,7 +641,7 @@ export function readTakeoffPerformanceState(
         migratedFromLegacy: parsed.migration?.fromSchemaVersion === 1,
       };
     } catch {
-      storage.removeItem(v2Key);
+      // Same fail-closed rule for malformed V2 JSON: do not fall back to v1.
       return null;
     }
   }

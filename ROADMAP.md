@@ -73,7 +73,7 @@ Rules:
 - no Performance math/storage changes in P1.1;
 - preserve UX6 visual language and responsive behavior.
 
-### P1.2 — Versioned Performance Snapshot V2 — NEXT
+### P1.2 — Versioned Performance Snapshot V2 — IN PROGRESS
 
 Introduce:
 - `schemaVersion: 2`;
@@ -225,7 +225,7 @@ After Landing + wind + Partial Power:
 ## Active implementation order
 
 1. **P1.1 — LEARN / EFB split + Active Flight top-bar reconciliation** — COMPLETE · PR #211 + PR #213
-2. **P1.2 — Snapshot V2** — NEXT
+2. **P1.2 — Snapshot V2** — IN PROGRESS
 3. P1.3 — canonical Performance operation controller
 4. P1.4 — Flight Brief EFB home
 5. B5 — Landing integration

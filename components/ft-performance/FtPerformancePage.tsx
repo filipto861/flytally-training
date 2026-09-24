@@ -10,6 +10,7 @@ export function FtPerformancePage({
   aircraftId,
   aircraftName,
   activeFlight,
+  selectedVariant,
   datasets,
   takeoffCalculator,
   disclaimer,
@@ -17,6 +18,7 @@ export function FtPerformancePage({
   aircraftId: string;
   aircraftName: string;
   activeFlight?: ActiveFlight | null;
+  selectedVariant?: string;
   datasets: readonly PerformanceDataset[];
   takeoffCalculator?: PilotTakeoffCalculatorDefinition;
   disclaimer?: string;
@@ -36,6 +38,7 @@ export function FtPerformancePage({
       <FtPerformancePresentation
         aircraftId={aircraftId}
         activeFlight={activeFlight}
+        selectedVariant={selectedVariant}
         datasets={datasets}
         takeoffCalculator={takeoffCalculator}
         view="efb"

@@ -337,6 +337,48 @@ export function isTakeoffSnapshotV2(value: unknown): value is TakeoffSnapshotV2 
   );
 }
 
+export type TakeoffSnapshotV2CurrentDependencies = {
+  readonly variant: string | null;
+  readonly pressureAltitudeFt?: number;
+  readonly calculatorId: string | null;
+  readonly datasetIds: readonly string[];
+};
+
+export type TakeoffSnapshotV2DependencyChange =
+  | "variant"
+  | "pressure-altitude"
+  | "performance-source";
+
+function normalizedIds(ids: readonly string[]): readonly string[] {
+  return [...new Set(ids)].sort();
+}
+
+export function diffTakeoffSnapshotV2Dependencies(
+  snapshot: TakeoffSnapshotV2,
+  current: TakeoffSnapshotV2CurrentDependencies,
+): readonly TakeoffSnapshotV2DependencyChange[] {
+  const changes: TakeoffSnapshotV2DependencyChange[] = [];
+
+  if (snapshot.identity.variant !== current.variant) {
+    changes.push("variant");
+  }
+  if (snapshot.derived.pressureAltitudeFt !== current.pressureAltitudeFt) {
+    changes.push("pressure-altitude");
+  }
+
+  const storedIds = normalizedIds(snapshot.source.datasetIds);
+  const currentIds = normalizedIds(current.datasetIds);
+  if (
+    snapshot.source.calculatorId !== current.calculatorId
+    || storedIds.length !== currentIds.length
+    || storedIds.some((id, index) => id !== currentIds[index])
+  ) {
+    changes.push("performance-source");
+  }
+
+  return changes;
+}
+
 export function takeoffSnapshotRequiresRecalculation(
   snapshot: TakeoffSnapshotV2,
 ): boolean {
@@ -349,4 +391,58 @@ export function takeoffSnapshotRequiresRecalculation(
     || weather.qnhHpa.source === "legacy-unknown"
     || weather.oatC.source === "legacy-unknown",
   );
+}
+
+
+function landingSource(value: unknown): boolean {
+  const row = object(value);
+  return Boolean(
+    row
+    && (row.runtime === "landing-calculator" || row.runtime === "multi-axis-metric-grid")
+    && (row.calculatorId === null || typeof row.calculatorId === "string")
+    && Array.isArray(row.datasetIds)
+    && row.datasetIds.every((item) => typeof item === "string" && item.length > 0),
+  );
+}
+
+export function isLandingSnapshotV2(value: unknown): value is LandingSnapshotV2 {
+  const row = object(value);
+  const inputs = object(row?.inputs);
+  const weight = object(inputs?.weight);
+  const configuration = object(inputs?.configuration);
+  const derived = object(row?.derived);
+  const result = object(row?.result);
+  const appliedWeather = inputs?.weather;
+
+  return Boolean(
+    row
+    && row.schemaVersion === 2
+    && row.operation === "LANDING"
+    && identity(row.identity)
+    && audit(row.audit)
+    && inputs
+    && runway(inputs.runway)
+    && weight
+    && finiteNumber(weight.value)
+    && (weight.unit === "kg" || weight.unit === "lb")
+    && configuration
+    && typeof configuration.flaps === "string"
+    && weather(appliedWeather)
+    && object(appliedWeather)?.qnhHpa !== undefined
+    && object(appliedWeather)?.oatC !== undefined
+    && derived
+    && finiteOptionalNumber(derived.pressureAltitudeFt)
+    && landingSource(row.source)
+    && result
+    && metric(result.vref)
+    && metric(result.landingClimbSpeed)
+    && metric(result.approachClimbSpeed)
+    && metric(result.landingDistance)
+    && validIso(row.calculatedAt)
+    && row.migration === null
+  );
+}
+
+export function isPerformanceSnapshotV2(value: unknown): value is PerformanceSnapshotV2 {
+  return isTakeoffSnapshotV2(value) || isLandingSnapshotV2(value);
 }

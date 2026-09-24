@@ -38,6 +38,7 @@ export function FtFlightPage({
       <FtFlightBrief
         aircraftId={aircraftId}
         activeFlight={activeFlight}
+        selectedVariant={selectedVariant}
         datasets={performanceDatasets}
         takeoffCalculator={takeoffCalculator}
       />

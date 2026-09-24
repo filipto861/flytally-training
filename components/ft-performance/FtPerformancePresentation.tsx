@@ -35,7 +35,10 @@ import {
   diffPerformanceContext,
   isContextValid,
 } from "@/lib/performance/context";
-import type { PerformanceInputProvenance } from "@/lib/performance/snapshot-v2";
+import {
+  diffTakeoffSnapshotV2Dependencies,
+  type PerformanceInputProvenance,
+} from "@/lib/performance/snapshot-v2";
 import type { PerformanceDataset } from "@/lib/universal-aircraft-content";
 import {
   formatObservationZulu,
@@ -89,6 +92,7 @@ export function FtPerformancePresentation({
   activeFlight,
   datasets,
   takeoffCalculator,
+  selectedVariant,
   view,
   showInputs = false,
 }: Readonly<{
@@ -96,11 +100,12 @@ export function FtPerformancePresentation({
   activeFlight?: ActiveFlight | null;
   datasets: readonly PerformanceDataset[];
   takeoffCalculator?: PilotTakeoffCalculatorDefinition;
+  selectedVariant?: string;
   view: FtPerformanceContextKind;
   showInputs?: boolean;
 }>) {
   const searchParams = useSearchParams();
-  const selectedVariant = searchParams.get("variant");
+  const effectiveVariant = selectedVariant ?? searchParams.get("variant");
   const { flight } = useActiveFlightState(aircraftId, activeFlight);
   const current = flight?.lifecycle === "ACTIVE" ? flight : null;
 
@@ -384,10 +389,24 @@ export function FtPerformancePresentation({
     weightNumber,
   ]);
 
+  const currentSourceDatasetIds = currentContext
+    ? takeoffSourceDatasetIds(datasets, takeoffCalculator, currentContext)
+    : [];
+
+  const snapshotDependencyChanges = storedState && currentContext
+    ? diffTakeoffSnapshotV2Dependencies(storedState.snapshot, {
+        variant: effectiveVariant ?? null,
+        pressureAltitudeFt: pressureAltitude,
+        calculatorId: takeoffCalculator?.id ?? null,
+        datasetIds: currentSourceDatasetIds,
+      })
+    : [];
+
   const stale = Boolean(
     result
     && (
       storedState?.requiresRecalculation
+      || snapshotDependencyChanges.length > 0
       || !currentContext
       || !isContextValid(currentContext, result.context)
     ),
@@ -404,7 +423,7 @@ export function FtPerformancePresentation({
   );
 
   function calculate(inputs: PerformanceCalculationInputs) {
-    if (!currentContext) return;
+    if (!currentContext || !current || !runwayContext) return;
     setBusy(true);
     try {
       const next = computePerformance(
@@ -462,12 +481,12 @@ export function FtPerformancePresentation({
         window.localStorage,
         next,
         {
-          variant: selectedVariant,
+          variant: effectiveVariant,
           runwayContext,
           qnhSource: qnhSnapshotSource,
           oatSource: oatSnapshotSource,
           observation,
-          datasetIds: takeoffSourceDatasetIds(datasets, takeoffCalculator, currentContext),
+          datasetIds: currentSourceDatasetIds,
           calculatorId: takeoffCalculator?.id ?? null,
         },
       );
@@ -529,7 +548,9 @@ export function FtPerformancePresentation({
           message={
             storedState?.requiresRecalculation
               ? "This stored result was migrated from legacy performance data without complete weather provenance. Recalculate to create a current V2 snapshot."
-              : undefined
+              : snapshotDependencyChanges.length
+                ? "Aircraft variant, derived performance context or the source-backed performance package changed. Recalculate before using the stored result."
+                : undefined
           }
           onRecalculate={recalculate}
           recalculateDisabled={!canCalculate}

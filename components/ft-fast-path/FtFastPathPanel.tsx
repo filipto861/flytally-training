@@ -34,6 +34,7 @@ export function FtFastPathPanel({
   emergency,
   referenceAircraft,
   referenceContent,
+  selectedVariant,
   performanceDatasets,
   takeoffCalculator,
 }: Readonly<{
@@ -44,6 +45,7 @@ export function FtFastPathPanel({
     "id" | "variants" | "variantProfiles" | "equipmentTags"
   >;
   referenceContent?: AircraftLimitationsContent;
+  selectedVariant?: string;
   performanceDatasets: readonly PerformanceDataset[];
   takeoffCalculator?: PilotTakeoffCalculatorDefinition;
 }>) {
@@ -164,6 +166,7 @@ export function FtFastPathPanel({
             <FtPerformancePresentation
               aircraftId={aircraftId}
               activeFlight={activeFlight}
+              selectedVariant={selectedVariant}
               datasets={performanceDatasets}
               takeoffCalculator={takeoffCalculator}
               view="operational"
