@@ -269,7 +269,7 @@ The staged contract is:
 - the result must be visibly marked **SOURCE-SUPPORTED TRAINING PREVIEW** and must state that the independent 25% rated-thrust check is not yet source-closed.
 - the preview is ephemeral and is **not** persisted into Takeoff Snapshot V2.
 
-The source-supported Aeronca training preview is accepted for production staging in PR #226. It remains visibly non-operational and ephemeral.
+The source-supported Aeronca training preview was merged in PR #226 and deployed to production on 2026-09-24. It remains visibly non-operational and ephemeral.
 
 Operational Partial Power remains blocked until the independent 25% rated-takeoff-thrust requirement can be evaluated from authoritative source data.
 
