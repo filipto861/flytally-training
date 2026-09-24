@@ -1,5 +1,6 @@
 "use client";
 
+import aeroncaPartialPowerN1Json from "@/aircraft-data/learjet-35a/performance/source-extracts/partial-power-n1-aeronca.json";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useActiveFlightState } from "@/components/ft-flight/use-active-flight";
@@ -65,6 +66,7 @@ import {
   type PartialPowerTrainingPreviewResult,
   type TakeoffThrustMode,
 } from "@/lib/performance/partial-power-training-preview";
+import type { PartialPowerN1SourceExtract } from "@/lib/performance/partial-power-source";
 import { normalizePressureAltitudeToSeaLevelFloor } from "@/lib/performance/source-envelope";
 import type { PerformanceDataset } from "@/lib/universal-aircraft-content";
 import { isMetarSnapshot } from "@/lib/weather/metar-snapshot-helpers";
@@ -75,6 +77,9 @@ import {
   type LandingPerformanceOperationController,
   type UseLandingPerformanceOperationOptions,
 } from "./use-landing-performance-operation";
+
+const learjetAeroncaPartialPowerN1Extract =
+  aeroncaPartialPowerN1Json as unknown as PartialPowerN1SourceExtract;
 
 export type PerformanceWeatherFetchState =
   | "idle"
@@ -793,6 +798,7 @@ function useTakeoffPerformanceOperation(
               fullRatedTakeoffWithin30Days: partialPowerFullRatedTakeoffWithin30Days,
             },
             thrustReversers: partialPowerThrustReversers,
+            aeroncaN1Extract: learjetAeroncaPartialPowerN1Extract,
           });
 
           setPartialPowerPreview({
