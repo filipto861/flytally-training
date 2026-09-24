@@ -33,14 +33,19 @@ test("DD.4 selecting a different runway clears prior declared-distance confirmat
 
 test("DD.4 full-rated Takeoff calculation does not require declared distances", () => {
   const controller = read("components/ft-performance/use-performance-operation.ts");
-  const canCalculateBlock = controller.slice(
-    controller.indexOf("const canCalculate = Boolean("),
-    controller.indexOf("const newerWeatherAvailable"),
+  const fullRatedGate = controller.slice(
+    controller.indexOf("const canCalculateFullRated = Boolean("),
+    controller.indexOf("const partialPowerInputsReady"),
   );
 
-  assert.match(canCalculateBlock, /currentContext/);
-  assert.match(canCalculateBlock, /performancePressureAltitudeFt/);
-  assert.doesNotMatch(canCalculateBlock, /toraFt|asdaFt|declaredDistanceConstraint/);
+  assert.match(fullRatedGate, /currentContext/);
+  assert.match(fullRatedGate, /performancePressureAltitudeFt/);
+  assert.match(fullRatedGate, /calculationWeather/);
+  assert.doesNotMatch(fullRatedGate, /toraFt|asdaFt|declaredDistanceConstraint/);
+  assert.match(
+    controller,
+    /const canCalculate = thrustMode === "partial-power"[\s\S]*: canCalculateFullRated;/,
+  );
 });
 
 test("DD.4 current full-rated snapshot does not persist or depend on TORA/ASDA", () => {

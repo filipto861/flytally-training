@@ -1,5 +1,6 @@
 "use client";
 
+import aeroncaPartialPowerN1Json from "@/aircraft-data/learjet-35a/performance/source-extracts/partial-power-n1-aeronca.json";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useActiveFlightState } from "@/components/ft-flight/use-active-flight";
@@ -59,6 +60,13 @@ import {
   diffTakeoffSnapshotV2Dependencies,
   type TakeoffSnapshotV2DependencyChange,
 } from "@/lib/performance/snapshot-v2";
+import {
+  evaluatePartialPowerTrainingPreview,
+  type PartialPowerThrustReverserConfiguration,
+  type PartialPowerTrainingPreviewResult,
+  type TakeoffThrustMode,
+} from "@/lib/performance/partial-power-training-preview";
+import type { PartialPowerN1SourceExtract } from "@/lib/performance/partial-power-source";
 import { normalizePressureAltitudeToSeaLevelFloor } from "@/lib/performance/source-envelope";
 import type { PerformanceDataset } from "@/lib/universal-aircraft-content";
 import { isMetarSnapshot } from "@/lib/weather/metar-snapshot-helpers";
@@ -70,11 +78,21 @@ import {
   type UseLandingPerformanceOperationOptions,
 } from "./use-landing-performance-operation";
 
+const learjetAeroncaPartialPowerN1Extract =
+  aeroncaPartialPowerN1Json as unknown as PartialPowerN1SourceExtract;
+
 export type PerformanceWeatherFetchState =
   | "idle"
   | "loading"
   | "ready"
   | "unavailable";
+
+export type PartialPowerPreviewState = {
+  readonly evaluation: PartialPowerTrainingPreviewResult;
+  readonly vr: PerformanceResult["vr"];
+  readonly v2: PerformanceResult["v2"];
+  readonly computedAt: string;
+};
 
 export type TakeoffPerformanceOperationController = {
   readonly operation: "TAKEOFF";
@@ -102,6 +120,12 @@ export type TakeoffPerformanceOperationController = {
   readonly takeoffWeightUnit: "kg" | "lb";
   readonly flaps: string;
   readonly antiIce: boolean;
+  readonly thrustMode: TakeoffThrustMode;
+  readonly partialPowerThrustReversers: PartialPowerThrustReverserConfiguration;
+  readonly partialPowerRunwayDryHardPaved: boolean;
+  readonly partialPowerAntiSkidOperative: boolean;
+  readonly partialPowerFullRatedTakeoffWithin30Days: boolean;
+  readonly partialPowerPreview: PartialPowerPreviewState | null;
   readonly appliedWeather: OperationAppliedWeather;
   readonly availableWeather: MetarSnapshot | null;
   readonly weatherFetchState: PerformanceWeatherFetchState;
@@ -119,6 +143,11 @@ export type TakeoffPerformanceOperationController = {
   readonly setTakeoffWeight: (value: string) => void;
   readonly setFlaps: (value: string) => void;
   readonly setAntiIce: (value: boolean) => void;
+  readonly setThrustMode: (value: TakeoffThrustMode) => void;
+  readonly setPartialPowerThrustReversers: (value: PartialPowerThrustReverserConfiguration) => void;
+  readonly setPartialPowerRunwayDryHardPaved: (value: boolean) => void;
+  readonly setPartialPowerAntiSkidOperative: (value: boolean) => void;
+  readonly setPartialPowerFullRatedTakeoffWithin30Days: (value: boolean) => void;
   readonly setManualQnh: (value: string) => void;
   readonly setManualOat: (value: string) => void;
   readonly calculate: () => void;
@@ -247,6 +276,17 @@ function useTakeoffPerformanceOperation(
   const [takeoffWeightUnit, setTakeoffWeightUnit] = useState<"kg" | "lb">("lb");
   const [flaps, setFlaps] = useState("");
   const [antiIce, setAntiIce] = useState(false);
+  const [thrustMode, setThrustMode] = useState<TakeoffThrustMode>("full-rated");
+  const [partialPowerThrustReversers, setPartialPowerThrustReversers] =
+    useState<PartialPowerThrustReverserConfiguration>("unknown");
+  const [partialPowerRunwayDryHardPaved, setPartialPowerRunwayDryHardPaved] = useState(false);
+  const [partialPowerAntiSkidOperative, setPartialPowerAntiSkidOperative] = useState(false);
+  const [
+    partialPowerFullRatedTakeoffWithin30Days,
+    setPartialPowerFullRatedTakeoffWithin30Days,
+  ] = useState(false);
+  const [partialPowerPreview, setPartialPowerPreview] =
+    useState<PartialPowerPreviewState | null>(null);
   const [appliedWeather, setAppliedWeather] = useState<OperationAppliedWeather>(
     EMPTY_OPERATION_WEATHER,
   );
@@ -260,6 +300,15 @@ function useTakeoffPerformanceOperation(
   const calculationPending = useRef(false);
 
   const result = storedState?.result ?? null;
+
+  useEffect(() => {
+    setThrustMode("full-rated");
+    setPartialPowerThrustReversers("unknown");
+    setPartialPowerRunwayDryHardPaved(false);
+    setPartialPowerAntiSkidOperative(false);
+    setPartialPowerFullRatedTakeoffWithin30Days(false);
+    setPartialPowerPreview(null);
+  }, [current?.id]);
 
   useEffect(() => {
     let active = true;
@@ -544,14 +593,53 @@ function useTakeoffPerformanceOperation(
     ? diffPerformanceContext(result.context, currentContext)
     : [];
 
-  const canCalculate = Boolean(
+  const canCalculateFullRated = Boolean(
     currentContext
     && performancePressureAltitudeFt !== undefined
     && calculationWeather,
   );
+  const partialPowerInputsReady = Boolean(
+    currentContext
+    && performancePressureAltitudeFt !== undefined
+    && calculationWeather
+    && runwayWindComponentKt !== undefined
+    && declaredDistanceConstraint.status === "ready"
+    && partialPowerThrustReversers !== "unknown"
+    && takeoffCalculator,
+  );
+  const canCalculate = thrustMode === "partial-power"
+    ? partialPowerInputsReady
+    : canCalculateFullRated;
+
+  useEffect(() => {
+    setPartialPowerPreview(null);
+  }, [
+    antiIce,
+    appliedWeather.oatC.source,
+    appliedWeather.oatC.value,
+    appliedWeather.observation?.observedAt,
+    appliedWeather.qnhHpa.source,
+    appliedWeather.qnhHpa.value,
+    asdaFt,
+    flaps,
+    partialPowerAntiSkidOperative,
+    partialPowerFullRatedTakeoffWithin30Days,
+    partialPowerRunwayDryHardPaved,
+    partialPowerThrustReversers,
+    runwayIdentifier,
+    runwayWindComponentKt,
+    takeoffWeight,
+    thrustMode,
+    toraFt,
+    toraInputSource,
+  ]);
+
+  const hasDisplayedCalculation = thrustMode === "partial-power"
+    ? Boolean(partialPowerPreview)
+    : Boolean(result);
 
   const newerWeatherAvailable = Boolean(
-    result
+    hasDisplayedCalculation
     && newerWeatherObservationAvailable(
       appliedWeather.observation,
       availableWeather,
@@ -657,6 +745,73 @@ function useTakeoffPerformanceOperation(
           takeoffCalculator,
           calculation.inputs,
         );
+
+        if (thrustMode === "partial-power") {
+          const values = weatherForCalculation(weather);
+          const tora = toraInputSource === "manual" && numberFromInput(toraFt)
+            ? manualDeclaredDistanceFt(Number(toraFt))
+            : undefined;
+          const asda = numberFromInput(asdaFt)
+            ? manualDeclaredDistanceFt(Number(asdaFt))
+            : undefined;
+          const runwayWind = calculation.inputs.runwayWindComponentKt;
+          const weight = weightNumber === undefined
+            ? undefined
+            : takeoffWeightUnit === "kg"
+              ? weightNumber * 2.2046226218487757
+              : weightNumber;
+
+          if (
+            !values
+            || !takeoffCalculator
+            || !tora
+            || !asda
+            || runwayWind === undefined
+            || weight === undefined
+          ) {
+            setPartialPowerPreview({
+              evaluation: {
+                status: "unsupported",
+                reason: "Complete the required Partial Power inputs before evaluating reduced thrust.",
+              },
+              vr: next.vr,
+              v2: next.v2,
+              computedAt: new Date().toISOString(),
+            });
+            return;
+          }
+
+          const evaluation = evaluatePartialPowerTrainingPreview({
+            aircraftId,
+            datasets,
+            definition: takeoffCalculator,
+            pressureAltitudeFt: calculation.pressureAltitudeFt,
+            ambientTemperatureC: values.oat,
+            takeoffWeightLb: weight,
+            flaps,
+            runwayWindComponentKt: runwayWind,
+            declaredDistances: { tora, asda },
+            eligibility: {
+              runwayDryHardPaved: partialPowerRunwayDryHardPaved,
+              antiIce,
+              antiSkidOperative: partialPowerAntiSkidOperative,
+              fullRatedTakeoffWithin30Days: partialPowerFullRatedTakeoffWithin30Days,
+            },
+            thrustReversers: partialPowerThrustReversers,
+            aeroncaN1Extract: learjetAeroncaPartialPowerN1Extract,
+          });
+
+          setPartialPowerPreview({
+            evaluation,
+            vr: next.vr,
+            v2: next.v2,
+            computedAt: new Date().toISOString(),
+          });
+          weatherLocked.current = true;
+          setAppliedWeather(weather);
+          return;
+        }
+
         const observation = weather.observation;
         const qnhSource =
           weather.qnhHpa.source === "metar" && observation ? "metar" : "manual";
@@ -713,7 +868,7 @@ function useTakeoffPerformanceOperation(
       availableWeather,
     );
 
-    if (result) {
+    if (hasDisplayedCalculation) {
       // Preserve APPLY & RECALCULATE as one atomic operation. If the runway
       // context is not ready yet, calculateWithWeather fails closed and the
       // currently applied weather/result remain paired instead of exposing
@@ -757,6 +912,12 @@ function useTakeoffPerformanceOperation(
     takeoffWeightUnit,
     flaps,
     antiIce,
+    thrustMode,
+    partialPowerThrustReversers,
+    partialPowerRunwayDryHardPaved,
+    partialPowerAntiSkidOperative,
+    partialPowerFullRatedTakeoffWithin30Days,
+    partialPowerPreview,
     appliedWeather,
     availableWeather,
     weatherFetchState,
@@ -789,6 +950,11 @@ function useTakeoffPerformanceOperation(
     setTakeoffWeight,
     setFlaps,
     setAntiIce,
+    setThrustMode,
+    setPartialPowerThrustReversers,
+    setPartialPowerRunwayDryHardPaved,
+    setPartialPowerAntiSkidOperative,
+    setPartialPowerFullRatedTakeoffWithin30Days,
     setManualQnh: (value) => {
       setAppliedWeather((previous) => setManualWeatherField(
         previous,

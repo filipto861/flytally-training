@@ -252,9 +252,28 @@ For eventual operational enablement:
 4. apply all source limits and fail-closed boundaries;
 5. persist the assumed temperature, configuration identity, TORA, ASDA, applied wind and source dataset identities in Snapshot V2.
 
-### PP.4 — operational enablement / acceptance — BLOCKED ON SOURCE
+### PP.4 — pilot UI staging COMPLETE · operational enablement remains SOURCE-GATED
 
-Do not begin operational UI/Snapshot enablement until the independent 25% rated-takeoff-thrust requirement can be evaluated from authoritative source data.
+A source-supported **training preview** may now be staged in the pilot Performance UI without promoting the result into the operational Takeoff snapshot.
+
+The staged contract is:
+
+- Full Rated remains the default and continues to use the existing operational calculation/persistence path.
+- Partial Power must be an explicit pilot selection.
+- thrust-reverser configuration must be explicitly selected; FlyTally does not infer it from simulator variant, serial number or aircraft name.
+- the current source-supported preview path is Aeronca only.
+- the existing PP.2/PP.3 solver supplies Assumed Temperature, reduced N1, V1 and corrected Takeoff Distance; normal weight-based VR/V2 remain visible for context.
+- TORA and ASDA are mandatory for the preview.
+- dry hard-paved runway, anti-skid operative, anti-ice OFF and a full-rated-thrust takeoff within the preceding 30 days are surfaced as explicit eligibility confirmations.
+- source-supported runway wind is required; manual wind entry remains a tracked follow-up.
+- the result must be visibly marked **SOURCE-SUPPORTED TRAINING PREVIEW** and must state that the independent 25% rated-thrust check is not yet source-closed.
+- the preview is ephemeral and is **not** persisted into Takeoff Snapshot V2.
+
+The source-supported Aeronca training preview is accepted for production staging in PR #226. It remains visibly non-operational and ephemeral.
+
+Operational Partial Power remains blocked until the independent 25% rated-takeoff-thrust requirement can be evaluated from authoritative source data.
+
+Do not enable operational Snapshot V2 persistence or operational-use status until that source requirement is closed.
 
 Required acceptance will include:
 

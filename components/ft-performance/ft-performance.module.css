@@ -305,6 +305,160 @@
   padding: var(--ft-space-3);
 }
 
+.partialPowerSetup {
+  display: grid;
+  gap: var(--ft-space-3);
+  padding: var(--ft-space-3);
+  border: var(--ft-rule-default);
+  border-radius: var(--ft-radius-4);
+  background: var(--ft-bg-inset);
+}
+
+.partialPowerSetup header {
+  display: grid;
+  gap: var(--ft-space-1);
+}
+
+.partialPowerSetup header strong {
+  color: var(--ft-text-primary);
+  font-size: 0.86rem;
+}
+
+.partialPowerSetup header p:last-child,
+.partialPowerSourceNote {
+  margin: 0;
+  color: var(--ft-text-metadata);
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
+
+.eligibilityChecks {
+  display: grid;
+  gap: var(--ft-space-2);
+}
+
+.eligibilityChecks label {
+  min-height: var(--ft-touch-target-min);
+  display: flex;
+  align-items: center;
+  gap: var(--ft-space-2);
+  padding: var(--ft-space-2) var(--ft-space-3);
+  border: var(--ft-rule-default);
+  border-radius: var(--ft-radius-4);
+  background: var(--ft-bg-panel);
+  color: var(--ft-text-secondary);
+  font-size: 0.74rem;
+  font-weight: 650;
+}
+
+.eligibilityChecks input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--ft-accent);
+}
+
+.partialPowerResult {
+  display: grid;
+  gap: var(--ft-space-3);
+}
+
+.partialPowerWarning {
+  display: grid;
+  gap: var(--ft-space-1);
+  padding: var(--ft-space-3);
+  border: var(--ft-rule-default);
+  border-color: var(--ft-state-recalc);
+  border-radius: var(--ft-radius-4);
+  background: var(--ft-state-recalc-bg);
+}
+
+.partialPowerWarning strong {
+  color: var(--ft-state-recalc);
+  font-family: var(--ft-font-data);
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+}
+
+.partialPowerWarning p {
+  margin: 0;
+  color: var(--ft-text-secondary);
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.partialPowerMetrics {
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border: var(--ft-rule-default);
+  border-radius: var(--ft-radius-4);
+}
+
+.partialPowerMetrics > div {
+  min-width: 0;
+  display: grid;
+  gap: var(--ft-space-1);
+  padding: var(--ft-space-3);
+  border-inline-end: var(--ft-rule-default);
+  border-bottom: var(--ft-rule-default);
+}
+
+.partialPowerMetrics > div:nth-child(3n) {
+  border-inline-end: 0;
+}
+
+.partialPowerMetrics > div:nth-last-child(-n + 3) {
+  border-bottom: 0;
+}
+
+.partialPowerMetrics span,
+.partialPowerFacts dt {
+  color: var(--ft-text-metadata);
+  font-family: var(--ft-font-data);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.partialPowerMetrics strong {
+  color: var(--ft-text-primary);
+  font-family: var(--ft-font-data);
+  font-size: 1.15rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.partialPowerFacts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+  border-top: var(--ft-rule-default);
+}
+
+.partialPowerFacts > div {
+  display: grid;
+  gap: var(--ft-space-1);
+  padding: var(--ft-space-2) 0;
+  border-bottom: var(--ft-rule-default);
+}
+
+.partialPowerFacts > div:nth-child(odd) {
+  padding-inline-end: var(--ft-space-3);
+}
+
+.partialPowerFacts > div:nth-child(even) {
+  padding-inline-start: var(--ft-space-3);
+  border-inline-start: var(--ft-rule-default);
+}
+
+.partialPowerFacts dd {
+  margin: 0;
+  color: var(--ft-text-primary);
+  font-size: 0.76rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
 .contextPanel {
   display: grid;
   gap: var(--ft-space-3);
@@ -795,8 +949,27 @@
   .flightInputGrid,
   .inputGrid,
   .setupGrid,
-  .environmentFacts {
+  .environmentFacts,
+  .partialPowerMetrics,
+  .partialPowerFacts {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .partialPowerMetrics > div,
+  .partialPowerMetrics > div:nth-child(3n),
+  .partialPowerMetrics > div:nth-last-child(-n + 3) {
+    border-inline-end: 0;
+    border-bottom: var(--ft-rule-default);
+  }
+
+  .partialPowerMetrics > div:last-child {
+    border-bottom: 0;
+  }
+
+  .partialPowerFacts > div:nth-child(odd),
+  .partialPowerFacts > div:nth-child(even) {
+    padding-inline: 0;
+    border-inline-start: 0;
   }
 
   .environmentFacts > div:nth-child(odd),

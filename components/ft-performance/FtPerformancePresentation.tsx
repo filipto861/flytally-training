@@ -14,6 +14,7 @@ import { FtPerformanceInvalidation } from "./FtPerformanceInvalidation";
 import { FtPerformanceStrip } from "./FtPerformanceStrip";
 import {
   usePerformanceOperation,
+  type PartialPowerPreviewState,
   type TakeoffPerformanceOperationController,
 } from "./use-performance-operation";
 import styles from "./ft-performance.module.css";
@@ -33,6 +34,36 @@ function runwayDescription(context: SelectedRunwayContext | undefined): string {
     context.surface ?? undefined,
     context.headingTrueDeg === undefined ? undefined : `${Math.round(context.headingTrueDeg)}°T`,
   ].filter(Boolean).join(" · ");
+}
+
+function previewMetric(
+  metric: PartialPowerPreviewState["vr"],
+): string {
+  if (metric.status !== "ready" || metric.value === undefined) return "—";
+  const precision = metric.precision ?? 0;
+  const value = precision > 0 ? metric.value.toFixed(precision) : Math.round(metric.value).toString();
+  return metric.unit ? `${value} ${metric.unit}` : value;
+}
+
+function partialPowerFailureText(
+  preview: PartialPowerPreviewState,
+): string {
+  const evaluation = preview.evaluation;
+  if (evaluation.status === "unsupported") return evaluation.reason;
+  if (evaluation.status === "invalid") return evaluation.errors.join(" ");
+  if (evaluation.status === "ineligible") {
+    return evaluation.failedChecks.map((check) => check.reason ?? check.label).join(" ");
+  }
+  if (evaluation.status === "no-solution") {
+    if (evaluation.reason === "ambient-weight-limit") {
+      return "Actual takeoff weight exceeds the source-backed ambient performance weight limit.";
+    }
+    if (evaluation.reason === "no-reduced-thrust-candidate") {
+      return "No source-supported assumed temperature above ambient is available.";
+    }
+    return "No source-supported assumed-temperature candidate satisfies both runway and weight constraints.";
+  }
+  return "Partial Power preview is unavailable.";
 }
 
 export function FtPerformanceOperationPresentation({
@@ -71,6 +102,12 @@ export function FtPerformanceOperationPresentation({
     takeoffWeightUnit,
     flaps,
     antiIce,
+    thrustMode,
+    partialPowerThrustReversers,
+    partialPowerRunwayDryHardPaved,
+    partialPowerAntiSkidOperative,
+    partialPowerFullRatedTakeoffWithin30Days,
+    partialPowerPreview,
     appliedWeather,
     availableWeather,
     weatherFetchState,
@@ -88,6 +125,11 @@ export function FtPerformanceOperationPresentation({
     setTakeoffWeight,
     setFlaps,
     setAntiIce,
+    setThrustMode,
+    setPartialPowerThrustReversers,
+    setPartialPowerRunwayDryHardPaved,
+    setPartialPowerAntiSkidOperative,
+    setPartialPowerFullRatedTakeoffWithin30Days,
     setManualQnh,
     setManualOat,
     calculate,
@@ -95,7 +137,63 @@ export function FtPerformanceOperationPresentation({
     applyLatestMetar,
   } = operation;
 
-  const resultContent = !hydrated ? (
+  const hasDisplayedCalculation = thrustMode === "partial-power"
+    ? Boolean(partialPowerPreview)
+    : Boolean(result);
+
+  const partialPowerContent = !partialPowerPreview ? (
+    <div className={styles.resultEmpty}>
+      <span>PARTIAL POWER</span>
+      <strong>Source-supported preview not computed yet</strong>
+      <p>Complete the Partial Power inputs and evaluate the assumed-temperature calculation.</p>
+    </div>
+  ) : partialPowerPreview.evaluation.status === "source-supported" ? (
+    <div className={styles.partialPowerResult}>
+      <div className={styles.partialPowerWarning} role="status">
+        <strong>SOURCE-SUPPORTED TRAINING PREVIEW</strong>
+        <p>
+          This result is not operationally accepted. The independent maximum 25% rated-takeoff-thrust reduction check is not yet source-closed.
+        </p>
+      </div>
+      <div className={styles.partialPowerMetrics}>
+        <div><span>Assumed Temp</span><strong>{partialPowerPreview.evaluation.assumedTemperature.toFixed(1)} °C</strong></div>
+        <div><span>Target N1</span><strong>{partialPowerPreview.evaluation.reducedN1.toFixed(1)} %</strong></div>
+        <div><span>V1</span><strong>{Math.round(partialPowerPreview.evaluation.v1)} KIAS</strong></div>
+        <div><span>VR</span><strong>{previewMetric(partialPowerPreview.vr)}</strong></div>
+        <div><span>V2</span><strong>{previewMetric(partialPowerPreview.v2)}</strong></div>
+        <div><span>Takeoff Distance</span><strong>{Math.round(partialPowerPreview.evaluation.correctedTakeoffDistance).toLocaleString("en-US")} FT</strong></div>
+      </div>
+      <dl className={styles.partialPowerFacts}>
+        <div>
+          <dt>Full Rated N1</dt>
+          <dd>{partialPowerPreview.evaluation.fullRatedN1.toFixed(1)} %</dd>
+        </div>
+        <div>
+          <dt>N1 reduction</dt>
+          <dd>{partialPowerPreview.evaluation.n1ReductionPoints.toFixed(1)} points</dd>
+        </div>
+        <div>
+          <dt>Usable field length</dt>
+          <dd>{Math.round(partialPowerPreview.evaluation.usableTakeoffFieldLength).toLocaleString("en-US")} ft · {partialPowerPreview.evaluation.limitingDeclaredDistance}</dd>
+        </div>
+        <div>
+          <dt>Configuration</dt>
+          <dd>Aeronca thrust reversers</dd>
+        </div>
+      </dl>
+      <p className={styles.timestamp}>
+        Preview calculated {new Date(partialPowerPreview.computedAt).toLocaleString("en-GB")}
+      </p>
+    </div>
+  ) : (
+    <div className={styles.resultEmpty}>
+      <span>PARTIAL POWER</span>
+      <strong>Partial Power unavailable for these inputs</strong>
+      <p>{partialPowerFailureText(partialPowerPreview)}</p>
+    </div>
+  );
+
+  const resultContent = thrustMode === "partial-power" ? partialPowerContent : !hydrated ? (
     <div className={styles.emptyState}><p>Loading performance context…</p></div>
   ) : !current ? (
     <div className={styles.emptyState}>
@@ -146,7 +244,7 @@ export function FtPerformanceOperationPresentation({
     <section
       className={styles.presentation}
       aria-label="Performance"
-      data-empty={current && result ? "false" : "true"}
+      data-empty={current && hasDisplayedCalculation ? "false" : "true"}
       data-performance-view={view}
       data-performance-operation={operation.operation}
     >
@@ -207,7 +305,24 @@ export function FtPerformanceOperationPresentation({
               </label>
 
               <label className={styles.setupField}>
-                <span>TORA <small>optional</small></span>
+                <span>Takeoff thrust</span>
+                <select
+                  aria-label="Takeoff thrust mode"
+                  onChange={(event) => setThrustMode(
+                    event.target.value === "partial-power" ? "partial-power" : "full-rated",
+                  )}
+                  value={thrustMode}
+                >
+                  <option value="full-rated">Full Rated</option>
+                  <option value="partial-power">Partial Power / Assumed Temperature</option>
+                </select>
+                <small>
+                  Full Rated is the operational default. Partial Power is currently exposed as a source-supported training preview only.
+                </small>
+              </label>
+
+              <label className={styles.setupField}>
+                <span>TORA <small>{thrustMode === "partial-power" ? "required" : "optional"}</small></span>
                 <span className={styles.inputWithUnit}>
                   <input
                     aria-label="Takeoff TORA"
@@ -272,8 +387,75 @@ export function FtPerformanceOperationPresentation({
               </label>
             </div>
 
-            <details className={styles.declaredDistanceDetails}>
-              <summary>Declared-distance details</summary>
+            {thrustMode === "partial-power" ? (
+              <section className={styles.partialPowerSetup} aria-label="Partial Power setup">
+                <header>
+                  <p className={styles.eyebrow}>PARTIAL POWER</p>
+                  <strong>Reduced-thrust eligibility</strong>
+                  <p>
+                    These confirmations are required by the source procedure. Aeronca is the only configuration with source-authorized reduced-N1 interpolation in the current package.
+                  </p>
+                </header>
+
+                <label className={styles.setupField}>
+                  <span>Thrust reversers</span>
+                  <select
+                    aria-label="Partial Power thrust reverser configuration"
+                    onChange={(event) => setPartialPowerThrustReversers(
+                      event.target.value as "unknown" | "none" | "aeronca" | "tr4000",
+                    )}
+                    value={partialPowerThrustReversers}
+                  >
+                    <option value="unknown">Select installed configuration</option>
+                    <option value="aeronca">Aeronca thrust reversers</option>
+                    <option value="none">Without thrust reversers</option>
+                    <option value="tr4000">TR-4000 thrust reversers</option>
+                  </select>
+                  <small>No configuration is inferred from aircraft name, serial number or simulator variant.</small>
+                </label>
+
+                <div className={styles.eligibilityChecks}>
+                  <label>
+                    <input
+                      checked={partialPowerRunwayDryHardPaved}
+                      onChange={(event) => setPartialPowerRunwayDryHardPaved(event.target.checked)}
+                      type="checkbox"
+                    />
+                    <span>Runway is dry and hard-paved</span>
+                  </label>
+                  <label>
+                    <input
+                      checked={partialPowerAntiSkidOperative}
+                      onChange={(event) => setPartialPowerAntiSkidOperative(event.target.checked)}
+                      type="checkbox"
+                    />
+                    <span>Anti-skid is ON and operative</span>
+                  </label>
+                  <label>
+                    <input
+                      checked={partialPowerFullRatedTakeoffWithin30Days}
+                      onChange={(event) => setPartialPowerFullRatedTakeoffWithin30Days(event.target.checked)}
+                      type="checkbox"
+                    />
+                    <span>Full-rated-thrust takeoff accomplished within preceding 30 days</span>
+                  </label>
+                </div>
+
+                <p className={styles.partialPowerSourceNote}>
+                  Anti-ice must remain OFF. The current preview also requires verified TORA + ASDA and a source-backed runway wind component.
+                </p>
+              </section>
+            ) : null}
+
+            <details
+              className={styles.declaredDistanceDetails}
+              open={thrustMode === "partial-power" ? true : undefined}
+            >
+              <summary>
+                {thrustMode === "partial-power"
+                  ? "Declared-distance details · required for Partial Power"
+                  : "Declared-distance details"}
+              </summary>
               <label className={styles.setupField}>
                 <span>ASDA <small>only when separately declared</small></span>
                 <span className={styles.inputWithUnit}>
@@ -352,11 +534,11 @@ export function FtPerformanceOperationPresentation({
                   <span>Latest METAR is available without replacing manual/applied values automatically.</span>
                   <button
                     className={styles.inlineAction}
-                    disabled={busy || Boolean(result && !canCalculate)}
+                    disabled={busy || Boolean(hasDisplayedCalculation && !canCalculate)}
                     onClick={applyLatestMetar}
                     type="button"
                   >
-                    {result ? "Apply latest & recalculate" : "Use latest METAR"}
+                    {hasDisplayedCalculation ? "Apply latest & recalculate" : "Use latest METAR"}
                   </button>
                 </div>
               ) : null}
@@ -451,14 +633,20 @@ export function FtPerformanceOperationPresentation({
             >
               {busy
                 ? "Calculating…"
-                : result
-                  ? "Recalculate Takeoff"
-                  : "Calculate Takeoff"}
+                : thrustMode === "partial-power"
+                  ? partialPowerPreview
+                    ? "Recalculate Partial Power Preview"
+                    : "Calculate Partial Power Preview"
+                  : result
+                    ? "Recalculate Takeoff"
+                    : "Calculate Takeoff"}
             </button>
 
             {!canCalculate ? (
               <p className={styles.requirementNote}>
-                Select runway and provide valid Takeoff weight, flap configuration, QNH and OAT before calculating.
+                {thrustMode === "partial-power"
+                  ? "Select runway and thrust-reverser configuration, provide valid Takeoff weight/QNH/OAT, verify TORA + ASDA, and use weather with a source-backed runway wind before evaluating Partial Power."
+                  : "Select runway and provide valid Takeoff weight, flap configuration, QNH and OAT before calculating."}
               </p>
             ) : null}
           </section>
@@ -467,9 +655,13 @@ export function FtPerformanceOperationPresentation({
             <header className={styles.resultHeader}>
               <div>
                 <p className={styles.eyebrow}>RESULT</p>
-                <h2>Takeoff</h2>
+                <h2>{thrustMode === "partial-power" ? "Takeoff · Partial Power" : "Takeoff"}</h2>
               </div>
-              {result ? (
+              {thrustMode === "partial-power" ? (
+                <span className={styles.resultBadgeStale}>
+                  SOURCE CHECK
+                </span>
+              ) : result ? (
                 <span className={stale ? styles.resultBadgeStale : styles.resultBadge}>
                   {stale ? "RECALCULATE" : "CURRENT INPUTS"}
                 </span>
