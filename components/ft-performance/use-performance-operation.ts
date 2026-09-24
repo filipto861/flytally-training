@@ -311,7 +311,11 @@ function useTakeoffPerformanceOperation(
       }
 
       const sameDeparture = stored.context.runway.airportIcao === current.departure.icao;
-      setRunwayIdentifier(sameDeparture ? stored.context.runway.identifier : "");
+      setRunwayIdentifierState(sameDeparture ? stored.context.runway.identifier : "");
+      // Declared distances are not dependencies of the current full-rated
+      // Takeoff snapshot, so they are intentionally not restored from it.
+      setToraFt("");
+      setAsdaFt("");
       setTakeoffWeight(String(stored.context.weight.value));
       setTakeoffWeightUnit(stored.context.weight.unit);
       setFlaps(stored.context.configuration.flaps);
