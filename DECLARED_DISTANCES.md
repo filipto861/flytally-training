@@ -68,9 +68,26 @@ Important boundary:
 - the UI displays the resolved declared takeoff limit only when both fields are present and valid;
 - physical runway length remains display/context only.
 
+## Provider adapter boundary
+
+A provider-neutral adapter is now defined in `lib/aviation/declared-distance-provider.ts`.
+
+The adapter requires an explicit airport/runway query identity and refuses to bind a payload for a different airport or runway. Provider responses may be complete or partial; missing ASDA/TORA stays missing and is never synthesized from another declared-distance field or from physical runway geometry.
+
+Provider payloads preserve:
+- provider ID;
+- optional provider revision;
+- airport ICAO;
+- runway identifier;
+- individual TORA/ASDA/TODA/LDA values.
+
+Invalid values or provenance fail closed through the same generic declared-distance validator.
+
+No live authoritative provider is connected by this phase.
+
 ## Next implementation steps
 
-1. Validate the generic contract + operation-owned input boundary locally.
-2. Add a provider adapter boundary for future authoritative declared-distance data.
+1. Validate the provider adapter boundary locally.
+2. Close the declared-distance hardening PR if the targeted regression gate is green.
 3. When Partial Power is introduced, persist TORA/ASDA provenance and identity only in calculations that actually consume those inputs.
 4. Only then enable the Partial Power assumed-temperature solver.
