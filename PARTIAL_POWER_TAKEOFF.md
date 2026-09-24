@@ -165,6 +165,8 @@ Generic assumed-temperature selector is implemented in `lib/performance/assumed-
 
 Follow-up on `feat/performance-interpolation-loading`: the Learjet adapter now evaluates assumed-temperature candidates every **0.1°C** across the bounded published temperature envelope. Each candidate is still resolved through the governed Takeoff Weight Limit, V1, Takeoff Distance and supported wind grids. This removes artificial table-node stepping while preserving sparse-corner fail-closed behavior and no-extrapolation boundaries.
 
+PR #223 acceptance: targeted **134/134 PASS**, full Node **1186 total / 1185 PASS / 0 FAIL / 1 SKIP**, production build **PASS**, targeted browser **8/8 PASS**, full Playwright **388/388 PASS**.
+
 The Learjet adapter is accepted in `aircraft-data/learjet-35a/performance/partial-power-adapter.ts`. It:
 - evaluates bounded interpolated temperature candidates above ambient within the published Takeoff Weight Limit envelope;
 - binds Flaps 8° / 20° to their separate weight-limit, V1 and takeoff-distance sources;
