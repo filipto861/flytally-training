@@ -47,6 +47,8 @@ Latest completed functional phase:
 - P1.2 final gate: 1041 Node tests passed, 1 skipped, build passed, Playwright 360/360.
 - **P1.3 Canonical Performance operation controller — merged via PR #215**; Takeoff operation state now has one controller for setup, AVAILABLE/APPLIED weather, validity, calculation and V2 persistence.
 - P1.3 final gate: 1050 Node tests passed, 1 skipped, build passed, Playwright 364/364.
+- **P1.4 Flight Brief EFB home — merged via PR #216**; Flight Brief now surfaces canonical Takeoff status/results and opens the shared responsive Performance editor without creating a second calculator or persistence model.
+- P1.4 final gate: 1057 Node tests passed, 1 skipped, build passed, Playwright 368/368.
 
 ## Phase 1 — LEARN / EFB separation and Performance operation architecture
 
@@ -122,7 +124,7 @@ Weather rule:
 
 No Takeoff wind correction math in this phase.
 
-### P1.4 — Flight Brief becomes EFB home — IN PROGRESS · PR #216
+### P1.4 — Flight Brief becomes EFB home — COMPLETE · PR #216
 
 Flight Brief is the EFB landing surface.
 
@@ -134,7 +136,7 @@ Target behavior:
 - dedicated Performance page remains available;
 - desktop side drawer; iPad/mobile responsive sheet/full-height treatment.
 
-## B5 — Integrated Landing Performance — NEXT AFTER PHASE 1
+## B5 — Integrated Landing Performance — NEXT
 
 Destination-owned Landing workflow reusing the same operation architecture:
 
@@ -231,8 +233,8 @@ After Landing + wind + Partial Power:
 1. **P1.1 — LEARN / EFB split + Active Flight top-bar reconciliation** — COMPLETE · PR #211 + PR #213
 2. **P1.2 — Snapshot V2** — COMPLETE · PR #214
 3. **P1.3 — canonical Performance operation controller** — COMPLETE · PR #215
-4. **P1.4 — Flight Brief EFB home** — IN PROGRESS · PR #216
-5. B5 — Landing integration
+4. **P1.4 — Flight Brief EFB home** — COMPLETE · PR #216
+5. **B5 — Landing integration** — NEXT
 6. Takeoff wind source extraction + runtime
 7. Partial Power source extraction + solver/runtime
 8. Declared-distance provider/input hardening
