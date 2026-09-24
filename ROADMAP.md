@@ -381,7 +381,7 @@ The detailed future sequence is tracked in **Active implementation order** below
    - reopen this phase only if the applicable authoritative AFM/AFMS performance pages become available
 
 14. **Partial Power / Derated Takeoff operational enablement + pilot UI** — IN PROGRESS · source-gated
-   - **14.1 Thrust-mode UI + source-supported training preview — COMPLETE · PR #226 · READY FOR PRODUCTION**
+   - **14.1 Thrust-mode UI + source-supported training preview — COMPLETE · PR #226 · LIVE IN PRODUCTION**
      - explicit **Full Rated / Partial Power / Assumed Temperature** selector added; Full Rated remains the safe default
      - Partial Power requires explicit thrust-reverser configuration and never infers it from aircraft name, serial number or simulator variant
      - current preview supports the existing Aeronca source-backed path; no-reverser and TR-4000 remain fail-closed
@@ -397,6 +397,9 @@ The detailed future sequence is tracked in **Active implementation order** below
      - final full repository verify after the assertion fixes: **1197 total / 1196 PASS / 0 FAIL / 1 SKIP** · production build PASS
      - full Playwright browser acceptance on the runtime implementation: **388/388 PASS**
      - automated acceptance is green; product owner explicitly approved production merge on 2026-09-24 without a separate pre-merge manual Partial Power UI smoke
+     - merged to `main` in PR #226 · merge commit `b1c508fe4fcbe6e2fa185f4694e3c4818745ed83`
+     - production deployment `dpl_BDEuUEKaGrqokzYkyyb8YrPs1Vyn` reached **READY** and is aliased to `training.fly-tally.com`
+     - production readiness smoke: HTTP 200 · `status=ready` · operational profile true · source-governed release profile true
      - **follow-up:** manual-weather Partial Power currently has no manual runway-wind input. Add either explicit manual wind entry or an explicit source-safe zero-wind confirmation path before treating manual weather as complete for Partial Power
    - **14.2 Independent 25% rated-thrust source closure — BLOCKED**
      - FlightSafety requires thrust reduction <=25% of rated takeoff thrust for the existing ambient condition
