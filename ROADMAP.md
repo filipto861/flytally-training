@@ -246,7 +246,7 @@ Current UX follow-up on `feat/performance-interpolation-loading`:
 
 For the Learjet 35/36 takeoff-field-length chart topology, usable takeoff runway remains limited by the lower of authoritative/confirmed TORA and ASDA; TODA is not substituted.
 
-## Continuous performance interpolation + calculation feedback — IN PROGRESS · `feat/performance-interpolation-loading`
+## Continuous performance interpolation + calculation feedback — COMPLETE · PR #223
 
 User-facing goal: ordinary in-envelope inputs must not be forced onto table breakpoints.
 
@@ -333,13 +333,14 @@ After wind + Partial Power:
    - no-reverser and TR-4000 interpolation remain unauthorized
    - unresolved parenthesized cells remain fail-closed
    - acceptance: 56/56 targeted · full Node 1181 total / 1180 PASS / 1 SKIP · production build PASS
-11. **Continuous Performance interpolation + calculate feedback** — IN PROGRESS · `feat/performance-interpolation-loading`
+11. **Continuous Performance interpolation + calculate feedback** — COMPLETE · PR #223
    - bounded interpolation for all currently governed numeric grids remains enabled
    - Partial Power assumed-temperature search uses 0.1°C bounded interpolation rather than table-node stepping
    - fractional wind / weight / runway constraints covered by regression tests
    - TORA airport-db prefill is suggestion-only until verified; ASDA moved to advanced details
    - Takeoff + Landing calculate buttons paint disabled loading feedback before synchronous work
    - no extrapolation; Flaps 20 nonzero-wind remains source-blocked
+   - acceptance: targeted 134/134 · full Node 1186 total / 1185 PASS / 1 SKIP · build PASS · targeted browser 8/8 · full Playwright 388/388
 12. **Partial Power operational enablement** — SOURCE REVIEW / CONFIGURATION-SPECIFIC
    - P-6/P-6.1 explicitly impose a 7.7% N1 reduction limit for no-reverser/Aeronca schedules
    - FlightSafety separately states <=25% rated-takeoff-thrust reduction; do not invent an N1-to-thrust conversion
