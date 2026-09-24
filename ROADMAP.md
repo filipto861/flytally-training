@@ -235,13 +235,36 @@ Solver/runtime prerequisites:
 
 Physical runway surface length is not TORA/ASDA/TODA/LDA.
 
-The generic declared-distance contract now requires explicit per-value provenance and provides a fail-closed Learjet takeoff constraint of `min(TORA, ASDA)`. This contract is not yet wired into the existing full-rated Takeoff calculation.
+The generic declared-distance contract requires explicit per-value provenance and provides a fail-closed Learjet takeoff constraint of `min(TORA, ASDA)`. This contract is not a dependency of the existing full-rated Takeoff calculation.
 
-Until an authoritative declared-distance source exists:
-- display physical runway length only as context;
-- do not silently treat it as TORA or ASDA;
-- runway-limited/Partial Power calculations must use explicit TORA and ASDA inputs or a future authoritative provider;
-- for the Learjet 35/36 takeoff-field-length chart topology, usable takeoff runway is limited by the lower of TORA and ASDA; TODA is not substituted.
+Current UX follow-up on `feat/performance-interpolation-loading`:
+- selecting a runway prefills the visible TORA field from the bundled airport database physical runway length as a **suggestion only**;
+- the suggestion is explicitly labeled as non-authoritative and does not enter the declared-distance contract until the pilot confirms or edits it;
+- ASDA is moved out of the primary setup grid into declared-distance details;
+- ASDA is never silently assumed equal to TORA because a separately declared ASDA may differ;
+- a future authoritative declared-distance provider can replace the suggestion through the existing provider boundary.
+
+For the Learjet 35/36 takeoff-field-length chart topology, usable takeoff runway remains limited by the lower of authoritative/confirmed TORA and ASDA; TODA is not substituted.
+
+## Continuous performance interpolation + calculation feedback — IN PROGRESS · `feat/performance-interpolation-loading`
+
+User-facing goal: ordinary in-envelope inputs must not be forced onto table breakpoints.
+
+Rules:
+- every numeric source grid declared `linear-explicit` uses bounded interpolation between complete published source corners;
+- fractional pressure altitude, OAT, weight and supported wind values are accepted inside the source envelope;
+- Takeoff Distance / V1 Flaps 8 wind transforms retain signed-wind interpolation between their published headwind/tailwind nodes;
+- Partial Power assumed temperature is searched continuously at 0.1°C resolution across the published Takeoff Weight Limit envelope instead of only at table temperature nodes;
+- Aeronca reduced N1 may follow the W1072-authorized bounded interpolation already established in PP.3;
+- runway length is a continuous constraint, not a lookup breakpoint;
+- sparse source regions still fail closed;
+- **no extrapolation** is introduced;
+- missing configuration-specific source data is not fabricated. In particular, Flaps 20 nonzero-wind Takeoff correction remains fail-closed until a verified source is digitized.
+
+UX:
+- Calculate/Recalculate yields one animation frame before synchronous computation so the disabled loading state is visible;
+- Takeoff and Landing Calculate actions expose `aria-busy`, “Calculating…” and a spinner while calculation is pending;
+- duplicate calculation clicks are blocked while pending.
 
 ## Later product work
 
@@ -310,7 +333,15 @@ After wind + Partial Power:
    - no-reverser and TR-4000 interpolation remain unauthorized
    - unresolved parenthesized cells remain fail-closed
    - acceptance: 56/56 targeted · full Node 1181 total / 1180 PASS / 1 SKIP · production build PASS
-11. **Partial Power operational thrust-limit closure** — BLOCKED ON SOURCE
-   - independent FlightSafety <=25% rated-takeoff-thrust reduction check still requires a validated thrust relationship/check
-   - do not convert the 25% thrust limit into an N1-percent approximation
-   - operational Partial Power UI/Snapshot remains disabled until this source dependency is resolved
+11. **Continuous Performance interpolation + calculate feedback** — IN PROGRESS · `feat/performance-interpolation-loading`
+   - bounded interpolation for all currently governed numeric grids remains enabled
+   - Partial Power assumed-temperature search uses 0.1°C bounded interpolation rather than table-node stepping
+   - fractional wind / weight / runway constraints covered by regression tests
+   - TORA airport-db prefill is suggestion-only until verified; ASDA moved to advanced details
+   - Takeoff + Landing calculate buttons paint disabled loading feedback before synchronous work
+   - no extrapolation; Flaps 20 nonzero-wind remains source-blocked
+12. **Partial Power operational enablement** — SOURCE REVIEW / CONFIGURATION-SPECIFIC
+   - P-6/P-6.1 explicitly impose a 7.7% N1 reduction limit for no-reverser/Aeronca schedules
+   - FlightSafety separately states <=25% rated-takeoff-thrust reduction; do not invent an N1-to-thrust conversion
+   - Aeronca has W1072 interpolation authority and is the first candidate for operational enablement after remaining applicability interpretation is closed
+   - no-reverser parenthesized/interpolation semantics and TR-4000 source gaps remain fail-closed
