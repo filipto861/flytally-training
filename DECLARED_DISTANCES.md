@@ -1,6 +1,6 @@
 # Runway Declared Distances
 
-**Status:** Contract hardening in progress  
+**Status:** Complete · PR #220  
 **Branch:** `feat/declared-distance-contract`
 
 ## Purpose
@@ -87,11 +87,17 @@ No live authoritative provider is connected by this phase.
 
 ## Acceptance status
 
-Local contract acceptance on 2026-09-24:
-- `npm run typecheck` PASS;
-- declared-distance/provider/operation/runway/B4 targeted suite **31/31 PASS**.
+Declared-distance hardening passed its complete acceptance gate on 2026-09-24:
 
-A responsive browser acceptance is now staged to verify that:
+- `npm run typecheck` PASS;
+- declared-distance/provider/operation/runway/B4 targeted suite **31/31 PASS**;
+- production build PASS;
+- targeted responsive browser acceptance **4/4 PASS**;
+- full Node suite **1118 total / 1117 PASS / 0 FAIL / 1 SKIP**;
+- final production build PASS;
+- full Playwright suite **388/388 PASS**.
+
+The browser acceptance verified that:
 - TORA/ASDA remain optional for existing full-rated Takeoff;
 - `min(TORA, ASDA)` is presented correctly;
 - the current full-rated result remains unchanged;
@@ -100,7 +106,6 @@ A responsive browser acceptance is now staged to verify that:
 
 ## Next implementation steps
 
-1. Complete the targeted browser/build gate.
-2. Close the declared-distance hardening PR.
-3. When Partial Power is introduced, persist TORA/ASDA provenance and identity only in calculations that actually consume those inputs.
-4. Only then enable the Partial Power assumed-temperature solver.
+1. Keep declared-distance provider integration behind the generic provider boundary until an authoritative provider is chosen.
+2. When Partial Power is introduced, persist TORA/ASDA provenance and identity only in calculations that actually consume those inputs.
+3. Continue with the Partial Power assumed-temperature solver/runtime contract.
