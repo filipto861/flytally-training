@@ -39,7 +39,7 @@ export type PartialPowerTrainingPreviewResult =
       readonly reason: string;
     };
 
-const aeroncaExtract = aeroncaExtractJson as PartialPowerN1SourceExtract;
+const aeroncaExtract = aeroncaExtractJson as unknown as PartialPowerN1SourceExtract;
 
 /**
  * Source-gated training preview boundary for Partial Power.
