@@ -137,6 +137,10 @@ export function FtPerformanceOperationPresentation({
     applyLatestMetar,
   } = operation;
 
+  const hasDisplayedCalculation = thrustMode === "partial-power"
+    ? Boolean(partialPowerPreview)
+    : Boolean(result);
+
   const partialPowerContent = !partialPowerPreview ? (
     <div className={styles.resultEmpty}>
       <span>PARTIAL POWER</span>
@@ -240,7 +244,7 @@ export function FtPerformanceOperationPresentation({
     <section
       className={styles.presentation}
       aria-label="Performance"
-      data-empty={current && result ? "false" : "true"}
+      data-empty={current && hasDisplayedCalculation ? "false" : "true"}
       data-performance-view={view}
       data-performance-operation={operation.operation}
     >
@@ -530,11 +534,11 @@ export function FtPerformanceOperationPresentation({
                   <span>Latest METAR is available without replacing manual/applied values automatically.</span>
                   <button
                     className={styles.inlineAction}
-                    disabled={busy || Boolean(result && !canCalculate)}
+                    disabled={busy || Boolean(hasDisplayedCalculation && !canCalculate)}
                     onClick={applyLatestMetar}
                     type="button"
                   >
-                    {result ? "Apply latest & recalculate" : "Use latest METAR"}
+                    {hasDisplayedCalculation ? "Apply latest & recalculate" : "Use latest METAR"}
                   </button>
                 </div>
               ) : null}
