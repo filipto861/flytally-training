@@ -318,16 +318,20 @@ export function computePerformance(
     };
   };
 
-  const v1 = applyWindCorrection(
-    summary.v1,
-    flap?.windCorrection?.v1?.datasetId,
-    "V1",
-  );
-  const takeoffDistance = applyWindCorrection(
-    summary.takeoffDistance,
-    flap?.windCorrection?.takeoffDistance?.datasetId,
-    "Takeoff Distance",
-  );
+  const v1 = flap?.windCorrection
+    ? applyWindCorrection(
+        summary.v1,
+        flap.windCorrection.v1?.datasetId,
+        "V1",
+      )
+    : summary.v1;
+  const takeoffDistance = flap?.windCorrection
+    ? applyWindCorrection(
+        summary.takeoffDistance,
+        flap.windCorrection.takeoffDistance?.datasetId,
+        "Takeoff Distance",
+      )
+    : summary.takeoffDistance;
 
   return {
     context,
