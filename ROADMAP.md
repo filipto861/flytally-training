@@ -162,7 +162,7 @@ B5 intentionally does not apply unsupported wind/slope/declared-distance correct
 
 ## B6 — Takeoff wind correction — IN PROGRESS · branch `feat/b6-takeoff-wind`
 
-B6 generic runtime gate (2026-09-24): `npm run typecheck` PASS; targeted B4/B8/B6 Node suite **38/38 PASS** on local Windows checkout. B6.1 source-grid gate then passed **48/48** with typecheck PASS. Flaps 8 source extraction/runtime are accepted; canonical operation integration (B6.3) is now staged for its local gate.
+B6 generic runtime gate (2026-09-24): `npm run typecheck` PASS; targeted B4/B8/B6 Node suite **38/38 PASS** on local Windows checkout. B6.1 source-grid gate then passed **48/48** with typecheck PASS. B6.3 canonical operation integration passed its targeted local gate at **81/81 PASS** with typecheck PASS on head `221097dd9ee46d7f49edfe9faecbac0b069eccbc`. Post-gate review then hardened backward compatibility so aircraft that do not declare a wind-correction contract retain their governed baseline, while Learjet Flaps 20 explicitly opts into fail-closed wind behavior pending source verification. B6.4 deterministic browser acceptance is staged and awaits the final local/full regression gate.
 
 Source topology is frozen as two independent post-baseline transforms:
 
