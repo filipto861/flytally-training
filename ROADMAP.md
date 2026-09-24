@@ -380,7 +380,18 @@ The detailed future sequence is tracked in **Active implementation order** below
    - values outside the governed source envelope remain unavailable / fail-closed
    - reopen this phase only if the applicable authoritative AFM/AFMS performance pages become available
 
-14. **Partial Power / Derated Takeoff operational enablement + pilot UI** — BLOCKED ON SOURCE CLOSURE
+14. **Partial Power / Derated Takeoff operational enablement + pilot UI** — IN PROGRESS · source-gated
+   - **14.1 Thrust-mode UI + source-supported training preview — IN PROGRESS**
+     - add explicit Full Rated / Partial Power selector
+     - keep Full Rated as the only operationally accepted path until source closure
+     - Partial Power may expose the existing source-supported Aeronca calculation only with an explicit non-operational/source-check-incomplete state; it must never masquerade as a normal green operational result
+   - **14.2 Independent 25% rated-thrust source closure — BLOCKED**
+     - FlightSafety requires thrust reduction <=25% of rated takeoff thrust for the existing ambient condition
+     - CL-102B P-6/P-6.1 provide configuration-specific reduced-N1 schedules and a 7.7 N1-point cap, but no verified N1-to-rated-thrust relationship has been found
+     - AFMS W1072 authorizes Aeronca Partial Power N1 interpolation and directs crews back to the basic AFM Partial Power procedure; it does not independently close the 25% check
+   - **14.3 Snapshot V2 + stale dependency integration — PLANNED AFTER 14.1**
+   - **14.4 Operational enablement — BLOCKED UNTIL 14.2**
+
    - add an explicit Takeoff thrust-mode selector to the operational Performance UI:
      - **Full Rated** — current behavior
      - **Partial Power / Assumed Temperature** — source-governed reduced-thrust path
