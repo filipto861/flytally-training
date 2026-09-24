@@ -295,8 +295,8 @@ After wind + Partial Power:
 9. **Partial Power assumed-temperature prerequisites / solver contract** — IN PROGRESS · `feat/partial-power-assumed-temp-solver`
    - Takeoff Weight Limits Flaps 8° / 20° — ACCEPTED locally
    - prerequisite gate: typecheck PASS + 69/69 targeted tests
-   - generic assumed-temperature selector contract — STAGED
+   - generic assumed-temperature selector contract — ACCEPTED locally (90/90 PP.2/B6/B7/B8/PP.1 gate)
    - explicit lower-of-TORA/ASDA, ambient + assumed weight-limit checks, no invented temperatures
-   - aircraft adapter must preserve B6 wind correction and source dataset identity
-   - operational Partial Power N1 remains blocked on unresolved P-6/P-6.1 parenthesized semantics
+   - Learjet candidate adapter with Flaps 8 B6 wind preservation / Flaps 20 nonzero-wind fail-closed — STAGED
+   - adapter remains N1-free and operational Partial Power N1 stays blocked on unresolved P-6/P-6.1 parenthesized semantics
 10. Partial Power solver/runtime integration after PP.2 acceptance
