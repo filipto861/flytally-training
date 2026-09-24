@@ -279,6 +279,6 @@ After wind + Partial Power:
    - source contract + applicability inventory
    - three configuration-specific N1 schedules
    - assumed-temperature source semantics
-   - solver remains blocked on declared-distance/TORA workflow
-8. Declared-distance provider/input hardening
+   - solver remains blocked on declared-distance TORA/ASDA workflow
+8. Declared-distance provider/input hardening (TORA + ASDA)
 9. Partial Power solver/runtime after declared-distance workflow is frozen
