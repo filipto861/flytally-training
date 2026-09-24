@@ -1,6 +1,6 @@
 # Partial Power / Reduced Thrust Takeoff
 
-**Status:** PP.3 reduced-N1 source/runtime boundary in progress  
+**Status:** PP.3 reduced-N1 source/runtime boundary complete · PR #222  
 **Branch:** `feat/partial-power-reduced-n1-boundary`  
 **Scope:** Learjet 35A/36A source-backed Partial Power prerequisites and solver contract. No operational Partial Power output is enabled yet.
 
@@ -184,7 +184,7 @@ Aircraft adapter inputs are:
 
 The solver must return no solution when any required operational dependency is unavailable or unsupported.
 
-### PP.3 — reduced-N1 source/runtime boundary — IN PROGRESS
+### PP.3 — reduced-N1 source/runtime boundary — COMPLETE · PR #222
 
 Declared-distance TORA/ASDA is frozen by PR #220 and the assumed-temperature candidate engine is merged via PR #221. Operational Partial Power output remains blocked on the reduced-N1 source/runtime boundary.
 
@@ -231,15 +231,26 @@ It returns `source-supported`, not operational `ready`. FlightSafety also requir
 
 Current source review still contains no authoritative legend defining the P-6/P-6.1 parentheses. Until such a definition is found, those cells remain blocked.
 
+PP.3 final acceptance on 2026-09-24:
+- targeted PP.2/PP.3/PP.1 regression: **56/56 PASS**;
+- full Node suite: **1181 total / 1180 PASS / 0 FAIL / 1 SKIP**;
+- production build: **PASS**;
+- no UI or current operational Takeoff path was enabled by PP.3.
+
+The remaining blocker is deliberately outside PP.3: the FlightSafety requirement that thrust reduction not exceed **25% of rated takeoff thrust for the existing ambient condition**. No N1-percent shortcut is permitted without source-backed evidence establishing that relationship.
+
+For eventual operational enablement:
 1. find the highest source-supported Assumed Temperature satisfying the runway and weight constraint;
 2. calculate V1 using that Assumed Temperature;
 3. calculate reduced N1 from the applicable configuration-specific N1 schedule;
 4. apply all source limits and fail-closed boundaries;
 5. persist the assumed temperature, configuration identity, TORA, ASDA, applied wind and source dataset identities in Snapshot V2.
 
-### PP.4 — acceptance
+### PP.4 — operational enablement / acceptance — BLOCKED ON SOURCE
 
-Required acceptance includes:
+Do not begin operational UI/Snapshot enablement until the independent 25% rated-takeoff-thrust requirement can be evaluated from authoritative source data.
+
+Required acceptance will include:
 
 - exact source-node tests for all three N1 schedules;
 - bounded interpolation tests only where explicitly authorized;
