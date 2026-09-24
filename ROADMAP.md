@@ -209,7 +209,7 @@ The baseline remains the existing governed zero-wind dry-runway calculation. Win
 - regression coverage proving VR/V2/N1 and Landing are unchanged;
 - desktop/iPad/mobile Playwright acceptance before merge.
 
-## Partial Power / Reduced Thrust Takeoff — PLANNED AFTER B6
+## Partial Power / Reduced Thrust Takeoff — SOURCE EXTRACTION IN PROGRESS · branch `feat/partial-power-source-contract`
 
 Raw source extraction may proceed independently after B6 source/runtime boundaries are frozen.
 
@@ -228,7 +228,7 @@ Solver/runtime waits until:
 - Snapshot V2/weather applied-state exists;
 - wind datasets are authoritative;
 - applicability contract is complete;
-- declared-distance/TORA workflow is frozen.
+- declared-distance TORA/ASDA workflow is frozen.
 
 ## Runway declared distances
 
@@ -236,8 +236,9 @@ Physical runway surface length is not TORA/ASDA/TODA/LDA.
 
 Until an authoritative declared-distance source exists:
 - display physical runway length only as context;
-- do not silently treat it as TORA;
-- runway-limited/Partial Power calculations must use an explicit declared-distance input or future authoritative provider.
+- do not silently treat it as TORA or ASDA;
+- runway-limited/Partial Power calculations must use explicit TORA and ASDA inputs or a future authoritative provider;
+- for the Learjet 35/36 takeoff-field-length chart topology, usable takeoff runway is limited by the lower of TORA and ASDA; TODA is not substituted.
 
 ## Later product work
 
@@ -275,5 +276,11 @@ After wind + Partial Power:
    - B6.2 generic correction runtime — COMPLETE
    - B6.3 canonical Takeoff operation integration — COMPLETE
    - B6.4 acceptance — COMPLETE
-7. Partial Power source extraction + solver/runtime
-8. Declared-distance provider/input hardening
+7. **Partial Power source extraction** — COMPLETE · PR #219
+   - source contract + applicability inventory — COMPLETE
+   - three configuration-specific N1 schedules — COMPLETE
+   - assumed-temperature source semantics captured without guessing unresolved parentheses
+   - local gate: typecheck PASS + 8/8 targeted source tests
+   - solver remains blocked on declared-distance TORA/ASDA workflow
+8. Declared-distance provider/input hardening (TORA + ASDA)
+9. Partial Power solver/runtime after declared-distance workflow is frozen
