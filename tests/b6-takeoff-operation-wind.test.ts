@@ -14,6 +14,7 @@ import {
 import type { FlightPerformanceContext } from "../lib/performance/context.ts";
 import { diffTakeoffSnapshotV2Dependencies } from "../lib/performance/snapshot-v2.ts";
 import type { PerformanceDataset } from "../lib/universal-aircraft-content.ts";
+import { browserTrainingPerformancePackage } from "../lib/browser-training-fixture.ts";
 import type { MetarSnapshot } from "../lib/weather/metar-types.ts";
 
 const load = (file: string): PerformanceDataset => JSON.parse(
@@ -137,6 +138,40 @@ test("B6.3 missing applied runway wind fails closed only for wind-corrected outp
   assert.match(result.v1.reason ?? "", /runway wind component/i);
   assert.equal(result.takeoffDistance.status, "missing");
   assert.match(result.takeoffDistance.reason ?? "", /runway wind component/i);
+});
+
+test("B6.3 aircraft without a declared wind-correction contract preserve their governed baseline", () => {
+  const browserDefinition = browserTrainingPerformancePackage.takeoffCalculator;
+  assert.ok(browserDefinition);
+  const browserContext: FlightPerformanceContext = {
+    activeFlightId: "flight-browser-b6",
+    aircraftId: "browser-ci-aircraft",
+    dependencySnapshotId: "afd1:browser-b6",
+    weight: { value: 12000, unit: "lb" },
+    runway: { identifier: "24", airportIcao: "LKPR" },
+    configuration: { flaps: "8", antiIce: false },
+    weather: { qnh: 1013.25, oat: 15 },
+  };
+
+  for (const runwayWindComponentKt of [undefined, 12] as const) {
+    const result = computePerformance(
+      browserContext,
+      browserTrainingPerformancePackage.content.datasets,
+      browserDefinition,
+      {
+        pressureAltitudeFt: 1000,
+        oatC: 15,
+        ...(runwayWindComponentKt === undefined ? {} : { runwayWindComponentKt }),
+      },
+    );
+
+    assert.equal(result.v1.status, "ready");
+    assert.equal(result.v1.value, 110);
+    assert.equal(result.takeoffDistance.status, "ready");
+    assert.equal(result.takeoffDistance.value, 3100);
+    assert.equal(result.vr.value, 115);
+    assert.equal(result.v2.value, 125);
+  }
 });
 
 test("B6.3 Flaps 20 is zero-wind capable but nonzero wind remains fail-closed pending source verification", () => {
