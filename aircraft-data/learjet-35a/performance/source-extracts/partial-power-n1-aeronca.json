@@ -1,0 +1,717 @@
+{
+  "schemaVersion": 1,
+  "status": "source-extract-only",
+  "id": "learjet-35a-partial-power-n1-aeronca-source",
+  "title": "Learjet 35A/36A Partial Power Takeoff N1 · With Aeronca Thrust Reversers",
+  "configuration": {
+    "thrustReversers": "aeronca",
+    "label": "With Aeronca Thrust Reversers"
+  },
+  "source": {
+    "manualId": "CL-102B",
+    "document": "Learjet 35/36 Crew Checklist and Quick Reference Handbook",
+    "pageLabel": "P-6.1",
+    "revision": "April 2001",
+    "section": "Performance Data",
+    "title": "PARTIAL POWER TAKEOFF N1 SETTING · ANTI-ICE OFF"
+  },
+  "axes": {
+    "ambientTemperatureF": [
+      80,
+      70,
+      60,
+      50,
+      40,
+      30,
+      20,
+      10,
+      0,
+      -10,
+      -20,
+      -30,
+      -40
+    ],
+    "assumedTemperatureF": [
+      10,
+      20,
+      30,
+      40,
+      50,
+      60,
+      70,
+      80,
+      90,
+      100,
+      110,
+      120
+    ]
+  },
+  "output": {
+    "key": "reducedN1",
+    "unit": "%N1",
+    "sourcePrecision": 0.1
+  },
+  "cells": [
+    {
+      "ambientTemperatureF": 80,
+      "assumedTemperatureF": 80,
+      "n1": 94.2,
+      "sourceStyle": "parenthesized"
+    },
+    {
+      "ambientTemperatureF": 80,
+      "assumedTemperatureF": 90,
+      "n1": 91.9,
+      "sourceStyle": "parenthesized"
+    },
+    {
+      "ambientTemperatureF": 80,
+      "assumedTemperatureF": 100,
+      "n1": 89.6
+    },
+    {
+      "ambientTemperatureF": 80,
+      "assumedTemperatureF": 110,
+      "n1": 87.2
+    },
+    {
+      "ambientTemperatureF": 80,
+      "assumedTemperatureF": 120,
+      "n1": 84.6
+    },
+    {
+      "ambientTemperatureF": 70,
+      "assumedTemperatureF": 70,
+      "n1": 95.3,
+      "sourceStyle": "parenthesized"
+    },
+    {
+      "ambientTemperatureF": 70,
+      "assumedTemperatureF": 80,
+      "n1": 93.3
+    },
+    {
+      "ambientTemperatureF": 70,
+      "assumedTemperatureF": 90,
+      "n1": 91.1
+    },
+    {
+      "ambientTemperatureF": 70,
+      "assumedTemperatureF": 100,
+      "n1": 88.8
+    },
+    {
+      "ambientTemperatureF": 70,
+      "assumedTemperatureF": 110,
+      "n1": 86.3
+    },
+    {
+      "ambientTemperatureF": 70,
+      "assumedTemperatureF": 120,
+      "n1": 83.8
+    },
+    {
+      "ambientTemperatureF": 60,
+      "assumedTemperatureF": 60,
+      "n1": 96.3,
+      "sourceStyle": "parenthesized"
+    },
+    {
+      "ambientTemperatureF": 60,
+      "assumedTemperatureF": 70,
+      "n1": 94.3
+    },
+    {
+      "ambientTemperatureF": 60,
+      "assumedTemperatureF": 80,
+      "n1": 92.4
+    },
+    {
+      "ambientTemperatureF": 60,
+      "assumedTemperatureF": 90,
+      "n1": 90.3
+    },
+    {
+      "ambientTemperatureF": 60,
+      "assumedTemperatureF": 100,
+      "n1": 88
+    },
+    {
+      "ambientTemperatureF": 60,
+      "assumedTemperatureF": 110,
+      "n1": 85.5
+    },
+    {
+      "ambientTemperatureF": 60,
+      "assumedTemperatureF": 120,
+      "n1": 83
+    },
+    {
+      "ambientTemperatureF": 50,
+      "assumedTemperatureF": 50,
+      "n1": 97.2,
+      "sourceStyle": "parenthesized"
+    },
+    {
+      "ambientTemperatureF": 50,
+      "assumedTemperatureF": 60,
+      "n1": 95.3
+    },
+    {
+      "ambientTemperatureF": 50,
+      "assumedTemperatureF": 70,
+      "n1": 93.4
+    },
+    {
+      "ambientTemperatureF": 50,
+      "assumedTemperatureF": 80,
+      "n1": 91.5
+    },
+    {
+      "ambientTemperatureF": 50,
+      "assumedTemperatureF": 90,
+      "n1": 89.4
+    },
+    {
+      "ambientTemperatureF": 50,
+      "assumedTemperatureF": 100,
+      "n1": 87.2
+    },
+    {
+      "ambientTemperatureF": 50,
+      "assumedTemperatureF": 110,
+      "n1": 84.8
+    },
+    {
+      "ambientTemperatureF": 50,
+      "assumedTemperatureF": 120,
+      "n1": 82.2
+    },
+    {
+      "ambientTemperatureF": 40,
+      "assumedTemperatureF": 40,
+      "n1": 98,
+      "sourceStyle": "parenthesized"
+    },
+    {
+      "ambientTemperatureF": 40,
+      "assumedTemperatureF": 50,
+      "n1": 96.1
+    },
+    {
+      "ambientTemperatureF": 40,
+      "assumedTemperatureF": 60,
+      "n1": 94.3
+    },
+    {
+      "ambientTemperatureF": 40,
+      "assumedTemperatureF": 70,
+      "n1": 92.5
+    },
+    {
+      "ambientTemperatureF": 40,
+      "assumedTemperatureF": 80,
+      "n1": 90.6
+    },
+    {
+      "ambientTemperatureF": 40,
+      "assumedTemperatureF": 90,
+      "n1": 88.5
+    },
+    {
+      "ambientTemperatureF": 40,
+      "assumedTemperatureF": 100,
+      "n1": 86.3
+    },
+    {
+      "ambientTemperatureF": 40,
+      "assumedTemperatureF": 110,
+      "n1": 84
+    },
+    {
+      "ambientTemperatureF": 40,
+      "assumedTemperatureF": 120,
+      "n1": 81.4
+    },
+    {
+      "ambientTemperatureF": 30,
+      "assumedTemperatureF": 30,
+      "n1": 98.5,
+      "sourceStyle": "parenthesized"
+    },
+    {
+      "ambientTemperatureF": 30,
+      "assumedTemperatureF": 40,
+      "n1": 96.9
+    },
+    {
+      "ambientTemperatureF": 30,
+      "assumedTemperatureF": 50,
+      "n1": 95.1
+    },
+    {
+      "ambientTemperatureF": 30,
+      "assumedTemperatureF": 60,
+      "n1": 93.4
+    },
+    {
+      "ambientTemperatureF": 30,
+      "assumedTemperatureF": 70,
+      "n1": 91.6
+    },
+    {
+      "ambientTemperatureF": 30,
+      "assumedTemperatureF": 80,
+      "n1": 89.7
+    },
+    {
+      "ambientTemperatureF": 30,
+      "assumedTemperatureF": 90,
+      "n1": 87.6
+    },
+    {
+      "ambientTemperatureF": 30,
+      "assumedTemperatureF": 100,
+      "n1": 85.4
+    },
+    {
+      "ambientTemperatureF": 30,
+      "assumedTemperatureF": 110,
+      "n1": 83.1
+    },
+    {
+      "ambientTemperatureF": 30,
+      "assumedTemperatureF": 120,
+      "n1": 80.6
+    },
+    {
+      "ambientTemperatureF": 20,
+      "assumedTemperatureF": 20,
+      "n1": 98.9,
+      "sourceStyle": "parenthesized"
+    },
+    {
+      "ambientTemperatureF": 20,
+      "assumedTemperatureF": 30,
+      "n1": 97.5
+    },
+    {
+      "ambientTemperatureF": 20,
+      "assumedTemperatureF": 40,
+      "n1": 95.9
+    },
+    {
+      "ambientTemperatureF": 20,
+      "assumedTemperatureF": 50,
+      "n1": 94.2
+    },
+    {
+      "ambientTemperatureF": 20,
+      "assumedTemperatureF": 60,
+      "n1": 92.5
+    },
+    {
+      "ambientTemperatureF": 20,
+      "assumedTemperatureF": 70,
+      "n1": 90.7
+    },
+    {
+      "ambientTemperatureF": 20,
+      "assumedTemperatureF": 80,
+      "n1": 88.8
+    },
+    {
+      "ambientTemperatureF": 20,
+      "assumedTemperatureF": 90,
+      "n1": 86.7
+    },
+    {
+      "ambientTemperatureF": 20,
+      "assumedTemperatureF": 100,
+      "n1": 84.5
+    },
+    {
+      "ambientTemperatureF": 20,
+      "assumedTemperatureF": 110,
+      "n1": 82.2
+    },
+    {
+      "ambientTemperatureF": 20,
+      "assumedTemperatureF": 120,
+      "n1": 79.8
+    },
+    {
+      "ambientTemperatureF": 10,
+      "assumedTemperatureF": 10,
+      "n1": 99.2,
+      "sourceStyle": "parenthesized"
+    },
+    {
+      "ambientTemperatureF": 10,
+      "assumedTemperatureF": 20,
+      "n1": 98
+    },
+    {
+      "ambientTemperatureF": 10,
+      "assumedTemperatureF": 30,
+      "n1": 96.5
+    },
+    {
+      "ambientTemperatureF": 10,
+      "assumedTemperatureF": 40,
+      "n1": 94.9
+    },
+    {
+      "ambientTemperatureF": 10,
+      "assumedTemperatureF": 50,
+      "n1": 93.3
+    },
+    {
+      "ambientTemperatureF": 10,
+      "assumedTemperatureF": 60,
+      "n1": 91.5
+    },
+    {
+      "ambientTemperatureF": 10,
+      "assumedTemperatureF": 70,
+      "n1": 89.7
+    },
+    {
+      "ambientTemperatureF": 10,
+      "assumedTemperatureF": 80,
+      "n1": 87.9
+    },
+    {
+      "ambientTemperatureF": 10,
+      "assumedTemperatureF": 90,
+      "n1": 85.8
+    },
+    {
+      "ambientTemperatureF": 10,
+      "assumedTemperatureF": 100,
+      "n1": 83.7
+    },
+    {
+      "ambientTemperatureF": 10,
+      "assumedTemperatureF": 110,
+      "n1": 81.4
+    },
+    {
+      "ambientTemperatureF": 10,
+      "assumedTemperatureF": 120,
+      "n1": 78.9
+    },
+    {
+      "ambientTemperatureF": 0,
+      "assumedTemperatureF": 10,
+      "n1": 98.5
+    },
+    {
+      "ambientTemperatureF": 0,
+      "assumedTemperatureF": 20,
+      "n1": 97
+    },
+    {
+      "ambientTemperatureF": 0,
+      "assumedTemperatureF": 30,
+      "n1": 95.5
+    },
+    {
+      "ambientTemperatureF": 0,
+      "assumedTemperatureF": 40,
+      "n1": 93.9
+    },
+    {
+      "ambientTemperatureF": 0,
+      "assumedTemperatureF": 50,
+      "n1": 92.3
+    },
+    {
+      "ambientTemperatureF": 0,
+      "assumedTemperatureF": 60,
+      "n1": 90.6
+    },
+    {
+      "ambientTemperatureF": 0,
+      "assumedTemperatureF": 70,
+      "n1": 88.8
+    },
+    {
+      "ambientTemperatureF": 0,
+      "assumedTemperatureF": 80,
+      "n1": 86.9
+    },
+    {
+      "ambientTemperatureF": 0,
+      "assumedTemperatureF": 90,
+      "n1": 84.9
+    },
+    {
+      "ambientTemperatureF": 0,
+      "assumedTemperatureF": 100,
+      "n1": 82.9
+    },
+    {
+      "ambientTemperatureF": 0,
+      "assumedTemperatureF": 110,
+      "n1": 80.6
+    },
+    {
+      "ambientTemperatureF": 0,
+      "assumedTemperatureF": 120,
+      "n1": 78.1
+    },
+    {
+      "ambientTemperatureF": -10,
+      "assumedTemperatureF": 10,
+      "n1": 97.3
+    },
+    {
+      "ambientTemperatureF": -10,
+      "assumedTemperatureF": 20,
+      "n1": 95.9
+    },
+    {
+      "ambientTemperatureF": -10,
+      "assumedTemperatureF": 30,
+      "n1": 94.4
+    },
+    {
+      "ambientTemperatureF": -10,
+      "assumedTemperatureF": 40,
+      "n1": 92.9
+    },
+    {
+      "ambientTemperatureF": -10,
+      "assumedTemperatureF": 50,
+      "n1": 91.3
+    },
+    {
+      "ambientTemperatureF": -10,
+      "assumedTemperatureF": 60,
+      "n1": 89.6
+    },
+    {
+      "ambientTemperatureF": -10,
+      "assumedTemperatureF": 70,
+      "n1": 87.9
+    },
+    {
+      "ambientTemperatureF": -10,
+      "assumedTemperatureF": 80,
+      "n1": 86
+    },
+    {
+      "ambientTemperatureF": -10,
+      "assumedTemperatureF": 90,
+      "n1": 84
+    },
+    {
+      "ambientTemperatureF": -10,
+      "assumedTemperatureF": 100,
+      "n1": 81.9
+    },
+    {
+      "ambientTemperatureF": -10,
+      "assumedTemperatureF": 110,
+      "n1": 79.6
+    },
+    {
+      "ambientTemperatureF": -10,
+      "assumedTemperatureF": 120,
+      "n1": 77.2
+    },
+    {
+      "ambientTemperatureF": -20,
+      "assumedTemperatureF": 10,
+      "n1": 96.2
+    },
+    {
+      "ambientTemperatureF": -20,
+      "assumedTemperatureF": 20,
+      "n1": 94.8
+    },
+    {
+      "ambientTemperatureF": -20,
+      "assumedTemperatureF": 30,
+      "n1": 93.4
+    },
+    {
+      "ambientTemperatureF": -20,
+      "assumedTemperatureF": 40,
+      "n1": 91.9
+    },
+    {
+      "ambientTemperatureF": -20,
+      "assumedTemperatureF": 50,
+      "n1": 90.3
+    },
+    {
+      "ambientTemperatureF": -20,
+      "assumedTemperatureF": 60,
+      "n1": 88.7
+    },
+    {
+      "ambientTemperatureF": -20,
+      "assumedTemperatureF": 70,
+      "n1": 86.9
+    },
+    {
+      "ambientTemperatureF": -20,
+      "assumedTemperatureF": 80,
+      "n1": 85.1
+    },
+    {
+      "ambientTemperatureF": -20,
+      "assumedTemperatureF": 90,
+      "n1": 83.1
+    },
+    {
+      "ambientTemperatureF": -20,
+      "assumedTemperatureF": 100,
+      "n1": 80.9
+    },
+    {
+      "ambientTemperatureF": -20,
+      "assumedTemperatureF": 110,
+      "n1": 78.7
+    },
+    {
+      "ambientTemperatureF": -20,
+      "assumedTemperatureF": 120,
+      "n1": 76.4
+    },
+    {
+      "ambientTemperatureF": -30,
+      "assumedTemperatureF": 10,
+      "n1": 95.1
+    },
+    {
+      "ambientTemperatureF": -30,
+      "assumedTemperatureF": 20,
+      "n1": 93.7
+    },
+    {
+      "ambientTemperatureF": -30,
+      "assumedTemperatureF": 30,
+      "n1": 92.3
+    },
+    {
+      "ambientTemperatureF": -30,
+      "assumedTemperatureF": 40,
+      "n1": 90.8
+    },
+    {
+      "ambientTemperatureF": -30,
+      "assumedTemperatureF": 50,
+      "n1": 89.2
+    },
+    {
+      "ambientTemperatureF": -30,
+      "assumedTemperatureF": 60,
+      "n1": 87.6
+    },
+    {
+      "ambientTemperatureF": -30,
+      "assumedTemperatureF": 70,
+      "n1": 85.9
+    },
+    {
+      "ambientTemperatureF": -30,
+      "assumedTemperatureF": 80,
+      "n1": 84.1
+    },
+    {
+      "ambientTemperatureF": -30,
+      "assumedTemperatureF": 90,
+      "n1": 82.1
+    },
+    {
+      "ambientTemperatureF": -30,
+      "assumedTemperatureF": 100,
+      "n1": 80
+    },
+    {
+      "ambientTemperatureF": -30,
+      "assumedTemperatureF": 110,
+      "n1": 77.8
+    },
+    {
+      "ambientTemperatureF": -30,
+      "assumedTemperatureF": 120,
+      "n1": 76
+    },
+    {
+      "ambientTemperatureF": -40,
+      "assumedTemperatureF": 10,
+      "n1": 94
+    },
+    {
+      "ambientTemperatureF": -40,
+      "assumedTemperatureF": 20,
+      "n1": 92.6
+    },
+    {
+      "ambientTemperatureF": -40,
+      "assumedTemperatureF": 30,
+      "n1": 91.2
+    },
+    {
+      "ambientTemperatureF": -40,
+      "assumedTemperatureF": 40,
+      "n1": 89.8
+    },
+    {
+      "ambientTemperatureF": -40,
+      "assumedTemperatureF": 50,
+      "n1": 88.2
+    },
+    {
+      "ambientTemperatureF": -40,
+      "assumedTemperatureF": 60,
+      "n1": 86.6
+    },
+    {
+      "ambientTemperatureF": -40,
+      "assumedTemperatureF": 70,
+      "n1": 84.9
+    },
+    {
+      "ambientTemperatureF": -40,
+      "assumedTemperatureF": 80,
+      "n1": 83.1
+    },
+    {
+      "ambientTemperatureF": -40,
+      "assumedTemperatureF": 90,
+      "n1": 81.1
+    },
+    {
+      "ambientTemperatureF": -40,
+      "assumedTemperatureF": 100,
+      "n1": 79.1
+    },
+    {
+      "ambientTemperatureF": -40,
+      "assumedTemperatureF": 110,
+      "n1": 76.9
+    },
+    {
+      "ambientTemperatureF": -40,
+      "assumedTemperatureF": 120,
+      "n1": 76
+    }
+  ],
+  "constraints": {
+    "antiIce": "OFF",
+    "maxN1ReductionPct": 7.7,
+    "pressureAltitudeLimitFt": null,
+    "operationalUseBlocked": true
+  },
+  "notes": [
+    "Source-exact extraction only; not registered in the performance package.",
+    "Parenthesized cells are preserved as source styling and are not interpreted operationally.",
+    "The source contains an additional parenthesized cell at OAT 80°F / Assumed Temperature 90°F; its semantics remain unresolved and must not be inferred.",
+    "The source determination sequence requires Assumed Temperature from TAKEOFF SPEEDS & DISTANCES before reading this table."
+  ]
+}
