@@ -230,9 +230,11 @@ Solver/runtime waits until:
 - applicability contract is complete;
 - declared-distance TORA/ASDA workflow is frozen.
 
-## Runway declared distances
+## Runway declared distances — IN PROGRESS · `feat/declared-distance-contract`
 
 Physical runway surface length is not TORA/ASDA/TODA/LDA.
+
+The generic declared-distance contract now requires explicit per-value provenance and provides a fail-closed Learjet takeoff constraint of `min(TORA, ASDA)`. This contract is not yet wired into the existing full-rated Takeoff calculation.
 
 Until an authoritative declared-distance source exists:
 - display physical runway length only as context;
@@ -282,5 +284,5 @@ After wind + Partial Power:
    - assumed-temperature source semantics captured without guessing unresolved parentheses
    - local gate: typecheck PASS + 8/8 targeted source tests
    - solver remains blocked on declared-distance TORA/ASDA workflow
-8. Declared-distance provider/input hardening (TORA + ASDA)
+8. **Declared-distance provider/input hardening (TORA + ASDA)** — IN PROGRESS · `feat/declared-distance-contract`
 9. Partial Power solver/runtime after declared-distance workflow is frozen
