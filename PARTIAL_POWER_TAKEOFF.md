@@ -143,13 +143,24 @@ The unresolved parenthesized-cell meaning remains an explicit production-data bl
 
 ### PP.2 — assumed-temperature prerequisites and contract — IN PROGRESS
 
-Prerequisite data now staged:
+Prerequisite data accepted locally:
 - governed Takeoff Weight Limits · Flaps 8° (P-7);
 - governed Takeoff Weight Limits · Flaps 20° (P-13);
 - source-node / interpolation / sparse / no-extrapolation tests;
-- registration in the Learjet performance package without enabling Partial Power output.
+- registration in the Learjet performance package without enabling Partial Power output;
+- local prerequisite gate: typecheck PASS + PP.2/B7/B8/PP.1 targeted suite **69/69 PASS**.
 
-Define an aircraft-agnostic solver contract with explicit inputs for:
+Generic assumed-temperature selector is now staged in `lib/performance/assumed-temperature.ts`. It:
+- accepts explicit TORA and ASDA and uses the lower value;
+- requires the ambient performance weight limit to cover actual takeoff weight;
+- requires each assumed-temperature candidate to cover actual takeoff weight;
+- selects only from explicit source-supported candidate evaluations supplied by the aircraft adapter;
+- requires a candidate above ambient temperature;
+- never invents intermediate temperatures or extrapolates;
+- preserves the selected candidate's source dataset identities;
+- returns V1 and corrected takeoff distance, but deliberately does not return reduced N1.
+
+Define the aircraft adapter with explicit inputs for:
 
 - ambient temperature;
 - pressure altitude;
