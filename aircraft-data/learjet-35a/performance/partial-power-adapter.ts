@@ -556,7 +556,8 @@ export function evaluateLearjet35aAeroncaPartialPower(
     };
   }
 
-  const { status: _solverStatus, ...solvedValues } = solved;
+  const { status: solverStatus, ...solvedValues } = solved;
+  void solverStatus;
 
   return {
     ...solvedValues,
