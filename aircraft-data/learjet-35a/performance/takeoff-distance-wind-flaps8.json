@@ -1,0 +1,901 @@
+{
+  "id": "learjet-35a-takeoff-distance-wind-flaps8",
+  "title": "Takeoff Distance Wind Correction · Flaps 8°",
+  "description": "Graph-digitized post-baseline wind correction for Learjet 35A/36A Flaps 8° takeoff field length.",
+  "kind": "lookup-table",
+  "phase": "takeoff",
+  "calculator": {
+    "kind": "post-baseline-transform",
+    "operation": "takeoff",
+    "baselineAxisKey": "zeroWindDistanceFt",
+    "modifierAxisKey": "runwayWindComponentKt",
+    "outputKey": "correctedDistanceFt"
+  },
+  "axes": [
+    {
+      "key": "zeroWindDistanceFt",
+      "label": "Zero-wind takeoff distance",
+      "unit": "FT",
+      "values": [
+        2000,
+        2500,
+        3000,
+        3500,
+        4000,
+        4500,
+        5000,
+        5500,
+        6000,
+        6500,
+        7000,
+        7500,
+        8000,
+        8500,
+        9000,
+        9500,
+        10000,
+        10500,
+        11000
+      ]
+    },
+    {
+      "key": "runwayWindComponentKt",
+      "label": "Runway wind component",
+      "unit": "KT",
+      "values": [
+        -10,
+        0,
+        10,
+        20,
+        30
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "key": "correctedDistanceFt",
+      "label": "Wind-corrected takeoff distance",
+      "unit": "FT"
+    }
+  ],
+  "rows": [
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 2000,
+        "runwayWindComponentKt": 0
+      },
+      "outputs": {
+        "correctedDistanceFt": 2000
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 2000,
+        "runwayWindComponentKt": 10
+      },
+      "outputs": {
+        "correctedDistanceFt": 1900
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 2000,
+        "runwayWindComponentKt": 20
+      },
+      "outputs": {
+        "correctedDistanceFt": 1700
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 2000,
+        "runwayWindComponentKt": 30
+      },
+      "outputs": {
+        "correctedDistanceFt": 1600
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 2000,
+        "runwayWindComponentKt": -10
+      },
+      "outputs": {
+        "correctedDistanceFt": 2500
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 2500,
+        "runwayWindComponentKt": 0
+      },
+      "outputs": {
+        "correctedDistanceFt": 2500
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 2500,
+        "runwayWindComponentKt": 10
+      },
+      "outputs": {
+        "correctedDistanceFt": 2400
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 2500,
+        "runwayWindComponentKt": 20
+      },
+      "outputs": {
+        "correctedDistanceFt": 2200
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 2500,
+        "runwayWindComponentKt": 30
+      },
+      "outputs": {
+        "correctedDistanceFt": 2100
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 2500,
+        "runwayWindComponentKt": -10
+      },
+      "outputs": {
+        "correctedDistanceFt": 3100
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 3000,
+        "runwayWindComponentKt": 0
+      },
+      "outputs": {
+        "correctedDistanceFt": 3000
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 3000,
+        "runwayWindComponentKt": 10
+      },
+      "outputs": {
+        "correctedDistanceFt": 2800
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 3000,
+        "runwayWindComponentKt": 20
+      },
+      "outputs": {
+        "correctedDistanceFt": 2700
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 3000,
+        "runwayWindComponentKt": 30
+      },
+      "outputs": {
+        "correctedDistanceFt": 2500
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 3000,
+        "runwayWindComponentKt": -10
+      },
+      "outputs": {
+        "correctedDistanceFt": 3600
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 3500,
+        "runwayWindComponentKt": 0
+      },
+      "outputs": {
+        "correctedDistanceFt": 3500
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 3500,
+        "runwayWindComponentKt": 10
+      },
+      "outputs": {
+        "correctedDistanceFt": 3300
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 3500,
+        "runwayWindComponentKt": 20
+      },
+      "outputs": {
+        "correctedDistanceFt": 3100
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 3500,
+        "runwayWindComponentKt": 30
+      },
+      "outputs": {
+        "correctedDistanceFt": 2900
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 3500,
+        "runwayWindComponentKt": -10
+      },
+      "outputs": {
+        "correctedDistanceFt": 4200
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 4000,
+        "runwayWindComponentKt": 0
+      },
+      "outputs": {
+        "correctedDistanceFt": 4000
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 4000,
+        "runwayWindComponentKt": 10
+      },
+      "outputs": {
+        "correctedDistanceFt": 3800
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 4000,
+        "runwayWindComponentKt": 20
+      },
+      "outputs": {
+        "correctedDistanceFt": 3500
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 4000,
+        "runwayWindComponentKt": 30
+      },
+      "outputs": {
+        "correctedDistanceFt": 3300
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 4000,
+        "runwayWindComponentKt": -10
+      },
+      "outputs": {
+        "correctedDistanceFt": 4900
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 4500,
+        "runwayWindComponentKt": 0
+      },
+      "outputs": {
+        "correctedDistanceFt": 4500
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 4500,
+        "runwayWindComponentKt": 10
+      },
+      "outputs": {
+        "correctedDistanceFt": 4200
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 4500,
+        "runwayWindComponentKt": 20
+      },
+      "outputs": {
+        "correctedDistanceFt": 4000
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 4500,
+        "runwayWindComponentKt": 30
+      },
+      "outputs": {
+        "correctedDistanceFt": 3700
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 4500,
+        "runwayWindComponentKt": -10
+      },
+      "outputs": {
+        "correctedDistanceFt": 5400
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 5000,
+        "runwayWindComponentKt": 0
+      },
+      "outputs": {
+        "correctedDistanceFt": 5000
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 5000,
+        "runwayWindComponentKt": 10
+      },
+      "outputs": {
+        "correctedDistanceFt": 4700
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 5000,
+        "runwayWindComponentKt": 20
+      },
+      "outputs": {
+        "correctedDistanceFt": 4400
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 5000,
+        "runwayWindComponentKt": 30
+      },
+      "outputs": {
+        "correctedDistanceFt": 4100
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 5000,
+        "runwayWindComponentKt": -10
+      },
+      "outputs": {
+        "correctedDistanceFt": 6000
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 5500,
+        "runwayWindComponentKt": 0
+      },
+      "outputs": {
+        "correctedDistanceFt": 5500
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 5500,
+        "runwayWindComponentKt": 10
+      },
+      "outputs": {
+        "correctedDistanceFt": 5200
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 5500,
+        "runwayWindComponentKt": 20
+      },
+      "outputs": {
+        "correctedDistanceFt": 4800
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 5500,
+        "runwayWindComponentKt": 30
+      },
+      "outputs": {
+        "correctedDistanceFt": 4500
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 5500,
+        "runwayWindComponentKt": -10
+      },
+      "outputs": {
+        "correctedDistanceFt": 6700
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 6000,
+        "runwayWindComponentKt": 0
+      },
+      "outputs": {
+        "correctedDistanceFt": 6000
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 6000,
+        "runwayWindComponentKt": 10
+      },
+      "outputs": {
+        "correctedDistanceFt": 5700
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 6000,
+        "runwayWindComponentKt": 20
+      },
+      "outputs": {
+        "correctedDistanceFt": 5300
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 6000,
+        "runwayWindComponentKt": 30
+      },
+      "outputs": {
+        "correctedDistanceFt": 5000
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 6000,
+        "runwayWindComponentKt": -10
+      },
+      "outputs": {
+        "correctedDistanceFt": 7200
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 6500,
+        "runwayWindComponentKt": 0
+      },
+      "outputs": {
+        "correctedDistanceFt": 6500
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 6500,
+        "runwayWindComponentKt": 10
+      },
+      "outputs": {
+        "correctedDistanceFt": 6100
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 6500,
+        "runwayWindComponentKt": 20
+      },
+      "outputs": {
+        "correctedDistanceFt": 5800
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 6500,
+        "runwayWindComponentKt": 30
+      },
+      "outputs": {
+        "correctedDistanceFt": 5400
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 6500,
+        "runwayWindComponentKt": -10
+      },
+      "outputs": {
+        "correctedDistanceFt": 7800
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 7000,
+        "runwayWindComponentKt": 0
+      },
+      "outputs": {
+        "correctedDistanceFt": 7000
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 7000,
+        "runwayWindComponentKt": 10
+      },
+      "outputs": {
+        "correctedDistanceFt": 6600
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 7000,
+        "runwayWindComponentKt": 20
+      },
+      "outputs": {
+        "correctedDistanceFt": 6200
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 7000,
+        "runwayWindComponentKt": 30
+      },
+      "outputs": {
+        "correctedDistanceFt": 5800
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 7000,
+        "runwayWindComponentKt": -10
+      },
+      "outputs": {
+        "correctedDistanceFt": 8500
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 7500,
+        "runwayWindComponentKt": 0
+      },
+      "outputs": {
+        "correctedDistanceFt": 7500
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 7500,
+        "runwayWindComponentKt": 10
+      },
+      "outputs": {
+        "correctedDistanceFt": 7100
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 7500,
+        "runwayWindComponentKt": 20
+      },
+      "outputs": {
+        "correctedDistanceFt": 6700
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 7500,
+        "runwayWindComponentKt": 30
+      },
+      "outputs": {
+        "correctedDistanceFt": 6300
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 7500,
+        "runwayWindComponentKt": -10
+      },
+      "outputs": {
+        "correctedDistanceFt": 9200
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 8000,
+        "runwayWindComponentKt": 0
+      },
+      "outputs": {
+        "correctedDistanceFt": 8000
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 8000,
+        "runwayWindComponentKt": 10
+      },
+      "outputs": {
+        "correctedDistanceFt": 7600
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 8000,
+        "runwayWindComponentKt": 20
+      },
+      "outputs": {
+        "correctedDistanceFt": 7200
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 8000,
+        "runwayWindComponentKt": 30
+      },
+      "outputs": {
+        "correctedDistanceFt": 6700
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 8000,
+        "runwayWindComponentKt": -10
+      },
+      "outputs": {
+        "correctedDistanceFt": 9700
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 8500,
+        "runwayWindComponentKt": 0
+      },
+      "outputs": {
+        "correctedDistanceFt": 8500
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 8500,
+        "runwayWindComponentKt": 10
+      },
+      "outputs": {
+        "correctedDistanceFt": 8100
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 8500,
+        "runwayWindComponentKt": 20
+      },
+      "outputs": {
+        "correctedDistanceFt": 7700
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 8500,
+        "runwayWindComponentKt": 30
+      },
+      "outputs": {
+        "correctedDistanceFt": 7200
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 8500,
+        "runwayWindComponentKt": -10
+      },
+      "outputs": {
+        "correctedDistanceFt": 10300
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 9000,
+        "runwayWindComponentKt": 0
+      },
+      "outputs": {
+        "correctedDistanceFt": 9000
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 9000,
+        "runwayWindComponentKt": 10
+      },
+      "outputs": {
+        "correctedDistanceFt": 8600
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 9000,
+        "runwayWindComponentKt": 20
+      },
+      "outputs": {
+        "correctedDistanceFt": 8200
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 9000,
+        "runwayWindComponentKt": 30
+      },
+      "outputs": {
+        "correctedDistanceFt": 7800
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 9000,
+        "runwayWindComponentKt": -10
+      },
+      "outputs": {
+        "correctedDistanceFt": 10900
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 9500,
+        "runwayWindComponentKt": 0
+      },
+      "outputs": {
+        "correctedDistanceFt": 9500
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 9500,
+        "runwayWindComponentKt": 10
+      },
+      "outputs": {
+        "correctedDistanceFt": 9100
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 9500,
+        "runwayWindComponentKt": 20
+      },
+      "outputs": {
+        "correctedDistanceFt": 8600
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 9500,
+        "runwayWindComponentKt": 30
+      },
+      "outputs": {
+        "correctedDistanceFt": 8200
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 10000,
+        "runwayWindComponentKt": 0
+      },
+      "outputs": {
+        "correctedDistanceFt": 10000
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 10000,
+        "runwayWindComponentKt": 10
+      },
+      "outputs": {
+        "correctedDistanceFt": 9600
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 10000,
+        "runwayWindComponentKt": 20
+      },
+      "outputs": {
+        "correctedDistanceFt": 9100
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 10000,
+        "runwayWindComponentKt": 30
+      },
+      "outputs": {
+        "correctedDistanceFt": 8700
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 10500,
+        "runwayWindComponentKt": 0
+      },
+      "outputs": {
+        "correctedDistanceFt": 10500
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 10500,
+        "runwayWindComponentKt": 10
+      },
+      "outputs": {
+        "correctedDistanceFt": 10100
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 10500,
+        "runwayWindComponentKt": 20
+      },
+      "outputs": {
+        "correctedDistanceFt": 9600
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 10500,
+        "runwayWindComponentKt": 30
+      },
+      "outputs": {
+        "correctedDistanceFt": 9200
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 11000,
+        "runwayWindComponentKt": 0
+      },
+      "outputs": {
+        "correctedDistanceFt": 11000
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 11000,
+        "runwayWindComponentKt": 10
+      },
+      "outputs": {
+        "correctedDistanceFt": 10600
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 11000,
+        "runwayWindComponentKt": 20
+      },
+      "outputs": {
+        "correctedDistanceFt": 10200
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindDistanceFt": 11000,
+        "runwayWindComponentKt": 30
+      },
+      "outputs": {
+        "correctedDistanceFt": 9800
+      }
+    }
+  ],
+  "interpolation": "linear-explicit",
+  "notes": [
+    "Flaps 8° only.",
+    "Wind convention is signed runway component: tailwind negative, headwind positive.",
+    "The AFM graphical wind correction already incorporates the regulatory 50% headwind and 150% tailwind treatment; do not pre-factor the runway wind component before this transform.",
+    "Values were digitized from the graphical wind panel and rounded to the nearest 100 ft, consistent with the chart reading resolution.",
+    "Zero-wind rows are explicit identity points.",
+    "The upper-distance tailwind region leaves the published chart envelope; unavailable source nodes are intentionally absent and must fail closed.",
+    "Bounded interpolation is permitted only when every required stored source corner exists; no extrapolation."
+  ],
+  "sources": [
+    {
+      "manualId": "FM-102",
+      "chapter": "Section V · Performance",
+      "section": "Takeoff Distance · Flaps 8°",
+      "pageLabel": "5-40 · Figure 5-25",
+      "note": "Gates Learjet 35A/36A AFM chart reproduced in FlightSafety Learjet 35/36 Pilot Training Manual Figure 20-2."
+    }
+  ]
+}
