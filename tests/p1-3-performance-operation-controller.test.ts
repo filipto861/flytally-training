@@ -232,3 +232,19 @@ test("P1.3 newer AVAILABLE weather does not participate in result stale validity
   assert.match(staleBlock, /snapshotDependencyChanges\.length > 0/);
   assert.match(staleBlock, /isContextValid/);
 });
+
+
+test("UX calculate action paints a disabled loading state before synchronous performance work", () => {
+  const controller = read("components/ft-performance/use-performance-operation.ts");
+  const presentation = read("components/ft-performance/FtPerformancePresentation.tsx");
+  const styles = read("components/ft-performance/ft-performance.module.css");
+
+  assert.match(controller, /calculationPending\.current/);
+  assert.match(controller, /setBusy\(true\)[\s\S]*requestAnimationFrame/);
+  assert.match(controller, /requestAnimationFrame\([\s\S]*computePerformance/);
+  assert.match(presentation, /aria-busy=\{busy\}/);
+  assert.match(presentation, /data-loading=\{busy \? "true" : "false"\}/);
+  assert.match(presentation, /Calculating…/);
+  assert.match(styles, /action\[data-loading="true"\]::before/);
+  assert.match(styles, /ft-performance-spin/);
+});
