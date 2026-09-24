@@ -759,7 +759,7 @@ test("P1.3 newer METAR remains AVAILABLE until explicit Apply & recalculate", as
   );
   await expect(performance.getByText("+8.0 kt", { exact: true })).toBeVisible();
 
-  metar = {
+  const newerMetar = {
     ...metar,
     observedAt: "2026-09-24T07:00:00.000Z",
     fetchedAt: "2026-09-24T07:01:00.000Z",
@@ -771,6 +771,16 @@ test("P1.3 newer METAR remains AVAILABLE until explicit Apply & recalculate", as
     windSpeedKt: 12,
   };
 
+  await page.unroute("**/api/weather/metar?icao=LKPR");
+  await page.route("**/api/weather/metar?icao=LKPR", async (route) => {
+    await route.fulfill({
+      status: 200,
+      headers: { "cache-control": "no-store" },
+      contentType: "application/json",
+      body: JSON.stringify(newerMetar),
+    });
+  });
+
   await page.reload();
   const restored = page
     .getByRole("main", { name: "Performance workspace" })
@@ -778,6 +788,7 @@ test("P1.3 newer METAR remains AVAILABLE until explicit Apply & recalculate", as
 
   await expect(restored.getByLabel("QNH")).toHaveValue("1013.25");
   await expect(restored.getByLabel("OAT")).toHaveValue("15");
+  await expect(restored).toContainText("Available · AviationWeather.gov · observed 07:00Z");
   await expect(restored.getByText("NEWER WEATHER AVAILABLE", { exact: true })).toBeVisible();
   await expect(restored.locator('[data-ft-performance-strip="true"]')).toHaveAttribute(
     "data-stale",
