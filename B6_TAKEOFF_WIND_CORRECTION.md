@@ -1,6 +1,6 @@
 # B6 — Takeoff Wind Correction Source Contract
 
-**Status:** Source extraction in progress  
+**Status:** Final acceptance in progress  
 **Branch:** `feat/b6-takeoff-wind`  
 **Roadmap:** `ROADMAP.md` B6
 
@@ -138,7 +138,25 @@ The draft branch now wires the verified transform into the canonical Takeoff ope
 - the Takeoff calculator source identity is bumped to `takeoff-summary-wind-v1`, so pre-B6 snapshots cannot silently remain current;
 - Flaps 20 with exactly 0 kt wind may continue to use its governed zero-wind baseline, while any nonzero wind fails closed until a verified Flaps 20 correction source exists.
 
-This integration remains pending local typecheck/targeted acceptance before B6.3 is considered complete.
+The canonical integration passed its targeted local acceptance on 2026-09-24: typecheck PASS and **81/81** targeted Node tests PASS on head `221097dd9ee46d7f49edfe9faecbac0b069eccbc`.
+
+A subsequent compatibility review hardened the declaration boundary:
+- aircraft/flap configurations with no `windCorrection` declaration preserve their existing governed baseline and do not suddenly require wind;
+- Learjet Flaps 20 now explicitly declares an empty wind-correction boundary, so zero wind may use the governed baseline while nonzero/unknown wind remains fail-closed pending direct source verification.
+
+That compatibility hardening and the new deterministic browser acceptance are pending the final B6.4 gate.
+
+## B6.4 browser acceptance
+
+The browser-only CI aircraft now includes a dedicated opt-in `8-wind` flap fixture with deterministic V1 and Takeoff Distance post-baseline transforms. Existing default browser performance remains uncorrected, proving backward compatibility for aircraft that do not declare a wind-correction contract.
+
+The Playwright acceptance:
+- injects deterministic APPLIED LKPR METAR wind;
+- calculates wind-corrected V1/TOD while N1/VR/V2 remain unchanged;
+- verifies Snapshot V2 stores `runwayWindComponentKt` and both wind dataset IDs;
+- reloads with a newer AVAILABLE METAR and confirms the stored result does not silently change;
+- exercises explicit **Apply & recalculate** and verifies the corrected outputs update;
+- runs across desktop, mobile, iPad landscape and iPad portrait projects.
 
 ## Acceptance before operational integration
 
