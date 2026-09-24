@@ -9,8 +9,8 @@ test("DD.2 Takeoff operation owns optional manual TORA and ASDA inputs", () => {
   const controller = read("components/ft-performance/use-performance-operation.ts");
   const presentation = read("components/ft-performance/FtPerformancePresentation.tsx");
 
-  assert.match(controller, /const \[toraFt, setToraFt\] = useState\("")/);
-  assert.match(controller, /const \[asdaFt, setAsdaFt\] = useState\("")/);
+  assert.equal(controller.includes('const [toraFt, setToraFt] = useState("");'), true);
+  assert.equal(controller.includes('const [asdaFt, setAsdaFt] = useState("");'), true);
   assert.match(controller, /resolveTakeoffDeclaredDistanceConstraint/);
   assert.match(presentation, /aria-label="Takeoff TORA"/);
   assert.match(presentation, /aria-label="Takeoff ASDA"/);
@@ -25,8 +25,8 @@ test("DD.2 selecting a different runway clears manually entered declared distanc
   );
 
   assert.match(setterBlock, /setRunwayIdentifierState\(value\)/);
-  assert.match(setterBlock, /setToraFt\("")/);
-  assert.match(setterBlock, /setAsdaFt\("")/);
+  assert.equal(setterBlock.includes('setToraFt("");'), true);
+  assert.equal(setterBlock.includes('setAsdaFt("");'), true);
 });
 
 test("DD.2 full-rated Takeoff calculation does not require declared distances", () => {
