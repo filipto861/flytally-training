@@ -160,7 +160,16 @@ Generic assumed-temperature selector is now staged in `lib/performance/assumed-t
 - preserves the selected candidate's source dataset identities;
 - returns V1 and corrected takeoff distance, but deliberately does not return reduced N1.
 
-Define the aircraft adapter with explicit inputs for:
+The Learjet adapter is now staged in `aircraft-data/learjet-35a/performance/partial-power-adapter.ts`. It:
+- evaluates only the published Takeoff Weight Limit temperature-axis candidates above ambient;
+- binds Flaps 8° / 20° to their separate weight-limit, V1 and takeoff-distance sources;
+- preserves the verified B6 Flaps 8 wind transforms for both V1 and distance;
+- permits Flaps 20 only at zero wind while its nonzero-wind correction source remains unverified;
+- requires explicit TORA + ASDA;
+- propagates the dry hard-paved runway, anti-ice OFF, anti-skid operative and recent full-rated-takeoff eligibility checks;
+- remains N1-free while P-6/P-6.1 parenthesized semantics are unresolved.
+
+Aircraft adapter inputs are:
 
 - ambient temperature;
 - pressure altitude;
