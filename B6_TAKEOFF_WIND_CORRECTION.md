@@ -113,6 +113,17 @@ Contract invariants:
 - exact source rows or bounded interpolation only;
 - runtime contains no Learjet-specific formulas.
 
+## B6.1 implementation status
+
+Verified Flaps 8 source grids are now encoded as governed datasets:
+
+- `takeoff-distance-wind-flaps8.json` — graph-digitized distance correction, 100 ft source-reading resolution;
+- `v1-wind-flaps8.json` — graph-digitized V1 correction, 1 KIAS source-reading resolution.
+
+The datasets include explicit zero-wind identity nodes and intentionally sparse source regions where the graphical envelope does not support a stored corner. The generic runtime must fail closed in those regions.
+
+Flaps 20 remains intentionally unpublished until its applicable AFM graphical correction source is directly verified.
+
 ## Acceptance before operational integration
 
 Source/data gate:
