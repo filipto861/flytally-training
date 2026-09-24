@@ -3,6 +3,7 @@ import type { StaticTrainingContentSeed } from "./static-content-repository";
 import type { AircraftChecklistContent,AircraftLimitationsContent,AircraftPerformanceContent,AircraftProcedureContent,AircraftSystemsContent,TrainingSourceReference } from "./universal-aircraft-content";
 import type { AircraftAbnormalEmergencyContent } from "./universal-abnormal-emergency";
 import type { BundledPerformancePackage } from "./performance-package";
+import type { PilotLandingCalculatorDefinition } from "./pilot-landing-calculator";
 import type { PilotTakeoffCalculatorDefinition } from "./pilot-takeoff-calculator";
 
 export const browserTrainingAircraftId="browser-ci-aircraft";
@@ -68,6 +69,82 @@ const performance:AircraftPerformanceContent={
         },
         oatInput:{key:"oat_c",label:"OAT",unit:"°C"},
         runwayAvailableInput:{key:"runway_available_m",label:"Runway available",unit:"m"},
+      },
+    },
+    {
+      id:"browser-b5-vref",
+      title:"Landing VREF",
+      kind:"lookup-table",
+      phase:"landing",
+      axes:[{key:"grossWeight",label:"Gross weight",unit:"lb",values:[12000,13000]}],
+      outputs:[{key:"vref",label:"VREF",unit:"KIAS"}],
+      rows:[
+        {inputs:{grossWeight:12000},outputs:{vref:118}},
+        {inputs:{grossWeight:13000},outputs:{vref:122}},
+      ],
+      interpolation:"linear-explicit",
+      calculator:{
+        kind:"multi-axis-metric-grid",
+        operation:"landing",
+        inputAxes:["grossWeight"],
+        outputKeys:["vref"],
+      },
+    },
+    {
+      id:"browser-b5-landing-climb",
+      title:"Landing climb speed",
+      kind:"lookup-table",
+      phase:"landing",
+      axes:[{key:"grossWeight",label:"Gross weight",unit:"lb",values:[12000,13000]}],
+      outputs:[{key:"landingClimb",label:"Landing Climb",unit:"KIAS"}],
+      rows:[
+        {inputs:{grossWeight:12000},outputs:{landingClimb:118}},
+        {inputs:{grossWeight:13000},outputs:{landingClimb:122}},
+      ],
+      interpolation:"linear-explicit",
+      calculator:{
+        kind:"multi-axis-metric-grid",
+        operation:"landing",
+        inputAxes:["grossWeight"],
+        outputKeys:["landingClimb"],
+      },
+    },
+    {
+      id:"browser-b5-approach-climb",
+      title:"Approach climb speed",
+      kind:"lookup-table",
+      phase:"landing",
+      axes:[{key:"grossWeight",label:"Gross weight",unit:"lb",values:[12000,13000]}],
+      outputs:[{key:"approachClimb",label:"Approach Climb",unit:"KIAS"}],
+      rows:[
+        {inputs:{grossWeight:12000},outputs:{approachClimb:124}},
+        {inputs:{grossWeight:13000},outputs:{approachClimb:128}},
+      ],
+      interpolation:"linear-explicit",
+      calculator:{
+        kind:"multi-axis-metric-grid",
+        operation:"landing",
+        inputAxes:["grossWeight"],
+        outputKeys:["approachClimb"],
+      },
+    },
+    {
+      id:"browser-b5-landing-distance",
+      title:"Landing distance",
+      kind:"lookup-table",
+      phase:"landing",
+      axes:[{key:"grossWeight",label:"Gross weight",unit:"lb",values:[12000,13000]}],
+      outputs:[{key:"landingDistance",label:"Landing Distance",unit:"FT"}],
+      rows:[
+        {inputs:{grossWeight:12000},outputs:{landingDistance:2800}},
+        {inputs:{grossWeight:13000},outputs:{landingDistance:3000}},
+      ],
+      interpolation:"linear-explicit",
+      calculator:{
+        kind:"multi-axis-metric-grid",
+        operation:"landing",
+        inputAxes:["grossWeight"],
+        outputKeys:["landingDistance"],
       },
     },
     {
@@ -158,10 +235,19 @@ const browserTakeoffCalculator:PilotTakeoffCalculatorDefinition={
   disclaimer:"Deterministic browser test fixture only.",
 };
 
+const browserLandingCalculator:PilotLandingCalculatorDefinition={
+  flapOptions:[{value:"40",label:"40°"}],
+  vrefDatasetId:"browser-b5-vref",
+  landingClimbDatasetId:"browser-b5-landing-climb",
+  approachClimbDatasetId:"browser-b5-approach-climb",
+  landingDistanceDatasetId:"browser-b5-landing-distance",
+};
+
 export const browserTrainingPerformancePackage:BundledPerformancePackage={
   aircraftId:browserTrainingAircraftId,
   content:performance,
   takeoffCalculator:browserTakeoffCalculator,
+  landingCalculator:browserLandingCalculator,
 };
 
 

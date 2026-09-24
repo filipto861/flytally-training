@@ -90,6 +90,7 @@ export default async function PerformancePage({
       selectedVariant={selectedVariant}
       datasets={datasets}
       takeoffCalculator={bundledPackage?.takeoffCalculator}
+      landingCalculator={bundledPackage?.landingCalculator}
       disclaimer={disclaimer}
     />
   );
