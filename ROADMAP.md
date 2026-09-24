@@ -381,7 +381,7 @@ The detailed future sequence is tracked in **Active implementation order** below
    - reopen this phase only if the applicable authoritative AFM/AFMS performance pages become available
 
 14. **Partial Power / Derated Takeoff operational enablement + pilot UI** — IN PROGRESS · source-gated
-   - **14.1 Thrust-mode UI + source-supported training preview — IMPLEMENTED / VERIFYING**
+   - **14.1 Thrust-mode UI + source-supported training preview — COMPLETE · PR #226 · READY FOR PRODUCTION**
      - explicit **Full Rated / Partial Power / Assumed Temperature** selector added; Full Rated remains the safe default
      - Partial Power requires explicit thrust-reverser configuration and never infers it from aircraft name, serial number or simulator variant
      - current preview supports the existing Aeronca source-backed path; no-reverser and TR-4000 remain fail-closed
@@ -396,13 +396,15 @@ The detailed future sequence is tracked in **Active implementation order** below
      - stale DD.4 and P1.3 regression assertions updated to the new controller contract
      - final full repository verify after the assertion fixes: **1197 total / 1196 PASS / 0 FAIL / 1 SKIP** · production build PASS
      - full Playwright browser acceptance on the runtime implementation: **388/388 PASS**
-     - automated acceptance is green; manual Partial Power UI smoke remains before merge
+     - automated acceptance is green; product owner explicitly approved production merge on 2026-09-24 without a separate pre-merge manual Partial Power UI smoke
      - **follow-up:** manual-weather Partial Power currently has no manual runway-wind input. Add either explicit manual wind entry or an explicit source-safe zero-wind confirmation path before treating manual weather as complete for Partial Power
    - **14.2 Independent 25% rated-thrust source closure — BLOCKED**
      - FlightSafety requires thrust reduction <=25% of rated takeoff thrust for the existing ambient condition
      - CL-102B P-6/P-6.1 provide configuration-specific reduced-N1 schedules and a 7.7 N1-point cap, but no verified N1-to-rated-thrust relationship has been found
      - AFMS W1072 authorizes Aeronca Partial Power N1 interpolation and directs crews back to the basic AFM Partial Power procedure; it does not independently close the 25% check
-   - **14.3 Snapshot V2 + stale dependency integration — PLANNED AFTER 14.1**
+   - **14.3 Operational Snapshot V2 + stale dependency integration — BLOCKED UNTIL 14.2**
+     - the production training preview intentionally remains ephemeral and does not write an operational Takeoff snapshot
+     - operational thrust-mode persistence and validity dependencies will be implemented only after the independent 25% rated-thrust source check is closed
    - **14.4 Operational enablement — BLOCKED UNTIL 14.2**
 
    - add an explicit Takeoff thrust-mode selector to the operational Performance UI:
