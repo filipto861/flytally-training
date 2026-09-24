@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import test from "node:test";
 
-import { learjet35aPerformancePackage } from "../aircraft-data/learjet-35a/performance/package.ts";
+import type { PerformanceDataset } from "../lib/universal-aircraft-content.ts";
 import { learjet35aTakeoffCalculatorDefinition } from "../aircraft-data/learjet-35a/performance/takeoff-calculator-definition.ts";
 import {
   solveLearjet35aAssumedTemperature,
@@ -9,7 +10,23 @@ import {
 } from "../aircraft-data/learjet-35a/performance/partial-power-adapter.ts";
 import { manualDeclaredDistanceFt } from "../lib/aviation/declared-distances.ts";
 
-const datasets = learjet35aPerformancePackage.content.datasets;
+const load = (file: string): PerformanceDataset => JSON.parse(
+  fs.readFileSync(
+    new URL(`../aircraft-data/learjet-35a/performance/${file}`, import.meta.url),
+    "utf8",
+  ),
+) as PerformanceDataset;
+
+const datasets: readonly PerformanceDataset[] = [
+  load("takeoff-weight-limit-flaps8.json"),
+  load("takeoff-weight-limit-flaps20.json"),
+  load("takeoff-distance-flaps8.json"),
+  load("takeoff-distance-flaps20.json"),
+  load("v1-flaps8.json"),
+  load("v1-flaps20.json"),
+  load("takeoff-distance-wind-flaps8.json"),
+  load("v1-wind-flaps8.json"),
+];
 
 function request(
   overrides: Partial<Learjet35aAssumedTemperatureRequest> = {},
