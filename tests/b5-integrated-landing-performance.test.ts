@@ -220,6 +220,9 @@ test("B5 controller binds airport and weather to destination and keeps Landing p
   const controller = read("components/ft-performance/use-landing-performance-operation.ts");
 
   assert.match(controller, /current\.destination\.icao/);
+  const facade = read("components/ft-performance/use-performance-operation.ts");
+  assert.match(facade, /operation: "LANDING"/);
+  assert.match(facade, /useLandingPerformanceOperation/);
   assert.match(controller, /readLandingPerformanceState/);
   assert.match(controller, /writeLandingPerformanceResultV2/);
   assert.match(controller, /buildLandingPerformanceContext/);
@@ -255,7 +258,7 @@ test("B5 Flight Brief and dedicated Performance page share the Landing operation
   const flightRoute = read("app/aircraft/[aircraftId]/flight/page.tsx");
   const performanceRoute = read("app/aircraft/[aircraftId]/performance/page.tsx");
 
-  assert.match(brief, /useLandingPerformanceOperation/);
+  assert.match(brief, /usePerformanceOperation\("LANDING"/);
   assert.match(brief, /aria-label="Landing performance brief"/);
   assert.match(brief, /FtLandingPerformanceStrip/);
   assert.match(editor, /FtLandingPerformanceOperationPresentation/);
