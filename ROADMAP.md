@@ -276,10 +276,11 @@ After wind + Partial Power:
    - B6.2 generic correction runtime — COMPLETE
    - B6.3 canonical Takeoff operation integration — COMPLETE
    - B6.4 acceptance — COMPLETE
-7. **Partial Power source extraction** — IN PROGRESS · `feat/partial-power-source-contract`
-   - source contract + applicability inventory
-   - three configuration-specific N1 schedules
-   - assumed-temperature source semantics
+7. **Partial Power source extraction** — COMPLETE · PR #219
+   - source contract + applicability inventory — COMPLETE
+   - three configuration-specific N1 schedules — COMPLETE
+   - assumed-temperature source semantics captured without guessing unresolved parentheses
+   - local gate: typecheck PASS + 8/8 targeted source tests
    - solver remains blocked on declared-distance TORA/ASDA workflow
 8. Declared-distance provider/input hardening (TORA + ASDA)
 9. Partial Power solver/runtime after declared-distance workflow is frozen
