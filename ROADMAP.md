@@ -381,10 +381,16 @@ The detailed future sequence is tracked in **Active implementation order** below
    - reopen this phase only if the applicable authoritative AFM/AFMS performance pages become available
 
 14. **Partial Power / Derated Takeoff operational enablement + pilot UI** — IN PROGRESS · source-gated
-   - **14.1 Thrust-mode UI + source-supported training preview — IN PROGRESS**
-     - add explicit Full Rated / Partial Power selector
-     - keep Full Rated as the only operationally accepted path until source closure
-     - Partial Power may expose the existing source-supported Aeronca calculation only with an explicit non-operational/source-check-incomplete state; it must never masquerade as a normal green operational result
+   - **14.1 Thrust-mode UI + source-supported training preview — IMPLEMENTED / VERIFYING**
+     - explicit **Full Rated / Partial Power / Assumed Temperature** selector added; Full Rated remains the safe default
+     - Partial Power requires explicit thrust-reverser configuration and never infers it from aircraft name, serial number or simulator variant
+     - current preview supports the existing Aeronca source-backed path; no-reverser and TR-4000 remain fail-closed
+     - required eligibility confirmations are surfaced in the pilot UI: dry hard-paved runway, anti-skid operative, anti-ice OFF and full-rated-thrust takeoff within the preceding 30 days
+     - TORA + ASDA and source-backed runway wind are required before preview calculation
+     - source-supported result presents Assumed Temperature, target N1, V1, VR, V2, corrected Takeoff Distance, Full Rated N1 reference and the governing declared-distance limit
+     - the result is explicitly labeled **SOURCE-SUPPORTED TRAINING PREVIEW** and is not written into the operational Takeoff Snapshot V2
+     - targeted helper/controller/UI regression tests added; local verification still required
+     - **follow-up:** manual-weather Partial Power currently has no manual runway-wind input. Add either explicit manual wind entry or an explicit source-safe zero-wind confirmation path before treating manual weather as complete for Partial Power
    - **14.2 Independent 25% rated-thrust source closure — BLOCKED**
      - FlightSafety requires thrust reduction <=25% of rated takeoff thrust for the existing ambient condition
      - CL-102B P-6/P-6.1 provide configuration-specific reduced-N1 schedules and a 7.7 N1-point cap, but no verified N1-to-rated-thrust relationship has been found
