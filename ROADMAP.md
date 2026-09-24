@@ -162,6 +162,8 @@ B5 intentionally does not apply unsupported wind/slope/declared-distance correct
 
 ## B6 — Takeoff wind correction — IN PROGRESS · branch `feat/b6-takeoff-wind`
 
+B6 generic runtime gate (2026-09-24): `npm run typecheck` PASS; targeted B4/B8/B6 Node suite **38/38 PASS** on local Windows checkout. Source extraction remains the active subphase.
+
 Source topology is frozen as two independent post-baseline transforms:
 
 - `(zeroWindDistanceFt, runwayWindComponentKt) -> correctedTakeoffDistanceFt`
