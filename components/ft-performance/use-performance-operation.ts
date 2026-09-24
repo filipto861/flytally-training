@@ -641,11 +641,17 @@ function useTakeoffPerformanceOperation(
       appliedWeather,
       availableWeather,
     );
-    setAppliedWeather(nextWeather);
 
     if (result) {
+      // Preserve APPLY & RECALCULATE as one atomic operation. If the runway
+      // context is not ready yet, calculateWithWeather fails closed and the
+      // currently applied weather/result remain paired instead of exposing
+      // newer weather beside an older calculation.
       calculateWithWeather(nextWeather);
+      return;
     }
+
+    setAppliedWeather(nextWeather);
   }
 
   const invalidationMessage = storedState?.requiresRecalculation
