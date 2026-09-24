@@ -174,7 +174,7 @@ test("P1.3 wind presentation is derived from APPLIED observation and never direc
   const controller = read("components/ft-performance/use-performance-operation.ts");
   const helperBlock = controller.slice(
     controller.indexOf("function windComponentsForAppliedWeather"),
-    controller.indexOf("/**\n * Canonical client-side owner"),
+    controller.indexOf("function roundedRunwayWindComponentKt"),
   );
   const windBlock = controller.slice(
     controller.indexOf("const wind = useMemo"),
