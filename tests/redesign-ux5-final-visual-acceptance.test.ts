@@ -76,7 +76,8 @@ test("UX5 shell Active Flight status is derived from the real lifecycle", () => 
   const topBar = read("components/ft-shell/FtTopBar.tsx");
   const shell = read("components/ft-shell/FtShell.tsx");
 
-  assert.match(topBar, /activeFlight\?\.lifecycle === "ACTIVE"/);
+  assert.match(topBar, /useActiveFlightState\(aircraftId, activeFlight\)/);
+  assert.match(topBar, /flight\?\.lifecycle === "ACTIVE"/);
   assert.match(topBar, /current\.departure\.icao/);
   assert.match(topBar, /current\.destination\.icao/);
   assert.match(shell, /activeFlight=\{activeFlight\}/);
