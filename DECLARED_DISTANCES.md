@@ -56,9 +56,21 @@ This contract does not yet enable Partial Power calculation.
 
 The Partial Power solver must consume only the explicit declared-distance contract. It must never read `surfaceLengthFt` as a fallback.
 
+## Operation-owned manual input status
+
+The Takeoff operation now owns optional manual **TORA** and **ASDA** fields.
+
+Important boundary:
+
+- existing full-rated Takeoff does **not** require either field;
+- changing/selecting a different runway clears the manual declared distances;
+- current full-rated Snapshot V2 does not persist or depend on TORA/ASDA because that calculation does not consume them;
+- the UI displays the resolved declared takeoff limit only when both fields are present and valid;
+- physical runway length remains display/context only.
+
 ## Next implementation steps
 
-1. Add operation-owned manual TORA/ASDA inputs without making them mandatory for existing full-rated Takeoff.
-2. Preserve provenance and input identity for calculations that explicitly depend on declared distances.
-3. Add a provider adapter boundary for future authoritative declared-distance data.
+1. Validate the generic contract + operation-owned input boundary locally.
+2. Add a provider adapter boundary for future authoritative declared-distance data.
+3. When Partial Power is introduced, persist TORA/ASDA provenance and identity only in calculations that actually consume those inputs.
 4. Only then enable the Partial Power assumed-temperature solver.
