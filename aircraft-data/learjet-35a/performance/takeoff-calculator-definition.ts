@@ -91,6 +91,11 @@ export const learjet35aTakeoffCalculatorDefinition: PilotTakeoffCalculatorDefini
           ],
         },
       },
+      // Wind correction is operationally required for nonzero wind, but the
+      // applicable Flaps 20 AFM correction source is not yet directly verified.
+      // The empty declaration makes that boundary explicit: zero wind may use
+      // the governed baseline; nonzero/unknown wind fails closed.
+      windCorrection: {},
       vr: {
         datasetId: "learjet-35a-vr-flaps20",
         outputKey: "vr",
