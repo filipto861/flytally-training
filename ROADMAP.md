@@ -136,7 +136,7 @@ Target behavior:
 - dedicated Performance page remains available;
 - desktop side drawer; iPad/mobile responsive sheet/full-height treatment.
 
-## B5 — Integrated Landing Performance — NEXT
+## B5 — Integrated Landing Performance — IN PROGRESS · PR #217
 
 Destination-owned Landing workflow reusing the same operation architecture:
 
@@ -234,7 +234,7 @@ After Landing + wind + Partial Power:
 2. **P1.2 — Snapshot V2** — COMPLETE · PR #214
 3. **P1.3 — canonical Performance operation controller** — COMPLETE · PR #215
 4. **P1.4 — Flight Brief EFB home** — COMPLETE · PR #216
-5. **B5 — Landing integration** — NEXT
+5. **B5 — Landing integration** — IN PROGRESS · PR #217
 6. Takeoff wind source extraction + runtime
 7. Partial Power source extraction + solver/runtime
 8. Declared-distance provider/input hardening
