@@ -9,18 +9,19 @@ export function FtPerformanceInvalidation({
   busy,
   onRecalculate,
   recalculateDisabled = false,
+  message,
 }: Readonly<{
   changes: readonly PerformanceContextChange[];
   busy: boolean;
   onRecalculate: () => void;
   recalculateDisabled?: boolean;
+  message?: string;
 }>) {
   return (
     <div className={styles.invalidation} role="status" data-performance-state="recalc">
       <p className={styles.invalidationTitle}>NEEDS RECALCULATION</p>
       <p>
-        Performance inputs changed. Stored values are retained only as stale
-        reference until recalculated.
+        {message ?? "Performance inputs changed. Stored values are retained only as stale reference until recalculated."}
       </p>
       {changes.length ? (
         <ul className={styles.changeList}>

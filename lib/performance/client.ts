@@ -12,10 +12,20 @@ import type {
   PerformanceDataset,
   PerformanceScalar,
 } from "../universal-aircraft-content.ts";
+import type { SelectedRunwayContext } from "../aviation/airport-types.ts";
+import type { MetarSnapshot } from "../weather/metar-types.ts";
 import {
   computeContextHash,
   type FlightPerformanceContext,
 } from "./context.ts";
+import {
+  isTakeoffSnapshotV2,
+  performanceSnapshotV2Key,
+  takeoffSnapshotRequiresRecalculation,
+  type PerformanceInputProvenance,
+  type TakeoffSnapshotV2,
+  type WeatherObservationRefV2,
+} from "./snapshot-v2.ts";
 
 export type PerformanceCalculationInputs = {
   readonly pressureAltitudeFt?: number;
@@ -294,7 +304,295 @@ function isPerformanceResult(value: unknown): value is PerformanceResult {
   return row.contextHash === computeContextHash(row.context);
 }
 
-export function readPerformanceResult(
+export type TakeoffPerformanceReadState = {
+  readonly result: PerformanceResult;
+  readonly snapshot: TakeoffSnapshotV2;
+  readonly requiresRecalculation: boolean;
+  readonly migratedFromLegacy: boolean;
+};
+
+export type TakeoffSnapshotWriteOptions = {
+  readonly variant?: string | null;
+  readonly runwayContext: SelectedRunwayContext;
+  readonly qnhSource: Exclude<PerformanceInputProvenance, "legacy-unknown">;
+  readonly oatSource: Exclude<PerformanceInputProvenance, "legacy-unknown">;
+  readonly observation: WeatherObservationRefV2 | null;
+  readonly datasetIds: readonly string[];
+  readonly calculatorId?: string | null;
+};
+
+export function weatherObservationRefV2(
+  snapshot: MetarSnapshot,
+): WeatherObservationRefV2 {
+  return {
+    source: snapshot.source,
+    station: snapshot.station,
+    observedAt: snapshot.observedAt,
+    fetchedAt: snapshot.fetchedAt,
+    rawText: snapshot.rawText,
+  };
+}
+
+export function takeoffSourceDatasetIds(
+  datasets: readonly PerformanceDataset[],
+  definition: PilotTakeoffCalculatorDefinition | undefined,
+  context: FlightPerformanceContext,
+): readonly string[] {
+  if (!definition) {
+    const generic = datasets.find((candidate) => (
+      candidate.calculator?.kind === "multi-axis-metric-grid"
+      && candidate.calculator.operation === "takeoff"
+      && candidate.calculator.outputKeys.some((key) => /n1/i.test(key))
+      && candidate.calculator.outputKeys.some((key) => /^v1/i.test(key))
+      && candidate.calculator.outputKeys.some((key) => /^vr/i.test(key))
+      && candidate.calculator.outputKeys.some((key) => /^v2/i.test(key))
+      && candidate.calculator.outputKeys.some((key) => /distance/i.test(key))
+    ));
+    return generic ? [generic.id] : [];
+  }
+
+  const flap = definition.flapOptions.find(
+    (candidate) => candidate.value === context.configuration.flaps,
+  ) ?? definition.flapOptions[0];
+  if (!flap) return [];
+
+  const bindings = [
+    context.configuration.antiIce ? definition.n1.antiIceOn : definition.n1.antiIceOff,
+    flap.v1
+      ? (context.configuration.antiIce ? flap.v1.antiIceOn : flap.v1.antiIceOff)
+      : undefined,
+    flap.vr,
+    flap.v2,
+    flap.takeoffDistance
+      ? (
+          context.configuration.antiIce
+            ? flap.takeoffDistance.antiIceOn
+            : flap.takeoffDistance.antiIceOff
+        )
+      : undefined,
+  ];
+
+  return [...new Set(
+    bindings
+      .map((binding) => binding?.datasetId)
+      .filter((datasetId): datasetId is string => Boolean(datasetId)),
+  )];
+}
+
+function calculationId(result: PerformanceResult): string {
+  return [
+    "takeoff",
+    result.context.activeFlightId,
+    result.contextHash,
+    result.computedAt,
+  ].join(":");
+}
+
+export function createTakeoffSnapshotV2(
+  result: PerformanceResult,
+  options: TakeoffSnapshotWriteOptions,
+): TakeoffSnapshotV2 {
+  const weather = result.context.weather;
+  if (!weather) {
+    throw new Error("Native Takeoff Snapshot V2 requires applied QNH and OAT.");
+  }
+  if (
+    options.runwayContext.airportIcao !== result.context.runway.airportIcao
+    || options.runwayContext.runwayIdent !== result.context.runway.identifier
+  ) {
+    throw new Error("Takeoff Snapshot V2 runway provenance does not match the calculated context.");
+  }
+
+  const metarBound = options.qnhSource === "metar" || options.oatSource === "metar";
+  if (metarBound && !options.observation) {
+    throw new Error("METAR-sourced Snapshot V2 weather requires an observation reference.");
+  }
+  if (
+    options.observation
+    && metarBound
+    && options.observation.station.toUpperCase() !== options.runwayContext.airportIcao.toUpperCase()
+  ) {
+    throw new Error("Snapshot V2 METAR station does not match the Takeoff airport.");
+  }
+
+  return {
+    schemaVersion: 2,
+    operation: "TAKEOFF",
+    identity: {
+      calculationId: calculationId(result),
+      activeFlightId: result.context.activeFlightId,
+      aircraftId: result.context.aircraftId,
+      variant: options.variant?.trim() || null,
+    },
+    audit: {
+      activeFlightDependencySnapshotId: result.context.dependencySnapshotId,
+    },
+    inputs: {
+      runway: {
+        airportIcao: options.runwayContext.airportIcao,
+        identifier: options.runwayContext.runwayIdent,
+        provenance: "airport-db",
+        runwaySurfaceId: options.runwayContext.runwaySurfaceId,
+        surfaceLengthFt: options.runwayContext.surfaceLengthFt,
+        lengthBasis: options.runwayContext.lengthBasis,
+        ...(options.runwayContext.dataSource
+          ? { dataSource: options.runwayContext.dataSource }
+          : {}),
+      },
+      weight: result.context.weight,
+      configuration: result.context.configuration,
+      weather: {
+        observation: metarBound ? options.observation : null,
+        qnhHpa: {
+          value: weather.qnh,
+          source: options.qnhSource,
+        },
+        oatC: {
+          value: weather.oat,
+          source: options.oatSource,
+        },
+      },
+    },
+    derived: {
+      ...(result.calculationInputs.pressureAltitudeFt === undefined
+        ? {}
+        : { pressureAltitudeFt: result.calculationInputs.pressureAltitudeFt }),
+    },
+    source: {
+      runtime: result.source,
+      calculatorId: options.calculatorId ?? null,
+      datasetIds: [...new Set(options.datasetIds)],
+    },
+    result: {
+      n1: result.n1,
+      v1: result.v1,
+      vr: result.vr,
+      v2: result.v2,
+      takeoffDistance: result.takeoffDistance,
+    },
+    calculatedAt: result.computedAt,
+    migration: null,
+  };
+}
+
+export function migratePerformanceResultV1ToTakeoffSnapshotV2(
+  result: PerformanceResult,
+): TakeoffSnapshotV2 | null {
+  const airportIcao = result.context.runway.airportIcao;
+  if (!airportIcao) return null;
+
+  const legacyWeather = result.context.weather
+    ? {
+        observation: null,
+        qnhHpa: {
+          value: result.context.weather.qnh,
+          source: "legacy-unknown" as const,
+        },
+        oatC: {
+          value: result.context.weather.oat,
+          source: "legacy-unknown" as const,
+        },
+      }
+    : result.calculationInputs.oatC === undefined
+      ? null
+      : {
+          observation: null,
+          oatC: {
+            value: result.calculationInputs.oatC,
+            source: "legacy-unknown" as const,
+          },
+        };
+
+  return {
+    schemaVersion: 2,
+    operation: "TAKEOFF",
+    identity: {
+      calculationId: "legacy-v1:" + calculationId(result),
+      activeFlightId: result.context.activeFlightId,
+      aircraftId: result.context.aircraftId,
+      variant: null,
+    },
+    audit: {
+      activeFlightDependencySnapshotId: result.context.dependencySnapshotId,
+    },
+    inputs: {
+      runway: {
+        airportIcao,
+        identifier: result.context.runway.identifier,
+        provenance: "legacy-unknown",
+      },
+      weight: result.context.weight,
+      configuration: result.context.configuration,
+      weather: legacyWeather,
+    },
+    derived: {
+      ...(result.calculationInputs.pressureAltitudeFt === undefined
+        ? {}
+        : { pressureAltitudeFt: result.calculationInputs.pressureAltitudeFt }),
+    },
+    source: {
+      runtime: result.source,
+      calculatorId: null,
+      datasetIds: [],
+    },
+    result: {
+      n1: result.n1,
+      v1: result.v1,
+      vr: result.vr,
+      v2: result.v2,
+      takeoffDistance: result.takeoffDistance,
+    },
+    calculatedAt: result.computedAt,
+    migration: {
+      fromSchemaVersion: 1,
+      weatherProvenance: "legacy-unknown",
+    },
+  };
+}
+
+export function performanceResultFromTakeoffSnapshotV2(
+  snapshot: TakeoffSnapshotV2,
+): PerformanceResult {
+  const weather = snapshot.inputs.weather;
+  const context: FlightPerformanceContext = {
+    activeFlightId: snapshot.identity.activeFlightId,
+    aircraftId: snapshot.identity.aircraftId,
+    dependencySnapshotId:
+      snapshot.audit.activeFlightDependencySnapshotId ?? "snapshot-v2:audit-unavailable",
+    weight: snapshot.inputs.weight,
+    runway: {
+      identifier: snapshot.inputs.runway.identifier,
+      airportIcao: snapshot.inputs.runway.airportIcao,
+    },
+    configuration: snapshot.inputs.configuration,
+    weather: weather?.qnhHpa && weather.oatC
+      ? {
+          qnh: weather.qnhHpa.value,
+          oat: weather.oatC.value,
+        }
+      : null,
+  };
+
+  return {
+    context,
+    contextHash: computeContextHash(context),
+    n1: snapshot.result.n1,
+    v1: snapshot.result.v1,
+    vr: snapshot.result.vr,
+    v2: snapshot.result.v2,
+    takeoffDistance: snapshot.result.takeoffDistance,
+    computedAt: snapshot.calculatedAt,
+    source: snapshot.source.runtime,
+    calculationInputs: {
+      ...(snapshot.derived.pressureAltitudeFt === undefined
+        ? {}
+        : { pressureAltitudeFt: snapshot.derived.pressureAltitudeFt }),
+      ...(weather?.oatC === undefined ? {} : { oatC: weather.oatC.value }),
+    },
+  };
+}
+
+function readLegacyPerformanceResult(
   storage: PerformanceResultStorage,
   aircraftId: string,
   activeFlightId: string,
@@ -315,6 +613,83 @@ export function readPerformanceResult(
   }
 }
 
+export function readTakeoffPerformanceState(
+  storage: PerformanceResultStorage,
+  aircraftId: string,
+  activeFlightId: string,
+): TakeoffPerformanceReadState | null {
+  const v2Key = performanceSnapshotV2Key("TAKEOFF", aircraftId, activeFlightId);
+  const rawV2 = storage.getItem(v2Key);
+
+  if (rawV2 !== null) {
+    try {
+      const parsed: unknown = JSON.parse(rawV2);
+      if (
+        !isTakeoffSnapshotV2(parsed)
+        || parsed.identity.aircraftId !== aircraftId
+        || parsed.identity.activeFlightId !== activeFlightId
+      ) {
+        storage.removeItem(v2Key);
+        return null;
+      }
+      return {
+        snapshot: parsed,
+        result: performanceResultFromTakeoffSnapshotV2(parsed),
+        requiresRecalculation: takeoffSnapshotRequiresRecalculation(parsed),
+        migratedFromLegacy: parsed.migration?.fromSchemaVersion === 1,
+      };
+    } catch {
+      storage.removeItem(v2Key);
+      return null;
+    }
+  }
+
+  const legacy = readLegacyPerformanceResult(storage, aircraftId, activeFlightId);
+  if (!legacy) return null;
+
+  const migrated = migratePerformanceResultV1ToTakeoffSnapshotV2(legacy);
+  if (!migrated) {
+    return null;
+  }
+
+  storage.setItem(v2Key, JSON.stringify(migrated));
+  return {
+    snapshot: migrated,
+    result: legacy,
+    requiresRecalculation: true,
+    migratedFromLegacy: true,
+  };
+}
+
+export function readPerformanceResult(
+  storage: PerformanceResultStorage,
+  aircraftId: string,
+  activeFlightId: string,
+): PerformanceResult | null {
+  return readTakeoffPerformanceState(storage, aircraftId, activeFlightId)?.result ?? null;
+}
+
+export function writeTakeoffPerformanceResultV2(
+  storage: PerformanceResultStorage,
+  result: PerformanceResult,
+  options: TakeoffSnapshotWriteOptions,
+): TakeoffSnapshotV2 {
+  const snapshot = createTakeoffSnapshotV2(result, options);
+  storage.setItem(
+    performanceSnapshotV2Key(
+      "TAKEOFF",
+      result.context.aircraftId,
+      result.context.activeFlightId,
+    ),
+    JSON.stringify(snapshot),
+  );
+  return snapshot;
+}
+
+/**
+ * Legacy v1 writer retained as a compatibility/test seam during P1.2.
+ * New EFB calculations must use writeTakeoffPerformanceResultV2().
+ */
 export function writePerformanceResult(
   storage: PerformanceResultStorage,
   result: PerformanceResult,
@@ -331,4 +706,5 @@ export function clearPerformanceResult(
   activeFlightId: string,
 ): void {
   storage.removeItem(performanceResultKey(aircraftId, activeFlightId));
+  storage.removeItem(performanceSnapshotV2Key("TAKEOFF", aircraftId, activeFlightId));
 }
