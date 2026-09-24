@@ -349,7 +349,9 @@ export function FtLandingPerformanceOperationPresentation({
             </div>
 
             <button
+              aria-busy={busy}
               className={styles.action}
+              data-loading={busy ? "true" : "false"}
               disabled={busy || !canCalculate}
               onClick={calculate}
               type="button"
