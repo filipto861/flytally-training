@@ -65,32 +65,36 @@ test("B4 runway dependency includes airport identity, not only runway number",()
 });
 
 test("B4 UX6 Performance consumes real runway data, governed config and airport-driven METAR",()=>{
-  const source=read("components/ft-performance/FtPerformancePresentation.tsx");
+  const presentation=read("components/ft-performance/FtPerformancePresentation.tsx");
+  const controller=read("components/ft-performance/use-performance-operation.ts");
 
-  assert.match(source,/loadAirportDataset/);
-  assert.match(source,/availableRunwayEnds/);
-  assert.match(source,/resolveRunwayEnd/);
-  assert.match(source,/current\.departure\.icao/);
-  assert.match(source,/takeoffCalculator\?\.flapOptions/);
-  assert.match(source,/aria-label="Takeoff runway"/);
-  assert.match(source,/aria-label="Takeoff flaps"/);
-  assert.match(source,/\/api\/weather\/metar\?icao=/);
-  assert.match(source,/calculatePressureAltitudeFt/);
-  assert.match(source,/calculateWindComponents/);
-  assert.match(source,/Use METAR/);
-  assert.match(source,/Calculate Takeoff/);
-  assert.match(source,/previousDeparture/);
-  assert.match(source,/setMetarSnapshot\(null\)/);
-  assert.match(source,/storedState\?\.requiresRecalculation/);
-  assert.match(source,/snapshotDependencyChanges\.length > 0/);
-  assert.match(source,/!currentContext/);
-  assert.match(source,/!isContextValid\(currentContext, result\.context\)/);
+  assert.match(controller,/loadAirportDataset/);
+  assert.match(controller,/availableRunwayEnds/);
+  assert.match(controller,/resolveRunwayEnd/);
+  assert.match(controller,/current\.departure\.icao/);
+  assert.match(controller,/\/api\/weather\/metar\?icao=/);
+  assert.match(controller,/calculatePressureAltitudeFt/);
+  assert.match(controller,/calculateWindComponents/);
+  assert.match(controller,/previousDeparture/);
+  assert.match(controller,/setAvailableWeather\(null\)/);
+  assert.match(controller,/storedState\?\.requiresRecalculation/);
+  assert.match(controller,/snapshotDependencyChanges\.length > 0/);
+  assert.match(controller,/!currentContext/);
+  assert.match(controller,/!isContextValid\(currentContext, result\.context\)/);
+
+  assert.match(presentation,/current\.departure\.icao/);
+  assert.match(presentation,/takeoffCalculator\?\.flapOptions/);
+  assert.match(presentation,/aria-label="Takeoff runway"/);
+  assert.match(presentation,/aria-label="Takeoff flaps"/);
+  assert.match(presentation,/Use latest METAR|Apply & recalculate/);
+  assert.match(presentation,/Calculate Takeoff/);
 });
 
 test("B4 UX6 Performance no longer requires legacy Active Flight runway/config to render setup",()=>{
-  const source=read("components/ft-performance/FtPerformancePresentation.tsx");
+  const presentation=read("components/ft-performance/FtPerformancePresentation.tsx");
+  const controller=read("components/ft-performance/use-performance-operation.ts");
 
-  assert.doesNotMatch(source,/buildPerformanceContext\(current\)/);
-  assert.match(source,/current && showInputs/);
-  assert.match(source,/buildTakeoffPerformanceContext/);
+  assert.doesNotMatch(controller,/buildPerformanceContext\(current\)/);
+  assert.match(presentation,/current && showInputs/);
+  assert.match(controller,/buildTakeoffPerformanceContext/);
 });

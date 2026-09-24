@@ -1,80 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
 
 import type { ActiveFlight } from "@/lib/active-flight/types";
-import {
-  findAirport,
-  loadAirportDataset,
-} from "@/lib/aviation/airport-dataset";
-import type {
-  AirportDatasetV1,
-  SelectedRunwayContext,
-} from "@/lib/aviation/airport-types";
-import {
-  availableRunwayEnds,
-  resolveRunwayEnd,
-} from "@/lib/aviation/runway-context";
-import { calculatePressureAltitudeFt } from "@/lib/aviation/pressure-altitude";
-import { calculateWindComponents } from "@/lib/aviation/wind-component";
+import type { SelectedRunwayContext } from "@/lib/aviation/airport-types";
 import type { PilotTakeoffCalculatorDefinition } from "@/lib/pilot-takeoff-calculator";
-import {
-  computePerformance,
-  PERFORMANCE_RESULT_EVENT,
-  readTakeoffPerformanceState,
-  takeoffSourceDatasetIds,
-  weatherObservationRefV2,
-  writeTakeoffPerformanceResultV2,
-  type PerformanceCalculationInputs,
-  type TakeoffPerformanceReadState,
-} from "@/lib/performance/client";
-import {
-  buildTakeoffPerformanceContext,
-  diffPerformanceContext,
-  isContextValid,
-} from "@/lib/performance/context";
-import {
-  diffTakeoffSnapshotV2Dependencies,
-  type PerformanceInputProvenance,
-} from "@/lib/performance/snapshot-v2";
+import type { OperationWeatherSource } from "@/lib/performance/operation-weather";
 import type { PerformanceDataset } from "@/lib/universal-aircraft-content";
-import {
-  formatObservationZulu,
-  isMetarSnapshot,
-} from "@/lib/weather/metar-snapshot-helpers";
-import type { MetarSnapshot } from "@/lib/weather/metar-types";
-import { useActiveFlightState } from "@/components/ft-flight/use-active-flight";
+import { formatObservationZulu } from "@/lib/weather/metar-snapshot-helpers";
 
 import { FtPerformanceContextLabel, type FtPerformanceContextKind } from "./FtPerformanceContextLabel";
 import { FtPerformanceInvalidation } from "./FtPerformanceInvalidation";
 import { FtPerformanceStrip } from "./FtPerformanceStrip";
+import { usePerformanceOperation } from "./use-performance-operation";
 import styles from "./ft-performance.module.css";
 
-type EnvironmentSource = "metar" | "manual" | "stored" | "unset";
-type WeatherState = "idle" | "loading" | "ready" | "unavailable";
-
-function numberFromInput(value: string): number | undefined {
-  if (!value.trim()) return undefined;
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : undefined;
-}
-
-function sourceLabel(source: EnvironmentSource): string {
+function sourceLabel(source: OperationWeatherSource): string {
   if (source === "metar") return "METAR";
   if (source === "manual") return "MANUAL";
-  if (source === "stored") return "STORED";
+  if (source === "legacy-unknown") return "STORED";
   return "NOT SET";
-}
-
-function environmentSourceFromSnapshot(
-  source: PerformanceInputProvenance | undefined,
-): EnvironmentSource {
-  if (source === "metar") return "metar";
-  if (source === "manual") return "manual";
-  if (source === "legacy-unknown") return "stored";
-  return "unset";
 }
 
 function runwayDescription(context: SelectedRunwayContext | undefined): string {
@@ -104,431 +49,51 @@ export function FtPerformancePresentation({
   view: FtPerformanceContextKind;
   showInputs?: boolean;
 }>) {
-  const searchParams = useSearchParams();
-  const effectiveVariant = selectedVariant ?? searchParams.get("variant");
-  const { flight } = useActiveFlightState(aircraftId, activeFlight);
-  const current = flight?.lifecycle === "ACTIVE" ? flight : null;
+  const operation = usePerformanceOperation("TAKEOFF", {
+    aircraftId,
+    activeFlight,
+    selectedVariant,
+    datasets,
+    takeoffCalculator,
+  });
 
-  const [storedState, setStoredState] = useState<TakeoffPerformanceReadState | null>(null);
-  const result = storedState?.result ?? null;
-  const [airportDataset, setAirportDataset] = useState<AirportDatasetV1 | null>(null);
-  const [airportDataState, setAirportDataState] = useState<"loading" | "ready" | "error">("loading");
-  const [runwayIdentifier, setRunwayIdentifier] = useState("");
-  const [takeoffWeight, setTakeoffWeight] = useState("");
-  const [takeoffWeightUnit, setTakeoffWeightUnit] = useState<"kg" | "lb">("lb");
-  const [flaps, setFlaps] = useState("");
-  const [antiIce, setAntiIce] = useState(false);
-  const [qnh, setQnh] = useState("");
-  const [oat, setOat] = useState("");
-  const [qnhSource, setQnhSource] = useState<EnvironmentSource>("unset");
-  const [oatSource, setOatSource] = useState<EnvironmentSource>("unset");
-  const [metarSnapshot, setMetarSnapshot] = useState<MetarSnapshot | null>(null);
-  const [weatherState, setWeatherState] = useState<WeatherState>("idle");
-  const [busy, setBusy] = useState(false);
-  const [hydrated, setHydrated] = useState(false);
-
-  const qnhManual = useRef(false);
-  const oatManual = useRef(false);
-  const previousDeparture = useRef<{ flightId: string; icao: string } | null>(null);
-
-  useEffect(() => {
-    let active = true;
-    loadAirportDataset()
-      .then((dataset) => {
-        if (!active) return;
-        setAirportDataset(dataset);
-        setAirportDataState("ready");
-      })
-      .catch(() => {
-        if (!active) return;
-        setAirportDataset(null);
-        setAirportDataState("error");
-      });
-    return () => {
-      active = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    const defaultFlaps = takeoffCalculator?.flapOptions[0]?.value ?? "";
-
-    if (!current) {
-      setStoredState(null);
-      setRunwayIdentifier("");
-      setTakeoffWeight("");
-      setFlaps(defaultFlaps);
-      setAntiIce(false);
-      setQnh("");
-      setOat("");
-      setQnhSource("unset");
-      setOatSource("unset");
-      qnhManual.current = false;
-      oatManual.current = false;
-      setHydrated(true);
-      return;
-    }
-
-    const restore = () => {
-      const restored = readTakeoffPerformanceState(
-        window.localStorage,
-        aircraftId,
-        current.id,
-      );
-      setStoredState(restored);
-      const stored = restored?.result ?? null;
-
-      if (stored) {
-        const sameDeparture = stored.context.runway.airportIcao === current.departure.icao;
-        setRunwayIdentifier(sameDeparture ? stored.context.runway.identifier : "");
-        setTakeoffWeight(String(stored.context.weight.value));
-        setTakeoffWeightUnit(stored.context.weight.unit);
-        setFlaps(stored.context.configuration.flaps);
-        setAntiIce(stored.context.configuration.antiIce);
-
-        if (sameDeparture && stored.context.weather) {
-          const weather = restored?.snapshot.inputs.weather;
-          setQnh(String(stored.context.weather.qnh));
-          setOat(String(stored.context.weather.oat));
-          setQnhSource(environmentSourceFromSnapshot(weather?.qnhHpa?.source));
-          setOatSource(environmentSourceFromSnapshot(weather?.oatC?.source));
-          // Stored calculation inputs stay frozen while a newer METAR is fetched.
-          qnhManual.current = true;
-          oatManual.current = true;
-        } else if (sameDeparture) {
-          const weather = restored?.snapshot.inputs.weather;
-          setQnh(weather?.qnhHpa === undefined ? "" : String(weather.qnhHpa.value));
-          setOat(
-            weather?.oatC === undefined
-              ? (stored.calculationInputs.oatC === undefined ? "" : String(stored.calculationInputs.oatC))
-              : String(weather.oatC.value),
-          );
-          setQnhSource(environmentSourceFromSnapshot(weather?.qnhHpa?.source));
-          setOatSource(environmentSourceFromSnapshot(weather?.oatC?.source));
-          qnhManual.current = weather?.qnhHpa !== undefined;
-          oatManual.current = weather?.oatC !== undefined || stored.calculationInputs.oatC !== undefined;
-        } else {
-          setQnh("");
-          setOat("");
-          setQnhSource("unset");
-          setOatSource("unset");
-          qnhManual.current = false;
-          oatManual.current = false;
-        }
-      } else {
-        setRunwayIdentifier("");
-        setTakeoffWeight(String(current.weight.value));
-        setTakeoffWeightUnit(current.weight.unit);
-        setFlaps(defaultFlaps);
-        setAntiIce(false);
-        setQnh("");
-        setOat("");
-        setQnhSource("unset");
-        setOatSource("unset");
-        qnhManual.current = false;
-        oatManual.current = false;
-      }
-    };
-
-    restore();
-    window.addEventListener(PERFORMANCE_RESULT_EVENT, restore);
-    setHydrated(true);
-    return () => window.removeEventListener(PERFORMANCE_RESULT_EVENT, restore);
-  }, [aircraftId, current?.id, takeoffCalculator]);
-
-  useEffect(() => {
-    if (!current) {
-      previousDeparture.current = null;
-      return;
-    }
-
-    const previous = previousDeparture.current;
-    if (previous?.flightId === current.id && previous.icao !== current.departure.icao) {
-      setRunwayIdentifier("");
-    }
-    previousDeparture.current = { flightId: current.id, icao: current.departure.icao };
-  }, [current?.departure.icao, current?.id]);
-
-  useEffect(() => {
-    const icao = current?.departure.icao;
-    if (!icao) {
-      setMetarSnapshot(null);
-      setWeatherState("idle");
-      return;
-    }
-
-    const controller = new AbortController();
-    setMetarSnapshot(null);
-    setWeatherState("loading");
-
-    fetch(`/api/weather/metar?icao=${encodeURIComponent(icao)}`, {
-      cache: "no-store",
-      signal: controller.signal,
-    })
-      .then(async (response) => {
-        if (response.status === 204) return null;
-        if (!response.ok) throw new Error("weather unavailable");
-        const payload: unknown = await response.json();
-        if (!isMetarSnapshot(payload)) throw new Error("invalid weather");
-        return payload;
-      })
-      .then((snapshot) => {
-        if (controller.signal.aborted) return;
-        setMetarSnapshot(snapshot);
-        if (!snapshot) {
-          setWeatherState("unavailable");
-          return;
-        }
-
-        setWeatherState("ready");
-        if (!qnhManual.current && snapshot.qnhHpa !== undefined) {
-          setQnh(String(Math.round(snapshot.qnhHpa * 100) / 100));
-          setQnhSource("metar");
-        }
-        if (!oatManual.current && snapshot.temperatureC !== undefined) {
-          setOat(String(snapshot.temperatureC));
-          setOatSource("metar");
-        }
-      })
-      .catch(() => {
-        if (controller.signal.aborted) return;
-        setWeatherState("unavailable");
-      });
-
-    return () => controller.abort();
-  }, [current?.departure.icao]);
-
-  const selectedAirport = useMemo(
-    () => current && airportDataset
-      ? findAirport(airportDataset, current.departure.icao)
-      : undefined,
-    [airportDataset, current],
-  );
-
-  const runwayOptions = useMemo(
-    () => selectedAirport ? availableRunwayEnds(selectedAirport) : [],
-    [selectedAirport],
-  );
-
-  const runwayContext = useMemo(
-    () => selectedAirport && runwayIdentifier
-      ? resolveRunwayEnd(selectedAirport, runwayIdentifier, airportDataset?.source)
-      : undefined,
-    [airportDataset?.source, runwayIdentifier, selectedAirport],
-  );
-
-  const qnhNumber = numberFromInput(qnh);
-  const oatNumber = numberFromInput(oat);
-  const weightNumber = numberFromInput(takeoffWeight);
-
-  const pressureAltitude = useMemo(() => {
-    if (!runwayContext || qnhNumber === undefined) return undefined;
-    try {
-      return Math.round(calculatePressureAltitudeFt(
-        runwayContext.airportElevationFt,
-        { unit: "hPa", value: qnhNumber },
-      ));
-    } catch {
-      return undefined;
-    }
-  }, [qnhNumber, runwayContext]);
-
-  const wind = useMemo(() => {
-    if (
-      !runwayContext
-      || runwayContext.headingTrueDeg === undefined
-      || !metarSnapshot
-      || metarSnapshot.windDirectionTrueDeg === undefined
-      || metarSnapshot.windSpeedKt === undefined
-    ) return undefined;
-
-    return calculateWindComponents({
-      windDirectionTrueDeg: metarSnapshot.windDirectionTrueDeg,
-      windSpeedKt: metarSnapshot.windSpeedKt,
-      windGustKt: metarSnapshot.windGustKt,
-      runwayHeadingTrueDeg: runwayContext.headingTrueDeg,
-    });
-  }, [metarSnapshot, runwayContext]);
-
-  const currentContext = useMemo(() => {
-    if (
-      !current
-      || !runwayContext
-      || weightNumber === undefined
-      || weightNumber <= 0
-      || !flaps
-      || qnhNumber === undefined
-      || oatNumber === undefined
-    ) return null;
-
-    return buildTakeoffPerformanceContext(current, {
-      runway: {
-        identifier: runwayContext.runwayIdent,
-        airportIcao: current.departure.icao,
-      },
-      weight: {
-        value: weightNumber,
-        unit: takeoffWeightUnit,
-      },
-      configuration: {
-        flaps,
-        antiIce,
-      },
-      weather: {
-        qnh: qnhNumber,
-        oat: oatNumber,
-      },
-    });
-  }, [
-    antiIce,
-    current,
-    flaps,
-    oatNumber,
-    qnhNumber,
+  const {
+    currentFlight: current,
+    hydrated,
+    busy,
+    result,
+    stale,
+    changes,
+    invalidationMessage,
+    canCalculate,
+    airportDataState,
+    selectedAirportName,
+    selectedAirportElevationFt,
+    runwayOptions,
     runwayContext,
+    runwayIdentifier,
+    takeoffWeight,
     takeoffWeightUnit,
-    weightNumber,
-  ]);
-
-  const currentSourceDatasetIds = currentContext
-    ? takeoffSourceDatasetIds(datasets, takeoffCalculator, currentContext)
-    : [];
-
-  const snapshotDependencyChanges = storedState && currentContext
-    ? diffTakeoffSnapshotV2Dependencies(storedState.snapshot, {
-        variant: effectiveVariant ?? null,
-        pressureAltitudeFt: pressureAltitude,
-        calculatorId: takeoffCalculator?.id ?? null,
-        datasetIds: currentSourceDatasetIds,
-      })
-    : [];
-
-  const stale = Boolean(
-    result
-    && (
-      storedState?.requiresRecalculation
-      || snapshotDependencyChanges.length > 0
-      || !currentContext
-      || !isContextValid(currentContext, result.context)
-    ),
-  );
-
-  const changes = currentContext && result && stale
-    ? diffPerformanceContext(result.context, currentContext)
-    : [];
-
-  const canCalculate = Boolean(
-    currentContext
-    && pressureAltitude !== undefined
-    && oatNumber !== undefined,
-  );
-
-  function calculate(inputs: PerformanceCalculationInputs) {
-    if (!currentContext || !current || !runwayContext) return;
-    setBusy(true);
-    try {
-      const next = computePerformance(
-        currentContext,
-        datasets,
-        takeoffCalculator,
-        inputs,
-      );
-
-      const storedWeather = storedState?.snapshot.inputs.weather;
-      const liveObservationMatches = Boolean(
-        metarSnapshot
-        && metarSnapshot.station.toUpperCase() === current.departure.icao.toUpperCase()
-        && (
-          qnhSource !== "metar"
-          || (
-            metarSnapshot.qnhHpa !== undefined
-            && Math.round(metarSnapshot.qnhHpa * 100) / 100 === qnhNumber
-          )
-        )
-        && (
-          oatSource !== "metar"
-          || metarSnapshot.temperatureC === oatNumber
-        )
-      );
-      const storedObservationMatches = Boolean(
-        storedWeather?.observation
-        && (
-          qnhSource !== "metar"
-          || (
-            storedWeather.qnhHpa?.source === "metar"
-            && storedWeather.qnhHpa.value === qnhNumber
-          )
-        )
-        && (
-          oatSource !== "metar"
-          || (
-            storedWeather.oatC?.source === "metar"
-            && storedWeather.oatC.value === oatNumber
-          )
-        )
-      );
-      const observation = liveObservationMatches && metarSnapshot
-        ? weatherObservationRefV2(metarSnapshot)
-        : storedObservationMatches
-          ? storedWeather?.observation ?? null
-          : null;
-
-      const qnhSnapshotSource =
-        qnhSource === "metar" && observation ? "metar" : "manual";
-      const oatSnapshotSource =
-        oatSource === "metar" && observation ? "metar" : "manual";
-
-      const snapshot = writeTakeoffPerformanceResultV2(
-        window.localStorage,
-        next,
-        {
-          variant: effectiveVariant,
-          runwayContext,
-          qnhSource: qnhSnapshotSource,
-          oatSource: oatSnapshotSource,
-          observation,
-          datasetIds: currentSourceDatasetIds,
-          calculatorId: takeoffCalculator?.id ?? null,
-        },
-      );
-      setStoredState({
-        result: next,
-        snapshot,
-        requiresRecalculation: false,
-        migratedFromLegacy: false,
-      });
-      window.dispatchEvent(new Event(PERFORMANCE_RESULT_EVENT));
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  function calculateFromForm() {
-    calculate({
-      pressureAltitudeFt: pressureAltitude,
-      oatC: oatNumber,
-    });
-  }
-
-  function recalculate() {
-    calculate({
-      pressureAltitudeFt: pressureAltitude,
-      oatC: oatNumber,
-    });
-  }
-
-  function applyMetarQnh() {
-    if (metarSnapshot?.qnhHpa === undefined) return;
-    qnhManual.current = false;
-    setQnh(String(Math.round(metarSnapshot.qnhHpa * 100) / 100));
-    setQnhSource("metar");
-  }
-
-  function applyMetarOat() {
-    if (metarSnapshot?.temperatureC === undefined) return;
-    oatManual.current = false;
-    setOat(String(metarSnapshot.temperatureC));
-    setOatSource("metar");
-  }
+    flaps,
+    antiIce,
+    appliedWeather,
+    availableWeather,
+    weatherFetchState,
+    newerWeatherAvailable,
+    latestWeatherActionNeeded,
+    pressureAltitudeFt,
+    wind,
+    currentContext,
+    setRunwayIdentifier,
+    setTakeoffWeight,
+    setFlaps,
+    setAntiIce,
+    setManualQnh,
+    setManualOat,
+    calculate,
+    recalculate,
+    applyLatestMetar,
+  } = operation;
 
   const resultContent = !hydrated ? (
     <div className={styles.emptyState}><p>Loading performance context…</p></div>
@@ -545,13 +110,7 @@ export function FtPerformancePresentation({
         <FtPerformanceInvalidation
           busy={busy}
           changes={changes}
-          message={
-            storedState?.requiresRecalculation
-              ? "This stored result was migrated from legacy performance data without complete weather provenance. Recalculate to create a current V2 snapshot."
-              : snapshotDependencyChanges.length
-                ? "Aircraft variant, derived performance context or the source-backed performance package changed. Recalculate before using the stored result."
-                : undefined
-          }
+          message={invalidationMessage}
           onRecalculate={recalculate}
           recalculateDisabled={!canCalculate}
         />
@@ -589,6 +148,7 @@ export function FtPerformancePresentation({
       aria-label="Performance"
       data-empty={current && result ? "false" : "true"}
       data-performance-view={view}
+      data-performance-operation={operation.operation}
     >
       <FtPerformanceContextLabel context={view} />
 
@@ -599,7 +159,7 @@ export function FtPerformancePresentation({
               <p className={styles.eyebrow}>TAKEOFF INPUTS</p>
               <h2>{current.departure.icao} departure</h2>
               <p className={styles.inputHelp}>
-                Active Flight supplies the route and planning weight. Performance owns the selected runway, Takeoff configuration and calculation environment.
+                Active Flight supplies the route and planning weight. Performance owns the selected runway, Takeoff configuration and applied calculation environment.
               </p>
             </header>
 
@@ -608,7 +168,7 @@ export function FtPerformancePresentation({
                 <span>Runway</span>
                 <select
                   aria-label="Takeoff runway"
-                  disabled={airportDataState !== "ready" || !selectedAirport || !runwayOptions.length}
+                  disabled={airportDataState !== "ready" || !runwayOptions.length}
                   onChange={(event) => setRunwayIdentifier(event.target.value)}
                   value={runwayIdentifier}
                 >
@@ -623,8 +183,8 @@ export function FtPerformancePresentation({
                 <small>
                   {airportDataState === "error"
                     ? "Airport/runway data unavailable."
-                    : selectedAirport
-                      ? `${selectedAirport.name} · field elevation ${selectedAirport.elevationFt.toLocaleString("en-US")} ft`
+                    : selectedAirportName && selectedAirportElevationFt !== undefined
+                      ? `${selectedAirportName} · field elevation ${selectedAirportElevationFt.toLocaleString("en-US")} ft`
                       : "Departure airport not present in the bundled runway dataset."}
                 </small>
               </label>
@@ -681,17 +241,64 @@ export function FtPerformancePresentation({
                   <p className={styles.eyebrow}>ENVIRONMENT</p>
                   <strong>{current.departure.icao} weather</strong>
                 </div>
-                <span className={styles.sourceChip} data-state={weatherState}>
-                  {weatherState === "loading" ? "LOADING" : weatherState === "ready" ? "METAR" : weatherState === "unavailable" ? "MANUAL" : "—"}
+                <span className={styles.sourceChip} data-state={weatherFetchState}>
+                  {weatherFetchState === "loading"
+                    ? "LOADING"
+                    : weatherFetchState === "ready"
+                      ? "METAR AVAILABLE"
+                      : weatherFetchState === "unavailable"
+                        ? "MANUAL"
+                        : "—"}
                 </span>
               </div>
 
-              {metarSnapshot ? (
+              {availableWeather ? (
                 <p className={styles.sourceMeta}>
-                  AviationWeather.gov · observed {formatObservationZulu(metarSnapshot.observedAt)}
+                  Available · AviationWeather.gov · observed {formatObservationZulu(availableWeather.observedAt)}
                 </p>
-              ) : weatherState === "unavailable" ? (
+              ) : weatherFetchState === "unavailable" ? (
                 <p className={styles.sourceMeta}>Live METAR unavailable. Enter the required values manually.</p>
+              ) : null}
+
+              {appliedWeather.observation ? (
+                <p className={styles.sourceMeta}>
+                  Applied METAR · observed {formatObservationZulu(appliedWeather.observation.observedAt)}
+                </p>
+              ) : (
+                <p className={styles.sourceMeta}>
+                  Applied weather · QNH {sourceLabel(appliedWeather.qnhHpa.source)} · OAT {sourceLabel(appliedWeather.oatC.source)}
+                </p>
+              )}
+
+              {newerWeatherAvailable && availableWeather ? (
+                <div className={styles.weatherUpdate} role="status">
+                  <div>
+                    <strong>NEWER WEATHER AVAILABLE</strong>
+                    <span>
+                      {formatObservationZulu(availableWeather.observedAt)} available; the current calculation keeps its applied weather until you choose to update it.
+                    </span>
+                  </div>
+                  <button
+                    className={styles.inlineAction}
+                    disabled={busy}
+                    onClick={applyLatestMetar}
+                    type="button"
+                  >
+                    {busy ? "Recalculating…" : "Apply & recalculate"}
+                  </button>
+                </div>
+              ) : latestWeatherActionNeeded && availableWeather ? (
+                <div className={styles.weatherAction}>
+                  <span>Latest METAR is available without replacing manual/applied values automatically.</span>
+                  <button
+                    className={styles.inlineAction}
+                    disabled={busy}
+                    onClick={applyLatestMetar}
+                    type="button"
+                  >
+                    {result ? "Apply latest & recalculate" : "Use latest METAR"}
+                  </button>
+                </div>
               ) : null}
 
               <div className={styles.inputGrid}>
@@ -701,23 +308,16 @@ export function FtPerformancePresentation({
                     <input
                       inputMode="decimal"
                       name="qnh"
-                      onChange={(event) => {
-                        qnhManual.current = true;
-                        setQnhSource("manual");
-                        setQnh(event.target.value);
-                      }}
+                      onChange={(event) => setManualQnh(event.target.value)}
                       placeholder="1013.25"
                       step="0.01"
                       type="number"
-                      value={qnh}
+                      value={appliedWeather.qnhHpa.value ?? ""}
                     />
                     <small>hPa</small>
                   </span>
                   <small className={styles.fieldMeta}>
-                    {sourceLabel(qnhSource)}
-                    {qnhSource !== "metar" && metarSnapshot?.qnhHpa !== undefined ? (
-                      <button className={styles.inlineAction} onClick={applyMetarQnh} type="button">Use METAR</button>
-                    ) : null}
+                    {sourceLabel(appliedWeather.qnhHpa.source)}
                   </small>
                 </label>
 
@@ -727,23 +327,16 @@ export function FtPerformancePresentation({
                     <input
                       inputMode="decimal"
                       name="oat"
-                      onChange={(event) => {
-                        oatManual.current = true;
-                        setOatSource("manual");
-                        setOat(event.target.value);
-                      }}
+                      onChange={(event) => setManualOat(event.target.value)}
                       placeholder="15"
                       step="any"
                       type="number"
-                      value={oat}
+                      value={appliedWeather.oatC.value ?? ""}
                     />
                     <small>°C</small>
                   </span>
                   <small className={styles.fieldMeta}>
-                    {sourceLabel(oatSource)}
-                    {oatSource !== "metar" && metarSnapshot?.temperatureC !== undefined ? (
-                      <button className={styles.inlineAction} onClick={applyMetarOat} type="button">Use METAR</button>
-                    ) : null}
+                    {sourceLabel(appliedWeather.oatC.source)}
                   </small>
                 </label>
               </div>
@@ -751,7 +344,7 @@ export function FtPerformancePresentation({
               <dl className={styles.environmentFacts}>
                 <div>
                   <dt>Pressure altitude</dt>
-                  <dd>{pressureAltitude === undefined ? "—" : `${pressureAltitude.toLocaleString("en-US")} ft`}</dd>
+                  <dd>{pressureAltitudeFt === undefined ? "—" : `${pressureAltitudeFt.toLocaleString("en-US")} ft`}</dd>
                 </div>
                 <div>
                   <dt>Runway context</dt>
@@ -771,7 +364,7 @@ export function FtPerformancePresentation({
             <button
               className={styles.action}
               disabled={busy || !canCalculate}
-              onClick={calculateFromForm}
+              onClick={calculate}
               type="button"
             >
               {busy

@@ -718,6 +718,96 @@ test("B4 Recalculate replaces stale values with the new operation-owned weight",
   await expect(performance.locator('[data-metric="takeoffDistance"]')).toContainText("3,500 ft");
 });
 
+test("P1.3 newer METAR remains AVAILABLE until explicit Apply & recalculate", async ({ page }) => {
+  let metar = {
+    station: "LKPR",
+    observedAt: "2026-09-24T06:30:00.000Z",
+    fetchedAt: "2026-09-24T06:31:00.000Z",
+    rawText: "LKPR 240630Z 24008KT CAVOK 15/08 Q1013",
+    temperatureC: 15,
+    dewpointC: 8,
+    qnhHpa: 1013.25,
+    windDirectionTrueDeg: 240,
+    windSpeedKt: 8,
+    windVariable: false,
+    windCalm: false,
+    source: "aviationweather.gov",
+  };
+
+  await page.route("**/api/weather/metar?icao=LKPR", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(metar),
+    });
+  });
+
+  await createD0ActiveFlight(page);
+  await page.goto(`${shellOnBase}${aircraftPath}/performance`);
+
+  const performance = page
+    .getByRole("main", { name: "Performance workspace" })
+    .getByRole("region", { name: "Performance", exact: true });
+
+  await performance.getByLabel("Takeoff runway").selectOption("24");
+  await expect(performance.getByLabel("QNH")).toHaveValue("1013.25");
+  await expect(performance.getByLabel("OAT")).toHaveValue("15");
+  await performance.getByRole("button", { name: "Calculate Takeoff", exact: true }).click();
+  await expect(performance.locator('[data-ft-performance-strip="true"]')).toHaveAttribute(
+    "data-stale",
+    "false",
+  );
+  await expect(performance.getByText("+8.0 kt", { exact: true })).toBeVisible();
+
+  const newerMetar = {
+    ...metar,
+    observedAt: "2026-09-24T07:00:00.000Z",
+    fetchedAt: "2026-09-24T07:01:00.000Z",
+    rawText: "LKPR 240700Z 06012KT CAVOK 17/09 Q1011",
+    temperatureC: 17,
+    dewpointC: 9,
+    qnhHpa: 1011,
+    windDirectionTrueDeg: 60,
+    windSpeedKt: 12,
+  };
+
+  await page.unroute("**/api/weather/metar?icao=LKPR");
+  await page.route("**/api/weather/metar?icao=LKPR", async (route) => {
+    await route.fulfill({
+      status: 200,
+      headers: { "cache-control": "no-store" },
+      contentType: "application/json",
+      body: JSON.stringify(newerMetar),
+    });
+  });
+
+  await page.reload();
+  const restored = page
+    .getByRole("main", { name: "Performance workspace" })
+    .getByRole("region", { name: "Performance", exact: true });
+
+  await expect(restored.getByLabel("QNH")).toHaveValue("1013.25");
+  await expect(restored.getByLabel("OAT")).toHaveValue("15");
+  await expect(restored).toContainText("Available · AviationWeather.gov · observed 07:00Z");
+  await expect(restored.getByText("NEWER WEATHER AVAILABLE", { exact: true })).toBeVisible();
+  await expect(restored.locator('[data-ft-performance-strip="true"]')).toHaveAttribute(
+    "data-stale",
+    "false",
+  );
+  await expect(restored.getByText("+8.0 kt", { exact: true })).toBeVisible();
+
+  await restored.getByRole("button", { name: "Apply & recalculate", exact: true }).click();
+
+  await expect(restored.getByLabel("QNH")).toHaveValue("1011");
+  await expect(restored.getByLabel("OAT")).toHaveValue("17");
+  await expect(restored.getByText("NEWER WEATHER AVAILABLE", { exact: true })).toHaveCount(0);
+  await expect(restored.locator('[data-ft-performance-strip="true"]')).toHaveAttribute(
+    "data-stale",
+    "false",
+  );
+  await expect(restored.getByText("-12.0 kt", { exact: true })).toBeVisible();
+});
+
 test("B4 departure airport change invalidates Takeoff and clears the selected runway", async ({ page }) => {
   await calculateP2Performance(page);
   await page.goto(`${shellOnBase}${aircraftPath}/flight`);

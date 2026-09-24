@@ -344,6 +344,42 @@
   cursor: pointer;
 }
 
+.weatherUpdate,
+.weatherAction {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ft-space-3);
+  padding: var(--ft-space-3);
+  border: var(--ft-rule-default);
+  border-radius: var(--ft-radius-4);
+  background: var(--ft-bg-panel);
+}
+
+.weatherUpdate {
+  border-color: var(--ft-state-recalc);
+  background: var(--ft-state-recalc-bg);
+}
+
+.weatherUpdate > div {
+  display: grid;
+  gap: var(--ft-space-1);
+}
+
+.weatherUpdate strong {
+  color: var(--ft-state-recalc);
+  font-family: var(--ft-font-data);
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+}
+
+.weatherUpdate span,
+.weatherAction > span {
+  color: var(--ft-text-secondary);
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
+
 .environmentFacts {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -730,6 +766,17 @@
 
   .action,
   .secondaryAction {
+    width: 100%;
+  }
+
+  .weatherUpdate,
+  .weatherAction {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .weatherUpdate .inlineAction,
+  .weatherAction .inlineAction {
     width: 100%;
   }
 
