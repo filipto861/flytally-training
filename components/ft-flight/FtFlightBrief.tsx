@@ -133,7 +133,7 @@ export function FtFlightBrief({
           ) : (
             <Link
               className={styles.primaryAction}
-              href={withVariantQuery(`/aircraft/${aircraftId}/flight`, selectedVariant)}
+              href="#ft-active-flight"
             >
               Start active flight
             </Link>

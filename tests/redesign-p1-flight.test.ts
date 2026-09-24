@@ -39,9 +39,10 @@ test("P1.1 Flight Brief keeps operational sections and removes Training Recommen
   assert.match(page, /FtActiveFlight/);
   assert.match(page, /FtFlightBrief/);
   assert.match(active, />Active Flight</);
-  assert.match(brief, />Performance</);
-  assert.match(brief, /FtPerformancePresentation/);
-  assert.match(brief, /view="brief"/);
+  assert.match(brief, /aria-label="Takeoff performance brief"/);
+  assert.match(brief, /FtPerformanceStrip/);
+  assert.match(brief, /FtPerformanceEditorSheet/);
+  assert.match(brief, /usePerformanceOperation\("TAKEOFF"/);
   assert.match(brief, />Flight Considerations</);
   assert.match(brief, />Relevant Procedures</);
   assert.doesNotMatch(brief, />Training Recommendations</);
@@ -71,7 +72,7 @@ test("P1 keeps non-performance downstream slots empty while P2 owns Performance 
   assert.match(active, /Start new flight/);
   assert.equal((brief.match(/data-empty="true"/g) ?? []).length, 2);
   assert.match(brief, /data-flight-context=\{hasActiveFlight \? "active" : "none"\}/);
-  assert.match(brief, /FtPerformancePresentation/);
+  assert.match(brief, /usePerformanceOperation\("TAKEOFF"/);
   assert.match(recent, /data-empty="true"/);
   assert.match(recent, /No recent flights\./);
 });
