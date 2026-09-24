@@ -148,7 +148,8 @@ Prerequisite data accepted locally:
 - governed Takeoff Weight Limits · Flaps 20° (P-13);
 - source-node / interpolation / sparse / no-extrapolation tests;
 - registration in the Learjet performance package without enabling Partial Power output;
-- local prerequisite gate: typecheck PASS + PP.2/B7/B8/PP.1 targeted suite **69/69 PASS**.
+- local prerequisite gate: typecheck PASS + PP.2/B7/B8/PP.1 targeted suite **69/69 PASS**;
+- generic solver + Learjet adapter gate: typecheck PASS + **100/100 PASS**.
 
 Generic assumed-temperature selector is now staged in `lib/performance/assumed-temperature.ts`. It:
 - accepts explicit TORA and ASDA and uses the lower value;
@@ -160,7 +161,7 @@ Generic assumed-temperature selector is now staged in `lib/performance/assumed-t
 - preserves the selected candidate's source dataset identities;
 - returns V1 and corrected takeoff distance, but deliberately does not return reduced N1.
 
-The Learjet adapter is now staged in `aircraft-data/learjet-35a/performance/partial-power-adapter.ts`. It:
+The Learjet adapter is accepted locally in `aircraft-data/learjet-35a/performance/partial-power-adapter.ts`. It:
 - evaluates only the published Takeoff Weight Limit temperature-axis candidates above ambient;
 - binds Flaps 8° / 20° to their separate weight-limit, V1 and takeoff-distance sources;
 - preserves the verified B6 Flaps 8 wind transforms for both V1 and distance;
@@ -183,9 +184,11 @@ Aircraft adapter inputs are:
 
 The solver must return no solution when any required operational dependency is unavailable or unsupported.
 
-### PP.3 — solver/runtime
+### PP.3 — reduced-N1 source/runtime boundary — NEXT
 
-Declared-distance TORA/ASDA is now frozen by PR #220. Operational solver integration proceeds only after PP.2 prerequisite data and remaining N1 source semantics are accepted:
+Declared-distance TORA/ASDA is frozen by PR #220 and the assumed-temperature candidate engine is locally accepted. Operational Partial Power output remains blocked only on the reduced-N1 source/runtime boundary.
+
+The next phase must not infer parenthesized-cell semantics. Safe implementation options are limited to source-defined semantics or explicit fail-closed exclusion of any candidate whose N1 evaluation requires an unresolved parenthesized source cell.
 
 1. find the highest source-supported Assumed Temperature satisfying the runway and weight constraint;
 2. calculate V1 using that Assumed Temperature;
