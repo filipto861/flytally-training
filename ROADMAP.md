@@ -162,7 +162,7 @@ B5 intentionally does not apply unsupported wind/slope/declared-distance correct
 
 ## B6 — Takeoff wind correction — IN PROGRESS · branch `feat/b6-takeoff-wind`
 
-B6 generic runtime gate (2026-09-24): `npm run typecheck` PASS; targeted B4/B8/B6 Node suite **38/38 PASS** on local Windows checkout. Source extraction remains the active subphase.
+B6 generic runtime gate (2026-09-24): `npm run typecheck` PASS; targeted B4/B8/B6 Node suite **38/38 PASS** on local Windows checkout. B6.1 source-grid gate then passed **48/48** with typecheck PASS. Flaps 8 source extraction/runtime are accepted; canonical operation integration (B6.3) is now staged for its local gate.
 
 Source topology is frozen as two independent post-baseline transforms:
 
