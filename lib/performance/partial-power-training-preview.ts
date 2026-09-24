@@ -1,5 +1,3 @@
-import aeroncaExtractJson from "../../aircraft-data/learjet-35a/performance/source-extracts/partial-power-n1-aeronca.json";
-
 import {
   evaluateLearjet35aAeroncaPartialPower,
   type Learjet35aAeroncaPartialPowerResult,
@@ -30,6 +28,7 @@ export type PartialPowerTrainingPreviewRequest = {
   readonly declaredDistances: RunwayDeclaredDistances;
   readonly eligibility: Learjet35aPartialPowerEligibility;
   readonly thrustReversers: PartialPowerThrustReverserConfiguration;
+  readonly aeroncaN1Extract?: PartialPowerN1SourceExtract;
 };
 
 export type PartialPowerTrainingPreviewResult =
@@ -38,8 +37,6 @@ export type PartialPowerTrainingPreviewResult =
       readonly status: "unsupported";
       readonly reason: string;
     };
-
-const aeroncaExtract = aeroncaExtractJson as unknown as PartialPowerN1SourceExtract;
 
 /**
  * Source-gated training preview boundary for Partial Power.
@@ -90,10 +87,17 @@ export function evaluatePartialPowerTrainingPreview(
     };
   }
 
+  if (!request.aeroncaN1Extract) {
+    return {
+      status: "unsupported",
+      reason: "Aeronca reduced-N1 source extract is unavailable.",
+    };
+  }
+
   return evaluateLearjet35aAeroncaPartialPower(
     request.datasets,
     request.definition,
-    aeroncaExtract,
+    request.aeroncaN1Extract,
     {
       pressureAltitudeFt: request.pressureAltitudeFt,
       ambientTemperatureC: request.ambientTemperatureC,
