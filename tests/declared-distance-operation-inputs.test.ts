@@ -39,7 +39,7 @@ test("DD.4 full-rated Takeoff calculation does not require declared distances", 
   );
 
   assert.match(canCalculateBlock, /currentContext/);
-  assert.match(canCalculateBlock, /pressureAltitudeFt/);
+  assert.match(canCalculateBlock, /performancePressureAltitudeFt/);
   assert.doesNotMatch(canCalculateBlock, /toraFt|asdaFt|declaredDistanceConstraint/);
 });
 

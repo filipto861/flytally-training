@@ -258,7 +258,9 @@ Rules:
 - Aeronca reduced N1 may follow the W1072-authorized bounded interpolation already established in PP.3;
 - runway length is a continuous constraint, not a lookup breakpoint;
 - sparse source regions still fail closed;
-- **no extrapolation** is introduced;
+- negative derived pressure altitude uses the published **S.L. chart floor** rather than failing below the first table row;
+- no arbitrary mathematical extrapolation beyond an authoritative source envelope;
+- where a checklist table is narrower than the underlying AFM chart, extend the governed dataset from the AFM chart instead of extrapolating the checklist-table edge;
 - missing configuration-specific source data is not fabricated. In particular, Flaps 20 nonzero-wind Takeoff correction remains fail-closed until a verified source is digitized.
 
 UX:
@@ -286,7 +288,8 @@ After wind + Partial Power:
 - source provenance visible and auditable;
 - manual overrides explicit and sticky;
 - no arbitrary METAR operational-expiry thresholds;
-- no silent extrapolation;
+- no silent or unsupported extrapolation;
+- source-envelope extensions must come from the AFM/manual chart where available;
 - no fabricated aviation authority;
 - desktop/iPad/mobile acceptance required before merge.
 
@@ -341,7 +344,14 @@ After wind + Partial Power:
    - Takeoff + Landing calculate buttons paint disabled loading feedback before synchronous work
    - no extrapolation; Flaps 20 nonzero-wind remains source-blocked
    - acceptance: targeted 134/134 · full Node 1186 total / 1185 PASS / 1 SKIP · build PASS · targeted browser 8/8 · full Playwright 388/388
-12. **Partial Power operational enablement** — SOURCE REVIEW / CONFIGURATION-SPECIFIC
+12. **Sea-level performance floor + source-envelope completion** — IN PROGRESS · `fix/performance-sea-level-floor`
+   - negative derived pressure altitude uses 0 ft / S.L. as the Takeoff source floor
+   - UI keeps actual derived PA visible and separately shows the performance PA used
+   - LFMN-like -100 ft PA regression must resolve N1/V1/TOD instead of Out of range
+   - ordinary in-envelope values continue bounded interpolation
+   - follow-up source work: digitize wider AFM chart envelopes (for example the Flaps 8 Takeoff chart altitude scale beyond the narrower checklist table) rather than inventing unrestricted linear extrapolation
+
+13. **Partial Power operational enablement** — SOURCE REVIEW / CONFIGURATION-SPECIFIC
    - P-6/P-6.1 explicitly impose a 7.7% N1 reduction limit for no-reverser/Aeronca schedules
    - FlightSafety separately states <=25% rated-takeoff-thrust reduction; do not invent an N1-to-thrust conversion
    - Aeronca has W1072 interpolation authority and is the first candidate for operational enablement after remaining applicability interpretation is closed

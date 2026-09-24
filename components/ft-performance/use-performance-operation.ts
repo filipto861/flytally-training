@@ -59,6 +59,7 @@ import {
   diffTakeoffSnapshotV2Dependencies,
   type TakeoffSnapshotV2DependencyChange,
 } from "@/lib/performance/snapshot-v2";
+import { normalizePressureAltitudeToSeaLevelFloor } from "@/lib/performance/source-envelope";
 import type { PerformanceDataset } from "@/lib/universal-aircraft-content";
 import { isMetarSnapshot } from "@/lib/weather/metar-snapshot-helpers";
 import type { MetarSnapshot } from "@/lib/weather/metar-types";
@@ -107,6 +108,8 @@ export type TakeoffPerformanceOperationController = {
   readonly newerWeatherAvailable: boolean;
   readonly latestWeatherActionNeeded: boolean;
   readonly pressureAltitudeFt?: number;
+  readonly performancePressureAltitudeFt?: number;
+  readonly pressureAltitudeMethod?: "identity" | "sea-level-floor";
   readonly wind?: WindComponents;
   readonly currentContext: FlightPerformanceContext | null;
   readonly setRunwayIdentifier: (value: string) => void;
@@ -463,6 +466,15 @@ function useTakeoffPerformanceOperation(
     }
   }, [calculationWeather?.qnh, runwayContext]);
 
+  const pressureAltitudeNormalization = useMemo(
+    () => pressureAltitudeFt === undefined
+      ? undefined
+      : normalizePressureAltitudeToSeaLevelFloor(pressureAltitudeFt),
+    [pressureAltitudeFt],
+  );
+  const performancePressureAltitudeFt =
+    pressureAltitudeNormalization?.performancePressureAltitudeFt;
+
   const wind = useMemo(
     () => windComponentsForAppliedWeather(appliedWeather, runwayContext),
     [appliedWeather, runwayContext],
@@ -511,7 +523,7 @@ function useTakeoffPerformanceOperation(
   const snapshotDependencyChanges = storedState && currentContext
     ? diffTakeoffSnapshotV2Dependencies(storedState.snapshot, {
         variant: selectedVariant ?? null,
-        pressureAltitudeFt,
+        pressureAltitudeFt: performancePressureAltitudeFt,
         runwayWindComponentKt,
         calculatorId: takeoffCalculator?.id ?? null,
         datasetIds: currentSourceDatasetIds,
@@ -534,7 +546,7 @@ function useTakeoffPerformanceOperation(
 
   const canCalculate = Boolean(
     currentContext
-    && pressureAltitudeFt !== undefined
+    && performancePressureAltitudeFt !== undefined
     && calculationWeather,
   );
 
@@ -585,10 +597,13 @@ function useTakeoffPerformanceOperation(
 
     let nextPressureAltitude: number;
     try {
-      nextPressureAltitude = Math.round(calculatePressureAltitudeFt(
+      const observedPressureAltitude = Math.round(calculatePressureAltitudeFt(
         runwayContext.airportElevationFt,
         { unit: "hPa", value: values.qnh },
       ));
+      nextPressureAltitude = normalizePressureAltitudeToSeaLevelFloor(
+        observedPressureAltitude,
+      ).performancePressureAltitudeFt;
     } catch {
       return null;
     }
@@ -748,6 +763,8 @@ function useTakeoffPerformanceOperation(
     newerWeatherAvailable,
     latestWeatherActionNeeded,
     pressureAltitudeFt,
+    performancePressureAltitudeFt,
+    pressureAltitudeMethod: pressureAltitudeNormalization?.method,
     wind,
     currentContext,
     setRunwayIdentifier: (value) => {

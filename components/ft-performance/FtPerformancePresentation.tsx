@@ -77,6 +77,8 @@ export function FtPerformanceOperationPresentation({
     newerWeatherAvailable,
     latestWeatherActionNeeded,
     pressureAltitudeFt,
+    performancePressureAltitudeFt,
+    pressureAltitudeMethod,
     wind,
     currentContext,
     setRunwayIdentifier,
@@ -404,6 +406,12 @@ export function FtPerformanceOperationPresentation({
                   <dt>Pressure altitude</dt>
                   <dd>{pressureAltitudeFt === undefined ? "—" : `${pressureAltitudeFt.toLocaleString("en-US")} ft`}</dd>
                 </div>
+                {pressureAltitudeMethod === "sea-level-floor" ? (
+                  <div>
+                    <dt>Performance PA</dt>
+                    <dd>{performancePressureAltitudeFt?.toLocaleString("en-US")} ft · S.L. chart floor</dd>
+                  </div>
+                ) : null}
                 <div>
                   <dt>Runway context</dt>
                   <dd>{runwayDescription(runwayContext)}</dd>
