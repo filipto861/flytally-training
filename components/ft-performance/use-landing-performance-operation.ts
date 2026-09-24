@@ -243,7 +243,7 @@ export function useLandingPerformanceOperation({
       setFlaps(stored.context.configuration.flaps);
       setAppliedWeather(
         sameDestination
-          ? appliedWeatherFromSnapshot(restored.snapshot.inputs.weather)
+          ? appliedWeatherFromSnapshot(restored?.snapshot.inputs.weather)
           : EMPTY_OPERATION_WEATHER,
       );
     };
