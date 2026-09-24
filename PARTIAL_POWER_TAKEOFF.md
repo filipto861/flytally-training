@@ -105,6 +105,16 @@ They are intentionally **not** registered in the operational performance package
 
 The Aeronca source contains one notable extra parenthesized cell at **OAT 80°F / Assumed Temperature 90°F** in addition to the ambient-equals-assumed diagonal. That distinction is preserved exactly and remains unresolved.
 
+## Secondary cross-check — Aeronca W1072
+
+A separate FAA-approved Aeronca thrust-reverser AFM supplement, **AFMS W1072**, is reproduced in an NTSB public docket. Its Partial Power chart includes a worked example:
+
+- Assumed Temperature: 82°F;
+- Ambient Temperature: 50°F;
+- Reduced Thrust Setting: 91% N1.
+
+This independently cross-checks the magnitude and axis orientation of the CL-102B P-6.1 Aeronca extraction. It does **not** resolve the parenthesized-cell semantics, does not authorize extrapolation, and does not establish applicability for the no-reverser or TR-4000 schedules. The CL-102B/approved-AFM source chain remains the production-data authority.
+
 ## Unresolved source questions
 
 Do not author production N1 data until these are resolved directly from the source:
