@@ -374,12 +374,32 @@ The detailed future sequence is tracked in **Active implementation order** below
    - merged to `main` in PR #224; production merge commit `7d90482dcb909e159fbfe95a94bc315e971b9374`
 
 13. **Performance source-envelope completion** — IN PROGRESS · started 2026-09-24
-   - audit each current Learjet performance dataset against the highest-authority applicable AFM/AFMS source rather than assuming the narrower checklist-table envelope is final
-   - extend governed datasets only where the actual source chart publishes a wider envelope
-   - cover N1, V1, Takeoff Distance, VR/V2 and Landing datasets independently because their valid source regions may differ
-   - preserve irregular/sparse chart boundaries explicitly; do not convert an irregular source region into an unsafe rectangular envelope
-   - add exact-boundary, just-inside, just-outside and interpolation-seam regression tests for every expanded dataset
-   - no arbitrary mathematical extrapolation; source-envelope completion means digitizing additional published source data
+   - **13.1 Source/effectivity inventory — COMPLETE**
+     - current governed dataset envelopes inventoried for Takeoff N1, V1, Takeoff Distance, VR/V2, VREF and Factored Landing Distance
+     - current CL-102B-derived Takeoff V1/Distance grids stop at 10,000 ft; current factored Landing Distance grid stops at 10,000 ft; VR/V2/VREF are weight-only schedules
+     - current standard-nozzle Takeoff N1 dataset stops at 10,000 ft because its stored nodes are checklist-derived even though its target source identity is AFM Figure 5-14
+     - FlightSafety reproductions identify wider AFM chart domains for several metrics, but are training material and are not sufficient by themselves to author new operational rows
+   - **13.2 Authoritative AFM Section V source closure — BLOCKED / REQUIRED BEFORE DATA EXTENSION**
+     - the currently available FM-102 PDF establishes AFM authority/effectivity but does not contain the Section V chart pages needed to digitize the wider envelopes
+     - obtain/verify applicable authoritative AFM/AFMS pages before adding any new operational source rows
+     - priority source targets: Figure 5-14 / page 5-25 (Takeoff N1), Figure 5-25 / page 5-40 (Takeoff Distance Flaps 8), Figure 5-26 / page 5-41 (V1 Flaps 8), applicable Flaps 20 equivalents, and landing chart pages including Figure 5-49 / page 5-66 and Figure 5-52 / page 5-69
+   - **13.3 Takeoff N1 envelope extension — PLANNED AFTER 13.2**
+     - audit the AFM-specific altitude topology, including the chart region above the current 10,000-ft checklist grid and any configuration/high-hot caps
+     - preserve exact configuration identity; do not generalize standard-nozzle/Aeronca/TR-4000 schedules
+   - **13.4 V1 + Takeoff Distance envelope extension — PLANNED AFTER 13.2**
+     - audit Flaps 8 and Flaps 20 separately
+     - preserve sparse high/hot boundaries and pair V1/Distance source coordinates where the source topology requires them
+     - do not infer missing chart cells from the current table edge
+   - **13.5 Landing envelope extension — PLANNED AFTER 13.2**
+     - audit Landing Weight Limit and Actual/Factored Landing Distance source domains independently
+     - preserve current factored-distance semantics; do not derive or substitute ACTUAL/FACTORED values unless the applicable source explicitly supports the transformation
+   - **13.6 VR/V2/VREF endpoint audit — PLANNED**
+     - verify weight endpoints/effectivity against the applicable AFM/approved source
+     - no altitude dimension will be added unless the source itself defines one
+   - **13.7 Boundary/seam regression + acceptance — PLANNED**
+     - add exact-boundary, just-inside, just-outside and interpolation-seam regression tests for every expanded dataset
+     - full Node suite, production build and desktop/mobile/iPad Playwright required before merge
+   - global rule: extend governed datasets only from the actual applicable AFM/AFMS source; no arbitrary mathematical extrapolation
 
 14. **Partial Power / Derated Takeoff operational enablement + pilot UI** — BLOCKED ON SOURCE CLOSURE
    - add an explicit Takeoff thrust-mode selector to the operational Performance UI:
