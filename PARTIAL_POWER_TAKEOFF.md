@@ -213,6 +213,22 @@ The interpolation remains fail-closed:
 - no interpolation region may touch a parenthesized source cell;
 - no-reverser and TR-4000 interpolation remain unauthorized.
 
+### Aeronca full-rated N1 prerequisite
+
+The 7.7 N1-point reduction limit on P-6.1 must be measured against the **Aeronca-specific full-rated takeoff N1 schedule**, not the existing standard/no-reverser Takeoff N1 dataset. CL-102B P-5.1 is therefore staged as a separate governed dataset:
+- `learjet-35a-takeoff-n1-aeronca-anti-ice-off`;
+- exact source nodes only where published;
+- sparse high-temperature regions preserved fail-closed;
+- parenthesized fractional-altitude caps are not extended beyond the last explicit 1,000-ft node;
+- the parsed 5°F/-15°C, 6,000-ft OCR error is corrected to **95.1% N1** after visual source verification.
+
+The Learjet Aeronca integration now evaluates the PP.2 runway/weight/V1/distance candidate set against:
+1. P-5.1 full-rated N1 at ambient OAT/pressure altitude;
+2. P-6.1 reduced N1 at ambient + assumed temperature;
+3. the P-6.1 maximum **7.7 N1-point** reduction.
+
+It returns `source-supported`, not operational `ready`. FlightSafety also requires thrust reduction not to exceed **25% of rated takeoff thrust for the existing ambient condition**. The current source package does not yet contain a validated N1-to-rated-thrust relationship for that independent check, so operational use remains explicitly blocked.
+
 Current source review still contains no authoritative legend defining the P-6/P-6.1 parentheses. Until such a definition is found, those cells remain blocked.
 
 1. find the highest source-supported Assumed Temperature satisfying the runway and weight constraint;
