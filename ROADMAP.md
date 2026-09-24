@@ -209,7 +209,7 @@ The baseline remains the existing governed zero-wind dry-runway calculation. Win
 - regression coverage proving VR/V2/N1 and Landing are unchanged;
 - desktop/iPad/mobile Playwright acceptance before merge.
 
-## Partial Power / Reduced Thrust Takeoff — PLANNED AFTER B6
+## Partial Power / Reduced Thrust Takeoff — SOURCE EXTRACTION IN PROGRESS · branch `feat/partial-power-source-contract`
 
 Raw source extraction may proceed independently after B6 source/runtime boundaries are frozen.
 
@@ -275,5 +275,10 @@ After wind + Partial Power:
    - B6.2 generic correction runtime — COMPLETE
    - B6.3 canonical Takeoff operation integration — COMPLETE
    - B6.4 acceptance — COMPLETE
-7. Partial Power source extraction + solver/runtime
+7. **Partial Power source extraction** — IN PROGRESS · `feat/partial-power-source-contract`
+   - source contract + applicability inventory
+   - three configuration-specific N1 schedules
+   - assumed-temperature source semantics
+   - solver remains blocked on declared-distance/TORA workflow
 8. Declared-distance provider/input hardening
+9. Partial Power solver/runtime after declared-distance workflow is frozen
