@@ -1,6 +1,6 @@
 # B6 — Takeoff Wind Correction Source Contract
 
-**Status:** Final acceptance in progress  
+**Status:** Complete · PR #218  
 **Branch:** `feat/b6-takeoff-wind`  
 **Roadmap:** `ROADMAP.md` B6
 
@@ -157,6 +157,19 @@ The Playwright acceptance:
 - reloads with a newer AVAILABLE METAR and confirms the stored result does not silently change;
 - exercises explicit **Apply & recalculate** and verifies the corrected outputs update;
 - runs across desktop, mobile, iPad landscape and iPad portrait projects.
+
+## Final acceptance
+
+B6 passed the complete acceptance gate on 2026-09-24:
+
+- targeted post-race-fix Node regression: **35/35 PASS**;
+- production build: PASS;
+- targeted responsive B6 Playwright: **4/4 PASS**;
+- full Node suite: **1092 total / 1091 PASS / 0 FAIL / 1 SKIP**;
+- final production build: PASS;
+- full Playwright suite: **384/384 PASS**.
+
+The browser gate also validated the atomic **Apply & recalculate** behavior after a readiness race was discovered and fixed: APPLIED weather can no longer advance independently of the stored calculation when the calculation context is not ready.
 
 ## Acceptance before operational integration
 
