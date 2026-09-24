@@ -10,7 +10,6 @@ import type { PilotTakeoffCalculatorDefinition } from "@/lib/pilot-takeoff-calcu
 import type { PerformanceDataset } from "@/lib/universal-aircraft-content";
 import { FtLandingPerformanceStrip } from "@/components/ft-performance/FtLandingPerformanceStrip";
 import { FtPerformanceStrip } from "@/components/ft-performance/FtPerformanceStrip";
-import { useLandingPerformanceOperation } from "@/components/ft-performance/use-landing-performance-operation";
 import { usePerformanceOperation } from "@/components/ft-performance/use-performance-operation";
 
 import { FtPerformanceEditorSheet } from "./FtPerformanceEditorSheet";
@@ -52,7 +51,7 @@ export function FtFlightBrief({
     datasets,
     takeoffCalculator,
   });
-  const landingOperation = useLandingPerformanceOperation({
+  const landingOperation = usePerformanceOperation("LANDING", {
     aircraftId,
     activeFlight,
     selectedVariant,
