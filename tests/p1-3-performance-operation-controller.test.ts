@@ -44,7 +44,11 @@ const newer: MetarSnapshot = {
 };
 
 test("P1.3 compares AVAILABLE and APPLIED weather by observation identity and observed time", () => {
-  assert.equal(sameWeatherObservation(older, { ...older, fetchedAt: "2026-09-24T06:40:00.000Z" }), true);
+  const sameObservationRefetch: MetarSnapshot = {
+    ...older,
+    fetchedAt: "2026-09-24T06:40:00.000Z",
+  };
+  assert.equal(sameWeatherObservation(older, sameObservationRefetch), true);
   assert.equal(newerWeatherObservationAvailable(older, newer), true);
   assert.equal(newerWeatherObservationAvailable(newer, older), false);
   assert.equal(
