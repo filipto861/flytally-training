@@ -671,6 +671,89 @@ test("P2 PERFORMANCE top-level renders the source-backed takeoff data strip", as
   await expect(strip.locator('[data-metric="takeoffDistance"]')).toContainText("3,100 ft");
 });
 
+test("B6 Takeoff wind correction uses APPLIED weather and explicit newer-METAR recalculation", async ({ page }) => {
+  let windSpeedKt = 15;
+  let observedAt = "2026-09-24T10:00:00.000Z";
+
+  await page.route("**/api/weather/metar?icao=LKPR", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        station: "LKPR",
+        observedAt,
+        fetchedAt: observedAt,
+        rawText: `LKPR B6 FIXTURE 240${String(windSpeedKt).padStart(2, "0")}KT 15/08 Q1013`,
+        temperatureC: 15,
+        qnhHpa: 1013.25,
+        windDirectionTrueDeg: 240,
+        windSpeedKt,
+        windVariable: false,
+        windCalm: false,
+        source: "aviationweather.gov",
+      }),
+    });
+  });
+
+  await createD0ActiveFlight(page);
+  await page.goto(`${shellOnBase}${aircraftPath}/performance`);
+
+  const performance = page
+    .getByRole("main", { name: "Performance workspace" })
+    .getByRole("region", { name: "Performance", exact: true });
+
+  await performance.getByLabel("Takeoff runway").selectOption("24");
+  await performance.getByLabel("Takeoff flaps").selectOption("8-wind");
+  await expect(performance.getByLabel("QNH")).toHaveValue("1013.25");
+  await expect(performance.getByLabel("OAT")).toHaveValue("15");
+  await expect(performance.getByText("+15.0 kt", { exact: true })).toBeVisible();
+
+  await performance.getByRole("button", { name: "Calculate Takeoff", exact: true }).click();
+
+  await expect(performance.locator('[data-metric="n1"]')).toContainText("94 %");
+  await expect(performance.locator('[data-metric="v1"]')).toContainText("112 KIAS");
+  await expect(performance.locator('[data-metric="vr"]')).toContainText("115 KIAS");
+  await expect(performance.locator('[data-metric="v2"]')).toContainText("125 KIAS");
+  await expect(performance.locator('[data-metric="takeoffDistance"]')).toContainText("2,800 ft");
+
+  const stored = await page.evaluate(() => {
+    const key = Object.keys(localStorage).find((candidate) =>
+      candidate.startsWith(
+        "flytally-training:performance-snapshot:v2:takeoff:browser-ci-aircraft:",
+      ),
+    );
+    const raw = key ? localStorage.getItem(key) : null;
+    return raw ? JSON.parse(raw) : null;
+  });
+  expect(stored?.derived?.runwayWindComponentKt).toBe(15);
+  expect(stored?.source?.datasetIds).toEqual(expect.arrayContaining([
+    "browser-b6-v1-wind",
+    "browser-b6-takeoff-distance-wind",
+  ]));
+
+  windSpeedKt = 20;
+  observedAt = "2026-09-24T10:30:00.000Z";
+  await page.reload();
+
+  const restored = page
+    .getByRole("main", { name: "Performance workspace" })
+    .getByRole("region", { name: "Performance", exact: true });
+
+  await expect(restored.getByText("NEWER WEATHER AVAILABLE", { exact: true })).toBeVisible();
+  await expect(restored.locator('[data-metric="v1"]')).toContainText("112 KIAS");
+  await expect(restored.locator('[data-metric="takeoffDistance"]')).toContainText("2,800 ft");
+
+  await restored.getByRole("button", { name: "Apply & recalculate", exact: true }).click();
+
+  await expect(restored.getByText("+20.0 kt", { exact: true })).toBeVisible();
+  await expect(restored.locator('[data-metric="v1"]')).toContainText("113 KIAS");
+  await expect(restored.locator('[data-metric="takeoffDistance"]')).toContainText("2,700 ft");
+  await expect(restored.locator('[data-ft-performance-strip="true"]')).toHaveAttribute(
+    "data-stale",
+    "false",
+  );
+});
+
 test("P1.1 PERFORMANCE top-level identifies its EFB context", async ({ page }) => {
   await calculateP2Performance(page);
   const workspace = page.getByRole("main", { name: "Performance workspace" });
