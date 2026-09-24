@@ -88,17 +88,16 @@ export function FtFlightBrief({
   );
 
   const closeEditor = useCallback(() => {
-    setEditorKind((currentKind) => {
-      window.requestAnimationFrame(() => {
-        if (currentKind === "LANDING") {
-          landingEditorTriggerRef.current?.focus();
-        } else {
-          takeoffEditorTriggerRef.current?.focus();
-        }
-      });
-      return null;
+    const closingKind = editorKind;
+    setEditorKind(null);
+    window.requestAnimationFrame(() => {
+      if (closingKind === "LANDING") {
+        landingEditorTriggerRef.current?.focus();
+      } else {
+        takeoffEditorTriggerRef.current?.focus();
+      }
     });
-  }, []);
+  }, [editorKind]);
 
   const editorActionLabel =
     !result
