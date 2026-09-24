@@ -461,7 +461,7 @@ export function createTakeoffSnapshotV2(
     source: {
       runtime: result.source,
       calculatorId: options.calculatorId ?? null,
-      datasetIds: [...new Set(options.datasetIds)],
+      datasetIds: [...new Set(options.datasetIds)].sort(),
     },
     result: {
       n1: result.n1,
