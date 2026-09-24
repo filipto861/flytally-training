@@ -209,7 +209,7 @@ The baseline remains the existing governed zero-wind dry-runway calculation. Win
 - regression coverage proving VR/V2/N1 and Landing are unchanged;
 - desktop/iPad/mobile Playwright acceptance before merge.
 
-## Partial Power / Reduced Thrust Takeoff — PP.3 IN PROGRESS · branch `feat/partial-power-reduced-n1-boundary`
+## Partial Power / Reduced Thrust Takeoff — PP.3 SOURCE/RUNTIME BOUNDARY COMPLETE · PR #222
 
 Raw source extraction may proceed independently after B6 source/runtime boundaries are frozen.
 
@@ -300,14 +300,17 @@ After wind + Partial Power:
    - Learjet candidate adapter with Flaps 8 B6 wind preservation / Flaps 20 nonzero-wind fail-closed — ACCEPTED locally
    - local adapter gate: typecheck PASS + 100/100 targeted tests
    - adapter remains N1-free and operational Partial Power N1 stays blocked on unresolved P-6/P-6.1 parenthesized semantics
-10. **Partial Power reduced-N1 source/runtime boundary** — IN PROGRESS · `feat/partial-power-reduced-n1-boundary`
+10. **Partial Power reduced-N1 source/runtime boundary** — COMPLETE · PR #222
    - preserve explicit thrust-reverser configuration identity
-   - exact-source-cell boundary — ACCEPTED locally (typecheck PASS + 18/18 targeted)
+   - exact-source-cell boundary — COMPLETE
    - anti-ice OFF and TR-4000 <=3000 ft limits enforced
-   - FAA-approved AFMS W1072 Figure 5 authorizes bounded Aeronca interpolation — STAGED
-   - Aeronca-specific full-rated Takeoff N1 P-5.1 dataset — STAGED
-   - Aeronca candidate/N1 integration with 7.7 N1-point limit — STAGED as source-supported only
-   - independent FlightSafety 25% rated-thrust reduction check remains unresolved; operational use blocked
+   - FAA-approved AFMS W1072 Figure 5 bounded Aeronca interpolation — COMPLETE
+   - Aeronca-specific full-rated Takeoff N1 P-5.1 dataset — COMPLETE
+   - Aeronca candidate/N1 integration with 7.7 N1-point limit — COMPLETE as source-supported only
    - no-reverser and TR-4000 interpolation remain unauthorized
-   - never interpret unresolved parenthesized cells
-   - any interpolation region touching unresolved parentheses fails closed
+   - unresolved parenthesized cells remain fail-closed
+   - acceptance: 56/56 targeted · full Node 1181 total / 1180 PASS / 1 SKIP · production build PASS
+11. **Partial Power operational thrust-limit closure** — BLOCKED ON SOURCE
+   - independent FlightSafety <=25% rated-takeoff-thrust reduction check still requires a validated thrust relationship/check
+   - do not convert the 25% thrust limit into an N1-percent approximation
+   - operational Partial Power UI/Snapshot remains disabled until this source dependency is resolved
