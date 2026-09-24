@@ -758,9 +758,12 @@ test("B5 dedicated Performance calculates and restores destination-owned Landing
   );
 
   const stored = await page.evaluate(() => {
-    const raw = localStorage.getItem(
-      "flytally-training:performance-snapshot:v2:landing:browser-ci-aircraft:local:browser-ci-aircraft",
+    const key = Object.keys(localStorage).find((candidate) =>
+      candidate.startsWith(
+        "flytally-training:performance-snapshot:v2:landing:browser-ci-aircraft:",
+      ),
     );
+    const raw = key ? localStorage.getItem(key) : null;
     return raw ? JSON.parse(raw) : null;
   });
   expect(stored).toMatchObject({
