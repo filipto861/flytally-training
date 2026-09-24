@@ -78,7 +78,7 @@ const WEIGHT_LIMIT_DATASET_BY_FLAPS = {
 } as const;
 
 const FULL_RATED_N1_DATASET_ID =
-  "learjet-35a-takeoff-n1-standard-nozzle-anti-ice-off";
+  "learjet-35a-takeoff-n1-aeronca-anti-ice-off";
 
 /**
  * The CL-102B weight-limit source prints paired °F/°C labels. Preserve those
@@ -447,7 +447,7 @@ export function solveLearjet35aAeroncaPartialPower(
   if (!fullRatedN1Dataset) {
     return {
       status: "unsupported",
-      reason: "Full-rated Takeoff N1 source dataset is unavailable.",
+      reason: "Aeronca full-rated Takeoff N1 source dataset is unavailable.",
     };
   }
 
@@ -462,7 +462,7 @@ export function solveLearjet35aAeroncaPartialPower(
   if (fullRatedN1 === undefined) {
     return {
       status: "unsupported",
-      reason: "Full-rated Takeoff N1 is outside the source-supported region.",
+      reason: "Aeronca full-rated Takeoff N1 is outside the source-supported region.",
     };
   }
 
