@@ -347,11 +347,20 @@ export type PerformanceMultiAxisMetricGridCalculator = {
   readonly outputKeys: readonly string[];
 };
 
+export type PerformancePostBaselineTransformCalculator = {
+  readonly kind: "post-baseline-transform";
+  readonly operation: PerformancePhase;
+  readonly baselineAxisKey: string;
+  readonly modifierAxisKey: string;
+  readonly outputKey: string;
+};
+
 export type PerformanceCalculatorContract =
   | PerformanceRunwayDistanceGridCalculator
   | PerformanceDistanceFactorCalculator
   | PerformanceMetricLookupCalculator
-  | PerformanceMultiAxisMetricGridCalculator;
+  | PerformanceMultiAxisMetricGridCalculator
+  | PerformancePostBaselineTransformCalculator;
 
 export type PerformanceDataset = {
   readonly id: string;
@@ -798,6 +807,30 @@ function validatePerformanceCalculator(
       && selectedOutputs.every((key) => outputKeys.includes(key));
     if (!inputAxesValid || !outputKeysValid) {
       errors.push(`${path} multi-axis metric grid must bind every dataset axis and one or more existing outputs`);
+    }
+    return;
+  }
+
+  if (calculator.kind === "post-baseline-transform") {
+    const baselineAxisKey = calculator.baselineAxisKey;
+    const modifierAxisKey = calculator.modifierAxisKey;
+    const outputKey = calculator.outputKey;
+    const valid = axisKeys.length === 2
+      && axisExists(baselineAxisKey)
+      && axisExists(modifierAxisKey)
+      && baselineAxisKey !== modifierAxisKey
+      && outputKeys.length === 1
+      && outputExists(outputKey);
+    if (!valid) {
+      errors.push(`${path} post-baseline transform must bind exactly two distinct dataset axes and the single existing output`);
+    } else {
+      const axes = objects(dataset.axes) ? dataset.axes : [];
+      const outputs = objects(dataset.outputs) ? dataset.outputs : [];
+      const baselineAxis = axes.find((candidate) => candidate.key === baselineAxisKey);
+      const correctedOutput = outputs.find((candidate) => candidate.key === outputKey);
+      if (baselineAxis?.unit !== undefined && correctedOutput?.unit !== undefined && baselineAxis.unit !== correctedOutput.unit) {
+        errors.push(`${path} baseline axis and corrected output units must agree`);
+      }
     }
     return;
   }
