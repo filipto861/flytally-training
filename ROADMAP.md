@@ -297,6 +297,10 @@ After wind + Partial Power:
    - prerequisite gate: typecheck PASS + 69/69 targeted tests
    - generic assumed-temperature selector contract — ACCEPTED locally (90/90 PP.2/B6/B7/B8/PP.1 gate)
    - explicit lower-of-TORA/ASDA, ambient + assumed weight-limit checks, no invented temperatures
-   - Learjet candidate adapter with Flaps 8 B6 wind preservation / Flaps 20 nonzero-wind fail-closed — STAGED
+   - Learjet candidate adapter with Flaps 8 B6 wind preservation / Flaps 20 nonzero-wind fail-closed — ACCEPTED locally
+   - local adapter gate: typecheck PASS + 100/100 targeted tests
    - adapter remains N1-free and operational Partial Power N1 stays blocked on unresolved P-6/P-6.1 parenthesized semantics
-10. Partial Power solver/runtime integration after PP.2 acceptance
+10. **Partial Power reduced-N1 source/runtime boundary** — NEXT
+   - preserve explicit thrust-reverser configuration identity
+   - never interpret unresolved parenthesized cells
+   - candidate evaluations requiring unresolved cells must fail closed unless an authoritative source defines their semantics
