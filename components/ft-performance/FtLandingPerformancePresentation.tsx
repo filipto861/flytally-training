@@ -12,10 +12,10 @@ import { formatObservationZulu } from "@/lib/weather/metar-snapshot-helpers";
 import { FtPerformanceContextLabel, type FtPerformanceContextKind } from "./FtPerformanceContextLabel";
 import { FtPerformanceInvalidation } from "./FtPerformanceInvalidation";
 import { FtLandingPerformanceStrip } from "./FtLandingPerformanceStrip";
-import {
-  useLandingPerformanceOperation,
-  type LandingPerformanceOperationController,
+import type {
+  LandingPerformanceOperationController,
 } from "./use-landing-performance-operation";
+import { usePerformanceOperation } from "./use-performance-operation";
 import styles from "./ft-performance.module.css";
 
 function sourceLabel(source: OperationWeatherSource): string {
@@ -407,7 +407,7 @@ export function FtLandingPerformancePresentation({
   view: FtPerformanceContextKind;
   showInputs?: boolean;
 }>) {
-  const operation = useLandingPerformanceOperation({
+  const operation = usePerformanceOperation("LANDING", {
     aircraftId,
     activeFlight,
     selectedVariant,
