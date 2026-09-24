@@ -82,3 +82,17 @@ test("P1.1 active destination follows the current product mode", () => {
     false,
   );
 });
+
+test("P1.1 shell navigation preserves the selected variant across product-mode links", async () => {
+  const fs = await import("node:fs");
+  const path = await import("node:path");
+  const root = path.resolve(import.meta.dirname, "..");
+  const sideNav = fs.readFileSync(path.join(root, "components/ft-shell/FtSideNav.tsx"), "utf8");
+  const drawer = fs.readFileSync(path.join(root, "components/ft-shell/FtNavDrawer.tsx"), "utf8");
+
+  for (const source of [sideNav, drawer]) {
+    assert.match(source, /useSearchParams/);
+    assert.match(source, /searchParams\.get\("variant"\)/);
+    assert.match(source, /withVariantQuery/);
+  }
+});

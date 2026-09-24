@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
+import { withVariantQuery } from "@/lib/aircraft-applicability";
 import {
   getAircraftModeDestinations,
   getAircraftModeHomeHref,
@@ -37,24 +38,26 @@ function NavIcon({ name }: Readonly<{ name: AircraftModeDestinationKey }>) {
 
 export function FtSideNav({ aircraftId }: Readonly<{ aircraftId: string }>) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const variant = searchParams.get("variant") ?? undefined;
   const mode = getAircraftProductModeForPathname(pathname, aircraftId);
   const destinations = mode ? getAircraftModeDestinations(aircraftId, mode) : [];
 
   return (
     <nav className={styles.sideNav} aria-label="Aircraft workspace sections">
-      <Link className={styles.sideNavMark} href={`/aircraft/${aircraftId}`} aria-label="Choose Learn or EFB mode">
+      <Link className={styles.sideNavMark} href={withVariantQuery(`/aircraft/${aircraftId}`, variant)} aria-label="Choose Learn or EFB mode">
         FT
       </Link>
 
       <div className={styles.modeSwitch} aria-label="Product mode">
         <Link
-          href={getAircraftModeHomeHref(aircraftId, "learn")}
+          href={withVariantQuery(getAircraftModeHomeHref(aircraftId, "learn"), variant)}
           aria-current={mode === "learn" ? "page" : undefined}
         >
           LEARN
         </Link>
         <Link
-          href={getAircraftModeHomeHref(aircraftId, "efb")}
+          href={withVariantQuery(getAircraftModeHomeHref(aircraftId, "efb"), variant)}
           aria-current={mode === "efb" ? "page" : undefined}
         >
           EFB
@@ -73,7 +76,7 @@ export function FtSideNav({ aircraftId }: Readonly<{ aircraftId: string }>) {
             return (
               <Link
                 key={destination.key}
-                href={destination.href}
+                href={withVariantQuery(destination.href, variant)}
                 className={styles.sideNavLink}
                 aria-label={destination.label}
                 aria-current={active ? "page" : undefined}

@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 
+import { withVariantQuery } from "@/lib/aircraft-applicability";
 import {
   getAircraftModeDestinations,
   getAircraftModeHomeHref,
@@ -16,6 +17,8 @@ const focusableSelector = 'a[href],button:not([disabled]),[tabindex]:not([tabind
 
 export function FtNavDrawer({ aircraftId }: Readonly<{ aircraftId: string }>) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const variant = searchParams.get("variant") ?? undefined;
   const mode = getAircraftProductModeForPathname(pathname, aircraftId);
   const destinations = mode ? getAircraftModeDestinations(aircraftId, mode) : [];
   const [open, setOpen] = useState(false);
@@ -113,14 +116,14 @@ export function FtNavDrawer({ aircraftId }: Readonly<{ aircraftId: string }>) {
 
             <div className={styles.drawerModeSwitch} aria-label="Product mode">
               <Link
-                href={getAircraftModeHomeHref(aircraftId, "learn")}
+                href={withVariantQuery(getAircraftModeHomeHref(aircraftId, "learn"), variant)}
                 aria-current={mode === "learn" ? "page" : undefined}
                 onClick={() => setOpen(false)}
               >
                 LEARN
               </Link>
               <Link
-                href={getAircraftModeHomeHref(aircraftId, "efb")}
+                href={withVariantQuery(getAircraftModeHomeHref(aircraftId, "efb"), variant)}
                 aria-current={mode === "efb" ? "page" : undefined}
                 onClick={() => setOpen(false)}
               >
@@ -140,7 +143,7 @@ export function FtNavDrawer({ aircraftId }: Readonly<{ aircraftId: string }>) {
                   return (
                     <Link
                       key={destination.key}
-                      href={destination.href}
+                      href={withVariantQuery(destination.href, variant)}
                       className={styles.drawerLink}
                       aria-current={active ? "page" : undefined}
                       onClick={() => setOpen(false)}
