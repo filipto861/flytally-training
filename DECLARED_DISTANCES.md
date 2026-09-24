@@ -85,9 +85,22 @@ Invalid values or provenance fail closed through the same generic declared-dista
 
 No live authoritative provider is connected by this phase.
 
+## Acceptance status
+
+Local contract acceptance on 2026-09-24:
+- `npm run typecheck` PASS;
+- declared-distance/provider/operation/runway/B4 targeted suite **31/31 PASS**.
+
+A responsive browser acceptance is now staged to verify that:
+- TORA/ASDA remain optional for existing full-rated Takeoff;
+- `min(TORA, ASDA)` is presented correctly;
+- the current full-rated result remains unchanged;
+- the current full-rated Snapshot V2 does not persist declared distances it did not consume;
+- selecting a different runway clears the manual TORA/ASDA values.
+
 ## Next implementation steps
 
-1. Validate the provider adapter boundary locally.
-2. Close the declared-distance hardening PR if the targeted regression gate is green.
+1. Complete the targeted browser/build gate.
+2. Close the declared-distance hardening PR.
 3. When Partial Power is introduced, persist TORA/ASDA provenance and identity only in calculations that actually consume those inputs.
 4. Only then enable the Partial Power assumed-temperature solver.
