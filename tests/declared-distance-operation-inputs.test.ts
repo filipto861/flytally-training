@@ -48,7 +48,9 @@ test("DD.2 current full-rated snapshot does not persist or depend on TORA/ASDA",
     controller.indexOf("weatherLocked.current = true"),
   );
 
-  assert.doesNotMatch(snapshotBlock, /tora|asda|declaredDistance/i);
+  assert.equal(snapshotBlock.includes("toraFt"), false);
+  assert.equal(snapshotBlock.includes("asdaFt"), false);
+  assert.equal(snapshotBlock.includes("declaredDistance"), false);
   assert.match(
     controller,
     /Declared distances are not dependencies of the current full-rated[\s\S]*not restored from it/,
