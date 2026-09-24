@@ -209,7 +209,7 @@ The baseline remains the existing governed zero-wind dry-runway calculation. Win
 - regression coverage proving VR/V2/N1 and Landing are unchanged;
 - desktop/iPad/mobile Playwright acceptance before merge.
 
-## Partial Power / Reduced Thrust Takeoff — PP.2 IN PROGRESS · branch `feat/partial-power-assumed-temp-solver`
+## Partial Power / Reduced Thrust Takeoff — PP.3 IN PROGRESS · branch `feat/partial-power-reduced-n1-boundary`
 
 Raw source extraction may proceed independently after B6 source/runtime boundaries are frozen.
 
@@ -292,7 +292,7 @@ After wind + Partial Power:
    - provider-neutral adapter with identity/provenance validation — COMPLETE
    - full-rated Takeoff remains independent of declared distances
    - acceptance: typecheck PASS · 31/31 targeted · 4/4 targeted Playwright · 1118 Node / 1117 PASS / 1 SKIP · 388/388 full Playwright
-9. **Partial Power assumed-temperature prerequisites / solver contract** — IN PROGRESS · `feat/partial-power-assumed-temp-solver`
+9. **Partial Power assumed-temperature prerequisites / solver contract** — COMPLETE · PR #221
    - Takeoff Weight Limits Flaps 8° / 20° — ACCEPTED locally
    - prerequisite gate: typecheck PASS + 69/69 targeted tests
    - generic assumed-temperature selector contract — ACCEPTED locally (90/90 PP.2/B6/B7/B8/PP.1 gate)
@@ -300,7 +300,10 @@ After wind + Partial Power:
    - Learjet candidate adapter with Flaps 8 B6 wind preservation / Flaps 20 nonzero-wind fail-closed — ACCEPTED locally
    - local adapter gate: typecheck PASS + 100/100 targeted tests
    - adapter remains N1-free and operational Partial Power N1 stays blocked on unresolved P-6/P-6.1 parenthesized semantics
-10. **Partial Power reduced-N1 source/runtime boundary** — NEXT
+10. **Partial Power reduced-N1 source/runtime boundary** — IN PROGRESS · `feat/partial-power-reduced-n1-boundary`
    - preserve explicit thrust-reverser configuration identity
+   - exact-source-cell boundary — STAGED
+   - anti-ice OFF and TR-4000 <=3000 ft limits enforced
+   - no N1 interpolation/extrapolation yet
    - never interpret unresolved parenthesized cells
    - candidate evaluations requiring unresolved cells must fail closed unless an authoritative source defines their semantics
