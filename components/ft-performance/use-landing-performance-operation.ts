@@ -58,7 +58,11 @@ import type { PerformanceDataset } from "@/lib/universal-aircraft-content";
 import { isMetarSnapshot } from "@/lib/weather/metar-snapshot-helpers";
 import type { MetarSnapshot } from "@/lib/weather/metar-types";
 
-import type { PerformanceWeatherFetchState } from "./use-performance-operation";
+type PerformanceWeatherFetchState =
+  | "idle"
+  | "loading"
+  | "ready"
+  | "unavailable";
 
 export type LandingPerformanceOperationController = {
   readonly operation: "LANDING";
