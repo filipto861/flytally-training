@@ -271,7 +271,7 @@ export function FtPerformanceOperationPresentation({
                   </div>
                   <button
                     className={styles.inlineAction}
-                    disabled={busy}
+                    disabled={busy || !canCalculate}
                     onClick={applyLatestMetar}
                     type="button"
                   >
@@ -283,7 +283,7 @@ export function FtPerformanceOperationPresentation({
                   <span>Latest METAR is available without replacing manual/applied values automatically.</span>
                   <button
                     className={styles.inlineAction}
-                    disabled={busy}
+                    disabled={busy || Boolean(result && !canCalculate)}
                     onClick={applyLatestMetar}
                     type="button"
                   >
