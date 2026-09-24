@@ -561,6 +561,7 @@ function useTakeoffPerformanceOperation(
     });
 
     const nextWind = windComponentsForAppliedWeather(weather, runwayContext);
+    const nextRunwayWindComponentKt = roundedRunwayWindComponentKt(nextWind);
 
     return {
       context,
@@ -568,9 +569,9 @@ function useTakeoffPerformanceOperation(
       inputs: {
         pressureAltitudeFt: nextPressureAltitude,
         oatC: values.oat,
-        ...(roundedRunwayWindComponentKt(nextWind) === undefined
+        ...(nextRunwayWindComponentKt === undefined
           ? {}
-          : { runwayWindComponentKt: roundedRunwayWindComponentKt(nextWind) }),
+          : { runwayWindComponentKt: nextRunwayWindComponentKt }),
       },
     };
   }
