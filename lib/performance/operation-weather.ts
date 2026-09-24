@@ -68,8 +68,12 @@ export function weatherObservationRefToMetarSnapshot(
     observedAt: ref.observedAt,
     fetchedAt: ref.fetchedAt,
     rawText: ref.rawText,
-    ...(weather?.oatC?.value === undefined ? {} : { temperatureC: weather.oatC.value }),
-    ...(weather?.qnhHpa?.value === undefined ? {} : { qnhHpa: weather.qnhHpa.value }),
+    ...(weather?.oatC?.source !== "metar" || weather.oatC.value === undefined
+      ? {}
+      : { temperatureC: weather.oatC.value }),
+    ...(weather?.qnhHpa?.source !== "metar" || weather.qnhHpa.value === undefined
+      ? {}
+      : { qnhHpa: weather.qnhHpa.value }),
     ...(ref.windDirectionTrueDeg === undefined
       ? {}
       : { windDirectionTrueDeg: ref.windDirectionTrueDeg }),
