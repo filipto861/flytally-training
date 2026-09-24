@@ -116,12 +116,11 @@ test("PP.2 Learjet adapter applies ambient and assumed-temperature weight limits
   assert.equal(result.status, "ready");
   if (result.status !== "ready") return;
 
-  // At sea level the Flaps 20 38°C weight limit is 16,350 lb while the
-  // 27°C node is 18,300 lb. Bounded interpolation should solve between them
-  // instead of discarding the entire interval.
-  assert.equal(result.assumedTemperature, 34.3);
-  assert.ok(result.assumedPerformanceWeightLimit >= 17000);
-  assert.ok(result.assumedPerformanceWeightLimit < 17025);
+  // The weight-limit grid alone would permit an intermediate value above
+  // 27°C, but the Flaps 20 V1/distance source is sparse at 17,000 lb / 38°C.
+  // Continuous interpolation must not bridge that missing source corner.
+  assert.equal(result.assumedTemperature, 27);
+  assert.equal(result.assumedPerformanceWeightLimit, 18300);
 });
 
 test("PP.2 Learjet adapter interpolates fractional weight, wind and runway constraints", () => {
