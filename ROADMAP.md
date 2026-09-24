@@ -8,6 +8,17 @@
 > Historical milestone/specification documents may remain in the repository as implementation evidence,
 > but they are not roadmaps and must not override this file or current executable contracts.
 
+## Roadmap governance
+
+Roadmap discipline is mandatory for this project:
+
+- every implementation step must be recorded here before or when work starts;
+- every newly discovered idea, follow-up, product improvement, source gap, technical debt item or deferred decision must be added here so it cannot be lost between chats or development sessions;
+- active work must use an explicit status such as **PLANNED**, **IN PROGRESS**, **BLOCKED**, or **COMPLETE**;
+- when work is completed, this roadmap must be updated to **COMPLETE** and record the relevant PR/merge and acceptance gate where applicable;
+- a feature is not considered fully closed until its roadmap status is updated;
+- if implementation reveals additional work, that follow-up must be added as a separate roadmap item rather than left only in chat, code comments or PR discussion.
+
 ## Product direction
 
 FlyTally Training now has two explicit product modes:
@@ -53,6 +64,13 @@ Latest completed functional phase:
 - P1.4 final gate: 1057 Node tests passed, 1 skipped, build passed, Playwright 368/368.
 - **B5 Integrated Landing Performance — merged via PR #217**; destination-owned Landing now shares the canonical Performance architecture while retaining independent setup, snapshot and invalidation.
 - B5 final gate on head `b4472795223c6815c0a55e016ea8708a9632b523`: 1066 Node total / 1065 passed / 0 failed / 1 skipped, production build passed, full Playwright 372 passed with 8 stale-assumption failures, exact targeted rerun 8/8 passed after test-only correction. Production smoke passed after merge commit `839dc30b4bf9261d43737566e6c653322c56984f`.
+- **B6 Takeoff wind correction — merged via PR #218**; source-backed signed runway-wind corrections are integrated for supported Flaps 8 Takeoff V1 and distance.
+- **Partial Power source extraction — merged via PR #219**.
+- **Declared-distance workflow — merged via PR #220**.
+- **Partial Power assumed-temperature solver — merged via PR #221**.
+- **Partial Power reduced-N1 source/runtime boundary — merged via PR #222**; Aeronca source-supported evaluation exists but remains operationally blocked by unresolved thrust-limit validation.
+- **Continuous Performance interpolation + calculation feedback — merged via PR #223**.
+- **Sea-level performance floor — merged via PR #224**; negative derived PA retains its observed value for display while Takeoff performance uses the published 0 ft / S.L. source floor. Acceptance: targeted 76/76 PASS, full Node 1191 total / 1190 PASS / 0 FAIL / 1 SKIP, production build PASS, full Playwright 388/388 PASS, production readiness HTTP 200.
 
 ## Phase 1 — LEARN / EFB separation and Performance operation architecture
 
@@ -270,7 +288,9 @@ UX:
 
 ## Later product work
 
-After wind + Partial Power:
+The detailed future sequence is tracked in **Active implementation order** below. Current planned follow-up is:
+- Performance source-envelope completion;
+- Partial Power / Derated Takeoff operational source closure and pilot UI;
 - Flight Brief Takeoff/Landing convergence;
 - source-backed operational W&B where available;
 - navigation/icon cleanup;
@@ -344,15 +364,61 @@ After wind + Partial Power:
    - Takeoff + Landing calculate buttons paint disabled loading feedback before synchronous work
    - no extrapolation; Flaps 20 nonzero-wind remains source-blocked
    - acceptance: targeted 134/134 · full Node 1186 total / 1185 PASS / 1 SKIP · build PASS · targeted browser 8/8 · full Playwright 388/388
-12. **Sea-level performance floor + source-envelope completion** — IN PROGRESS · `fix/performance-sea-level-floor`
+12. **Sea-level performance floor** — COMPLETE · PR #224
    - negative derived pressure altitude uses 0 ft / S.L. as the Takeoff source floor
    - UI keeps actual derived PA visible and separately shows the performance PA used
-   - LFMN-like -100 ft PA regression must resolve N1/V1/TOD instead of Out of range
+   - LFMN-like -100 ft PA resolves N1/V1/TOD instead of Out of range
    - ordinary in-envelope values continue bounded interpolation
-   - follow-up source work: digitize wider AFM chart envelopes (for example the Flaps 8 Takeoff chart altitude scale beyond the narrower checklist table) rather than inventing unrestricted linear extrapolation
+   - no upper-altitude clamping or arbitrary extrapolation was introduced
+   - acceptance: targeted 76/76 PASS · full Node 1191 total / 1190 PASS / 0 FAIL / 1 SKIP · production build PASS · full Playwright 388/388 PASS · production readiness HTTP 200
+   - merged to `main` in PR #224; production merge commit `7d90482dcb909e159fbfe95a94bc315e971b9374`
 
-13. **Partial Power operational enablement** — SOURCE REVIEW / CONFIGURATION-SPECIFIC
-   - P-6/P-6.1 explicitly impose a 7.7% N1 reduction limit for no-reverser/Aeronca schedules
-   - FlightSafety separately states <=25% rated-takeoff-thrust reduction; do not invent an N1-to-thrust conversion
-   - Aeronca has W1072 interpolation authority and is the first candidate for operational enablement after remaining applicability interpretation is closed
-   - no-reverser parenthesized/interpolation semantics and TR-4000 source gaps remain fail-closed
+13. **Performance source-envelope completion** — PLANNED
+   - audit each current Learjet performance dataset against the highest-authority applicable AFM/AFMS source rather than assuming the narrower checklist-table envelope is final
+   - extend governed datasets only where the actual source chart publishes a wider envelope
+   - cover N1, V1, Takeoff Distance, VR/V2 and Landing datasets independently because their valid source regions may differ
+   - preserve irregular/sparse chart boundaries explicitly; do not convert an irregular source region into an unsafe rectangular envelope
+   - add exact-boundary, just-inside, just-outside and interpolation-seam regression tests for every expanded dataset
+   - no arbitrary mathematical extrapolation; source-envelope completion means digitizing additional published source data
+
+14. **Partial Power / Derated Takeoff operational enablement + pilot UI** — BLOCKED ON SOURCE CLOSURE
+   - add an explicit Takeoff thrust-mode selector to the operational Performance UI:
+     - **Full Rated** — current behavior
+     - **Partial Power / Assumed Temperature** — source-governed reduced-thrust path
+   - keep Full Rated as the safe default; selecting Partial Power must be an explicit pilot action
+   - Partial Power setup must surface/validate the required inputs and eligibility:
+     - confirmed/authoritative TORA
+     - separately declared ASDA
+     - dry hard-paved runway
+     - anti-skid operative
+     - bleed-air anti-ice OFF
+     - full-rated-thrust takeoff within the preceding 30 days
+     - applicable thrust-reverser configuration
+   - reuse the existing source-backed assumed-temperature engine:
+     - search bounded assumed temperature at 0.1°C resolution
+     - enforce ambient and assumed-temperature Takeoff Weight Limits
+     - enforce usable runway as `min(TORA, ASDA)`
+     - calculate source-backed V1 and Takeoff Distance
+     - preserve supported wind correction and fail closed where a configuration-specific correction source is missing
+   - pilot result should clearly distinguish Full Rated from Partial Power and, when source-authorized, present:
+     - Assumed Temperature
+     - reduced/target N1
+     - V1
+     - VR
+     - V2
+     - corrected Takeoff Distance
+     - Full Rated N1 as reference/context where useful
+   - persist thrust mode and every Partial Power validity dependency in the Takeoff snapshot so any relevant input/source/configuration drift marks the result stale
+   - Aeronca source/runtime support already exists and enforces the P-6.1 maximum 7.7 N1-point reduction
+   - **blocking source issue:** FlightSafety separately states <=25% rated-takeoff-thrust reduction; do not invent an N1-to-thrust conversion. Operational Partial Power must remain fail-closed until this check can be validated from an authoritative applicable source or its correct source-defined method is established
+   - no-reverser parenthesized/interpolation semantics remain unresolved and fail-closed
+   - TR-4000 source gaps remain fail-closed
+   - Flaps 20 nonzero-wind Partial Power remains fail-closed until a verified wind-correction source is digitized
+   - acceptance before merge: source/provenance review, targeted solver/runtime tests, snapshot invalidation tests, full Node suite, production build, desktop/mobile/iPad Playwright, and manual production smoke
+
+15. **Post-Partial-Power product work** — PLANNED
+   - Flight Brief Takeoff/Landing convergence
+   - source-backed operational W&B where available
+   - navigation/icon cleanup
+   - second/third aircraft acceptance against the same LEARN/EFB and Performance contracts
+   - legacy compatibility cleanup once migration telemetry/tests prove it is safe
