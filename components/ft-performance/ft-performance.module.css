@@ -271,6 +271,40 @@
   font-family: var(--ft-font-data);
 }
 
+.prefillNotice {
+  display: grid;
+  gap: var(--ft-space-2);
+}
+
+.prefillNotice .inlineAction {
+  width: fit-content;
+}
+
+.declaredDistanceDetails {
+  border: var(--ft-rule-default);
+  border-radius: var(--ft-radius-4);
+  background: var(--ft-bg-inset);
+}
+
+.declaredDistanceDetails summary {
+  min-height: var(--ft-touch-target-min);
+  display: flex;
+  align-items: center;
+  padding-inline: var(--ft-space-3);
+  cursor: pointer;
+  color: var(--ft-text-secondary);
+  font-size: 0.74rem;
+  font-weight: 650;
+}
+
+.declaredDistanceDetails[open] summary {
+  border-bottom: var(--ft-rule-default);
+}
+
+.declaredDistanceDetails .setupField {
+  padding: var(--ft-space-3);
+}
+
 .contextPanel {
   display: grid;
   gap: var(--ft-space-3);
@@ -465,6 +499,24 @@
 .action:disabled {
   cursor: wait;
   opacity: 0.6;
+}
+
+.action[data-loading="true"]::before {
+  width: 0.9em;
+  height: 0.9em;
+  margin-inline-end: var(--ft-space-2);
+  box-sizing: border-box;
+  border: 2px solid currentColor;
+  border-inline-end-color: transparent;
+  border-radius: 50%;
+  content: "";
+  animation: ft-performance-spin 0.7s linear infinite;
+}
+
+@keyframes ft-performance-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .action:focus-visible,
