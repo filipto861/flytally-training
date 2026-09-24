@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 
+import { useActiveFlightState } from "@/components/ft-flight/use-active-flight";
 import type { ActiveFlight } from "@/lib/active-flight/types";
 import { getAircraftProductModeForPathname } from "@/lib/aircraft-product-mode";
 
@@ -26,7 +27,8 @@ export function FtTopBar({
 }>) {
   const pathname = usePathname();
   const mode = getAircraftProductModeForPathname(pathname, aircraftId);
-  const current = activeFlight?.lifecycle === "ACTIVE" ? activeFlight : null;
+  const { flight } = useActiveFlightState(aircraftId, activeFlight);
+  const current = flight?.lifecycle === "ACTIVE" ? flight : null;
 
   return (
     <header className={styles.topBar}>

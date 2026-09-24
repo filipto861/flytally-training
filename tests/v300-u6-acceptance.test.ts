@@ -37,5 +37,6 @@ test("v3.0 U6 remains loaded after U5 while ROADMAP tracks only current implemen
   const roadmap=read("ROADMAP.md");
   assert.ok(layout.indexOf('import "./v300-u6-acceptance.css"')>layout.indexOf('import "./v300-u5-training.css"'));
   assert.match(roadmap,/single authoritative product\/implementation roadmap/i);
-  assert.match(roadmap,/P1\.1 — LEARN \/ EFB product mode split — IN PROGRESS/);
+  assert.match(roadmap,/P1\.1 — LEARN \/ EFB product mode split — MERGED/);
+  assert.match(roadmap,/P1\.1 production follow-up — EFB top-bar Active Flight reconciliation.*IN PROGRESS.*PR #213/);
 });

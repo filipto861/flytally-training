@@ -96,3 +96,15 @@ test("P1.1 shell navigation preserves the selected variant across product-mode l
     assert.match(source, /withVariantQuery/);
   }
 });
+
+test("P1.1 EFB top bar reconciles server and local Active Flight state", async () => {
+  const fs = await import("node:fs");
+  const path = await import("node:path");
+  const root = path.resolve(import.meta.dirname, "..");
+  const topBar = fs.readFileSync(path.join(root, "components/ft-shell/FtTopBar.tsx"), "utf8");
+
+  assert.match(topBar, /useActiveFlightState/);
+  assert.match(topBar, /useActiveFlightState\(aircraftId, activeFlight\)/);
+  assert.match(topBar, /flight\?\.lifecycle === "ACTIVE"/);
+  assert.doesNotMatch(topBar, /const current = activeFlight\?\.lifecycle/);
+});

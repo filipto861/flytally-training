@@ -546,6 +546,19 @@ test("D0 Active Flight creation flow persists into the local mirror", async ({ p
   });
 });
 
+test("P1.1 local Active Flight is reflected in the EFB top bar", async ({ page }) => {
+  await createD0ActiveFlight(page);
+
+  const status = page.locator('[aria-label="Active flight status"]');
+  await expect(status).toContainText("Active flight");
+  await expect(status).toContainText("LKPR → LOWW");
+
+  await page.goto(`${shellOnBase}${aircraftPath}/efb`);
+  const reloadedStatus = page.locator('[aria-label="Active flight status"]');
+  await expect(reloadedStatus).toContainText("Active flight");
+  await expect(reloadedStatus).toContainText("LKPR → LOWW");
+});
+
 test("D0 Active Flight is reflected only in the EFB choice on the mode chooser", async ({ page }) => {
   await createD0ActiveFlight(page);
   await page.goto(`${shellOnBase}${aircraftPath}`);
