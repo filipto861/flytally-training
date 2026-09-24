@@ -180,6 +180,7 @@ export function useLandingPerformanceOperation({
 
   const previousDestination = useRef<{ flightId: string; icao: string } | null>(null);
   const weatherLocked = useRef(false);
+  const calculationPending = useRef(false);
 
   const result = storedState?.result ?? null;
 
@@ -512,47 +513,60 @@ export function useLandingPerformanceOperation({
 
   function calculateWithWeather(weather: OperationAppliedWeather): void {
     const calculation = buildContextWithWeather(weather);
-    if (!calculation || !current || !runwayContext || !landingCalculator) return;
+    if (
+      !calculation
+      || !current
+      || !runwayContext
+      || !landingCalculator
+      || calculationPending.current
+    ) return;
 
+    calculationPending.current = true;
     setBusy(true);
-    try {
-      const next = computeLandingPerformance(
-        calculation.context,
-        datasets,
-        landingCalculator,
-        calculation.inputs,
-      );
-      const observation = weather.observation;
-      const qnhSource =
-        weather.qnhHpa.source === "metar" && observation ? "metar" : "manual";
-      const oatSource =
-        weather.oatC.source === "metar" && observation ? "metar" : "manual";
 
-      const snapshot = writeLandingPerformanceResultV2(
-        window.localStorage,
-        next,
-        {
-          variant: selectedVariant,
-          runwayContext,
-          qnhSource,
-          oatSource,
-          observation: observation ? weatherObservationRefV2(observation) : null,
-          datasetIds: currentSourceDatasetIds,
-          calculatorId: null,
-        },
-      );
+    // Yield one animation frame so the disabled/loading action is visible
+    // before the synchronous source-backed Landing calculation runs.
+    window.requestAnimationFrame(() => {
+      try {
+        const next = computeLandingPerformance(
+          calculation.context,
+          datasets,
+          landingCalculator,
+          calculation.inputs,
+        );
+        const observation = weather.observation;
+        const qnhSource =
+          weather.qnhHpa.source === "metar" && observation ? "metar" : "manual";
+        const oatSource =
+          weather.oatC.source === "metar" && observation ? "metar" : "manual";
 
-      weatherLocked.current = true;
-      setStoredState({
-        result: next,
-        snapshot,
-        requiresRecalculation: false,
-      });
-      setAppliedWeather(appliedWeatherFromSnapshot(snapshot.inputs.weather));
-      window.dispatchEvent(new Event(PERFORMANCE_RESULT_EVENT));
-    } finally {
-      setBusy(false);
-    }
+        const snapshot = writeLandingPerformanceResultV2(
+          window.localStorage,
+          next,
+          {
+            variant: selectedVariant,
+            runwayContext,
+            qnhSource,
+            oatSource,
+            observation: observation ? weatherObservationRefV2(observation) : null,
+            datasetIds: currentSourceDatasetIds,
+            calculatorId: null,
+          },
+        );
+
+        weatherLocked.current = true;
+        setStoredState({
+          result: next,
+          snapshot,
+          requiresRecalculation: false,
+        });
+        setAppliedWeather(appliedWeatherFromSnapshot(snapshot.inputs.weather));
+        window.dispatchEvent(new Event(PERFORMANCE_RESULT_EVENT));
+      } finally {
+        calculationPending.current = false;
+        setBusy(false);
+      }
+    });
   }
 
   function applyLatestMetar(): void {
