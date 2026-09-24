@@ -97,7 +97,7 @@ test("B6.1 bounded interpolation preserves independent headwind and tailwind bra
   const tailwind = calculatePostBaselineTransform(distanceWind, 5250, -5);
   assert.equal(tailwind.status, "ready");
   assert.equal(tailwind.method, "bounded-linear-interpolation");
-  assert.equal(tailwind.value, 5550);
+  assert.equal(tailwind.value, 5800);
 
   const v1Headwind = calculatePostBaselineTransform(v1Wind, 117.5, 15);
   assert.equal(v1Headwind.status, "ready");
