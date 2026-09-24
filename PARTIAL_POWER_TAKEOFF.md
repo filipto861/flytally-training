@@ -1,6 +1,6 @@
 # Partial Power / Reduced Thrust Takeoff
 
-**Status:** Source extraction in progress  
+**Status:** PP.1 source extraction complete · PR #219  
 **Branch:** `feat/partial-power-source-contract`  
 **Scope:** Learjet 35A/36A source contract only. No operational solver is enabled by this document.
 
@@ -126,13 +126,16 @@ Do not author production N1 data until these are resolved directly from the sour
 
 ## Planned implementation sequence
 
-### PP.1 — source extraction
+### PP.1 — source extraction — COMPLETE
 
-- verify all three N1 tables visually against the source;
-- resolve parenthesized-cell semantics;
-- encode separate configuration-specific governed datasets;
-- preserve exact source cells and sparse regions;
-- add source-node tests and no-extrapolation tests.
+- verified all three N1 tables visually against the source;
+- preserved parenthesized-cell typography without assigning unsupported semantics;
+- encoded separate configuration-specific source extracts;
+- preserved exact source cells and sparse regions;
+- added source-node, sparse-geometry, configuration-isolation and non-registration tests;
+- local gate on 2026-09-24: `npm run typecheck` PASS and `tests/partial-power-source-extraction.test.ts` **8/8 PASS**.
+
+The unresolved parenthesized-cell meaning remains an explicit production-data blocker; PP.1 completion means the source evidence has been safely captured, not that the source ambiguity has been guessed away.
 
 ### PP.2 — assumed-temperature contract
 
