@@ -69,14 +69,15 @@ The same Takeoff Speeds & Distances data are also the source of the runway/weigh
 
 Partial Power is runway-limited. The existing airport dataset exposes physical runway surface length only.
 
-The source material distinguishes declared distances and states that Learjet 35/36 accelerate-go distance must be lower than **TORA**. It also states that TODA is not used for Learjet 35/36 takeoff-distance calculation.
+The FlightSafety performance chapter defines Takeoff Field Length as the greatest of 115% all-engine takeoff distance, accelerate-stop distance, and engine-out accelerate-go distance. It further states that, for the Learjet 35/36 charts, field length is governed by accelerate-stop or accelerate-go and that **usable runway for takeoff is limited by the lower of TORA and ASDA**. TODA is not used for the Learjet 35/36 takeoff-distance calculation.
 
 Therefore:
 
-- physical runway surface length must not silently become TORA;
-- the Partial Power solver must not choose an Assumed Temperature until an explicit authoritative declared-distance/TORA input exists;
+- physical runway surface length must not silently become either TORA or ASDA;
+- the Partial Power solver must not choose an Assumed Temperature until explicit authoritative **TORA and ASDA** inputs exist;
+- the runway constraint used by this chart topology is `min(TORA, ASDA)`, not physical surface length and not TODA;
 - source extraction and generic runtime contracts may proceed before that provider/input is implemented;
-- operational Partial Power calculation remains fail-closed until the declared-distance dependency is satisfied.
+- operational Partial Power calculation remains fail-closed until both declared-distance dependencies are satisfied.
 
 ## Applicability model
 
@@ -89,6 +90,20 @@ Required configuration identity:
 - `tr4000` — Dee Howard TR-4000 target thrust reversers.
 
 The runtime must select a schedule only from explicit aircraft configuration metadata. It must not infer thrust-reverser type from serial number, aircraft name, or visual/UI state.
+
+## PP.1 extraction status
+
+Visual verification against the rendered CL-102B source pages is complete for P-6, P-6.1 and P-6.2.
+
+Three source-extract-only JSON records now preserve the tables exactly as source evidence:
+
+- `partial-power-n1-no-reversers.json` — 128 source cells;
+- `partial-power-n1-aeronca.json` — 128 source cells;
+- `partial-power-n1-tr4000.json` — 94 source cells.
+
+They are intentionally **not** registered in the operational performance package. Sparse cells remain sparse. Parenthesized cells on P-6/P-6.1 are preserved with `sourceStyle: "parenthesized"` rather than assigned an inferred operational meaning.
+
+The Aeronca source contains one notable extra parenthesized cell at **OAT 80°F / Assumed Temperature 90°F** in addition to the ambient-equals-assumed diagonal. That distinction is preserved exactly and remains unresolved.
 
 ## Unresolved source questions
 
@@ -119,6 +134,7 @@ Define an aircraft-agnostic solver contract with explicit inputs for:
 - flaps;
 - applied runway wind;
 - declared TORA;
+- declared ASDA;
 - thrust-reverser configuration;
 - anti-ice / anti-skid / runway-surface eligibility.
 
@@ -126,13 +142,13 @@ The solver must return no solution when any required operational dependency is u
 
 ### PP.3 — solver/runtime
 
-Only after the declared-distance/TORA workflow is frozen:
+Only after the declared-distance TORA/ASDA workflow is frozen:
 
 1. find the highest source-supported Assumed Temperature satisfying the runway and weight constraint;
 2. calculate V1 using that Assumed Temperature;
 3. calculate reduced N1 from the applicable configuration-specific N1 schedule;
 4. apply all source limits and fail-closed boundaries;
-5. persist the assumed temperature, configuration identity, declared distance, applied wind and source dataset identities in Snapshot V2.
+5. persist the assumed temperature, configuration identity, TORA, ASDA, applied wind and source dataset identities in Snapshot V2.
 
 ### PP.4 — acceptance
 
@@ -142,7 +158,7 @@ Required acceptance includes:
 - bounded interpolation tests only where explicitly authorized;
 - no-extrapolation tests;
 - configuration-isolation tests;
-- runway-declared-distance dependency tests;
+- TORA/ASDA declared-distance dependency tests;
 - ambient-vs-assumed-temperature distinction;
 - zero Partial Power leakage into full-rated Takeoff;
 - Takeoff Snapshot V2 invalidation on declared distance, wind, weight, configuration or weather change;
