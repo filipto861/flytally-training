@@ -302,8 +302,9 @@ After wind + Partial Power:
    - adapter remains N1-free and operational Partial Power N1 stays blocked on unresolved P-6/P-6.1 parenthesized semantics
 10. **Partial Power reduced-N1 source/runtime boundary** — IN PROGRESS · `feat/partial-power-reduced-n1-boundary`
    - preserve explicit thrust-reverser configuration identity
-   - exact-source-cell boundary — STAGED
+   - exact-source-cell boundary — ACCEPTED locally (typecheck PASS + 18/18 targeted)
    - anti-ice OFF and TR-4000 <=3000 ft limits enforced
-   - no N1 interpolation/extrapolation yet
+   - FAA-approved AFMS W1072 Figure 5 authorizes bounded Aeronca interpolation — STAGED
+   - no-reverser and TR-4000 interpolation remain unauthorized
    - never interpret unresolved parenthesized cells
-   - candidate evaluations requiring unresolved cells must fail closed unless an authoritative source defines their semantics
+   - any interpolation region touching unresolved parentheses fails closed
