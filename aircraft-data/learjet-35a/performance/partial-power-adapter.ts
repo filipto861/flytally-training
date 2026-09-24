@@ -5,8 +5,16 @@ import {
 import {
   solveHighestAssumedTemperature,
   type AssumedTemperatureCandidate,
+  type AssumedTemperatureSolverRequest,
   type AssumedTemperatureSolverResult,
 } from "../../../lib/performance/assumed-temperature.ts";
+import {
+  lookupPartialPowerN1SourceValue,
+  type PartialPowerN1SourceValueResult,
+} from "../../../lib/performance/partial-power-n1.ts";
+import type {
+  PartialPowerN1SourceExtract,
+} from "../../../lib/performance/partial-power-source.ts";
 import {
   resolveTakeoffDeclaredDistanceConstraint,
   type RunwayDeclaredDistances,
@@ -38,10 +46,54 @@ export type Learjet35aAssumedTemperatureAdapterResult =
       readonly reason: string;
     };
 
+type AssumedTemperatureReadyResult = Extract<
+  AssumedTemperatureSolverResult,
+  { status: "ready" }
+>;
+
+export type Learjet35aAeroncaPartialPowerResult =
+  | Exclude<AssumedTemperatureSolverResult, { status: "ready" }>
+  | {
+      readonly status: "unsupported";
+      readonly reason: string;
+    }
+  | (AssumedTemperatureReadyResult & {
+      readonly thrustReversers: "aeronca";
+      readonly reducedN1: number;
+      readonly fullRatedN1: number;
+      readonly n1ReductionPoints: number;
+      readonly n1Method: "exact-source-cell" | "bounded-source-interpolation";
+      readonly n1SourceExtractId: string;
+      readonly n1SourcePageLabel: string;
+      readonly n1InterpolationAuthority?: {
+        readonly manualId: "AFMS-W1072";
+        readonly figure: "5";
+        readonly configuration: "aeronca";
+      };
+    });
+
 const WEIGHT_LIMIT_DATASET_BY_FLAPS = {
   "8": "learjet-35a-takeoff-weight-limit-flaps8",
   "20": "learjet-35a-takeoff-weight-limit-flaps20",
 } as const;
+
+const FULL_RATED_N1_DATASET_ID =
+  "learjet-35a-takeoff-n1-standard-nozzle-anti-ice-off";
+
+/**
+ * The CL-102B weight-limit source prints paired °F/°C labels. Preserve those
+ * published pairs at exact source nodes instead of round-tripping through a
+ * physical conversion that would turn, for example, the published 27°C/80°F
+ * node into 80.6°F.
+ */
+const SOURCE_FAHRENHEIT_BY_CELSIUS = new Map<number, number>([
+  [-18, 0],
+  [-7, 20],
+  [4, 40],
+  [16, 60],
+  [27, 80],
+  [38, 100],
+]);
 
 function datasetById(
   datasets: readonly PerformanceDataset[],
@@ -92,18 +144,26 @@ function uniqueIds(ids: readonly (string | undefined)[]): readonly string[] {
   return [...new Set(ids.filter((id): id is string => Boolean(id)))];
 }
 
-/**
- * Learjet 35A/36A adapter that builds source-supported assumed-temperature
- * candidates for the generic selector.
- *
- * This adapter does not calculate reduced N1. The P-6/P-6.1 parenthesized N1
- * semantics remain unresolved, so operational Partial Power N1 stays blocked.
- */
-export function solveLearjet35aAssumedTemperature(
+function sourceFahrenheitForCelsius(celsius: number): number {
+  return SOURCE_FAHRENHEIT_BY_CELSIUS.get(celsius)
+    ?? ((celsius * 9) / 5) + 32;
+}
+
+type PreparedLearjet35aAssumedTemperature =
+  | {
+      readonly status: "unsupported";
+      readonly reason: string;
+    }
+  | {
+      readonly status: "ready";
+      readonly solverRequest: AssumedTemperatureSolverRequest;
+    };
+
+function prepareLearjet35aAssumedTemperature(
   datasets: readonly PerformanceDataset[],
   definition: PilotTakeoffCalculatorDefinition,
   request: Learjet35aAssumedTemperatureRequest,
-): Learjet35aAssumedTemperatureAdapterResult {
+): PreparedLearjet35aAssumedTemperature {
   const declared = resolveTakeoffDeclaredDistanceConstraint(
     request.declaredDistances,
   );
@@ -272,49 +332,230 @@ export function solveLearjet35aAssumedTemperature(
     };
   }
 
-  return solveHighestAssumedTemperature({
-    temperatureUnit: "C",
-    distanceUnit: "FT",
-    weightUnit: "LB",
-    ambientTemperature: request.ambientTemperatureC,
-    takeoffWeight: request.takeoffWeightLb,
-    ambientPerformanceWeightLimit,
-    tora: declared.toraFt,
-    asda: declared.asdaFt,
-    eligibilityChecks: [
+  return {
+    status: "ready",
+    solverRequest: {
+      temperatureUnit: "C",
+      distanceUnit: "FT",
+      weightUnit: "LB",
+      ambientTemperature: request.ambientTemperatureC,
+      takeoffWeight: request.takeoffWeightLb,
+      ambientPerformanceWeightLimit,
+      tora: declared.toraFt,
+      asda: declared.asdaFt,
+      eligibilityChecks: [
+        {
+          key: "dry-hard-paved",
+          label: "Dry hard-paved runway",
+          satisfied: request.eligibility.runwayDryHardPaved,
+          reason: request.eligibility.runwayDryHardPaved
+            ? undefined
+            : "Reduced thrust is limited to a hard-paved, dry runway.",
+        },
+        {
+          key: "anti-ice-off",
+          label: "Bleed-air anti-ice OFF",
+          satisfied: !request.eligibility.antiIce,
+          reason: request.eligibility.antiIce
+            ? "Reduced thrust is unavailable with bleed-air anti-ice ON."
+            : undefined,
+        },
+        {
+          key: "anti-skid-operative",
+          label: "Anti-skid operative",
+          satisfied: request.eligibility.antiSkidOperative,
+          reason: request.eligibility.antiSkidOperative
+            ? undefined
+            : "Reduced thrust requires anti-skid ON and operative.",
+        },
+        {
+          key: "recent-full-rated-takeoff",
+          label: "Full rated-thrust takeoff within preceding 30 days",
+          satisfied: request.eligibility.fullRatedTakeoffWithin30Days,
+          reason: request.eligibility.fullRatedTakeoffWithin30Days
+            ? undefined
+            : "A full rated-thrust takeoff is required within the preceding 30 days.",
+        },
+      ],
+      candidates,
+    },
+  };
+}
+
+/**
+ * Learjet 35A/36A adapter that builds source-supported assumed-temperature
+ * candidates for the generic selector.
+ *
+ * This stage remains N1-free. Reduced-N1 operationalization is layered
+ * separately so the already-accepted PP.2 candidate engine stays independent
+ * of configuration-specific N1 source semantics.
+ */
+export function solveLearjet35aAssumedTemperature(
+  datasets: readonly PerformanceDataset[],
+  definition: PilotTakeoffCalculatorDefinition,
+  request: Learjet35aAssumedTemperatureRequest,
+): Learjet35aAssumedTemperatureAdapterResult {
+  const prepared = prepareLearjet35aAssumedTemperature(
+    datasets,
+    definition,
+    request,
+  );
+  if (prepared.status === "unsupported") return prepared;
+  return solveHighestAssumedTemperature(prepared.solverRequest);
+}
+
+type AeroncaCandidateN1 = {
+  readonly candidate: AssumedTemperatureCandidate;
+  readonly sourceValue: Extract<
+    PartialPowerN1SourceValueResult,
+    { status: "source-value" }
+  >;
+  readonly reductionPoints: number;
+};
+
+/**
+ * Safe operational boundary for Aeronca-equipped Learjet 35A/36A aircraft.
+ *
+ * It reuses the accepted PP.2 runway/weight/V1/distance candidate engine, then
+ * admits only candidates whose reduced N1 is source-supported and satisfies
+ * the P-6.1 maximum 7.7 N1-point reduction from the full-rated ambient takeoff
+ * N1. No-reverser and TR-4000 schedules are intentionally not operationalized
+ * by this function.
+ */
+export function solveLearjet35aAeroncaPartialPower(
+  datasets: readonly PerformanceDataset[],
+  definition: PilotTakeoffCalculatorDefinition,
+  aeroncaN1Extract: PartialPowerN1SourceExtract,
+  request: Learjet35aAssumedTemperatureRequest,
+): Learjet35aAeroncaPartialPowerResult {
+  if (aeroncaN1Extract.configuration.thrustReversers !== "aeronca") {
+    return {
+      status: "unsupported",
+      reason: "Aeronca Partial Power requires the Aeronca reduced-N1 source schedule.",
+    };
+  }
+
+  const maxReductionPoints = aeroncaN1Extract.constraints.maxN1ReductionPoints;
+  if (maxReductionPoints === null) {
+    return {
+      status: "unsupported",
+      reason: "Aeronca reduced-N1 source does not define a maximum N1 reduction limit.",
+    };
+  }
+
+  const fullRatedN1Dataset = datasetById(datasets, FULL_RATED_N1_DATASET_ID);
+  if (!fullRatedN1Dataset) {
+    return {
+      status: "unsupported",
+      reason: "Full-rated Takeoff N1 source dataset is unavailable.",
+    };
+  }
+
+  const fullRatedN1 = numericMetric(
+    fullRatedN1Dataset,
+    {
+      oatC: request.ambientTemperatureC,
+      pressureAltitudeFt: request.pressureAltitudeFt,
+    },
+    "n1Percent",
+  );
+  if (fullRatedN1 === undefined) {
+    return {
+      status: "unsupported",
+      reason: "Full-rated Takeoff N1 is outside the source-supported region.",
+    };
+  }
+
+  const prepared = prepareLearjet35aAssumedTemperature(
+    datasets,
+    definition,
+    request,
+  );
+  if (prepared.status === "unsupported") return prepared;
+
+  const ambientTemperatureF = sourceFahrenheitForCelsius(
+    request.ambientTemperatureC,
+  );
+  const accepted: AeroncaCandidateN1[] = [];
+  let blockedN1CandidateCount = 0;
+
+  for (const candidate of prepared.solverRequest.candidates) {
+    const assumedTemperatureF = SOURCE_FAHRENHEIT_BY_CELSIUS.get(
+      candidate.temperature,
+    );
+    if (assumedTemperatureF === undefined) {
+      blockedN1CandidateCount += 1;
+      continue;
+    }
+
+    const sourceValue = lookupPartialPowerN1SourceValue(
+      aeroncaN1Extract,
       {
-        key: "dry-hard-paved",
-        label: "Dry hard-paved runway",
-        satisfied: request.eligibility.runwayDryHardPaved,
-        reason: request.eligibility.runwayDryHardPaved
-          ? undefined
-          : "Reduced thrust is limited to a hard-paved, dry runway.",
+        ambientTemperatureF,
+        assumedTemperatureF,
+        pressureAltitudeFt: request.pressureAltitudeFt,
+        antiIce: request.eligibility.antiIce,
       },
-      {
-        key: "anti-ice-off",
-        label: "Bleed-air anti-ice OFF",
-        satisfied: !request.eligibility.antiIce,
-        reason: request.eligibility.antiIce
-          ? "Reduced thrust is unavailable with bleed-air anti-ice ON."
-          : undefined,
-      },
-      {
-        key: "anti-skid-operative",
-        label: "Anti-skid operative",
-        satisfied: request.eligibility.antiSkidOperative,
-        reason: request.eligibility.antiSkidOperative
-          ? undefined
-          : "Reduced thrust requires anti-skid ON and operative.",
-      },
-      {
-        key: "recent-full-rated-takeoff",
-        label: "Full rated-thrust takeoff within preceding 30 days",
-        satisfied: request.eligibility.fullRatedTakeoffWithin30Days,
-        reason: request.eligibility.fullRatedTakeoffWithin30Days
-          ? undefined
-          : "A full rated-thrust takeoff is required within the preceding 30 days.",
-      },
-    ],
-    candidates,
+    );
+    if (sourceValue.status !== "source-value") {
+      blockedN1CandidateCount += 1;
+      continue;
+    }
+
+    const reductionPoints = fullRatedN1 - sourceValue.reducedN1;
+    if (
+      reductionPoints < -1e-9
+      || reductionPoints > maxReductionPoints + 1e-9
+    ) {
+      continue;
+    }
+
+    accepted.push({
+      candidate,
+      sourceValue,
+      reductionPoints,
+    });
+  }
+
+  if (accepted.length === 0) {
+    return {
+      status: "unsupported",
+      reason: blockedN1CandidateCount > 0
+        ? "No assumed-temperature candidate has a complete source-supported Aeronca reduced-N1 evaluation within the current source boundary."
+        : `No assumed-temperature candidate satisfies the P-6.1 maximum ${maxReductionPoints.toFixed(1)} N1-point reduction limit.`,
+    };
+  }
+
+  const solved = solveHighestAssumedTemperature({
+    ...prepared.solverRequest,
+    candidates: accepted.map(({ candidate }) => candidate),
   });
+  if (solved.status !== "ready") return solved;
+
+  const selected = accepted.find(
+    ({ candidate }) => candidate.temperature === solved.assumedTemperature,
+  );
+  if (!selected) {
+    return {
+      status: "unsupported",
+      reason: "Selected assumed-temperature candidate lost its Aeronca N1 source binding.",
+    };
+  }
+
+  return {
+    ...solved,
+    thrustReversers: "aeronca",
+    reducedN1: selected.sourceValue.reducedN1,
+    fullRatedN1,
+    n1ReductionPoints: selected.reductionPoints,
+    n1Method: selected.sourceValue.method,
+    n1SourceExtractId: selected.sourceValue.sourceExtractId,
+    n1SourcePageLabel: selected.sourceValue.sourcePageLabel,
+    ...(selected.sourceValue.interpolationAuthority
+      ? {
+          n1InterpolationAuthority:
+            selected.sourceValue.interpolationAuthority,
+        }
+      : {}),
+  };
 }
