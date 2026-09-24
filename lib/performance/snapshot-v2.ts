@@ -453,6 +453,54 @@ export function isLandingSnapshotV2(value: unknown): value is LandingSnapshotV2 
   );
 }
 
+
+export type LandingSnapshotV2CurrentDependencies = {
+  readonly variant: string | null;
+  readonly pressureAltitudeFt?: number;
+  readonly calculatorId: string | null;
+  readonly datasetIds: readonly string[];
+};
+
+export type LandingSnapshotV2DependencyChange =
+  | "variant"
+  | "pressure-altitude"
+  | "performance-source";
+
+export function diffLandingSnapshotV2Dependencies(
+  snapshot: LandingSnapshotV2,
+  current: LandingSnapshotV2CurrentDependencies,
+): readonly LandingSnapshotV2DependencyChange[] {
+  const changes: LandingSnapshotV2DependencyChange[] = [];
+
+  if (snapshot.identity.variant !== current.variant) {
+    changes.push("variant");
+  }
+  if (snapshot.derived.pressureAltitudeFt !== current.pressureAltitudeFt) {
+    changes.push("pressure-altitude");
+  }
+
+  const storedIds = normalizedIds(snapshot.source.datasetIds);
+  const currentIds = normalizedIds(current.datasetIds);
+  if (
+    snapshot.source.calculatorId !== current.calculatorId
+    || storedIds.length !== currentIds.length
+    || storedIds.some((id, index) => id !== currentIds[index])
+  ) {
+    changes.push("performance-source");
+  }
+
+  return changes;
+}
+
+export function landingSnapshotRequiresRecalculation(
+  snapshot: LandingSnapshotV2,
+): boolean {
+  return Boolean(
+    snapshot.inputs.weather.qnhHpa?.source === "legacy-unknown"
+    || snapshot.inputs.weather.oatC?.source === "legacy-unknown"
+  );
+}
+
 export function isPerformanceSnapshotV2(value: unknown): value is PerformanceSnapshotV2 {
   return isTakeoffSnapshotV2(value) || isLandingSnapshotV2(value);
 }
