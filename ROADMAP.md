@@ -30,11 +30,13 @@ Completed foundations:
 - governed aircraft performance configuration;
 - real airport/runway-end domain with OurAirports provenance;
 - Active Flight creation without mandatory runway/flaps;
-- operation-owned Takeoff setup;
+- operation-owned Takeoff and Landing setup;
 - AviationWeather.gov METAR integration;
 - source-backed Takeoff N1 / V1 / VR / V2 / Takeoff Distance;
+- source-backed Landing VREF / Landing Climb / Approach Climb / Factored Landing Distance;
 - explicit Calculate/Recalculate workflow;
-- persisted Takeoff result with dependency-based stale detection;
+- persisted versioned Takeoff and Landing results with dependency-based stale detection;
+- shared responsive Performance editor from dedicated Performance and Flight Brief;
 - responsive UX6 shell on desktop, iPad and mobile.
 
 Latest completed functional phase:
@@ -49,6 +51,8 @@ Latest completed functional phase:
 - P1.3 final gate: 1050 Node tests passed, 1 skipped, build passed, Playwright 364/364.
 - **P1.4 Flight Brief EFB home — merged via PR #216**; Flight Brief now surfaces canonical Takeoff status/results and opens the shared responsive Performance editor without creating a second calculator or persistence model.
 - P1.4 final gate: 1057 Node tests passed, 1 skipped, build passed, Playwright 368/368.
+- **B5 Integrated Landing Performance — merged via PR #217**; destination-owned Landing now shares the canonical Performance architecture while retaining independent setup, snapshot and invalidation.
+- B5 final gate on head `b4472795223c6815c0a55e016ea8708a9632b523`: 1066 Node total / 1065 passed / 0 failed / 1 skipped, production build passed, full Playwright 372 passed with 8 stale-assumption failures, exact targeted rerun 8/8 passed after test-only correction. Production smoke passed after merge commit `839dc30b4bf9261d43737566e6c653322c56984f`.
 
 ## Phase 1 — LEARN / EFB separation and Performance operation architecture
 
@@ -136,7 +140,7 @@ Target behavior:
 - dedicated Performance page remains available;
 - desktop side drawer; iPad/mobile responsive sheet/full-height treatment.
 
-## B5 — Integrated Landing Performance — IN PROGRESS · PR #217
+## B5 — Integrated Landing Performance — COMPLETE · PR #217
 
 Destination-owned Landing workflow reusing the same operation architecture:
 
@@ -148,35 +152,64 @@ Destination-owned Landing workflow reusing the same operation architecture:
 - independent Landing snapshot/invalidation;
 - Flight Brief integration.
 
-Existing source-backed Learjet data available now:
+Canonical source-backed outputs:
 - VREF vs gross weight;
 - Landing Climb Speed vs gross weight;
 - Approach Climb Speed vs gross weight;
 - Factored Landing Distance Flaps 40 vs pressure altitude / OAT / gross weight.
 
-Do not add unsupported wind/slope/declared-distance corrections until source extraction is complete.
+B5 intentionally does not apply unsupported wind/slope/declared-distance corrections.
 
-## Takeoff wind correction — PLANNED AFTER PHASE 1
+## B6 — Takeoff wind correction — IN PROGRESS · branch `feat/b6-takeoff-wind`
 
 Source topology is frozen as two independent post-baseline transforms:
 
 - `(zeroWindDistanceFt, runwayWindComponentKt) -> correctedTakeoffDistanceFt`
 - `(zeroWindV1Kias, runwayWindComponentKt) -> correctedV1Kias`
 
-Requirements:
-- digitize directly from the highest-quality AFM/FlightSafety chart;
-- verify multiple zero-wind ordinates;
-- explicitly re-check the suspicious 8,000/10,000 ft region before authoring production data;
-- extract headwind and tailwind envelopes independently;
-- do not assume symmetry;
-- validate against FlightSafety worked examples;
-- no extrapolation outside published source envelope.
+The baseline remains the existing governed zero-wind dry-runway calculation. Wind correction is applied only after that baseline resolves successfully.
 
-Diagnostic measurements made during architecture review are topology evidence only, not production data.
+### B6.1 — source extraction and correction contract
 
-## Partial Power / Reduced Thrust Takeoff — PLANNED
+- source chart: Learjet 35A/36A AFM takeoff-distance and V1 wind panels as reproduced in FlightSafety Chapter 20 / Figures 20-2 and 20-3;
+- preserve the chart wind convention explicitly: tailwind negative input, headwind positive input;
+- digitize headwind and tailwind envelopes independently;
+- verify several zero-wind ordinates across the chart, not a single worked example;
+- explicitly re-check the suspicious 8,000/10,000 ft takeoff-distance region before authoring production data;
+- include source provenance and extraction notes with the governed data;
+- no extrapolation beyond the published chart envelope.
 
-Raw source extraction may proceed independently after Phase 1.
+### B6.2 — generic correction runtime
+
+- runtime remains aircraft-agnostic;
+- introduce a declarative post-baseline transform contract rather than Learjet-specific math;
+- independently evaluate distance and V1 wind corrections;
+- exact source points and bounded interpolation only;
+- fail closed for unsupported baseline/wind combinations;
+- preserve uncorrected VR, V2 and N1 behavior.
+
+### B6.3 — operation integration
+
+- use the already-computed APPLIED runway wind component from the canonical Takeoff operation controller;
+- snapshot stores the corrected operational outputs and sufficient provenance/input identity to invalidate when applied wind changes;
+- newer AVAILABLE weather must still require explicit apply/recalculate after a result exists;
+- manual weather override remains sticky;
+- zero-wind result must be identical to the existing B4/P1 baseline.
+
+### B6.4 — acceptance
+
+- source-node tests for both distance and V1 transforms;
+- interpolation tests for headwind and tailwind separately;
+- zero-wind identity tests across multiple baseline ordinates;
+- no-extrapolation tests at wind and baseline-distance/V1 bounds;
+- FlightSafety worked-example cross-check where the source gives enough information;
+- snapshot invalidation on applied-wind change;
+- regression coverage proving VR/V2/N1 and Landing are unchanged;
+- desktop/iPad/mobile Playwright acceptance before merge.
+
+## Partial Power / Reduced Thrust Takeoff — PLANNED AFTER B6
+
+Raw source extraction may proceed independently after B6 source/runtime boundaries are frozen.
 
 Required source datasets:
 - no thrust reversers;
@@ -206,7 +239,7 @@ Until an authoritative declared-distance source exists:
 
 ## Later product work
 
-After Landing + wind + Partial Power:
+After wind + Partial Power:
 - Flight Brief Takeoff/Landing convergence;
 - source-backed operational W&B where available;
 - navigation/icon cleanup;
@@ -234,7 +267,11 @@ After Landing + wind + Partial Power:
 2. **P1.2 — Snapshot V2** — COMPLETE · PR #214
 3. **P1.3 — canonical Performance operation controller** — COMPLETE · PR #215
 4. **P1.4 — Flight Brief EFB home** — COMPLETE · PR #216
-5. **B5 — Landing integration** — IN PROGRESS · PR #217
-6. Takeoff wind source extraction + runtime
+5. **B5 — Landing integration** — COMPLETE · PR #217
+6. **B6 — Takeoff wind correction** — IN PROGRESS · `feat/b6-takeoff-wind`
+   - B6.1 source extraction + correction contract
+   - B6.2 generic correction runtime
+   - B6.3 canonical Takeoff operation integration
+   - B6.4 acceptance
 7. Partial Power source extraction + solver/runtime
 8. Declared-distance provider/input hardening
