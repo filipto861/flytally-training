@@ -671,6 +671,43 @@ test("P2 PERFORMANCE top-level renders the source-backed takeoff data strip", as
   await expect(strip.locator('[data-metric="takeoffDistance"]')).toContainText("3,100 ft");
 });
 
+test("DD declared distances stay optional for full-rated Takeoff and reset with runway identity", async ({ page }) => {
+  await createD0ActiveFlight(page);
+  await page.goto(`${shellOnBase}${aircraftPath}/performance`);
+
+  const performance = page
+    .getByRole("main", { name: "Performance workspace" })
+    .getByRole("region", { name: "Performance", exact: true });
+
+  await performance.getByLabel("Takeoff runway").selectOption("24");
+  await performance.getByLabel("Takeoff TORA").fill("12000");
+  await performance.getByLabel("Takeoff ASDA").fill("12500");
+  await expect(performance.getByText("12,000 ft · TORA", { exact: true })).toBeVisible();
+
+  await performance.getByLabel("QNH").fill("1013.25");
+  await performance.getByLabel("OAT").fill("15");
+  await performance.getByRole("button", { name: "Calculate Takeoff", exact: true }).click();
+
+  await expect(performance.locator('[data-metric="takeoffDistance"]')).toContainText("3,100 ft");
+
+  const stored = await page.evaluate(() => {
+    const key = Object.keys(localStorage).find((candidate) =>
+      candidate.startsWith(
+        "flytally-training:performance-snapshot:v2:takeoff:browser-ci-aircraft:",
+      ),
+    );
+    const raw = key ? localStorage.getItem(key) : null;
+    return raw ? JSON.parse(raw) : null;
+  });
+
+  expect(JSON.stringify(stored)).not.toMatch(/toraFt|asdaFt|declaredDistance/);
+
+  await performance.getByLabel("Takeoff runway").selectOption("06");
+  await expect(performance.getByLabel("Takeoff TORA")).toHaveValue("");
+  await expect(performance.getByLabel("Takeoff ASDA")).toHaveValue("");
+  await expect(performance.getByText("Not provided", { exact: true })).toBeVisible();
+});
+
 test("B6 Takeoff wind correction uses APPLIED weather and explicit newer-METAR recalculation", async ({ page }) => {
   let windSpeedKt = 15;
   let observedAt = "2026-09-24T10:00:00.000Z";
