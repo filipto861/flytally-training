@@ -373,7 +373,7 @@ The detailed future sequence is tracked in **Active implementation order** below
    - acceptance: targeted 76/76 PASS · full Node 1191 total / 1190 PASS / 0 FAIL / 1 SKIP · production build PASS · full Playwright 388/388 PASS · production readiness HTTP 200
    - merged to `main` in PR #224; production merge commit `7d90482dcb909e159fbfe95a94bc315e971b9374`
 
-13. **Performance source-envelope completion** — PLANNED
+13. **Performance source-envelope completion** — IN PROGRESS · started 2026-09-24
    - audit each current Learjet performance dataset against the highest-authority applicable AFM/AFMS source rather than assuming the narrower checklist-table envelope is final
    - extend governed datasets only where the actual source chart publishes a wider envelope
    - cover N1, V1, Takeoff Distance, VR/V2 and Landing datasets independently because their valid source regions may differ
