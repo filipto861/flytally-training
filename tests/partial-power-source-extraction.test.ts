@@ -184,10 +184,10 @@ test("PP.1 parenthesized source cells are preserved without assigning semantics"
 });
 
 test("PP.1 source limits are configuration-specific and are not generalized", () => {
-  assert.equal(none.constraints.maxN1ReductionPct, 7.7);
-  assert.equal(aeronca.constraints.maxN1ReductionPct, 7.7);
+  assert.equal(none.constraints.maxN1ReductionPoints, 7.7);
+  assert.equal(aeronca.constraints.maxN1ReductionPoints, 7.7);
 
-  assert.equal(tr4000.constraints.maxN1ReductionPct, null);
+  assert.equal(tr4000.constraints.maxN1ReductionPoints, null);
   assert.equal(tr4000.constraints.pressureAltitudeLimitFt, 3000);
   assert.equal(
     tr4000.notes.some((note) => /No 7\.7% N1 reduction note is printed/.test(note)),
