@@ -1,8 +1,8 @@
 # Partial Power / Reduced Thrust Takeoff
 
-**Status:** PP.1 source extraction complete · PR #219  
-**Branch:** `feat/partial-power-source-contract`  
-**Scope:** Learjet 35A/36A source contract only. No operational solver is enabled by this document.
+**Status:** PP.2 assumed-temperature prerequisites in progress  
+**Branch:** `feat/partial-power-assumed-temp-solver`  
+**Scope:** Learjet 35A/36A source-backed Partial Power prerequisites and solver contract. No operational Partial Power output is enabled yet.
 
 ## Purpose
 
@@ -61,23 +61,26 @@ The manual directs the pilot to the approved AFM for the actual Partial Power th
 
 The current Learjet package already contains source-backed zero-wind Takeoff Distance and V1 grids for Flaps 8° and 20°.
 
-The source wording explicitly instructs the pilot to use the **Assumed Temperature** in the TAKEOFF SPEEDS & DISTANCES data to calculate V1. That makes the existing V1 source topology a candidate for reuse with Assumed Temperature as the temperature input, subject to acceptance tests proving the published source coordinates and applicability align.
+The source wording explicitly instructs the pilot to use the **Assumed Temperature** in the TAKEOFF SPEEDS & DISTANCES data to calculate V1. The existing V1 and Takeoff Distance grids therefore form the source topology for evaluating an assumed-temperature candidate. Existing B6 wind correction remains a post-baseline transform and must be applied to both distance and V1 whenever the source-backed wind correction is available.
 
-The same Takeoff Speeds & Distances data are also the source of the runway/weight Assumed Temperature constraint. That constraint must not be implemented by treating physical runway surface length as a declared takeoff distance.
+### New PP.2 prerequisite — Takeoff Weight Limits
 
-## Declared-distance blocker
+FlightSafety states that an assumed-temperature N1 may be used only when **performance weight limitations at both ambient and assumed temperatures equal or exceed actual takeoff weight**.
 
-Partial Power is runway-limited. The existing airport dataset exposes physical runway surface length only.
+The existing package did not contain the required Takeoff Weight Limits schedules. PP.2 therefore adds two governed CL-102B datasets before any operational solver is enabled:
 
-The FlightSafety performance chapter defines Takeoff Field Length as the greatest of 115% all-engine takeoff distance, accelerate-stop distance, and engine-out accelerate-go distance. It further states that, for the Learjet 35/36 charts, field length is governed by accelerate-stop or accelerate-go and that **usable runway for takeoff is limited by the lower of TORA and ASDA**. TODA is not used for the Learjet 35/36 takeoff-distance calculation.
+- `learjet-35a-takeoff-weight-limit-flaps8` — CL-102B P-7;
+- `learjet-35a-takeoff-weight-limit-flaps20` — CL-102B P-13.
 
-Therefore:
+Both preserve the published pressure-altitude / temperature geometry, the explicit 18,300 lb continuation ceiling, sparse high/hot cells, and the source baseline conditions. They use bounded interpolation only inside complete published source regions and never extrapolate.
 
-- physical runway surface length must not silently become either TORA or ASDA;
-- the Partial Power solver must not choose an Assumed Temperature until explicit authoritative **TORA and ASDA** inputs exist;
-- the runway constraint used by this chart topology is `min(TORA, ASDA)`, not physical surface length and not TODA;
-- source extraction and generic runtime contracts may proceed before that provider/input is implemented;
-- operational Partial Power calculation remains fail-closed until both declared-distance dependencies are satisfied.
+## Declared-distance dependency — COMPLETE · PR #220
+
+Partial Power is runway-limited. The declared-distance phase established an explicit TORA/ASDA contract with provenance and a fail-closed Learjet takeoff constraint of:
+
+`usableTakeoffFieldLengthFt = min(TORA, ASDA)`
+
+Physical runway surface length and TODA are not substituted. Manual TORA/ASDA input and a provider-neutral adapter boundary now exist; the existing full-rated Takeoff remains independent of these fields.
 
 ## Applicability model
 
@@ -122,7 +125,8 @@ Do not author production N1 data until these are resolved directly from the sour
 1. **Parenthesized values on P-6 / P-6.1.** The visible source table contains parenthesized N1 values, but the retrieved text does not define their exact semantics. They must not be interpreted by inference.
 2. **TR-4000 reduction limit.** P-6.2 visibly carries the 3000-ft altitude note, but the retrieved page text does not state the same 7.7% N1 note shown on P-6/P-6.1. Do not apply that limit to TR-4000 unless the applicable AFM/supplement directly supports it.
 3. **Above-3000-ft TR-4000 data.** P-6.2 explicitly requires the FAA Approved AFM above 3000 ft; FlyTally must fail closed there until that source is digitized.
-4. **Assumed-temperature runway solver.** This requires explicit declared-distance input and must preserve the already-governed B6 wind correction rather than silently solving against zero-wind physical runway length.
+4. **Partial Power N1 operationalization.** The P-6/P-6.1 parenthesized-cell semantics remain unresolved; those source extracts therefore remain non-operational.
+5. **Assumed-temperature solver integration.** Candidate evaluation must check Takeoff Weight Limits at both ambient and assumed temperature, use explicit TORA/ASDA, and preserve the already-governed B6 wind correction.
 
 ## Planned implementation sequence
 
@@ -137,9 +141,36 @@ Do not author production N1 data until these are resolved directly from the sour
 
 The unresolved parenthesized-cell meaning remains an explicit production-data blocker; PP.1 completion means the source evidence has been safely captured, not that the source ambiguity has been guessed away.
 
-### PP.2 — assumed-temperature contract
+### PP.2 — assumed-temperature prerequisites and contract — IN PROGRESS
 
-Define an aircraft-agnostic solver contract with explicit inputs for:
+Prerequisite data accepted locally:
+- governed Takeoff Weight Limits · Flaps 8° (P-7);
+- governed Takeoff Weight Limits · Flaps 20° (P-13);
+- source-node / interpolation / sparse / no-extrapolation tests;
+- registration in the Learjet performance package without enabling Partial Power output;
+- local prerequisite gate: typecheck PASS + PP.2/B7/B8/PP.1 targeted suite **69/69 PASS**;
+- generic solver + Learjet adapter gate: typecheck PASS + **100/100 PASS**.
+
+Generic assumed-temperature selector is now staged in `lib/performance/assumed-temperature.ts`. It:
+- accepts explicit TORA and ASDA and uses the lower value;
+- requires the ambient performance weight limit to cover actual takeoff weight;
+- requires each assumed-temperature candidate to cover actual takeoff weight;
+- selects only from explicit source-supported candidate evaluations supplied by the aircraft adapter;
+- requires a candidate above ambient temperature;
+- never invents intermediate temperatures or extrapolates;
+- preserves the selected candidate's source dataset identities;
+- returns V1 and corrected takeoff distance, but deliberately does not return reduced N1.
+
+The Learjet adapter is accepted locally in `aircraft-data/learjet-35a/performance/partial-power-adapter.ts`. It:
+- evaluates only the published Takeoff Weight Limit temperature-axis candidates above ambient;
+- binds Flaps 8° / 20° to their separate weight-limit, V1 and takeoff-distance sources;
+- preserves the verified B6 Flaps 8 wind transforms for both V1 and distance;
+- permits Flaps 20 only at zero wind while its nonzero-wind correction source remains unverified;
+- requires explicit TORA + ASDA;
+- propagates the dry hard-paved runway, anti-ice OFF, anti-skid operative and recent full-rated-takeoff eligibility checks;
+- remains N1-free while P-6/P-6.1 parenthesized semantics are unresolved.
+
+Aircraft adapter inputs are:
 
 - ambient temperature;
 - pressure altitude;
@@ -153,9 +184,11 @@ Define an aircraft-agnostic solver contract with explicit inputs for:
 
 The solver must return no solution when any required operational dependency is unavailable or unsupported.
 
-### PP.3 — solver/runtime
+### PP.3 — reduced-N1 source/runtime boundary — NEXT
 
-Only after the declared-distance TORA/ASDA workflow is frozen:
+Declared-distance TORA/ASDA is frozen by PR #220 and the assumed-temperature candidate engine is locally accepted. Operational Partial Power output remains blocked only on the reduced-N1 source/runtime boundary.
+
+The next phase must not infer parenthesized-cell semantics. Safe implementation options are limited to source-defined semantics or explicit fail-closed exclusion of any candidate whose N1 evaluation requires an unresolved parenthesized source cell.
 
 1. find the highest source-supported Assumed Temperature satisfying the runway and weight constraint;
 2. calculate V1 using that Assumed Temperature;

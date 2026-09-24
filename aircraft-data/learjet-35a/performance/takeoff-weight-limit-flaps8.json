@@ -1,0 +1,637 @@
+{
+  "id": "learjet-35a-takeoff-weight-limit-flaps8",
+  "title": "Takeoff Weight Limit · Flaps 8°",
+  "description": "Source-backed maximum takeoff weight limit for the Learjet 35A/36A 8° takeoff-flap configuration.",
+  "kind": "lookup-table",
+  "phase": "takeoff",
+  "calculator": {
+    "kind": "multi-axis-metric-grid",
+    "operation": "takeoff",
+    "inputAxes": [
+      "pressureAltitude",
+      "oat"
+    ],
+    "outputKeys": [
+      "maxTakeoffWeight"
+    ]
+  },
+  "axes": [
+    {
+      "key": "pressureAltitude",
+      "label": "Pressure altitude",
+      "unit": "ft",
+      "values": [
+        0,
+        1000,
+        2000,
+        3000,
+        4000,
+        5000,
+        6000,
+        7000,
+        8000,
+        9000,
+        10000
+      ]
+    },
+    {
+      "key": "oat",
+      "label": "Outside air temperature",
+      "unit": "°C",
+      "values": [
+        -18,
+        -7,
+        4,
+        16,
+        27,
+        38
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "key": "maxTakeoffWeight",
+      "label": "Maximum Takeoff Weight",
+      "unit": "LB"
+    }
+  ],
+  "rows": [
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -18
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": -7
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 4
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 16
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 27
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 0,
+        "oat": 38
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -18
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": -7
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 4
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 16
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 27
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 1000,
+        "oat": 38
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18100
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -18
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": -7
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 4
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 16
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 27
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 2000,
+        "oat": 38
+      },
+      "outputs": {
+        "maxTakeoffWeight": 17400
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -18
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": -7
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 4
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 16
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 27
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 3000,
+        "oat": 38
+      },
+      "outputs": {
+        "maxTakeoffWeight": 16800
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -18
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": -7
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 4
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 16
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 27
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 4000,
+        "oat": 38
+      },
+      "outputs": {
+        "maxTakeoffWeight": 16200
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -18
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": -7
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 4
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 16
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 27
+      },
+      "outputs": {
+        "maxTakeoffWeight": 17900
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 5000,
+        "oat": 38
+      },
+      "outputs": {
+        "maxTakeoffWeight": 15600
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -18
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": -7
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 4
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 16
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 27
+      },
+      "outputs": {
+        "maxTakeoffWeight": 17300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 6000,
+        "oat": 38
+      },
+      "outputs": {
+        "maxTakeoffWeight": 15050
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -18
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": -7
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 4
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 16
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 7000,
+        "oat": 27
+      },
+      "outputs": {
+        "maxTakeoffWeight": 16600
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -18
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": -7
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 4
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 16
+      },
+      "outputs": {
+        "maxTakeoffWeight": 17950
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 8000,
+        "oat": 27
+      },
+      "outputs": {
+        "maxTakeoffWeight": 16050
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -18
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": -7
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": 4
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": 16
+      },
+      "outputs": {
+        "maxTakeoffWeight": 17400
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 9000,
+        "oat": 27
+      },
+      "outputs": {
+        "maxTakeoffWeight": 15400
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -18
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": -7
+      },
+      "outputs": {
+        "maxTakeoffWeight": 18300
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 4
+      },
+      "outputs": {
+        "maxTakeoffWeight": 17750
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 16
+      },
+      "outputs": {
+        "maxTakeoffWeight": 16800
+      }
+    },
+    {
+      "inputs": {
+        "pressureAltitude": 10000,
+        "oat": 27
+      },
+      "outputs": {
+        "maxTakeoffWeight": 14850
+      }
+    }
+  ],
+  "interpolation": "linear-explicit",
+  "notes": [
+    "Standard takeoff flap setting: 8°.",
+    "The source table states these data were determined for dry runway, zero wind, zero runway gradient, anti-ice off and anti-skid on.",
+    "Do not exceed the maximum certified takeoff weight applicable to the aircraft configuration.",
+    "Source continuation arrows at the 18,300 lb ceiling are materialized as exact 18,300 lb source cells; they are not inferred from neighboring numerical rows.",
+    "Blank high/hot source regions remain absent. Interpolation fails closed whenever a required source corner is unavailable.",
+    "Intermediate pressure-altitude and temperature values use bounded linear software interpolation within the published chart/table envelope.",
+    "Partial Power eligibility requires the applicable takeoff weight limitation to equal or exceed actual takeoff weight at both ambient and assumed temperatures."
+  ],
+  "sources": [
+    {
+      "manualId": "CL-102B",
+      "chapter": "Performance Data",
+      "section": "Takeoff Weight Limits · Flaps 8°",
+      "pageLabel": "P-7",
+      "note": "Bombardier Crew Checklist & Quick Reference Handbook · April 2001"
+    }
+  ]
+}

@@ -209,7 +209,7 @@ The baseline remains the existing governed zero-wind dry-runway calculation. Win
 - regression coverage proving VR/V2/N1 and Landing are unchanged;
 - desktop/iPad/mobile Playwright acceptance before merge.
 
-## Partial Power / Reduced Thrust Takeoff — SOURCE EXTRACTION IN PROGRESS · branch `feat/partial-power-source-contract`
+## Partial Power / Reduced Thrust Takeoff — PP.2 IN PROGRESS · branch `feat/partial-power-assumed-temp-solver`
 
 Raw source extraction may proceed independently after B6 source/runtime boundaries are frozen.
 
@@ -224,11 +224,12 @@ Source procedure:
 3. determine reduced N1 from Ambient Temperature + Assumed Temperature;
 4. enforce aircraft/configuration applicability and source limits.
 
-Solver/runtime waits until:
-- Snapshot V2/weather applied-state exists;
-- wind datasets are authoritative;
-- applicability contract is complete;
-- declared-distance TORA/ASDA workflow is frozen.
+Solver/runtime prerequisites:
+- Snapshot V2/weather applied-state — COMPLETE;
+- verified Flaps 8 wind datasets — COMPLETE; Flaps 20 nonzero-wind remains fail-closed;
+- declared-distance TORA/ASDA workflow — COMPLETE · PR #220;
+- Takeoff Weight Limits at ambient and assumed temperature — STAGED in PP.2;
+- P-6/P-6.1 parenthesized N1 semantics — unresolved and still fail-closed for operational N1 use.
 
 ## Runway declared distances — COMPLETE · PR #220
 
@@ -291,5 +292,15 @@ After wind + Partial Power:
    - provider-neutral adapter with identity/provenance validation — COMPLETE
    - full-rated Takeoff remains independent of declared distances
    - acceptance: typecheck PASS · 31/31 targeted · 4/4 targeted Playwright · 1118 Node / 1117 PASS / 1 SKIP · 388/388 full Playwright
-9. **Partial Power assumed-temperature solver/runtime** — NEXT
-9. Partial Power solver/runtime after declared-distance workflow is frozen
+9. **Partial Power assumed-temperature prerequisites / solver contract** — IN PROGRESS · `feat/partial-power-assumed-temp-solver`
+   - Takeoff Weight Limits Flaps 8° / 20° — ACCEPTED locally
+   - prerequisite gate: typecheck PASS + 69/69 targeted tests
+   - generic assumed-temperature selector contract — ACCEPTED locally (90/90 PP.2/B6/B7/B8/PP.1 gate)
+   - explicit lower-of-TORA/ASDA, ambient + assumed weight-limit checks, no invented temperatures
+   - Learjet candidate adapter with Flaps 8 B6 wind preservation / Flaps 20 nonzero-wind fail-closed — ACCEPTED locally
+   - local adapter gate: typecheck PASS + 100/100 targeted tests
+   - adapter remains N1-free and operational Partial Power N1 stays blocked on unresolved P-6/P-6.1 parenthesized semantics
+10. **Partial Power reduced-N1 source/runtime boundary** — NEXT
+   - preserve explicit thrust-reverser configuration identity
+   - never interpret unresolved parenthesized cells
+   - candidate evaluations requiring unresolved cells must fail closed unless an authoritative source defines their semantics
