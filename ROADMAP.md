@@ -305,6 +305,9 @@ After wind + Partial Power:
    - exact-source-cell boundary — ACCEPTED locally (typecheck PASS + 18/18 targeted)
    - anti-ice OFF and TR-4000 <=3000 ft limits enforced
    - FAA-approved AFMS W1072 Figure 5 authorizes bounded Aeronca interpolation — STAGED
+   - Aeronca-specific full-rated Takeoff N1 P-5.1 dataset — STAGED
+   - Aeronca candidate/N1 integration with 7.7 N1-point limit — STAGED as source-supported only
+   - independent FlightSafety 25% rated-thrust reduction check remains unresolved; operational use blocked
    - no-reverser and TR-4000 interpolation remain unauthorized
    - never interpret unresolved parenthesized cells
    - any interpolation region touching unresolved parentheses fails closed
