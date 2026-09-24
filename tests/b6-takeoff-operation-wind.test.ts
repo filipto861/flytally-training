@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import test from "node:test";
 
-import { learjet35aPerformancePackage } from "../aircraft-data/learjet-35a/performance/package.ts";
+import { learjet35aTakeoffCalculatorDefinition as definition } from "../aircraft-data/learjet-35a/performance/takeoff-calculator-definition.ts";
 import type { SelectedRunwayContext } from "../lib/aviation/airport-types.ts";
 import {
   computePerformance,
@@ -12,11 +13,26 @@ import {
 } from "../lib/performance/client.ts";
 import type { FlightPerformanceContext } from "../lib/performance/context.ts";
 import { diffTakeoffSnapshotV2Dependencies } from "../lib/performance/snapshot-v2.ts";
+import type { PerformanceDataset } from "../lib/universal-aircraft-content.ts";
 import type { MetarSnapshot } from "../lib/weather/metar-types.ts";
 
-const datasets = learjet35aPerformancePackage.content.datasets;
-const definition = learjet35aPerformancePackage.takeoffCalculator;
-assert.ok(definition);
+const load = (file: string): PerformanceDataset => JSON.parse(
+  fs.readFileSync(new URL(`../aircraft-data/learjet-35a/performance/${file}`, import.meta.url), "utf8"),
+) as PerformanceDataset;
+
+const datasets: readonly PerformanceDataset[] = [
+  load("takeoff-n1.json"),
+  load("takeoff-distance-flaps8.json"),
+  load("takeoff-distance-wind-flaps8.json"),
+  load("takeoff-distance-flaps20.json"),
+  load("v1-flaps8.json"),
+  load("v1-wind-flaps8.json"),
+  load("v1-flaps20.json"),
+  load("vr-flaps8.json"),
+  load("vr-flaps20.json"),
+  load("v2-flaps8.json"),
+  load("v2-flaps20.json"),
+];
 
 const runwayContext: SelectedRunwayContext = {
   airportIcao: "LKPR",
