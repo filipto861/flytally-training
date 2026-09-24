@@ -285,4 +285,8 @@ After wind + Partial Power:
    - local gate: typecheck PASS + 8/8 targeted source tests
    - solver remains blocked on declared-distance TORA/ASDA workflow
 8. **Declared-distance provider/input hardening (TORA + ASDA)** — IN PROGRESS · `feat/declared-distance-contract`
+   - generic declared-distance/provenance contract — STAGED
+   - fail-closed `min(TORA, ASDA)` takeoff constraint — STAGED
+   - optional operation-owned manual TORA/ASDA inputs — STAGED
+   - existing full-rated Takeoff remains independent of declared distances
 9. Partial Power solver/runtime after declared-distance workflow is frozen
