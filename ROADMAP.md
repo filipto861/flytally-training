@@ -293,8 +293,10 @@ After wind + Partial Power:
    - full-rated Takeoff remains independent of declared distances
    - acceptance: typecheck PASS · 31/31 targeted · 4/4 targeted Playwright · 1118 Node / 1117 PASS / 1 SKIP · 388/388 full Playwright
 9. **Partial Power assumed-temperature prerequisites / solver contract** — IN PROGRESS · `feat/partial-power-assumed-temp-solver`
-   - Takeoff Weight Limits Flaps 8° / 20° — STAGED
-   - ambient + assumed-temperature weight-limit requirement — source-confirmed
-   - preserve B6 wind correction and explicit TORA/ASDA
+   - Takeoff Weight Limits Flaps 8° / 20° — ACCEPTED locally
+   - prerequisite gate: typecheck PASS + 69/69 targeted tests
+   - generic assumed-temperature selector contract — STAGED
+   - explicit lower-of-TORA/ASDA, ambient + assumed weight-limit checks, no invented temperatures
+   - aircraft adapter must preserve B6 wind correction and source dataset identity
    - operational Partial Power N1 remains blocked on unresolved P-6/P-6.1 parenthesized semantics
 10. Partial Power solver/runtime integration after PP.2 acceptance
