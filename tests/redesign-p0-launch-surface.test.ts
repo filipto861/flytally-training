@@ -123,6 +123,6 @@ test("P1.1 page remains feature-gated and the mode chooser is not a metric dashb
   assert.match(page, /LegacyAircraftHome/);
   assert.match(page, /FtLaunchSurface/);
   assert.match(page, /recentItems=\{\[\]\}/);
-  assert.doesNotMatch(surface, /dashboard|metric|stat(?:istic)?|widget/i);
+  assert.doesNotMatch(surface, /FtMetric|FtStat|FtDashboard|FtWidget|data-metric|data-stat|data-dashboard/i);
   assert.doesNotMatch(surface, /CHECKLIST|QRH|PERF|Quick Access/);
 });

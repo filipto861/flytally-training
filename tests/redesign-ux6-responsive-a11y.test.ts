@@ -7,12 +7,12 @@ const read=(path:string)=>readFileSync(new URL("../"+path,import.meta.url),"utf8
 test("UX6.8 compact rail exposes full accessible destination names",()=>{
   const nav=read("components/ft-shell/FtSideNav.tsx");
   assert.match(nav,/aria-label=\{destination\.label\}/);
-  assert.match(nav,/destination\.label\.slice\(0, 4\)/);
+  assert.match(nav,/destination\.shortLabel/);
 });
 
 test("UX6.8 aircraft profile is explicitly labelled for assistive technology",()=>{
   const top=read("components/ft-shell/FtTopBar.tsx");
-  assert.match(top,/aria-label=\{"Training profile: " \+ trainingProfileLabel\}/);
+  assert.match(top,/aria-label=\{"Aircraft profile: " \+ aircraftProfileLabel\}/);
 });
 
 test("UX6.8 Procedures uses the compact control path on touch layouts",()=>{
@@ -25,7 +25,7 @@ test("UX6.8 Procedures uses the compact control path on touch layouts",()=>{
 
 test("UX6.8 browser acceptance covers overflow, touch targets and compact procedure controls",()=>{
   const e2e=read("e2e/shell/aircraft-shell.spec.ts");
-  assert.match(e2e,/UX6\.8 compact desktop rail exposes the full five accessible destination names/);
+  assert.match(e2e,/P1\.1 compact rail exposes mode-specific accessible destination names/);
   assert.match(e2e,/UX6\.8 touch Procedures exposes compact selector controls/);
   assert.match(e2e,/UX6\.8 primary touch shell controls meet the 44px boundary/);
   assert.match(e2e,/\$\{aircraftPath\}\/flight/);

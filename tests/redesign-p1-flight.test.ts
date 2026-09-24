@@ -31,7 +31,7 @@ test("P1 Flight workspace styling consumes frozen tokens without hardcoded color
   assert.doesNotMatch(css.replaceAll("1180px", ""), /\b\d+(?:\.\d+)?px\b/);
 });
 
-test("P1 Flight workspace exposes Active Flight and all frozen Flight Brief sections", () => {
+test("P1.1 Flight Brief keeps operational sections and removes Training Recommendations", () => {
   const page = read("components/ft-flight/FtFlightPage.tsx");
   const active = read("components/ft-flight/FtActiveFlight.tsx");
   const brief = read("components/ft-flight/FtFlightBrief.tsx");
@@ -43,8 +43,8 @@ test("P1 Flight workspace exposes Active Flight and all frozen Flight Brief sect
   assert.match(brief, /FtPerformancePresentation/);
   assert.match(brief, /view="brief"/);
   assert.match(brief, />Flight Considerations</);
-  assert.match(brief, />Training Recommendations</);
   assert.match(brief, />Relevant Procedures</);
+  assert.doesNotMatch(brief, />Training Recommendations</);
 });
 
 test("P1 delegates takeoff metrics to P2 instead of fabricating values in Flight Brief", () => {
@@ -69,7 +69,7 @@ test("P1 keeps non-performance downstream slots empty while P2 owns Performance 
   assert.match(active, /data-empty=\{current \? "false" : "true"\}/);
   assert.match(active, /No active flight\./);
   assert.match(active, /Start new flight/);
-  assert.equal((brief.match(/data-empty="true"/g) ?? []).length, 3);
+  assert.equal((brief.match(/data-empty="true"/g) ?? []).length, 2);
   assert.match(brief, /data-flight-context=\{hasActiveFlight \? "active" : "none"\}/);
   assert.match(brief, /FtPerformancePresentation/);
   assert.match(recent, /data-empty="true"/);
