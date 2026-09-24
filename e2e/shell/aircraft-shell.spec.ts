@@ -733,6 +733,90 @@ test("P1.4 Flight Brief Calculate/Edit uses one shared responsive Performance ed
   await expect(fullPerformance.locator('[data-metric="takeoffDistance"]')).toContainText("3,100 ft");
 });
 
+test("B5 dedicated Performance calculates and restores destination-owned Landing V2", async ({ page }) => {
+  await createD0ActiveFlight(page);
+  await page.goto(`${shellOnBase}${aircraftPath}/performance`);
+
+  const landing = page
+    .getByRole("main", { name: "Performance workspace" })
+    .getByRole("region", { name: "Landing Performance", exact: true });
+
+  await expect(landing).toHaveAttribute("data-performance-operation", "LANDING");
+  await expect(landing).toContainText("LOWW arrival");
+  await landing.getByLabel("Landing runway").selectOption({ index: 1 });
+  await landing.getByLabel("Landing QNH").fill("1013.25");
+  await landing.getByLabel("Landing OAT").fill("15");
+  await landing.getByRole("button", { name: "Calculate Landing", exact: true }).click();
+
+  await expect(landing.locator('[data-metric="vref"]')).toContainText("118 KIAS");
+  await expect(landing.locator('[data-metric="landingClimbSpeed"]')).toContainText("118 KIAS");
+  await expect(landing.locator('[data-metric="approachClimbSpeed"]')).toContainText("124 KIAS");
+  await expect(landing.locator('[data-metric="landingDistance"]')).toContainText("2,800 FT");
+  await expect(landing.locator('[data-ft-landing-performance-strip="true"]')).toHaveAttribute(
+    "data-stale",
+    "false",
+  );
+
+  const stored = await page.evaluate(() => {
+    const raw = localStorage.getItem(
+      "flytally-training:performance-snapshot:v2:landing:browser-ci-aircraft:local:browser-ci-aircraft",
+    );
+    return raw ? JSON.parse(raw) : null;
+  });
+  expect(stored).toMatchObject({
+    schemaVersion: 2,
+    operation: "LANDING",
+    inputs: {
+      weight: { value: 12000, unit: "lb" },
+      configuration: { flaps: "40" },
+    },
+    result: {
+      vref: { status: "ready", value: 118 },
+      landingDistance: { status: "ready", value: 2800 },
+    },
+  });
+
+  await page.reload();
+  const restored = page
+    .getByRole("main", { name: "Performance workspace" })
+    .getByRole("region", { name: "Landing Performance", exact: true });
+  await expect(restored.locator('[data-ft-landing-performance-strip="true"]')).toHaveAttribute(
+    "data-stale",
+    "false",
+  );
+  await expect(restored.locator('[data-metric="landingDistance"]')).toContainText("2,800 FT");
+});
+
+test("B5 Flight Brief reuses the Landing snapshot and shared Landing editor", async ({ page }) => {
+  await createD0ActiveFlight(page);
+  await page.goto(`${shellOnBase}${aircraftPath}/performance`);
+
+  const landing = page.getByRole("region", { name: "Landing Performance", exact: true });
+  await landing.getByLabel("Landing runway").selectOption({ index: 1 });
+  await landing.getByLabel("Landing QNH").fill("1013.25");
+  await landing.getByLabel("Landing OAT").fill("15");
+  await landing.getByRole("button", { name: "Calculate Landing", exact: true }).click();
+
+  await page.goto(`${shellOnBase}${aircraftPath}/flight`);
+  const brief = page.getByRole("region", { name: "Flight Brief" });
+  const landingCard = brief.getByRole("region", { name: "Landing performance brief" });
+
+  await expect(landingCard).toHaveAttribute("data-performance-validity", "current");
+  await expect(landingCard.getByText("CURRENT", { exact: true })).toBeVisible();
+  await expect(landingCard.locator('[data-metric="vref"]')).toContainText("118 KIAS");
+  await expect(landingCard.locator('[data-metric="landingDistance"]')).toContainText("2,800 FT");
+
+  const edit = landingCard.getByRole("button", { name: "Edit Landing", exact: true });
+  await edit.click();
+  const editor = page.getByRole("dialog", { name: "Landing performance editor" });
+  await expect(editor).toBeVisible();
+  await expect(editor.getByLabel("Landing weight")).toHaveValue("12000");
+  await expect(editor.getByLabel("Landing flaps")).toHaveValue("40");
+  await editor.getByRole("button", { name: "Close Landing performance editor", exact: true }).click();
+  await expect(editor).toHaveCount(0);
+  await expect(edit).toBeFocused();
+});
+
 test("P2 PERF fast path reuses the same performance result with Operational context", async ({ page }) => {
   await calculateP2Performance(page);
   const panel = await openFastPath(page, "PERF");
