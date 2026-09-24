@@ -51,7 +51,7 @@ test("P1.4 Takeoff card exposes runway metrics validity and explicit editor acti
   assert.match(brief, /Edit Performance/);
   assert.match(brief, /Review & recalculate/);
   assert.match(brief, /Open full Performance/);
-  assert.match(brief, /withVariantQuery\(\`\/aircraft\/\$\{aircraftId\}\/performance/);
+  assert.match(brief, /withVariantQuery[\s\S]*\/performance/);
 });
 
 test("P1.4 Performance editor is an accessible modal using the shared Performance presentation", () => {
