@@ -287,6 +287,7 @@ After wind + Partial Power:
 8. **Declared-distance provider/input hardening (TORA + ASDA)** — IN PROGRESS · `feat/declared-distance-contract`
    - generic declared-distance/provenance contract — STAGED
    - fail-closed `min(TORA, ASDA)` takeoff constraint — STAGED
-   - optional operation-owned manual TORA/ASDA inputs — STAGED
+   - optional operation-owned manual TORA/ASDA inputs — ACCEPTED (typecheck PASS + 25/25 targeted tests)
+   - provider-neutral adapter with identity/provenance validation — STAGED
    - existing full-rated Takeoff remains independent of declared distances
 9. Partial Power solver/runtime after declared-distance workflow is frozen
