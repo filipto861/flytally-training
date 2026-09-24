@@ -124,5 +124,5 @@ test("P1.1 page remains feature-gated and the mode chooser is not a metric dashb
   assert.match(page, /FtLaunchSurface/);
   assert.match(page, /recentItems=\{\[\]\}/);
   assert.doesNotMatch(surface, /FtMetric|FtStat|FtDashboard|FtWidget|data-metric|data-stat|data-dashboard/i);
-  assert.doesNotMatch(surface, /CHECKLIST|QRH|PERF|Quick Access/);
+  assert.doesNotMatch(surface, /FtFastPath|Operational fast path|Quick Access|>\s*(?:CHECKLIST|QRH|PERF)\s*</i);
 });
