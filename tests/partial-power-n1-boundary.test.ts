@@ -4,6 +4,7 @@ import test from "node:test";
 
 import {
   lookupPartialPowerN1ExactSourceCell,
+  lookupPartialPowerN1SourceValue,
 } from "../lib/performance/partial-power-n1.ts";
 import type {
   PartialPowerN1SourceExtract,
@@ -199,4 +200,127 @@ test("PP.3 source boundary does not promote extracts into operational datasets",
   assert.match(source, /exact source-cell lookup only/i);
   assert.doesNotMatch(source, /calculateMultiAxisMetricGrid|calculatePostBaselineTransform/);
   assert.doesNotMatch(pkg, /partial-power-n1-(?:no-reversers|aeronca|tr4000)/);
+});
+
+
+test("PP.3 Aeronca interpolation reproduces the FAA-approved AFMS W1072 worked example", () => {
+  const result = lookupPartialPowerN1SourceValue(aeronca, {
+    ambientTemperatureF: 50,
+    assumedTemperatureF: 82,
+    pressureAltitudeFt: 0,
+    antiIce: false,
+  });
+
+  assert.equal(result.status, "source-value");
+  if (result.status !== "source-value") return;
+
+  assert.equal(result.method, "bounded-source-interpolation");
+  assert.ok(Math.abs(result.reducedN1 - 91) <= 0.1);
+  assert.deepEqual(result.interpolationAuthority, {
+    manualId: "AFMS-W1072",
+    figure: "5",
+    configuration: "aeronca",
+  });
+  assert.deepEqual(
+    result.supportingCells.map((cell) => [
+      cell.ambientTemperatureF,
+      cell.assumedTemperatureF,
+      cell.n1,
+    ]),
+    [
+      [50, 80, 91.5],
+      [50, 90, 89.4],
+    ],
+  );
+});
+
+test("PP.3 Aeronca bounded interpolation supports the continuous ambient axis", () => {
+  const result = lookupPartialPowerN1SourceValue(aeronca, {
+    ambientTemperatureF: 55,
+    assumedTemperatureF: 80,
+    pressureAltitudeFt: 0,
+    antiIce: false,
+  });
+
+  assert.equal(result.status, "source-value");
+  if (result.status !== "source-value") return;
+  assert.equal(result.method, "bounded-source-interpolation");
+  assert.ok(Math.abs(result.reducedN1 - 91.95) < 1e-9);
+  assert.equal(result.supportingCells.length, 2);
+});
+
+test("PP.3 Aeronca interpolation is bilinear only inside a complete published source rectangle", () => {
+  const result = lookupPartialPowerN1SourceValue(aeronca, {
+    ambientTemperatureF: 55,
+    assumedTemperatureF: 85,
+    pressureAltitudeFt: 0,
+    antiIce: false,
+  });
+
+  assert.equal(result.status, "source-value");
+  if (result.status !== "source-value") return;
+  assert.equal(result.method, "bounded-source-interpolation");
+  assert.ok(Math.abs(result.reducedN1 - 90.9) < 1e-9);
+  assert.equal(result.supportingCells.length, 4);
+});
+
+test("PP.3 Aeronca interpolation fails closed when its support region touches unresolved parentheses", () => {
+  const result = lookupPartialPowerN1SourceValue(aeronca, {
+    ambientTemperatureF: 75,
+    assumedTemperatureF: 85,
+    pressureAltitudeFt: 0,
+    antiIce: false,
+  });
+
+  assert.equal(result.status, "blocked");
+  if (result.status !== "blocked") return;
+  assert.equal(result.reason, "interpolation-source-region-unresolved");
+});
+
+test("PP.3 reduced-N1 interpolation remains unauthorized for no-reverser schedule", () => {
+  const result = lookupPartialPowerN1SourceValue(none, {
+    ambientTemperatureF: 50,
+    assumedTemperatureF: 82,
+    pressureAltitudeFt: 0,
+    antiIce: false,
+  });
+
+  assert.equal(result.status, "blocked");
+  if (result.status !== "blocked") return;
+  assert.equal(result.reason, "interpolation-not-authorized");
+});
+
+test("PP.3 reduced-N1 interpolation remains unauthorized for TR-4000 schedule", () => {
+  const result = lookupPartialPowerN1SourceValue(tr4000, {
+    ambientTemperatureF: 50,
+    assumedTemperatureF: 82,
+    pressureAltitudeFt: 0,
+    antiIce: false,
+  });
+
+  assert.equal(result.status, "blocked");
+  if (result.status !== "blocked") return;
+  assert.equal(result.reason, "interpolation-not-authorized");
+});
+
+test("PP.3 Aeronca interpolation never extrapolates beyond either temperature axis", () => {
+  for (const request of [
+    {
+      ambientTemperatureF: 85,
+      assumedTemperatureF: 100,
+      pressureAltitudeFt: 0,
+      antiIce: false,
+    },
+    {
+      ambientTemperatureF: 50,
+      assumedTemperatureF: 125,
+      pressureAltitudeFt: 0,
+      antiIce: false,
+    },
+  ]) {
+    const result = lookupPartialPowerN1SourceValue(aeronca, request);
+    assert.equal(result.status, "blocked");
+    if (result.status !== "blocked") continue;
+    assert.equal(result.reason, "interpolation-source-region-incomplete");
+  }
 });
