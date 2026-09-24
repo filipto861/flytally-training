@@ -11,11 +11,13 @@ import styles from "./ft-flight.module.css";
 export function FtFlightBrief({
   aircraftId,
   activeFlight,
+  selectedVariant,
   datasets,
   takeoffCalculator,
 }: Readonly<{
   aircraftId: string;
   activeFlight?: ActiveFlight | null;
+  selectedVariant?: string;
   datasets: readonly PerformanceDataset[];
   takeoffCalculator?: PilotTakeoffCalculatorDefinition;
 }>) {
@@ -38,6 +40,7 @@ export function FtFlightBrief({
         <FtPerformancePresentation
           aircraftId={aircraftId}
           activeFlight={activeFlight}
+          selectedVariant={selectedVariant}
           datasets={datasets}
           takeoffCalculator={takeoffCalculator}
           view="brief"

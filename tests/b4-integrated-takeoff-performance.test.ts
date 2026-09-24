@@ -81,7 +81,10 @@ test("B4 UX6 Performance consumes real runway data, governed config and airport-
   assert.match(source,/Calculate Takeoff/);
   assert.match(source,/previousDeparture/);
   assert.match(source,/setMetarSnapshot\(null\)/);
-  assert.match(source,/!currentContext \|\| !isContextValid/);
+  assert.match(source,/storedState\?\.requiresRecalculation/);
+  assert.match(source,/snapshotDependencyChanges\.length > 0/);
+  assert.match(source,/!currentContext/);
+  assert.match(source,/!isContextValid\(currentContext, result\.context\)/);
 });
 
 test("B4 UX6 Performance no longer requires legacy Active Flight runway/config to render setup",()=>{

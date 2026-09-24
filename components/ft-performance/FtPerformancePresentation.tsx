@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import type { ActiveFlight } from "@/lib/active-flight/types";
@@ -22,16 +23,22 @@ import type { PilotTakeoffCalculatorDefinition } from "@/lib/pilot-takeoff-calcu
 import {
   computePerformance,
   PERFORMANCE_RESULT_EVENT,
-  readPerformanceResult,
-  writePerformanceResult,
+  readTakeoffPerformanceState,
+  takeoffSourceDatasetIds,
+  weatherObservationRefV2,
+  writeTakeoffPerformanceResultV2,
   type PerformanceCalculationInputs,
-  type PerformanceResult,
+  type TakeoffPerformanceReadState,
 } from "@/lib/performance/client";
 import {
   buildTakeoffPerformanceContext,
   diffPerformanceContext,
   isContextValid,
 } from "@/lib/performance/context";
+import {
+  diffTakeoffSnapshotV2Dependencies,
+  type PerformanceInputProvenance,
+} from "@/lib/performance/snapshot-v2";
 import type { PerformanceDataset } from "@/lib/universal-aircraft-content";
 import {
   formatObservationZulu,
@@ -61,6 +68,15 @@ function sourceLabel(source: EnvironmentSource): string {
   return "NOT SET";
 }
 
+function environmentSourceFromSnapshot(
+  source: PerformanceInputProvenance | undefined,
+): EnvironmentSource {
+  if (source === "metar") return "metar";
+  if (source === "manual") return "manual";
+  if (source === "legacy-unknown") return "stored";
+  return "unset";
+}
+
 function runwayDescription(context: SelectedRunwayContext | undefined): string {
   if (!context) return "Select runway";
   return [
@@ -76,6 +92,7 @@ export function FtPerformancePresentation({
   activeFlight,
   datasets,
   takeoffCalculator,
+  selectedVariant,
   view,
   showInputs = false,
 }: Readonly<{
@@ -83,13 +100,17 @@ export function FtPerformancePresentation({
   activeFlight?: ActiveFlight | null;
   datasets: readonly PerformanceDataset[];
   takeoffCalculator?: PilotTakeoffCalculatorDefinition;
+  selectedVariant?: string;
   view: FtPerformanceContextKind;
   showInputs?: boolean;
 }>) {
+  const searchParams = useSearchParams();
+  const effectiveVariant = selectedVariant ?? searchParams.get("variant");
   const { flight } = useActiveFlightState(aircraftId, activeFlight);
   const current = flight?.lifecycle === "ACTIVE" ? flight : null;
 
-  const [result, setResult] = useState<PerformanceResult | null>(null);
+  const [storedState, setStoredState] = useState<TakeoffPerformanceReadState | null>(null);
+  const result = storedState?.result ?? null;
   const [airportDataset, setAirportDataset] = useState<AirportDatasetV1 | null>(null);
   const [airportDataState, setAirportDataState] = useState<"loading" | "ready" | "error">("loading");
   const [runwayIdentifier, setRunwayIdentifier] = useState("");
@@ -132,7 +153,7 @@ export function FtPerformancePresentation({
     const defaultFlaps = takeoffCalculator?.flapOptions[0]?.value ?? "";
 
     if (!current) {
-      setResult(null);
+      setStoredState(null);
       setRunwayIdentifier("");
       setTakeoffWeight("");
       setFlaps(defaultFlaps);
@@ -148,12 +169,13 @@ export function FtPerformancePresentation({
     }
 
     const restore = () => {
-      const stored = readPerformanceResult(
+      const restored = readTakeoffPerformanceState(
         window.localStorage,
         aircraftId,
         current.id,
       );
-      setResult(stored);
+      setStoredState(restored);
+      const stored = restored?.result ?? null;
 
       if (stored) {
         const sameDeparture = stored.context.runway.airportIcao === current.departure.icao;
@@ -164,19 +186,26 @@ export function FtPerformancePresentation({
         setAntiIce(stored.context.configuration.antiIce);
 
         if (sameDeparture && stored.context.weather) {
+          const weather = restored?.snapshot.inputs.weather;
           setQnh(String(stored.context.weather.qnh));
           setOat(String(stored.context.weather.oat));
-          setQnhSource("stored");
-          setOatSource("stored");
+          setQnhSource(environmentSourceFromSnapshot(weather?.qnhHpa?.source));
+          setOatSource(environmentSourceFromSnapshot(weather?.oatC?.source));
+          // Stored calculation inputs stay frozen while a newer METAR is fetched.
           qnhManual.current = true;
           oatManual.current = true;
         } else if (sameDeparture) {
-          setQnh("");
-          setOat(stored.calculationInputs.oatC === undefined ? "" : String(stored.calculationInputs.oatC));
-          setQnhSource("unset");
-          setOatSource(stored.calculationInputs.oatC === undefined ? "unset" : "stored");
-          qnhManual.current = false;
-          oatManual.current = stored.calculationInputs.oatC !== undefined;
+          const weather = restored?.snapshot.inputs.weather;
+          setQnh(weather?.qnhHpa === undefined ? "" : String(weather.qnhHpa.value));
+          setOat(
+            weather?.oatC === undefined
+              ? (stored.calculationInputs.oatC === undefined ? "" : String(stored.calculationInputs.oatC))
+              : String(weather.oatC.value),
+          );
+          setQnhSource(environmentSourceFromSnapshot(weather?.qnhHpa?.source));
+          setOatSource(environmentSourceFromSnapshot(weather?.oatC?.source));
+          qnhManual.current = weather?.qnhHpa !== undefined;
+          oatManual.current = weather?.oatC !== undefined || stored.calculationInputs.oatC !== undefined;
         } else {
           setQnh("");
           setOat("");
@@ -360,9 +389,27 @@ export function FtPerformancePresentation({
     weightNumber,
   ]);
 
+  const currentSourceDatasetIds = currentContext
+    ? takeoffSourceDatasetIds(datasets, takeoffCalculator, currentContext)
+    : [];
+
+  const snapshotDependencyChanges = storedState && currentContext
+    ? diffTakeoffSnapshotV2Dependencies(storedState.snapshot, {
+        variant: effectiveVariant ?? null,
+        pressureAltitudeFt: pressureAltitude,
+        calculatorId: takeoffCalculator?.id ?? null,
+        datasetIds: currentSourceDatasetIds,
+      })
+    : [];
+
   const stale = Boolean(
     result
-    && (!currentContext || !isContextValid(currentContext, result.context)),
+    && (
+      storedState?.requiresRecalculation
+      || snapshotDependencyChanges.length > 0
+      || !currentContext
+      || !isContextValid(currentContext, result.context)
+    ),
   );
 
   const changes = currentContext && result && stale
@@ -376,7 +423,7 @@ export function FtPerformancePresentation({
   );
 
   function calculate(inputs: PerformanceCalculationInputs) {
-    if (!currentContext) return;
+    if (!currentContext || !current || !runwayContext) return;
     setBusy(true);
     try {
       const next = computePerformance(
@@ -385,8 +432,70 @@ export function FtPerformancePresentation({
         takeoffCalculator,
         inputs,
       );
-      writePerformanceResult(window.localStorage, next);
-      setResult(next);
+
+      const storedWeather = storedState?.snapshot.inputs.weather;
+      const liveObservationMatches = Boolean(
+        metarSnapshot
+        && metarSnapshot.station.toUpperCase() === current.departure.icao.toUpperCase()
+        && (
+          qnhSource !== "metar"
+          || (
+            metarSnapshot.qnhHpa !== undefined
+            && Math.round(metarSnapshot.qnhHpa * 100) / 100 === qnhNumber
+          )
+        )
+        && (
+          oatSource !== "metar"
+          || metarSnapshot.temperatureC === oatNumber
+        )
+      );
+      const storedObservationMatches = Boolean(
+        storedWeather?.observation
+        && (
+          qnhSource !== "metar"
+          || (
+            storedWeather.qnhHpa?.source === "metar"
+            && storedWeather.qnhHpa.value === qnhNumber
+          )
+        )
+        && (
+          oatSource !== "metar"
+          || (
+            storedWeather.oatC?.source === "metar"
+            && storedWeather.oatC.value === oatNumber
+          )
+        )
+      );
+      const observation = liveObservationMatches && metarSnapshot
+        ? weatherObservationRefV2(metarSnapshot)
+        : storedObservationMatches
+          ? storedWeather?.observation ?? null
+          : null;
+
+      const qnhSnapshotSource =
+        qnhSource === "metar" && observation ? "metar" : "manual";
+      const oatSnapshotSource =
+        oatSource === "metar" && observation ? "metar" : "manual";
+
+      const snapshot = writeTakeoffPerformanceResultV2(
+        window.localStorage,
+        next,
+        {
+          variant: effectiveVariant,
+          runwayContext,
+          qnhSource: qnhSnapshotSource,
+          oatSource: oatSnapshotSource,
+          observation,
+          datasetIds: currentSourceDatasetIds,
+          calculatorId: takeoffCalculator?.id ?? null,
+        },
+      );
+      setStoredState({
+        result: next,
+        snapshot,
+        requiresRecalculation: false,
+        migratedFromLegacy: false,
+      });
       window.dispatchEvent(new Event(PERFORMANCE_RESULT_EVENT));
     } finally {
       setBusy(false);
@@ -436,6 +545,13 @@ export function FtPerformancePresentation({
         <FtPerformanceInvalidation
           busy={busy}
           changes={changes}
+          message={
+            storedState?.requiresRecalculation
+              ? "This stored result was migrated from legacy performance data without complete weather provenance. Recalculate to create a current V2 snapshot."
+              : snapshotDependencyChanges.length
+                ? "Aircraft variant, derived performance context or the source-backed performance package changed. Recalculate before using the stored result."
+                : undefined
+          }
           onRecalculate={recalculate}
           recalculateDisabled={!canCalculate}
         />

@@ -155,6 +155,7 @@ export async function FtShell({
           emergency={emergency}
           referenceAircraft={aircraft}
           referenceContent={publishedLimitations}
+          selectedVariant={selectedVariant}
           performanceDatasets={performanceDatasets}
           takeoffCalculator={bundledPerformance?.takeoffCalculator}
         />

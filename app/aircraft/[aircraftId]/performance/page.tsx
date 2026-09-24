@@ -87,6 +87,7 @@ export default async function PerformancePage({
       aircraftId={aircraft.id}
       aircraftName={aircraft.displayName}
       activeFlight={activeFlight}
+      selectedVariant={selectedVariant}
       datasets={datasets}
       takeoffCalculator={bundledPackage?.takeoffCalculator}
       disclaimer={disclaimer}

@@ -38,8 +38,8 @@ test("UX6.6 preserves P2 runtime ownership and recalculation behavior", () => {
   const presentation = read("components/ft-performance/FtPerformancePresentation.tsx");
 
   assert.match(presentation, /computePerformance/);
-  assert.match(presentation, /readPerformanceResult/);
-  assert.match(presentation, /writePerformanceResult/);
+  assert.match(presentation, /readTakeoffPerformanceState/);
+  assert.match(presentation, /writeTakeoffPerformanceResultV2/);
   assert.match(presentation, /isContextValid/);
   assert.match(presentation, /FtPerformanceInvalidation/);
   assert.match(presentation, /FtPerformanceStrip/);
