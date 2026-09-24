@@ -58,6 +58,12 @@ import type { PerformanceDataset } from "@/lib/universal-aircraft-content";
 import { isMetarSnapshot } from "@/lib/weather/metar-snapshot-helpers";
 import type { MetarSnapshot } from "@/lib/weather/metar-types";
 
+import {
+  useLandingPerformanceOperation,
+  type LandingPerformanceOperationController,
+  type UseLandingPerformanceOperationOptions,
+} from "./use-landing-performance-operation";
+
 export type PerformanceWeatherFetchState =
   | "idle"
   | "loading"
@@ -105,7 +111,7 @@ export type TakeoffPerformanceOperationController = {
   readonly applyLatestMetar: () => void;
 };
 
-type UseTakeoffPerformanceOperationOptions = {
+export type UseTakeoffPerformanceOperationOptions = {
   readonly aircraftId: string;
   readonly activeFlight?: ActiveFlight | null;
   readonly selectedVariant?: string;
@@ -156,7 +162,7 @@ function currentWeatherUsesAvailableObservation(
  * P1.3 activates the TAKEOFF adapter. LANDING will consume the same operation
  * boundary in B5 instead of introducing a second controller or persistence path.
  */
-export function usePerformanceOperation(
+function useTakeoffPerformanceOperation(
   operation: "TAKEOFF",
   {
     aircraftId,
@@ -662,3 +668,30 @@ export function usePerformanceOperation(
     applyLatestMetar,
   };
 }
+
+export function usePerformanceOperation(
+  operation: "TAKEOFF",
+  options: UseTakeoffPerformanceOperationOptions,
+): TakeoffPerformanceOperationController;
+export function usePerformanceOperation(
+  operation: "LANDING",
+  options: UseLandingPerformanceOperationOptions,
+): LandingPerformanceOperationController;
+export function usePerformanceOperation(
+  operation: "TAKEOFF" | "LANDING",
+  options: UseTakeoffPerformanceOperationOptions | UseLandingPerformanceOperationOptions,
+): TakeoffPerformanceOperationController | LandingPerformanceOperationController {
+  // Operation is a compile-time literal at every caller and must not change
+  // during a component lifetime. The facade preserves one public operation
+  // boundary while the two adapters retain operation-scoped state/persistence.
+  if (operation === "TAKEOFF") {
+    return useTakeoffPerformanceOperation(
+      operation,
+      options as UseTakeoffPerformanceOperationOptions,
+    );
+  }
+  return useLandingPerformanceOperation(
+    options as UseLandingPerformanceOperationOptions,
+  );
+}
+
