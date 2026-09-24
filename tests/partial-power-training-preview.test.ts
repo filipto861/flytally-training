@@ -2,22 +2,53 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
 
-import { learjet35aPerformancePackage } from "../aircraft-data/learjet-35a/performance/package.ts";
+import { learjet35aTakeoffCalculatorDefinition } from "../aircraft-data/learjet-35a/performance/takeoff-calculator-definition.ts";
 import { manualDeclaredDistanceFt } from "../lib/aviation/declared-distances.ts";
 import {
   evaluatePartialPowerTrainingPreview,
   type PartialPowerTrainingPreviewRequest,
 } from "../lib/performance/partial-power-training-preview.ts";
+import type { PartialPowerN1SourceExtract } from "../lib/performance/partial-power-source.ts";
+import type { PerformanceDataset } from "../lib/universal-aircraft-content.ts";
 
-const definition = learjet35aPerformancePackage.takeoffCalculator;
-if (!definition) throw new Error("Learjet takeoff calculator definition is required by this test.");
+const loadDataset = (file: string): PerformanceDataset => JSON.parse(
+  fs.readFileSync(
+    new URL(`../aircraft-data/learjet-35a/performance/${file}`, import.meta.url),
+    "utf8",
+  ),
+) as PerformanceDataset;
+
+const loadExtract = (file: string): PartialPowerN1SourceExtract => JSON.parse(
+  fs.readFileSync(
+    new URL(
+      `../aircraft-data/learjet-35a/performance/source-extracts/${file}`,
+      import.meta.url,
+    ),
+    "utf8",
+  ),
+) as PartialPowerN1SourceExtract;
+
+const datasets: readonly PerformanceDataset[] = [
+  loadDataset("takeoff-n1-aeronca.json"),
+  loadDataset("takeoff-weight-limit-flaps8.json"),
+  loadDataset("takeoff-weight-limit-flaps20.json"),
+  loadDataset("takeoff-distance-flaps8.json"),
+  loadDataset("takeoff-distance-flaps20.json"),
+  loadDataset("v1-flaps8.json"),
+  loadDataset("v1-flaps20.json"),
+  loadDataset("takeoff-distance-wind-flaps8.json"),
+  loadDataset("v1-wind-flaps8.json"),
+];
+
+const aeroncaN1Extract = loadExtract("partial-power-n1-aeronca.json");
+const definition = learjet35aTakeoffCalculatorDefinition;
 
 function request(
   overrides: Partial<PartialPowerTrainingPreviewRequest> = {},
 ): PartialPowerTrainingPreviewRequest {
   return {
     aircraftId: "learjet-35a",
-    datasets: learjet35aPerformancePackage.content.datasets,
+    datasets,
     definition,
     pressureAltitudeFt: 0,
     ambientTemperatureC: 16,
@@ -35,6 +66,7 @@ function request(
       fullRatedTakeoffWithin30Days: true,
     },
     thrustReversers: "aeronca",
+    aeroncaN1Extract,
     ...overrides,
   };
 }
