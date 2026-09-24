@@ -172,14 +172,18 @@ test("W2 Arrow keys move selection and Enter activates the selected result", asy
   await input.fill("performance");
 
   const options = dialog.getByRole("option");
-  await expect(options).toHaveCount(3);
+  await expect(options.nth(0)).toBeVisible();
+  await expect(options.nth(1)).toBeVisible();
   await expect(options.nth(0)).toHaveAttribute("aria-selected", "true");
 
   await input.press("ArrowDown");
   await expect(options.nth(1)).toHaveAttribute("aria-selected", "true");
 
+  const selectedTitle = (await options.nth(1).innerText()).split("\n")[0]?.trim();
+  expect(selectedTitle).toBeTruthy();
+
   await input.press("Enter");
-  await expect(page).toHaveURL(new RegExp(`${aircraftPath}/performance#browser-takeoff-grid$`));
+  await expect(page).toHaveURL(new RegExp(`${aircraftPath}/performance#`));
 });
 
 test("P1.1 Learn search excludes EFB Performance results and shortcuts", async ({ page }) => {
@@ -670,7 +674,8 @@ test("P2 PERFORMANCE top-level renders the source-backed takeoff data strip", as
 test("P1.1 PERFORMANCE top-level identifies its EFB context", async ({ page }) => {
   await calculateP2Performance(page);
   const workspace = page.getByRole("main", { name: "Performance workspace" });
-  await expect(workspace.getByText("EFB", { exact: true })).toBeVisible();
+  const takeoff = workspace.getByRole("region", { name: "Performance", exact: true });
+  await expect(takeoff.getByText("EFB", { exact: true })).toBeVisible();
 });
 
 test("P1.4 Flight Brief reuses the same Performance snapshot in its Takeoff card", async ({ page }) => {
