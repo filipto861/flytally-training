@@ -61,7 +61,7 @@ function solve(
   );
 }
 
-test("PP.2 Learjet adapter selects the highest source-axis assumed temperature at zero wind", () => {
+test("PP.2 Learjet adapter selects the highest bounded assumed temperature at zero wind", () => {
   const result = solve();
 
   assert.equal(result.status, "ready");
@@ -93,11 +93,15 @@ test("PP.2 Learjet Flaps 8 candidate evaluation preserves B6 wind correction", (
   assert.equal(result.status, "ready");
   if (result.status !== "ready") return;
 
-  // The 38°C candidate exceeds the 4,000 ft usable limit after the B6
-  // correction, while the 27°C candidate remains feasible.
-  assert.equal(result.assumedTemperature, 27);
-  assert.ok(result.correctedTakeoffDistance < 4000);
-  assert.equal(result.v1, 119);
+  // Continuous bounded interpolation should use the runway more precisely
+  // than stepping down to the next published temperature node.
+  assert.ok(result.assumedTemperature > 27);
+  assert.ok(result.assumedTemperature < 38);
+  assert.ok(Math.abs((result.assumedTemperature * 10) - Math.round(result.assumedTemperature * 10)) < 1e-9);
+  assert.ok(result.correctedTakeoffDistance <= 4000);
+  assert.ok(result.correctedTakeoffDistance > 3900);
+  assert.ok(result.v1 > 119);
+  assert.ok(result.v1 < 122);
   assert.equal(result.usableTakeoffFieldLength, 4000);
   assert.equal(result.limitingDeclaredDistance, "TORA");
 });
@@ -112,10 +116,32 @@ test("PP.2 Learjet adapter applies ambient and assumed-temperature weight limits
   assert.equal(result.status, "ready");
   if (result.status !== "ready") return;
 
-  // At sea level the Flaps 20 38°C weight limit is 16,350 lb, so the
-  // 17,000 lb airplane must step down to the next source-supported candidate.
+  // The weight-limit grid alone would permit an intermediate value above
+  // 27°C, but the Flaps 20 V1/distance source is sparse at 17,000 lb / 38°C.
+  // Continuous interpolation must not bridge that missing source corner.
   assert.equal(result.assumedTemperature, 27);
   assert.equal(result.assumedPerformanceWeightLimit, 18300);
+});
+
+test("PP.2 Learjet adapter interpolates fractional weight, wind and runway constraints", () => {
+  const result = solve({
+    takeoffWeightLb: 15037.5,
+    runwayWindComponentKt: 12.7,
+    declaredDistances: {
+      tora: manualDeclaredDistanceFt(4123),
+      asda: manualDeclaredDistanceFt(4300),
+    },
+  });
+
+  assert.equal(result.status, "ready");
+  if (result.status !== "ready") return;
+
+  assert.ok(result.assumedTemperature > 16);
+  assert.ok(result.assumedTemperature <= 38);
+  assert.ok(result.correctedTakeoffDistance <= 4123);
+  assert.equal(result.usableTakeoffFieldLength, 4123);
+  assert.equal(result.limitingDeclaredDistance, "TORA");
+  assert.ok(Number.isFinite(result.v1));
 });
 
 test("PP.2 Learjet Flaps 20 nonzero wind remains fail-closed without a verified wind source", () => {

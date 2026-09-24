@@ -80,7 +80,9 @@ Partial Power is runway-limited. The declared-distance phase established an expl
 
 `usableTakeoffFieldLengthFt = min(TORA, ASDA)`
 
-Physical runway surface length and TODA are not substituted. Manual TORA/ASDA input and a provider-neutral adapter boundary now exist; the existing full-rated Takeoff remains independent of these fields.
+Physical runway surface length and TODA are not silently substituted. Manual TORA/ASDA input and a provider-neutral adapter boundary exist; the existing full-rated Takeoff remains independent of these fields.
+
+UX follow-up: the current bundled airport database can prefill the TORA field with physical runway length for convenience, but that value is visibly marked as a **non-authoritative suggestion** and is excluded from the declared-distance constraint until verified/confirmed. ASDA is retained as a separate advanced value rather than silently equated with TORA.
 
 ## Applicability model
 
@@ -151,18 +153,22 @@ Prerequisite data accepted locally:
 - local prerequisite gate: typecheck PASS + PP.2/B7/B8/PP.1 targeted suite **69/69 PASS**;
 - generic solver + Learjet adapter gate: typecheck PASS + **100/100 PASS**.
 
-Generic assumed-temperature selector is now staged in `lib/performance/assumed-temperature.ts`. It:
+Generic assumed-temperature selector is implemented in `lib/performance/assumed-temperature.ts`. It:
 - accepts explicit TORA and ASDA and uses the lower value;
 - requires the ambient performance weight limit to cover actual takeoff weight;
 - requires each assumed-temperature candidate to cover actual takeoff weight;
-- selects only from explicit source-supported candidate evaluations supplied by the aircraft adapter;
+- selects only from source-supported candidate evaluations supplied by the aircraft adapter;
 - requires a candidate above ambient temperature;
-- never invents intermediate temperatures or extrapolates;
+- never extrapolates;
 - preserves the selected candidate's source dataset identities;
 - returns V1 and corrected takeoff distance, but deliberately does not return reduced N1.
 
-The Learjet adapter is accepted locally in `aircraft-data/learjet-35a/performance/partial-power-adapter.ts`. It:
-- evaluates only the published Takeoff Weight Limit temperature-axis candidates above ambient;
+Follow-up on `feat/performance-interpolation-loading`: the Learjet adapter now evaluates assumed-temperature candidates every **0.1°C** across the bounded published temperature envelope. Each candidate is still resolved through the governed Takeoff Weight Limit, V1, Takeoff Distance and supported wind grids. This removes artificial table-node stepping while preserving sparse-corner fail-closed behavior and no-extrapolation boundaries.
+
+PR #223 acceptance: targeted **134/134 PASS**, full Node **1186 total / 1185 PASS / 0 FAIL / 1 SKIP**, production build **PASS**, targeted browser **8/8 PASS**, full Playwright **388/388 PASS**.
+
+The Learjet adapter is accepted in `aircraft-data/learjet-35a/performance/partial-power-adapter.ts`. It:
+- evaluates bounded interpolated temperature candidates above ambient within the published Takeoff Weight Limit envelope;
 - binds Flaps 8° / 20° to their separate weight-limit, V1 and takeoff-distance sources;
 - preserves the verified B6 Flaps 8 wind transforms for both V1 and distance;
 - permits Flaps 20 only at zero wind while its nonzero-wind correction source remains unverified;

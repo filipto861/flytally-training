@@ -311,3 +311,16 @@ test("B5 Flight Brief and dedicated Performance page share the Landing operation
     assert.doesNotMatch(source, /calculatePilotLandingSummary|writeLandingPerformanceResultV2/);
   }
 });
+
+
+test("B5 Calculate Landing paints visible loading feedback before synchronous performance work", () => {
+  const controller = read("components/ft-performance/use-landing-performance-operation.ts");
+  const presentation = read("components/ft-performance/FtLandingPerformancePresentation.tsx");
+
+  assert.match(controller, /calculationPending\.current/);
+  assert.match(controller, /setBusy\(true\)[\s\S]*requestAnimationFrame/);
+  assert.match(controller, /requestAnimationFrame\([\s\S]*computeLandingPerformance/);
+  assert.match(presentation, /aria-busy=\{busy\}/);
+  assert.match(presentation, /data-loading=\{busy \? "true" : "false"\}/);
+  assert.match(presentation, /Calculating…/);
+});

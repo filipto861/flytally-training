@@ -101,9 +101,10 @@ test("PP.3 Aeronca integration steps down when the P-6.1 7.7-point N1 reduction 
   if (result.status !== "source-supported") return;
 
   assert.equal(result.fullRatedN1, 96.4);
-  assert.equal(result.assumedTemperature, 27);
-  assert.equal(result.reducedN1, 92.4);
-  assert.ok(Math.abs(result.n1ReductionPoints - 4.0) < 1e-9);
+  assert.equal(result.assumedTemperature, 36);
+  assert.ok(Math.abs(result.reducedN1 - 88.736) < 1e-9);
+  assert.ok(result.n1ReductionPoints <= 7.7);
+  assert.ok(result.n1ReductionPoints > 7.6);
 });
 
 test("PP.3 Aeronca integration can use AFMS-authorized bounded N1 interpolation for ambient temperature", () => {
@@ -123,6 +124,23 @@ test("PP.3 Aeronca integration can use AFMS-authorized bounded N1 interpolation 
   });
   assert.ok(Math.abs(result.reducedN1 - 87.488) < 1e-9);
   assert.ok(Math.abs(result.fullRatedN1 - 93.73333333333333) < 1e-9);
+});
+
+test("PP.3 Aeronca reduced-N1 interpolation follows a non-node assumed temperature", () => {
+  const result = evaluate({
+    pressureAltitudeFt: 2000,
+  });
+
+  assert.equal(result.status, "source-supported");
+  if (result.status !== "source-supported") return;
+
+  assert.equal(result.assumedTemperature, 36);
+  assert.equal(result.n1Method, "bounded-source-interpolation");
+  assert.deepEqual(result.n1InterpolationAuthority, {
+    manualId: "AFMS-W1072",
+    figure: "5",
+    configuration: "aeronca",
+  });
 });
 
 test("PP.3 Aeronca integration preserves PP.2 operational eligibility gating", () => {

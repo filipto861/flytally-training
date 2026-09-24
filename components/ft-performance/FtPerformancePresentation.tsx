@@ -64,6 +64,7 @@ export function FtPerformanceOperationPresentation({
     runwayContext,
     runwayIdentifier,
     toraFt,
+    toraInputSource,
     asdaFt,
     declaredDistanceConstraint,
     takeoffWeight,
@@ -80,6 +81,7 @@ export function FtPerformanceOperationPresentation({
     currentContext,
     setRunwayIdentifier,
     setToraFt,
+    confirmSuggestedTora,
     setAsdaFt,
     setTakeoffWeight,
     setFlaps,
@@ -217,25 +219,26 @@ export function FtPerformanceOperationPresentation({
                   />
                   <small>ft</small>
                 </span>
-                <small>Manual declared distance. Never inferred from physical runway length.</small>
-              </label>
-
-              <label className={styles.setupField}>
-                <span>ASDA <small>optional</small></span>
-                <span className={styles.inputWithUnit}>
-                  <input
-                    aria-label="Takeoff ASDA"
-                    inputMode="decimal"
-                    min="1"
-                    onChange={(event) => setAsdaFt(event.target.value)}
-                    placeholder="Declared ASDA"
-                    step="1"
-                    type="number"
-                    value={asdaFt}
-                  />
-                  <small>ft</small>
-                </span>
-                <small>Required with TORA only for runway-limited / Partial Power calculations.</small>
+                {toraInputSource === "airport-surface-suggestion" ? (
+                  <span className={styles.prefillNotice}>
+                    <small>
+                      Prefilled from the airport database runway surface length. This is not an authoritative declared TORA.
+                    </small>
+                    <button
+                      className={styles.inlineAction}
+                      onClick={confirmSuggestedTora}
+                      type="button"
+                    >
+                      Confirm verified TORA
+                    </button>
+                  </span>
+                ) : (
+                  <small>
+                    {toraInputSource === "manual"
+                      ? "Verified/manual declared TORA."
+                      : "Declared TORA is required only for runway-limited / Partial Power calculations."}
+                  </small>
+                )}
               </label>
 
               <label className={styles.setupField}>
@@ -266,6 +269,29 @@ export function FtPerformanceOperationPresentation({
                 <small>Unsupported source combinations fail closed.</small>
               </label>
             </div>
+
+            <details className={styles.declaredDistanceDetails}>
+              <summary>Declared-distance details</summary>
+              <label className={styles.setupField}>
+                <span>ASDA <small>only when separately declared</small></span>
+                <span className={styles.inputWithUnit}>
+                  <input
+                    aria-label="Takeoff ASDA"
+                    inputMode="decimal"
+                    min="1"
+                    onChange={(event) => setAsdaFt(event.target.value)}
+                    placeholder="Declared ASDA"
+                    step="1"
+                    type="number"
+                    value={asdaFt}
+                  />
+                  <small>ft</small>
+                </span>
+                <small>
+                  ASDA can differ from TORA when a stopway or other declared-distance limitation applies, so FlyTally does not silently assume they are equal.
+                </small>
+              </label>
+            </details>
 
             <div className={styles.contextPanel}>
               <div className={styles.contextPanelHeader}>
@@ -389,9 +415,11 @@ export function FtPerformanceOperationPresentation({
                       ? `${declaredDistanceConstraint.usableTakeoffFieldLengthFt.toLocaleString("en-US")} ft · ${declaredDistanceConstraint.limitingDistance}`
                       : declaredDistanceConstraint.status === "invalid"
                         ? "Invalid declared distance"
-                        : declaredDistanceConstraint.missing.length === 2
-                          ? "Not provided"
-                          : `Missing ${declaredDistanceConstraint.missing.join(" + ")}`}
+                        : toraInputSource === "airport-surface-suggestion"
+                          ? "TORA prefill needs verification"
+                          : declaredDistanceConstraint.missing.length === 2
+                            ? "Not provided"
+                            : `Missing ${declaredDistanceConstraint.missing.join(" + ")}`}
                   </dd>
                 </div>
                 <div>
@@ -406,7 +434,9 @@ export function FtPerformanceOperationPresentation({
             </div>
 
             <button
+              aria-busy={busy}
               className={styles.action}
+              data-loading={busy ? "true" : "false"}
               disabled={busy || !canCalculate}
               onClick={calculate}
               type="button"

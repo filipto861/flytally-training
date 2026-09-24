@@ -680,7 +680,12 @@ test("DD declared distances stay optional for full-rated Takeoff and reset with 
     .getByRole("region", { name: "Performance", exact: true });
 
   await performance.getByLabel("Takeoff runway").selectOption("24");
+  await expect(performance.getByText(
+    "Prefilled from the airport database runway surface length. This is not an authoritative declared TORA.",
+    { exact: true },
+  )).toBeVisible();
   await performance.getByLabel("Takeoff TORA").fill("12000");
+  await performance.getByText("Declared-distance details", { exact: true }).click();
   await performance.getByLabel("Takeoff ASDA").fill("12500");
   await expect(performance.getByText("12,000 ft · TORA", { exact: true })).toBeVisible();
 
@@ -703,9 +708,9 @@ test("DD declared distances stay optional for full-rated Takeoff and reset with 
   expect(JSON.stringify(stored)).not.toMatch(/toraFt|asdaFt|declaredDistance/);
 
   await performance.getByLabel("Takeoff runway").selectOption("06");
-  await expect(performance.getByLabel("Takeoff TORA")).toHaveValue("");
+  await expect(performance.getByLabel("Takeoff TORA")).not.toHaveValue("");
   await expect(performance.getByLabel("Takeoff ASDA")).toHaveValue("");
-  await expect(performance.getByText("Not provided", { exact: true })).toBeVisible();
+  await expect(performance.getByText("TORA prefill needs verification", { exact: true })).toBeVisible();
 });
 
 test("B6 Takeoff wind correction uses APPLIED weather and explicit newer-METAR recalculation", async ({ page }) => {

@@ -127,6 +127,42 @@ function numericAxisValues(
   return axis.values.filter((value): value is number => typeof value === "number");
 }
 
+const ASSUMED_TEMPERATURE_STEP_C = 0.1;
+
+function boundedInterpolatedTemperatures(
+  dataset: PerformanceDataset,
+  axisKey: string,
+  ambientTemperatureC: number,
+): readonly number[] {
+  const axisValues = [...numericAxisValues(dataset, axisKey)]
+    .sort((left, right) => left - right);
+  if (!axisValues.length) return [];
+
+  const minimum = axisValues[0];
+  const maximum = axisValues[axisValues.length - 1];
+  const start = Math.max(minimum, ambientTemperatureC + ASSUMED_TEMPERATURE_STEP_C);
+  if (start > maximum) return [];
+
+  const firstStep = Math.ceil((start - 1e-9) / ASSUMED_TEMPERATURE_STEP_C);
+  const lastStep = Math.floor((maximum + 1e-9) / ASSUMED_TEMPERATURE_STEP_C);
+  const values = new Set<number>();
+
+  for (let index = firstStep; index <= lastStep; index += 1) {
+    const value = Math.round(index * ASSUMED_TEMPERATURE_STEP_C * 10) / 10;
+    if (value > ambientTemperatureC && value >= minimum && value <= maximum) {
+      values.add(value);
+    }
+  }
+
+  // Preserve exact published axis nodes even when a decimal representation
+  // does not land cleanly on the interpolation step.
+  axisValues
+    .filter((value) => value > ambientTemperatureC)
+    .forEach((value) => values.add(value));
+
+  return [...values].sort((left, right) => left - right);
+}
+
 function correctedMetric(
   baseline: number,
   transform: PerformanceDataset | undefined,
@@ -258,12 +294,11 @@ function prepareLearjet35aAssumedTemperature(
     };
   }
 
-  const candidateTemperatures = numericAxisValues(
+  const candidateTemperatures = boundedInterpolatedTemperatures(
     weightLimitDataset,
     "oat",
-  )
-    .filter((temperature) => temperature > request.ambientTemperatureC)
-    .sort((left, right) => left - right);
+    request.ambientTemperatureC,
+  );
 
   const candidates: AssumedTemperatureCandidate[] = [];
   for (const temperature of candidateTemperatures) {
@@ -389,7 +424,11 @@ function prepareLearjet35aAssumedTemperature(
 
 /**
  * Learjet 35A/36A adapter that builds source-supported assumed-temperature
- * candidates for the generic selector.
+ * candidates for the generic selector. Temperature candidates are sampled at
+ * 0.1°C across the published source envelope and evaluated through the same
+ * bounded source-grid interpolation used by Takeoff Weight Limits, V1,
+ * Takeoff Distance and wind transforms. Unsupported sparse corners still fail
+ * closed and no extrapolation is introduced.
  *
  * This stage remains N1-free. Reduced-N1 operationalization is layered
  * separately so the already-accepted PP.2 candidate engine stays independent
@@ -494,13 +533,9 @@ export function evaluateLearjet35aAeroncaPartialPower(
   let blockedN1CandidateCount = 0;
 
   for (const candidate of prepared.solverRequest.candidates) {
-    const assumedTemperatureF = SOURCE_FAHRENHEIT_BY_CELSIUS.get(
+    const assumedTemperatureF = sourceFahrenheitForCelsius(
       candidate.temperature,
     );
-    if (assumedTemperatureF === undefined) {
-      blockedN1CandidateCount += 1;
-      continue;
-    }
 
     const sourceValue = lookupPartialPowerN1SourceValue(
       aeroncaN1Extract,
