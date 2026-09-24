@@ -1,7 +1,7 @@
 import type { PilotTakeoffCalculatorDefinition } from "../../../lib/pilot-takeoff-calculator.ts";
 
 export const learjet35aTakeoffCalculatorDefinition: PilotTakeoffCalculatorDefinition = {
-  id: "takeoff-summary",
+  id: "takeoff-summary-wind-v1",
   title: "Takeoff Calculator",
   inputs: {
     pressureAltitude: { label: "Pressure Altitude", unit: "ft" },
@@ -45,6 +45,14 @@ export const learjet35aTakeoffCalculatorDefinition: PilotTakeoffCalculatorDefini
             { input: "oat", axisKey: "oat" },
             { input: "takeoffWeight", axisKey: "grossWeight" },
           ],
+        },
+      },
+      windCorrection: {
+        v1: {
+          datasetId: "learjet-35a-v1-wind-flaps8",
+        },
+        takeoffDistance: {
+          datasetId: "learjet-35a-takeoff-distance-wind-flaps8",
         },
       },
       vr: {
