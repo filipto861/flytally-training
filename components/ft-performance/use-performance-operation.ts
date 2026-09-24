@@ -156,6 +156,50 @@ function currentWeatherUsesAvailableObservation(
   return qnhMatches && oatMatches;
 }
 
+function windComponentsForAppliedWeather(
+  weather: OperationAppliedWeather,
+  runwayContext: SelectedRunwayContext | undefined,
+): WindComponents | undefined {
+  const observation = weather.observation;
+  if (
+    !runwayContext
+    || runwayContext.headingTrueDeg === undefined
+    || !observation
+    || observation.windSpeedKt === undefined
+  ) return undefined;
+
+  if (observation.windCalm || Math.abs(observation.windSpeedKt) < 1e-9) {
+    return {
+      angleOffDeg: 0,
+      headwindKt: 0,
+      crosswindKt: 0,
+      ...(observation.windGustKt === undefined
+        ? {}
+        : {
+            gustHeadwindKt: 0,
+            gustCrosswindKt: 0,
+          }),
+    };
+  }
+
+  if (observation.windDirectionTrueDeg === undefined) return undefined;
+
+  return calculateWindComponents({
+    windDirectionTrueDeg: observation.windDirectionTrueDeg,
+    windSpeedKt: observation.windSpeedKt,
+    windGustKt: observation.windGustKt,
+    runwayHeadingTrueDeg: runwayContext.headingTrueDeg,
+  });
+}
+
+function roundedRunwayWindComponentKt(
+  components: WindComponents | undefined,
+): number | undefined {
+  return components
+    ? Math.round(components.headwindKt * 10) / 10
+    : undefined;
+}
+
 /**
  * Canonical client-side owner for one Performance operation.
  *
@@ -370,23 +414,11 @@ function useTakeoffPerformanceOperation(
     }
   }, [calculationWeather?.qnh, runwayContext]);
 
-  const wind = useMemo(() => {
-    const observation = appliedWeather.observation;
-    if (
-      !runwayContext
-      || runwayContext.headingTrueDeg === undefined
-      || !observation
-      || observation.windDirectionTrueDeg === undefined
-      || observation.windSpeedKt === undefined
-    ) return undefined;
-
-    return calculateWindComponents({
-      windDirectionTrueDeg: observation.windDirectionTrueDeg,
-      windSpeedKt: observation.windSpeedKt,
-      windGustKt: observation.windGustKt,
-      runwayHeadingTrueDeg: runwayContext.headingTrueDeg,
-    });
-  }, [appliedWeather.observation, runwayContext]);
+  const wind = useMemo(
+    () => windComponentsForAppliedWeather(appliedWeather, runwayContext),
+    [appliedWeather, runwayContext],
+  );
+  const runwayWindComponentKt = roundedRunwayWindComponentKt(wind);
 
   const currentContext = useMemo(() => {
     if (
@@ -431,6 +463,7 @@ function useTakeoffPerformanceOperation(
     ? diffTakeoffSnapshotV2Dependencies(storedState.snapshot, {
         variant: selectedVariant ?? null,
         pressureAltitudeFt,
+        runwayWindComponentKt,
         calculatorId: takeoffCalculator?.id ?? null,
         datasetIds: currentSourceDatasetIds,
       })
@@ -527,12 +560,17 @@ function useTakeoffPerformanceOperation(
       weather: values,
     });
 
+    const nextWind = windComponentsForAppliedWeather(weather, runwayContext);
+
     return {
       context,
       pressureAltitudeFt: nextPressureAltitude,
       inputs: {
         pressureAltitudeFt: nextPressureAltitude,
         oatC: values.oat,
+        ...(roundedRunwayWindComponentKt(nextWind) === undefined
+          ? {}
+          : { runwayWindComponentKt: roundedRunwayWindComponentKt(nextWind) }),
       },
     };
   }
@@ -612,7 +650,7 @@ function useTakeoffPerformanceOperation(
   const invalidationMessage = storedState?.requiresRecalculation
     ? "This stored result was migrated from legacy performance data without complete weather provenance. Recalculate to create a current V2 snapshot."
     : snapshotDependencyChanges.length
-      ? "Aircraft variant, derived performance context or the source-backed performance package changed. Recalculate before using the stored result."
+      ? "Aircraft variant, derived pressure altitude/runway wind, or the source-backed performance package changed. Recalculate before using the stored result."
       : undefined;
 
   return {
