@@ -57,7 +57,8 @@ export type Learjet35aAeroncaPartialPowerResult =
       readonly status: "unsupported";
       readonly reason: string;
     }
-  | (AssumedTemperatureReadyResult & {
+  | (Omit<AssumedTemperatureReadyResult, "status"> & {
+      readonly status: "source-supported";
       readonly thrustReversers: "aeronca";
       readonly reducedN1: number;
       readonly fullRatedN1: number;
@@ -65,6 +66,10 @@ export type Learjet35aAeroncaPartialPowerResult =
       readonly n1Method: "exact-source-cell" | "bounded-source-interpolation";
       readonly n1SourceExtractId: string;
       readonly n1SourcePageLabel: string;
+      readonly operationalUseBlocked: true;
+      readonly operationalBlockers: readonly [
+        "rated-thrust-reduction-25-percent-unresolved",
+      ];
       readonly n1InterpolationAuthority?: {
         readonly manualId: "AFMS-W1072";
         readonly figure: "5";
@@ -414,15 +419,21 @@ type AeroncaCandidateN1 = {
 };
 
 /**
- * Safe operational boundary for Aeronca-equipped Learjet 35A/36A aircraft.
+ * Source-supported integration boundary for Aeronca-equipped Learjet 35A/36A
+ * aircraft.
  *
  * It reuses the accepted PP.2 runway/weight/V1/distance candidate engine, then
  * admits only candidates whose reduced N1 is source-supported and satisfies
- * the P-6.1 maximum 7.7 N1-point reduction from the full-rated ambient takeoff
- * N1. No-reverser and TR-4000 schedules are intentionally not operationalized
- * by this function.
+ * the P-6.1 maximum 7.7 N1-point reduction from the Aeronca P-5.1 full-rated
+ * ambient takeoff N1.
+ *
+ * This function deliberately does NOT return operational "ready". FlightSafety
+ * also states that thrust reduction must not exceed 25% of rated takeoff
+ * thrust for the existing ambient condition. The current source package does
+ * not define a validated N1-to-rated-thrust conversion for that check, so the
+ * result remains source-supported with an explicit operational blocker.
  */
-export function solveLearjet35aAeroncaPartialPower(
+export function evaluateLearjet35aAeroncaPartialPower(
   datasets: readonly PerformanceDataset[],
   definition: PilotTakeoffCalculatorDefinition,
   aeroncaN1Extract: PartialPowerN1SourceExtract,
@@ -542,8 +553,11 @@ export function solveLearjet35aAeroncaPartialPower(
     };
   }
 
+  const { status: _solverStatus, ...solvedValues } = solved;
+
   return {
-    ...solved,
+    ...solvedValues,
+    status: "source-supported",
     thrustReversers: "aeronca",
     reducedN1: selected.sourceValue.reducedN1,
     fullRatedN1,
@@ -551,6 +565,10 @@ export function solveLearjet35aAeroncaPartialPower(
     n1Method: selected.sourceValue.method,
     n1SourceExtractId: selected.sourceValue.sourceExtractId,
     n1SourcePageLabel: selected.sourceValue.sourcePageLabel,
+    operationalUseBlocked: true,
+    operationalBlockers: [
+      "rated-thrust-reduction-25-percent-unresolved",
+    ],
     ...(selected.sourceValue.interpolationAuthority
       ? {
           n1InterpolationAuthority:
