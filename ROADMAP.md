@@ -228,7 +228,7 @@ Solver/runtime waits until:
 - Snapshot V2/weather applied-state exists;
 - wind datasets are authoritative;
 - applicability contract is complete;
-- declared-distance/TORA workflow is frozen.
+- declared-distance TORA/ASDA workflow is frozen.
 
 ## Runway declared distances
 
@@ -236,8 +236,9 @@ Physical runway surface length is not TORA/ASDA/TODA/LDA.
 
 Until an authoritative declared-distance source exists:
 - display physical runway length only as context;
-- do not silently treat it as TORA;
-- runway-limited/Partial Power calculations must use an explicit declared-distance input or future authoritative provider.
+- do not silently treat it as TORA or ASDA;
+- runway-limited/Partial Power calculations must use explicit TORA and ASDA inputs or a future authoritative provider;
+- for the Learjet 35/36 takeoff-field-length chart topology, usable takeoff runway is limited by the lower of TORA and ASDA; TODA is not substituted.
 
 ## Later product work
 
