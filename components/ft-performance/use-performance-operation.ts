@@ -16,6 +16,11 @@ import {
   availableRunwayEnds,
   resolveRunwayEnd,
 } from "@/lib/aviation/runway-context";
+import {
+  manualDeclaredDistanceFt,
+  resolveTakeoffDeclaredDistanceConstraint,
+  type TakeoffDeclaredDistanceConstraint,
+} from "@/lib/aviation/declared-distances";
 import { calculatePressureAltitudeFt } from "@/lib/aviation/pressure-altitude";
 import { calculateWindComponents, type WindComponents } from "@/lib/aviation/wind-component";
 import type { PilotTakeoffCalculatorDefinition } from "@/lib/pilot-takeoff-calculator";
@@ -88,6 +93,9 @@ export type TakeoffPerformanceOperationController = {
   readonly runwayOptions: ReturnType<typeof availableRunwayEnds>;
   readonly runwayContext?: SelectedRunwayContext;
   readonly runwayIdentifier: string;
+  readonly toraFt: string;
+  readonly asdaFt: string;
+  readonly declaredDistanceConstraint: TakeoffDeclaredDistanceConstraint;
   readonly takeoffWeight: string;
   readonly takeoffWeightUnit: "kg" | "lb";
   readonly flaps: string;
@@ -101,6 +109,8 @@ export type TakeoffPerformanceOperationController = {
   readonly wind?: WindComponents;
   readonly currentContext: FlightPerformanceContext | null;
   readonly setRunwayIdentifier: (value: string) => void;
+  readonly setToraFt: (value: string) => void;
+  readonly setAsdaFt: (value: string) => void;
   readonly setTakeoffWeight: (value: string) => void;
   readonly setFlaps: (value: string) => void;
   readonly setAntiIce: (value: boolean) => void;
@@ -222,7 +232,9 @@ function useTakeoffPerformanceOperation(
   const [storedState, setStoredState] = useState<TakeoffPerformanceReadState | null>(null);
   const [airportDataset, setAirportDataset] = useState<AirportDatasetV1 | null>(null);
   const [airportDataState, setAirportDataState] = useState<"loading" | "ready" | "error">("loading");
-  const [runwayIdentifier, setRunwayIdentifier] = useState("");
+  const [runwayIdentifier, setRunwayIdentifierState] = useState("");
+  const [toraFt, setToraFt] = useState("");
+  const [asdaFt, setAsdaFt] = useState("");
   const [takeoffWeight, setTakeoffWeight] = useState("");
   const [takeoffWeightUnit, setTakeoffWeightUnit] = useState<"kg" | "lb">("lb");
   const [flaps, setFlaps] = useState("");
@@ -264,7 +276,9 @@ function useTakeoffPerformanceOperation(
     if (!current) {
       weatherLocked.current = false;
       setStoredState(null);
-      setRunwayIdentifier("");
+      setRunwayIdentifierState("");
+      setToraFt("");
+      setAsdaFt("");
       setTakeoffWeight("");
       setTakeoffWeightUnit("lb");
       setFlaps(defaultFlaps);
@@ -285,7 +299,9 @@ function useTakeoffPerformanceOperation(
 
       const stored = restored?.result ?? null;
       if (!stored) {
-        setRunwayIdentifier("");
+        setRunwayIdentifierState("");
+        setToraFt("");
+        setAsdaFt("");
         setTakeoffWeight(String(current.weight.value));
         setTakeoffWeightUnit(current.weight.unit);
         setFlaps(defaultFlaps);
@@ -295,7 +311,11 @@ function useTakeoffPerformanceOperation(
       }
 
       const sameDeparture = stored.context.runway.airportIcao === current.departure.icao;
-      setRunwayIdentifier(sameDeparture ? stored.context.runway.identifier : "");
+      setRunwayIdentifierState(sameDeparture ? stored.context.runway.identifier : "");
+      // Declared distances are not dependencies of the current full-rated
+      // Takeoff snapshot, so they are intentionally not restored from it.
+      setToraFt("");
+      setAsdaFt("");
       setTakeoffWeight(String(stored.context.weight.value));
       setTakeoffWeightUnit(stored.context.weight.unit);
       setFlaps(stored.context.configuration.flaps);
@@ -324,7 +344,9 @@ function useTakeoffPerformanceOperation(
       previous?.flightId === current.id
       && previous.icao !== current.departure.icao
     ) {
-      setRunwayIdentifier("");
+      setRunwayIdentifierState("");
+      setToraFt("");
+      setAsdaFt("");
       setAppliedWeather(EMPTY_OPERATION_WEATHER);
     }
     previousDeparture.current = {
@@ -398,6 +420,12 @@ function useTakeoffPerformanceOperation(
       : undefined,
     [airportDataset?.source, runwayIdentifier, selectedAirport],
   );
+
+  const declaredDistanceConstraint = useMemo(() => {
+    const tora = toraFt.trim() ? manualDeclaredDistanceFt(Number(toraFt)) : undefined;
+    const asda = asdaFt.trim() ? manualDeclaredDistanceFt(Number(asdaFt)) : undefined;
+    return resolveTakeoffDeclaredDistanceConstraint({ tora, asda });
+  }, [asdaFt, toraFt]);
 
   const weightNumber = numberFromInput(takeoffWeight);
   const calculationWeather = weatherForCalculation(appliedWeather);
@@ -678,6 +706,9 @@ function useTakeoffPerformanceOperation(
     runwayOptions,
     runwayContext,
     runwayIdentifier,
+    toraFt,
+    asdaFt,
+    declaredDistanceConstraint,
     takeoffWeight,
     takeoffWeightUnit,
     flaps,
@@ -690,7 +721,13 @@ function useTakeoffPerformanceOperation(
     pressureAltitudeFt,
     wind,
     currentContext,
-    setRunwayIdentifier,
+    setRunwayIdentifier: (value) => {
+      setRunwayIdentifierState(value);
+      setToraFt("");
+      setAsdaFt("");
+    },
+    setToraFt,
+    setAsdaFt,
     setTakeoffWeight,
     setFlaps,
     setAntiIce,

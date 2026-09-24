@@ -63,6 +63,9 @@ export function FtPerformanceOperationPresentation({
     runwayOptions,
     runwayContext,
     runwayIdentifier,
+    toraFt,
+    asdaFt,
+    declaredDistanceConstraint,
     takeoffWeight,
     takeoffWeightUnit,
     flaps,
@@ -76,6 +79,8 @@ export function FtPerformanceOperationPresentation({
     wind,
     currentContext,
     setRunwayIdentifier,
+    setToraFt,
+    setAsdaFt,
     setTakeoffWeight,
     setFlaps,
     setAntiIce,
@@ -195,6 +200,42 @@ export function FtPerformanceOperationPresentation({
                   <small>{takeoffWeightUnit}</small>
                 </span>
                 <small>Initialized from Active Flight planning weight.</small>
+              </label>
+
+              <label className={styles.setupField}>
+                <span>TORA <small>optional</small></span>
+                <span className={styles.inputWithUnit}>
+                  <input
+                    aria-label="Takeoff TORA"
+                    inputMode="decimal"
+                    min="1"
+                    onChange={(event) => setToraFt(event.target.value)}
+                    placeholder="Declared TORA"
+                    step="1"
+                    type="number"
+                    value={toraFt}
+                  />
+                  <small>ft</small>
+                </span>
+                <small>Manual declared distance. Never inferred from physical runway length.</small>
+              </label>
+
+              <label className={styles.setupField}>
+                <span>ASDA <small>optional</small></span>
+                <span className={styles.inputWithUnit}>
+                  <input
+                    aria-label="Takeoff ASDA"
+                    inputMode="decimal"
+                    min="1"
+                    onChange={(event) => setAsdaFt(event.target.value)}
+                    placeholder="Declared ASDA"
+                    step="1"
+                    type="number"
+                    value={asdaFt}
+                  />
+                  <small>ft</small>
+                </span>
+                <small>Required with TORA only for runway-limited / Partial Power calculations.</small>
               </label>
 
               <label className={styles.setupField}>
@@ -340,6 +381,18 @@ export function FtPerformanceOperationPresentation({
                 <div>
                   <dt>Runway context</dt>
                   <dd>{runwayDescription(runwayContext)}</dd>
+                </div>
+                <div>
+                  <dt>Declared takeoff limit</dt>
+                  <dd>
+                    {declaredDistanceConstraint.status === "ready"
+                      ? `${declaredDistanceConstraint.usableTakeoffFieldLengthFt.toLocaleString("en-US")} ft · ${declaredDistanceConstraint.limitingDistance}`
+                      : declaredDistanceConstraint.status === "invalid"
+                        ? "Invalid declared distance"
+                        : declaredDistanceConstraint.missing.length === 2
+                          ? "Not provided"
+                          : `Missing ${declaredDistanceConstraint.missing.join(" + ")}`}
+                  </dd>
                 </div>
                 <div>
                   <dt>Headwind</dt>
