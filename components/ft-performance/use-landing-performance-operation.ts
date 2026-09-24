@@ -18,25 +18,24 @@ import {
 } from "@/lib/aviation/runway-context";
 import { calculatePressureAltitudeFt } from "@/lib/aviation/pressure-altitude";
 import { calculateWindComponents, type WindComponents } from "@/lib/aviation/wind-component";
-import type { PilotTakeoffCalculatorDefinition } from "@/lib/pilot-takeoff-calculator";
+import type { PilotLandingCalculatorDefinition } from "@/lib/pilot-landing-calculator";
 import {
-  computePerformance,
+  computeLandingPerformance,
+  landingSourceDatasetIds,
   PERFORMANCE_RESULT_EVENT,
-  readTakeoffPerformanceState,
-  takeoffSourceDatasetIds,
+  readLandingPerformanceState,
   weatherObservationRefV2,
-  writeTakeoffPerformanceResultV2,
+  writeLandingPerformanceResultV2,
+  type LandingPerformanceReadState,
+  type LandingPerformanceResult,
   type PerformanceCalculationInputs,
-  type PerformanceResult,
-  type TakeoffPerformanceReadState,
 } from "@/lib/performance/client";
 import {
-  buildTakeoffPerformanceContext,
-  diffPerformanceContext,
-  isContextValid,
-  type FlightPerformanceContext,
-  type PerformanceContextChange,
-} from "@/lib/performance/context";
+  buildLandingPerformanceContext,
+  diffLandingPerformanceContext,
+  isLandingContextValid,
+  type LandingPerformanceContext,
+} from "@/lib/performance/landing-context";
 import {
   autoApplyAvailableWeather,
   appliedWeatherFromSnapshot,
@@ -51,35 +50,30 @@ import {
   type OperationWeatherSource,
 } from "@/lib/performance/operation-weather";
 import {
-  diffTakeoffSnapshotV2Dependencies,
-  type TakeoffSnapshotV2DependencyChange,
+  diffLandingSnapshotV2Dependencies,
+  type LandingSnapshotV2DependencyChange,
 } from "@/lib/performance/snapshot-v2";
+import type { PerformanceContextChange } from "@/lib/performance/context";
 import type { PerformanceDataset } from "@/lib/universal-aircraft-content";
 import { isMetarSnapshot } from "@/lib/weather/metar-snapshot-helpers";
 import type { MetarSnapshot } from "@/lib/weather/metar-types";
 
-import {
-  useLandingPerformanceOperation,
-  type LandingPerformanceOperationController,
-  type UseLandingPerformanceOperationOptions,
-} from "./use-landing-performance-operation";
-
-export type PerformanceWeatherFetchState =
+type PerformanceWeatherFetchState =
   | "idle"
   | "loading"
   | "ready"
   | "unavailable";
 
-export type TakeoffPerformanceOperationController = {
-  readonly operation: "TAKEOFF";
+export type LandingPerformanceOperationController = {
+  readonly operation: "LANDING";
   readonly currentFlight: ActiveFlight | null;
   readonly hydrated: boolean;
   readonly busy: boolean;
-  readonly result: PerformanceResult | null;
-  readonly storedState: TakeoffPerformanceReadState | null;
+  readonly result: LandingPerformanceResult | null;
+  readonly storedState: LandingPerformanceReadState | null;
   readonly stale: boolean;
   readonly changes: readonly PerformanceContextChange[];
-  readonly snapshotDependencyChanges: readonly TakeoffSnapshotV2DependencyChange[];
+  readonly snapshotDependencyChanges: readonly LandingSnapshotV2DependencyChange[];
   readonly invalidationMessage?: string;
   readonly canCalculate: boolean;
   readonly airportDataState: "loading" | "ready" | "error";
@@ -88,10 +82,9 @@ export type TakeoffPerformanceOperationController = {
   readonly runwayOptions: ReturnType<typeof availableRunwayEnds>;
   readonly runwayContext?: SelectedRunwayContext;
   readonly runwayIdentifier: string;
-  readonly takeoffWeight: string;
-  readonly takeoffWeightUnit: "kg" | "lb";
+  readonly landingWeight: string;
+  readonly landingWeightUnit: "kg" | "lb";
   readonly flaps: string;
-  readonly antiIce: boolean;
   readonly appliedWeather: OperationAppliedWeather;
   readonly availableWeather: MetarSnapshot | null;
   readonly weatherFetchState: PerformanceWeatherFetchState;
@@ -99,11 +92,10 @@ export type TakeoffPerformanceOperationController = {
   readonly latestWeatherActionNeeded: boolean;
   readonly pressureAltitudeFt?: number;
   readonly wind?: WindComponents;
-  readonly currentContext: FlightPerformanceContext | null;
+  readonly currentContext: LandingPerformanceContext | null;
   readonly setRunwayIdentifier: (value: string) => void;
-  readonly setTakeoffWeight: (value: string) => void;
+  readonly setLandingWeight: (value: string) => void;
   readonly setFlaps: (value: string) => void;
-  readonly setAntiIce: (value: boolean) => void;
   readonly setManualQnh: (value: string) => void;
   readonly setManualOat: (value: string) => void;
   readonly calculate: () => void;
@@ -111,12 +103,12 @@ export type TakeoffPerformanceOperationController = {
   readonly applyLatestMetar: () => void;
 };
 
-export type UseTakeoffPerformanceOperationOptions = {
+export type UseLandingPerformanceOperationOptions = {
   readonly aircraftId: string;
   readonly activeFlight?: ActiveFlight | null;
   readonly selectedVariant?: string;
   readonly datasets: readonly PerformanceDataset[];
-  readonly takeoffCalculator?: PilotTakeoffCalculatorDefinition;
+  readonly landingCalculator?: PilotLandingCalculatorDefinition;
 };
 
 function numberFromInput(value: string): number | undefined {
@@ -157,32 +149,27 @@ function currentWeatherUsesAvailableObservation(
 }
 
 /**
- * Canonical client-side owner for one Performance operation.
- *
- * P1.3 activates the TAKEOFF adapter. LANDING will consume the same operation
- * boundary in B5 instead of introducing a second controller or persistence path.
+ * Canonical owner for the Landing operation. It deliberately mirrors the
+ * P1.3 Takeoff boundary while keeping Landing state, persistence and
+ * invalidation operation-scoped.
  */
-function useTakeoffPerformanceOperation(
-  operation: "TAKEOFF",
-  {
-    aircraftId,
-    activeFlight,
-    selectedVariant,
-    datasets,
-    takeoffCalculator,
-  }: UseTakeoffPerformanceOperationOptions,
-): TakeoffPerformanceOperationController {
+export function useLandingPerformanceOperation({
+  aircraftId,
+  activeFlight,
+  selectedVariant,
+  datasets,
+  landingCalculator,
+}: UseLandingPerformanceOperationOptions): LandingPerformanceOperationController {
   const { flight } = useActiveFlightState(aircraftId, activeFlight);
   const current = flight?.lifecycle === "ACTIVE" ? flight : null;
 
-  const [storedState, setStoredState] = useState<TakeoffPerformanceReadState | null>(null);
+  const [storedState, setStoredState] = useState<LandingPerformanceReadState | null>(null);
   const [airportDataset, setAirportDataset] = useState<AirportDatasetV1 | null>(null);
   const [airportDataState, setAirportDataState] = useState<"loading" | "ready" | "error">("loading");
   const [runwayIdentifier, setRunwayIdentifier] = useState("");
-  const [takeoffWeight, setTakeoffWeight] = useState("");
-  const [takeoffWeightUnit, setTakeoffWeightUnit] = useState<"kg" | "lb">("lb");
+  const [landingWeight, setLandingWeight] = useState("");
+  const [landingWeightUnit, setLandingWeightUnit] = useState<"kg" | "lb">("lb");
   const [flaps, setFlaps] = useState("");
-  const [antiIce, setAntiIce] = useState(false);
   const [appliedWeather, setAppliedWeather] = useState<OperationAppliedWeather>(
     EMPTY_OPERATION_WEATHER,
   );
@@ -191,7 +178,7 @@ function useTakeoffPerformanceOperation(
   const [busy, setBusy] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
-  const previousDeparture = useRef<{ flightId: string; icao: string } | null>(null);
+  const previousDestination = useRef<{ flightId: string; icao: string } | null>(null);
   const weatherLocked = useRef(false);
 
   const result = storedState?.result ?? null;
@@ -215,23 +202,22 @@ function useTakeoffPerformanceOperation(
   }, []);
 
   useEffect(() => {
-    const defaultFlaps = takeoffCalculator?.flapOptions[0]?.value ?? "";
+    const defaultFlaps = landingCalculator?.flapOptions[0]?.value ?? "";
 
     if (!current) {
       weatherLocked.current = false;
       setStoredState(null);
       setRunwayIdentifier("");
-      setTakeoffWeight("");
-      setTakeoffWeightUnit("lb");
+      setLandingWeight("");
+      setLandingWeightUnit("lb");
       setFlaps(defaultFlaps);
-      setAntiIce(false);
       setAppliedWeather(EMPTY_OPERATION_WEATHER);
       setHydrated(true);
       return;
     }
 
     const restore = () => {
-      const restored = readTakeoffPerformanceState(
+      const restored = readLandingPerformanceState(
         window.localStorage,
         aircraftId,
         current.id,
@@ -242,22 +228,21 @@ function useTakeoffPerformanceOperation(
       const stored = restored?.result ?? null;
       if (!stored) {
         setRunwayIdentifier("");
-        setTakeoffWeight(String(current.weight.value));
-        setTakeoffWeightUnit(current.weight.unit);
+        setLandingWeight(String(current.weight.value));
+        setLandingWeightUnit(current.weight.unit);
         setFlaps(defaultFlaps);
-        setAntiIce(false);
         setAppliedWeather(EMPTY_OPERATION_WEATHER);
         return;
       }
 
-      const sameDeparture = stored.context.runway.airportIcao === current.departure.icao;
-      setRunwayIdentifier(sameDeparture ? stored.context.runway.identifier : "");
-      setTakeoffWeight(String(stored.context.weight.value));
-      setTakeoffWeightUnit(stored.context.weight.unit);
+      const sameDestination =
+        stored.context.runway.airportIcao === current.destination.icao;
+      setRunwayIdentifier(sameDestination ? stored.context.runway.identifier : "");
+      setLandingWeight(String(stored.context.weight.value));
+      setLandingWeightUnit(stored.context.weight.unit);
       setFlaps(stored.context.configuration.flaps);
-      setAntiIce(stored.context.configuration.antiIce);
       setAppliedWeather(
-        sameDeparture
+        sameDestination
           ? appliedWeatherFromSnapshot(restored?.snapshot.inputs.weather)
           : EMPTY_OPERATION_WEATHER,
       );
@@ -267,30 +252,30 @@ function useTakeoffPerformanceOperation(
     window.addEventListener(PERFORMANCE_RESULT_EVENT, restore);
     setHydrated(true);
     return () => window.removeEventListener(PERFORMANCE_RESULT_EVENT, restore);
-  }, [aircraftId, current?.id, takeoffCalculator]);
+  }, [aircraftId, current?.id, landingCalculator]);
 
   useEffect(() => {
     if (!current) {
-      previousDeparture.current = null;
+      previousDestination.current = null;
       return;
     }
 
-    const previous = previousDeparture.current;
+    const previous = previousDestination.current;
     if (
       previous?.flightId === current.id
-      && previous.icao !== current.departure.icao
+      && previous.icao !== current.destination.icao
     ) {
       setRunwayIdentifier("");
       setAppliedWeather(EMPTY_OPERATION_WEATHER);
     }
-    previousDeparture.current = {
+    previousDestination.current = {
       flightId: current.id,
-      icao: current.departure.icao,
+      icao: current.destination.icao,
     };
-  }, [current?.departure.icao, current?.id]);
+  }, [current?.destination.icao, current?.id]);
 
   useEffect(() => {
-    const icao = current?.departure.icao;
+    const icao = current?.destination.icao;
     if (!icao) {
       setAvailableWeather(null);
       setWeatherFetchState("idle");
@@ -334,11 +319,11 @@ function useTakeoffPerformanceOperation(
       });
 
     return () => controller.abort();
-  }, [current?.departure.icao]);
+  }, [current?.destination.icao]);
 
   const selectedAirport = useMemo(
     () => current && airportDataset
-      ? findAirport(airportDataset, current.departure.icao)
+      ? findAirport(airportDataset, current.destination.icao)
       : undefined,
     [airportDataset, current],
   );
@@ -355,7 +340,7 @@ function useTakeoffPerformanceOperation(
     [airportDataset?.source, runwayIdentifier, selectedAirport],
   );
 
-  const weightNumber = numberFromInput(takeoffWeight);
+  const weightNumber = numberFromInput(landingWeight);
   const calculationWeather = weatherForCalculation(appliedWeather);
 
   const pressureAltitudeFt = useMemo(() => {
@@ -398,40 +383,33 @@ function useTakeoffPerformanceOperation(
       || !calculationWeather
     ) return null;
 
-    return buildTakeoffPerformanceContext(current, {
+    return buildLandingPerformanceContext(current, {
       runway: {
         identifier: runwayContext.runwayIdent,
-        airportIcao: current.departure.icao,
+        airportIcao: current.destination.icao,
       },
       weight: {
         value: weightNumber,
-        unit: takeoffWeightUnit,
+        unit: landingWeightUnit,
       },
-      configuration: {
-        flaps,
-        antiIce,
-      },
+      configuration: { flaps },
       weather: calculationWeather,
     });
   }, [
-    antiIce,
     calculationWeather,
     current,
     flaps,
+    landingWeightUnit,
     runwayContext,
-    takeoffWeightUnit,
     weightNumber,
   ]);
 
-  const currentSourceDatasetIds = currentContext
-    ? takeoffSourceDatasetIds(datasets, takeoffCalculator, currentContext)
-    : [];
-
+  const currentSourceDatasetIds = landingSourceDatasetIds(landingCalculator);
   const snapshotDependencyChanges = storedState && currentContext
-    ? diffTakeoffSnapshotV2Dependencies(storedState.snapshot, {
+    ? diffLandingSnapshotV2Dependencies(storedState.snapshot, {
         variant: selectedVariant ?? null,
         pressureAltitudeFt,
-        calculatorId: takeoffCalculator?.id ?? null,
+        calculatorId: null,
         datasetIds: currentSourceDatasetIds,
       })
     : [];
@@ -442,18 +420,18 @@ function useTakeoffPerformanceOperation(
       storedState?.requiresRecalculation
       || snapshotDependencyChanges.length > 0
       || !currentContext
-      || !isContextValid(currentContext, result.context)
+      || !isLandingContextValid(currentContext, result.context)
     ),
   );
 
   const changes = currentContext && result && stale
-    ? diffPerformanceContext(result.context, currentContext)
+    ? diffLandingPerformanceContext(result.context, currentContext)
     : [];
 
   const canCalculate = Boolean(
     currentContext
     && pressureAltitudeFt !== undefined
-    && calculationWeather,
+    && landingCalculator,
   );
 
   const newerWeatherAvailable = Boolean(
@@ -487,7 +465,7 @@ function useTakeoffPerformanceOperation(
   function buildContextWithWeather(
     weather: OperationAppliedWeather,
   ): {
-    readonly context: FlightPerformanceContext;
+    readonly context: LandingPerformanceContext;
     readonly pressureAltitudeFt: number;
     readonly inputs: PerformanceCalculationInputs;
   } | null {
@@ -511,24 +489,19 @@ function useTakeoffPerformanceOperation(
       return null;
     }
 
-    const context = buildTakeoffPerformanceContext(current, {
-      runway: {
-        identifier: runwayContext.runwayIdent,
-        airportIcao: current.departure.icao,
-      },
-      weight: {
-        value: weightNumber,
-        unit: takeoffWeightUnit,
-      },
-      configuration: {
-        flaps,
-        antiIce,
-      },
-      weather: values,
-    });
-
     return {
-      context,
+      context: buildLandingPerformanceContext(current, {
+        runway: {
+          identifier: runwayContext.runwayIdent,
+          airportIcao: current.destination.icao,
+        },
+        weight: {
+          value: weightNumber,
+          unit: landingWeightUnit,
+        },
+        configuration: { flaps },
+        weather: values,
+      }),
       pressureAltitudeFt: nextPressureAltitude,
       inputs: {
         pressureAltitudeFt: nextPressureAltitude,
@@ -539,14 +512,14 @@ function useTakeoffPerformanceOperation(
 
   function calculateWithWeather(weather: OperationAppliedWeather): void {
     const calculation = buildContextWithWeather(weather);
-    if (!calculation || !current || !runwayContext) return;
+    if (!calculation || !current || !runwayContext || !landingCalculator) return;
 
     setBusy(true);
     try {
-      const next = computePerformance(
+      const next = computeLandingPerformance(
         calculation.context,
         datasets,
-        takeoffCalculator,
+        landingCalculator,
         calculation.inputs,
       );
       const observation = weather.observation;
@@ -554,13 +527,8 @@ function useTakeoffPerformanceOperation(
         weather.qnhHpa.source === "metar" && observation ? "metar" : "manual";
       const oatSource =
         weather.oatC.source === "metar" && observation ? "metar" : "manual";
-      const datasetIds = takeoffSourceDatasetIds(
-        datasets,
-        takeoffCalculator,
-        calculation.context,
-      );
 
-      const snapshot = writeTakeoffPerformanceResultV2(
+      const snapshot = writeLandingPerformanceResultV2(
         window.localStorage,
         next,
         {
@@ -569,8 +537,8 @@ function useTakeoffPerformanceOperation(
           qnhSource,
           oatSource,
           observation: observation ? weatherObservationRefV2(observation) : null,
-          datasetIds,
-          calculatorId: takeoffCalculator?.id ?? null,
+          datasetIds: currentSourceDatasetIds,
+          calculatorId: null,
         },
       );
 
@@ -579,21 +547,12 @@ function useTakeoffPerformanceOperation(
         result: next,
         snapshot,
         requiresRecalculation: false,
-        migratedFromLegacy: false,
       });
       setAppliedWeather(appliedWeatherFromSnapshot(snapshot.inputs.weather));
       window.dispatchEvent(new Event(PERFORMANCE_RESULT_EVENT));
     } finally {
       setBusy(false);
     }
-  }
-
-  function calculate(): void {
-    calculateWithWeather(appliedWeather);
-  }
-
-  function recalculate(): void {
-    calculateWithWeather(appliedWeather);
   }
 
   function applyLatestMetar(): void {
@@ -609,14 +568,12 @@ function useTakeoffPerformanceOperation(
     }
   }
 
-  const invalidationMessage = storedState?.requiresRecalculation
-    ? "This stored result was migrated from legacy performance data without complete weather provenance. Recalculate to create a current V2 snapshot."
-    : snapshotDependencyChanges.length
-      ? "Aircraft variant, derived performance context or the source-backed performance package changed. Recalculate before using the stored result."
-      : undefined;
+  const invalidationMessage = snapshotDependencyChanges.length
+    ? "Aircraft variant, derived Landing context or the source-backed Landing package changed. Recalculate before using the stored result."
+    : undefined;
 
   return {
-    operation,
+    operation: "LANDING",
     currentFlight: current,
     hydrated,
     busy,
@@ -633,10 +590,9 @@ function useTakeoffPerformanceOperation(
     runwayOptions,
     runwayContext,
     runwayIdentifier,
-    takeoffWeight,
-    takeoffWeightUnit,
+    landingWeight,
+    landingWeightUnit,
     flaps,
-    antiIce,
     appliedWeather,
     availableWeather,
     weatherFetchState,
@@ -646,9 +602,8 @@ function useTakeoffPerformanceOperation(
     wind,
     currentContext,
     setRunwayIdentifier,
-    setTakeoffWeight,
+    setLandingWeight,
     setFlaps,
-    setAntiIce,
     setManualQnh: (value) => {
       setAppliedWeather((previous) => setManualWeatherField(
         previous,
@@ -663,35 +618,8 @@ function useTakeoffPerformanceOperation(
         numberFromInput(value),
       ));
     },
-    calculate,
-    recalculate,
+    calculate: () => calculateWithWeather(appliedWeather),
+    recalculate: () => calculateWithWeather(appliedWeather),
     applyLatestMetar,
   };
 }
-
-export function usePerformanceOperation(
-  operation: "TAKEOFF",
-  options: UseTakeoffPerformanceOperationOptions,
-): TakeoffPerformanceOperationController;
-export function usePerformanceOperation(
-  operation: "LANDING",
-  options: UseLandingPerformanceOperationOptions,
-): LandingPerformanceOperationController;
-export function usePerformanceOperation(
-  operation: "TAKEOFF" | "LANDING",
-  options: UseTakeoffPerformanceOperationOptions | UseLandingPerformanceOperationOptions,
-): TakeoffPerformanceOperationController | LandingPerformanceOperationController {
-  // Operation is a compile-time literal at every caller and must not change
-  // during a component lifetime. The facade preserves one public operation
-  // boundary while the two adapters retain operation-scoped state/persistence.
-  if (operation === "TAKEOFF") {
-    return useTakeoffPerformanceOperation(
-      operation,
-      options as UseTakeoffPerformanceOperationOptions,
-    );
-  }
-  return useLandingPerformanceOperation(
-    options as UseLandingPerformanceOperationOptions,
-  );
-}
-

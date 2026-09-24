@@ -258,7 +258,8 @@
   background: var(--ft-bg-inset);
 }
 
-.briefSection:first-of-type {
+.takeoffBriefCard,
+.landingBriefCard {
   grid-column: 1 / -1;
   padding: var(--ft-space-4);
   border: var(--ft-rule-default);
@@ -393,7 +394,8 @@
   outline-offset: var(--ft-focus-offset);
 }
 
-.takeoffBriefCard {
+.takeoffBriefCard,
+.landingBriefCard {
   gap: var(--ft-space-3);
 }
 
@@ -635,7 +637,8 @@
   }
 
   .briefHeader,
-  .briefSection:first-of-type {
+  .takeoffBriefCard,
+  .landingBriefCard {
     grid-column: auto;
   }
 

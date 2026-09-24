@@ -2,7 +2,14 @@
 
 import { useEffect, useRef, type KeyboardEvent } from "react";
 
+import type { PilotLandingCalculatorDefinition } from "@/lib/pilot-landing-calculator";
 import type { PilotTakeoffCalculatorDefinition } from "@/lib/pilot-takeoff-calculator";
+import {
+  FtLandingPerformanceOperationPresentation,
+} from "@/components/ft-performance/FtLandingPerformancePresentation";
+import type {
+  LandingPerformanceOperationController,
+} from "@/components/ft-performance/use-landing-performance-operation";
 import {
   FtPerformanceOperationPresentation,
 } from "@/components/ft-performance/FtPerformancePresentation";
@@ -15,20 +22,30 @@ import styles from "./ft-flight.module.css";
 const focusableSelector =
   'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),[tabindex]:not([tabindex="-1"])';
 
-export function FtPerformanceEditorSheet({
-  aircraftId,
-  operation,
-  takeoffCalculator,
-  open,
-  onClose,
-}: Readonly<{
-  aircraftId: string;
-  operation: TakeoffPerformanceOperationController;
-  takeoffCalculator?: PilotTakeoffCalculatorDefinition;
-  open: boolean;
-  onClose: () => void;
-}>) {
+type CommonProps = {
+  readonly aircraftId: string;
+  readonly open: boolean;
+  readonly onClose: () => void;
+};
+
+type TakeoffEditorProps = {
+  readonly kind: "TAKEOFF";
+  readonly operation: TakeoffPerformanceOperationController;
+  readonly takeoffCalculator?: PilotTakeoffCalculatorDefinition;
+};
+
+type LandingEditorProps = {
+  readonly kind: "LANDING";
+  readonly operation: LandingPerformanceOperationController;
+  readonly landingCalculator?: PilotLandingCalculatorDefinition;
+};
+
+export function FtPerformanceEditorSheet(
+  props: Readonly<CommonProps & (TakeoffEditorProps | LandingEditorProps)>,
+) {
+  const { aircraftId, kind, open, onClose } = props;
   const panelRef = useRef<HTMLDivElement>(null);
+  const title = kind === "TAKEOFF" ? "Takeoff" : "Landing";
 
   useEffect(() => {
     if (!open) return;
@@ -75,7 +92,7 @@ export function FtPerformanceEditorSheet({
         type="button"
         tabIndex={-1}
         className={styles.performanceEditorBackdrop}
-        aria-label="Close Takeoff performance editor"
+        aria-label={`Close ${title} performance editor`}
         onClick={onClose}
       />
 
@@ -84,18 +101,18 @@ export function FtPerformanceEditorSheet({
         className={styles.performanceEditorPanel}
         role="dialog"
         aria-modal="true"
-        aria-label="Takeoff performance editor"
+        aria-label={`${title} performance editor`}
         onKeyDown={trapFocus}
       >
         <header className={styles.performanceEditorHeader}>
           <div>
-            <p className={styles.eyebrow}>TAKEOFF PERFORMANCE</p>
-            <h2>Edit Takeoff</h2>
+            <p className={styles.eyebrow}>{kind} PERFORMANCE</p>
+            <h2>Edit {title}</h2>
           </div>
           <button
             type="button"
             className={styles.performanceEditorClose}
-            aria-label="Close Takeoff performance editor"
+            aria-label={`Close ${title} performance editor`}
             onClick={onClose}
           >
             ×
@@ -103,13 +120,23 @@ export function FtPerformanceEditorSheet({
         </header>
 
         <div className={styles.performanceEditorBody}>
-          <FtPerformanceOperationPresentation
-            aircraftId={aircraftId}
-            operation={operation}
-            takeoffCalculator={takeoffCalculator}
-            view="brief"
-            showInputs
-          />
+          {props.kind === "TAKEOFF" ? (
+            <FtPerformanceOperationPresentation
+              aircraftId={aircraftId}
+              operation={props.operation}
+              takeoffCalculator={props.takeoffCalculator}
+              view="brief"
+              showInputs
+            />
+          ) : (
+            <FtLandingPerformanceOperationPresentation
+              aircraftId={aircraftId}
+              operation={props.operation}
+              landingCalculator={props.landingCalculator}
+              view="brief"
+              showInputs
+            />
+          )}
         </div>
       </div>
     </div>

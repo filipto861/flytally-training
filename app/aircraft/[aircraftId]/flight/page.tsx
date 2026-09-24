@@ -67,6 +67,7 @@ export default async function FlightPage({
       activeFlight={activeFlight}
       performanceDatasets={performanceDatasets}
       takeoffCalculator={bundledPackage?.takeoffCalculator}
+      landingCalculator={bundledPackage?.landingCalculator}
     />
   );
 }

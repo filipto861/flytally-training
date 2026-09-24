@@ -23,9 +23,10 @@ test("P1.4 Flight Brief owns one canonical Takeoff controller and shares it with
   const presentation = read("components/ft-performance/FtPerformancePresentation.tsx");
 
   assert.match(brief, /usePerformanceOperation\("TAKEOFF"/);
+  assert.match(brief, /kind="TAKEOFF"/);
   assert.match(brief, /operation=\{operation\}/);
   assert.match(editor, /FtPerformanceOperationPresentation/);
-  assert.match(editor, /operation=\{operation\}/);
+  assert.match(editor, /operation=\{props\.operation\}/);
   assert.match(presentation, /export function FtPerformanceOperationPresentation/);
   assert.match(presentation, /export function FtPerformancePresentation/);
 
@@ -59,7 +60,8 @@ test("P1.4 Performance editor is an accessible modal using the shared Performanc
 
   assert.match(editor, /role="dialog"/);
   assert.match(editor, /aria-modal="true"/);
-  assert.match(editor, /aria-label="Takeoff performance editor"/);
+  assert.match(editor, /title = kind === "TAKEOFF" \? "Takeoff" : "Landing"/);
+  assert.match(editor, /aria-label=\{\`\$\{title\} performance editor\`\}/);
   assert.match(editor, /event\.key !== "Escape"/);
   assert.match(editor, /event\.key !== "Tab"/);
   assert.match(editor, /focusableSelector/);
@@ -89,10 +91,12 @@ test("P1.4 Flight Brief uses a complete two-column secondary layout instead of t
   assert.doesNotMatch(css, /\.brief\s*\{[\s\S]*grid-template-columns:\s*repeat\(3, minmax\(0, 1fr\)\)/);
 });
 
-test("P1.4 does not introduce Landing runtime or Takeoff wind-correction math", () => {
+test("P1.4 shared editor remains free of Takeoff wind-correction math after B5 adds Landing", () => {
   const brief = read("components/ft-flight/FtFlightBrief.tsx");
   const editor = read("components/ft-flight/FtPerformanceEditorSheet.tsx");
 
-  assert.doesNotMatch(brief, /LANDING|VREF|landingDistance|correctTakeoffDistanceForWind|correctV1ForWind/);
-  assert.doesNotMatch(editor, /LANDING|VREF|landingDistance|correctTakeoffDistanceForWind|correctV1ForWind/);
+  assert.match(brief, /kind="LANDING"/);
+  assert.match(editor, /FtLandingPerformanceOperationPresentation/);
+  assert.doesNotMatch(brief, /correctTakeoffDistanceForWind|correctV1ForWind/);
+  assert.doesNotMatch(editor, /correctTakeoffDistanceForWind|correctV1ForWind/);
 });

@@ -1,8 +1,10 @@
 import type { ActiveFlight } from "@/lib/active-flight/types";
+import type { PilotLandingCalculatorDefinition } from "@/lib/pilot-landing-calculator";
 import type { PilotTakeoffCalculatorDefinition } from "@/lib/pilot-takeoff-calculator";
 import type { PerformanceDataset } from "@/lib/universal-aircraft-content";
 
 import { FtPerformanceExplanation } from "./FtPerformanceExplanation";
+import { FtLandingPerformancePresentation } from "./FtLandingPerformancePresentation";
 import { FtPerformancePresentation } from "./FtPerformancePresentation";
 import styles from "./ft-performance.module.css";
 
@@ -13,6 +15,7 @@ export function FtPerformancePage({
   selectedVariant,
   datasets,
   takeoffCalculator,
+  landingCalculator,
   disclaimer,
 }: Readonly<{
   aircraftId: string;
@@ -21,6 +24,7 @@ export function FtPerformancePage({
   selectedVariant?: string;
   datasets: readonly PerformanceDataset[];
   takeoffCalculator?: PilotTakeoffCalculatorDefinition;
+  landingCalculator?: PilotLandingCalculatorDefinition;
   disclaimer?: string;
 }>) {
   return (
@@ -44,6 +48,18 @@ export function FtPerformancePage({
         view="efb"
         showInputs
       />
+
+      {landingCalculator ? (
+        <FtLandingPerformancePresentation
+          aircraftId={aircraftId}
+          activeFlight={activeFlight}
+          selectedVariant={selectedVariant}
+          datasets={datasets}
+          landingCalculator={landingCalculator}
+          view="efb"
+          showInputs
+        />
+      ) : null}
 
       <FtPerformanceExplanation
         sourceTitles={datasets.map((dataset) => dataset.title)}

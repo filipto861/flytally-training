@@ -1,4 +1,5 @@
 import type { ActiveFlight } from "@/lib/active-flight/types";
+import type { PilotLandingCalculatorDefinition } from "@/lib/pilot-landing-calculator";
 import type { PilotTakeoffCalculatorDefinition } from "@/lib/pilot-takeoff-calculator";
 import type { PerformanceDataset } from "@/lib/universal-aircraft-content";
 
@@ -14,6 +15,7 @@ export function FtFlightPage({
   activeFlight,
   performanceDatasets,
   takeoffCalculator,
+  landingCalculator,
 }: Readonly<{
   aircraftId: string;
   aircraftName: string;
@@ -21,6 +23,7 @@ export function FtFlightPage({
   activeFlight?: ActiveFlight | null;
   performanceDatasets: readonly PerformanceDataset[];
   takeoffCalculator?: PilotTakeoffCalculatorDefinition;
+  landingCalculator?: PilotLandingCalculatorDefinition;
 }>) {
   return (
     <main
@@ -46,6 +49,7 @@ export function FtFlightPage({
         selectedVariant={selectedVariant}
         datasets={performanceDatasets}
         takeoffCalculator={takeoffCalculator}
+        landingCalculator={landingCalculator}
       />
       <FtRecentFlights />
     </main>

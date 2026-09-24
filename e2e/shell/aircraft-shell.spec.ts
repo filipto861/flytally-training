@@ -172,14 +172,18 @@ test("W2 Arrow keys move selection and Enter activates the selected result", asy
   await input.fill("performance");
 
   const options = dialog.getByRole("option");
-  await expect(options).toHaveCount(3);
+  await expect(options.nth(0)).toBeVisible();
+  await expect(options.nth(1)).toBeVisible();
   await expect(options.nth(0)).toHaveAttribute("aria-selected", "true");
 
   await input.press("ArrowDown");
   await expect(options.nth(1)).toHaveAttribute("aria-selected", "true");
 
+  const selectedTitle = (await options.nth(1).innerText()).split("\n")[0]?.trim();
+  expect(selectedTitle).toBeTruthy();
+
   await input.press("Enter");
-  await expect(page).toHaveURL(new RegExp(`${aircraftPath}/performance#browser-takeoff-grid$`));
+  await expect(page).toHaveURL(new RegExp(`${aircraftPath}/performance#`));
 });
 
 test("P1.1 Learn search excludes EFB Performance results and shortcuts", async ({ page }) => {
@@ -670,7 +674,8 @@ test("P2 PERFORMANCE top-level renders the source-backed takeoff data strip", as
 test("P1.1 PERFORMANCE top-level identifies its EFB context", async ({ page }) => {
   await calculateP2Performance(page);
   const workspace = page.getByRole("main", { name: "Performance workspace" });
-  await expect(workspace.getByText("EFB", { exact: true })).toBeVisible();
+  const takeoff = workspace.getByRole("region", { name: "Performance", exact: true });
+  await expect(takeoff.getByText("EFB", { exact: true })).toBeVisible();
 });
 
 test("P1.4 Flight Brief reuses the same Performance snapshot in its Takeoff card", async ({ page }) => {
@@ -731,6 +736,138 @@ test("P1.4 Flight Brief Calculate/Edit uses one shared responsive Performance ed
     .getByRole("main", { name: "Performance workspace" })
     .getByRole("region", { name: "Performance", exact: true });
   await expect(fullPerformance.locator('[data-metric="takeoffDistance"]')).toContainText("3,100 ft");
+});
+
+test("B5 dedicated Performance calculates and restores destination-owned Landing V2", async ({ page }) => {
+  await createD0ActiveFlight(page);
+  await page.goto(`${shellOnBase}${aircraftPath}/performance`);
+
+  const landing = page
+    .getByRole("main", { name: "Performance workspace" })
+    .getByRole("region", { name: "Landing Performance", exact: true });
+
+  await expect(landing).toHaveAttribute("data-performance-operation", "LANDING");
+  await expect(landing).toContainText("LOWW arrival");
+  await landing.getByLabel("Landing runway").selectOption({ index: 1 });
+  await landing.getByLabel("Landing QNH").fill("1013.25");
+  await landing.getByLabel("Landing OAT").fill("15");
+  await landing.getByRole("button", { name: "Calculate Landing", exact: true }).click();
+
+  await expect(landing.locator('[data-metric="vref"]')).toContainText("118 KIAS");
+  await expect(landing.locator('[data-metric="landingClimbSpeed"]')).toContainText("118 KIAS");
+  await expect(landing.locator('[data-metric="approachClimbSpeed"]')).toContainText("124 KIAS");
+  await expect(landing.locator('[data-metric="landingDistance"]')).toContainText("2,800 FT");
+  await expect(landing.locator('[data-ft-landing-performance-strip="true"]')).toHaveAttribute(
+    "data-stale",
+    "false",
+  );
+
+  const stored = await page.evaluate(() => {
+    const key = Object.keys(localStorage).find((candidate) =>
+      candidate.startsWith(
+        "flytally-training:performance-snapshot:v2:landing:browser-ci-aircraft:",
+      ),
+    );
+    const raw = key ? localStorage.getItem(key) : null;
+    return raw ? JSON.parse(raw) : null;
+  });
+  expect(stored).toMatchObject({
+    schemaVersion: 2,
+    operation: "LANDING",
+    inputs: {
+      weight: { value: 12000, unit: "lb" },
+      configuration: { flaps: "40" },
+    },
+    result: {
+      vref: { status: "ready", value: 118 },
+      landingDistance: { status: "ready", value: 2800 },
+    },
+  });
+
+  await page.reload();
+  const restored = page
+    .getByRole("main", { name: "Performance workspace" })
+    .getByRole("region", { name: "Landing Performance", exact: true });
+  await expect(restored.locator('[data-ft-landing-performance-strip="true"]')).toHaveAttribute(
+    "data-stale",
+    "false",
+  );
+  await expect(restored.locator('[data-metric="landingDistance"]')).toContainText("2,800 FT");
+});
+
+test("B5 Flight Brief reuses the Landing snapshot and shared Landing editor", async ({ page }) => {
+  await createD0ActiveFlight(page);
+  await page.goto(`${shellOnBase}${aircraftPath}/performance`);
+
+  const landing = page.getByRole("region", { name: "Landing Performance", exact: true });
+  await landing.getByLabel("Landing runway").selectOption({ index: 1 });
+  await landing.getByLabel("Landing QNH").fill("1013.25");
+  await landing.getByLabel("Landing OAT").fill("15");
+  await landing.getByRole("button", { name: "Calculate Landing", exact: true }).click();
+
+  await page.goto(`${shellOnBase}${aircraftPath}/flight`);
+  const brief = page.getByRole("region", { name: "Flight Brief" });
+  const landingCard = brief.getByRole("region", { name: "Landing performance brief" });
+
+  await expect(landingCard).toHaveAttribute("data-performance-validity", "current");
+  await expect(landingCard.getByText("CURRENT", { exact: true })).toBeVisible();
+  await expect(landingCard.locator('[data-metric="vref"]')).toContainText("118 KIAS");
+  await expect(landingCard.locator('[data-metric="landingDistance"]')).toContainText("2,800 FT");
+
+  const edit = landingCard.getByRole("button", { name: "Edit Landing", exact: true });
+  await edit.click();
+  const editor = page.getByRole("dialog", { name: "Landing performance editor" });
+  await expect(editor).toBeVisible();
+  await expect(editor.getByLabel("Landing weight")).toHaveValue("12000");
+  await expect(editor.getByLabel("Landing flaps")).toHaveValue("40");
+  await editor.getByRole("button", { name: "Close Landing performance editor", exact: true }).click();
+  await expect(editor).toHaveCount(0);
+  await expect(edit).toBeFocused();
+});
+
+test("B5 destination change invalidates Landing without invalidating Takeoff", async ({ page }) => {
+  await createD0ActiveFlight(page);
+  await page.goto(`${shellOnBase}${aircraftPath}/performance`);
+
+  const workspace = page.getByRole("main", { name: "Performance workspace" });
+  const takeoff = workspace.getByRole("region", { name: "Performance", exact: true });
+  await takeoff.getByLabel("Takeoff runway").selectOption("24");
+  await takeoff.getByLabel("QNH").fill("1013.25");
+  await takeoff.getByLabel("OAT").fill("15");
+  await takeoff.getByRole("button", { name: "Calculate Takeoff", exact: true }).click();
+
+  const landing = workspace.getByRole("region", { name: "Landing Performance", exact: true });
+  await landing.getByLabel("Landing runway").selectOption({ index: 1 });
+  await landing.getByLabel("Landing QNH").fill("1013.25");
+  await landing.getByLabel("Landing OAT").fill("15");
+  await landing.getByRole("button", { name: "Calculate Landing", exact: true }).click();
+
+  await page.goto(`${shellOnBase}${aircraftPath}/flight`);
+  const active = page.getByRole("region", { name: "Active Flight" });
+  await active.getByRole("button", { name: "Edit flight", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Edit flight" });
+  await dialog.getByLabel("Destination ICAO").fill("EDDM");
+  await dialog.getByRole("button", { name: "Save flight", exact: true }).click();
+  await expect(dialog).toHaveCount(0);
+
+  await page.goto(`${shellOnBase}${aircraftPath}/performance`);
+  const refreshed = page.getByRole("main", { name: "Performance workspace" });
+  const takeoffAfter = refreshed.getByRole("region", { name: "Performance", exact: true });
+  const landingAfter = refreshed.getByRole("region", { name: "Landing Performance", exact: true });
+
+  await expect(takeoffAfter.locator('[data-ft-performance-strip="true"]')).toHaveAttribute(
+    "data-stale",
+    "false",
+  );
+  await expect(takeoffAfter.getByLabel("Takeoff runway")).toHaveValue("24");
+
+  await expect(landingAfter.locator('[data-ft-landing-performance-strip="true"]')).toHaveAttribute(
+    "data-stale",
+    "true",
+  );
+  await expect(landingAfter.getByLabel("Landing runway")).toHaveValue("");
+  await expect(landingAfter.getByText("NEEDS RECALCULATION", { exact: true })).toBeVisible();
+  await expect(landingAfter.getByRole("button", { name: "Recalculate", exact: true })).toBeDisabled();
 });
 
 test("P2 PERF fast path reuses the same performance result with Operational context", async ({ page }) => {

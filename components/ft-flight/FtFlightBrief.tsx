@@ -5,13 +5,29 @@ import { useCallback, useRef, useState } from "react";
 
 import { withVariantQuery } from "@/lib/aircraft-applicability";
 import type { ActiveFlight } from "@/lib/active-flight/types";
+import type { PilotLandingCalculatorDefinition } from "@/lib/pilot-landing-calculator";
 import type { PilotTakeoffCalculatorDefinition } from "@/lib/pilot-takeoff-calculator";
 import type { PerformanceDataset } from "@/lib/universal-aircraft-content";
+import { FtLandingPerformanceStrip } from "@/components/ft-performance/FtLandingPerformanceStrip";
 import { FtPerformanceStrip } from "@/components/ft-performance/FtPerformanceStrip";
 import { usePerformanceOperation } from "@/components/ft-performance/use-performance-operation";
 
 import { FtPerformanceEditorSheet } from "./FtPerformanceEditorSheet";
 import styles from "./ft-flight.module.css";
+
+type EditorKind = "TAKEOFF" | "LANDING" | null;
+
+function validityLabel(
+  hydrated: boolean,
+  hasFlight: boolean,
+  hasResult: boolean,
+  stale: boolean,
+): string {
+  if (!hydrated) return "LOADING";
+  if (!hasFlight) return "NO ACTIVE FLIGHT";
+  if (!hasResult) return "NOT CALCULATED";
+  return stale ? "RECALCULATE" : "CURRENT";
+}
 
 export function FtFlightBrief({
   aircraftId,
@@ -19,12 +35,14 @@ export function FtFlightBrief({
   selectedVariant,
   datasets,
   takeoffCalculator,
+  landingCalculator,
 }: Readonly<{
   aircraftId: string;
   activeFlight?: ActiveFlight | null;
   selectedVariant?: string;
   datasets: readonly PerformanceDataset[];
   takeoffCalculator?: PilotTakeoffCalculatorDefinition;
+  landingCalculator?: PilotLandingCalculatorDefinition;
 }>) {
   const operation = usePerformanceOperation("TAKEOFF", {
     aircraftId,
@@ -33,33 +51,52 @@ export function FtFlightBrief({
     datasets,
     takeoffCalculator,
   });
-  const [editorOpen, setEditorOpen] = useState(false);
-  const editorTriggerRef = useRef<HTMLButtonElement>(null);
+  const landingOperation = usePerformanceOperation("LANDING", {
+    aircraftId,
+    activeFlight,
+    selectedVariant,
+    datasets,
+    landingCalculator,
+  });
+
+  const [editorKind, setEditorKind] = useState<EditorKind>(null);
+  const takeoffEditorTriggerRef = useRef<HTMLButtonElement>(null);
+  const landingEditorTriggerRef = useRef<HTMLButtonElement>(null);
 
   const current = operation.currentFlight;
   const hasActiveFlight = Boolean(current);
   const result = operation.result;
   const runway = result?.context.runway.identifier || operation.runwayIdentifier || null;
+  const validity = validityLabel(
+    operation.hydrated,
+    hasActiveFlight,
+    Boolean(result),
+    operation.stale,
+  );
 
-  const validity =
-    !operation.hydrated
-      ? "LOADING"
-      : !current
-        ? "NO ACTIVE FLIGHT"
-        : !result
-          ? "NOT CALCULATED"
-          : operation.stale
-            ? "RECALCULATE"
-            : "CURRENT";
-
-  const openEditor = useCallback(() => {
-    setEditorOpen(true);
-  }, []);
+  const landingResult = landingOperation.result;
+  const landingRunway =
+    landingResult?.context.runway.identifier
+    || landingOperation.runwayIdentifier
+    || null;
+  const landingValidity = validityLabel(
+    landingOperation.hydrated,
+    hasActiveFlight,
+    Boolean(landingResult),
+    landingOperation.stale,
+  );
 
   const closeEditor = useCallback(() => {
-    setEditorOpen(false);
-    window.requestAnimationFrame(() => editorTriggerRef.current?.focus());
-  }, []);
+    const closingKind = editorKind;
+    setEditorKind(null);
+    window.requestAnimationFrame(() => {
+      if (closingKind === "LANDING") {
+        landingEditorTriggerRef.current?.focus();
+      } else {
+        takeoffEditorTriggerRef.current?.focus();
+      }
+    });
+  }, [editorKind]);
 
   const editorActionLabel =
     !result
@@ -67,6 +104,13 @@ export function FtFlightBrief({
       : operation.stale
         ? "Review & recalculate"
         : "Edit Performance";
+
+  const landingEditorActionLabel =
+    !landingResult
+      ? "Calculate Landing"
+      : landingOperation.stale
+        ? "Review & recalculate"
+        : "Edit Landing";
 
   return (
     <section
@@ -123,18 +167,15 @@ export function FtFlightBrief({
         <div className={styles.takeoffBriefActions}>
           {hasActiveFlight ? (
             <button
-              ref={editorTriggerRef}
+              ref={takeoffEditorTriggerRef}
               type="button"
               className={styles.primaryAction}
-              onClick={openEditor}
+              onClick={() => setEditorKind("TAKEOFF")}
             >
               {editorActionLabel}
             </button>
           ) : (
-            <Link
-              className={styles.primaryAction}
-              href="#ft-active-flight"
-            >
+            <Link className={styles.primaryAction} href="#ft-active-flight">
               Start active flight
             </Link>
           )}
@@ -147,6 +188,76 @@ export function FtFlightBrief({
           </Link>
         </div>
       </section>
+
+      {landingCalculator ? (
+        <section
+          className={`${styles.briefSection} ${styles.landingBriefCard}`}
+          aria-label="Landing performance brief"
+          data-performance-validity={landingValidity.toLowerCase().replaceAll(" ", "-")}
+        >
+          <header className={styles.takeoffBriefHeader}>
+            <div>
+              <p className={styles.eyebrow}>LANDING</p>
+              <h3>{current ? `${current.destination.icao} arrival` : "Arrival performance"}</h3>
+            </div>
+            <div className={styles.takeoffBriefStatus}>
+              <span
+                className={landingOperation.stale ? styles.statusBadgeStale : styles.statusBadge}
+                data-performance-status="true"
+              >
+                {landingValidity}
+              </span>
+              <span className={styles.runwayBadge}>
+                {landingRunway ? `RWY ${landingRunway}` : "RUNWAY NOT SET"}
+              </span>
+            </div>
+          </header>
+
+          {landingResult ? (
+            <FtLandingPerformanceStrip
+              result={landingResult}
+              stale={landingOperation.stale}
+            />
+          ) : (
+            <div className={styles.takeoffBriefEmpty}>
+              <strong>No Landing calculation yet</strong>
+              <span>
+                {hasActiveFlight
+                  ? "Use the shared Landing editor for destination runway, landing weight and arrival weather."
+                  : "Start an Active Flight before calculating Landing performance."}
+              </span>
+            </div>
+          )}
+
+          {landingOperation.newerWeatherAvailable ? (
+            <p className={styles.takeoffWeatherNotice}>NEWER WEATHER AVAILABLE</p>
+          ) : null}
+
+          <div className={styles.takeoffBriefActions}>
+            {hasActiveFlight ? (
+              <button
+                ref={landingEditorTriggerRef}
+                type="button"
+                className={styles.primaryAction}
+                onClick={() => setEditorKind("LANDING")}
+              >
+                {landingEditorActionLabel}
+              </button>
+            ) : (
+              <Link className={styles.primaryAction} href="#ft-active-flight">
+                Start active flight
+              </Link>
+            )}
+
+            <Link
+              className={styles.secondaryAction}
+              href={withVariantQuery(`/aircraft/${aircraftId}/performance`, selectedVariant)}
+            >
+              Open full Performance
+            </Link>
+          </div>
+        </section>
+      ) : null}
 
       <section className={styles.briefSection} aria-labelledby="ft-brief-considerations" data-empty="true">
         <h3 id="ft-brief-considerations">Flight Considerations</h3>
@@ -162,13 +273,25 @@ export function FtFlightBrief({
         </p>
       </section>
 
-      <FtPerformanceEditorSheet
-        aircraftId={aircraftId}
-        operation={operation}
-        takeoffCalculator={takeoffCalculator}
-        open={editorOpen}
-        onClose={closeEditor}
-      />
+      {editorKind === "TAKEOFF" ? (
+        <FtPerformanceEditorSheet
+          aircraftId={aircraftId}
+          kind="TAKEOFF"
+          operation={operation}
+          takeoffCalculator={takeoffCalculator}
+          open
+          onClose={closeEditor}
+        />
+      ) : editorKind === "LANDING" ? (
+        <FtPerformanceEditorSheet
+          aircraftId={aircraftId}
+          kind="LANDING"
+          operation={landingOperation}
+          landingCalculator={landingCalculator}
+          open
+          onClose={closeEditor}
+        />
+      ) : null}
     </section>
   );
 }
