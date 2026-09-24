@@ -22,25 +22,29 @@ test("UX6.6 Performance is an input/result workspace rather than equal cards", (
 
 test("UX6.6 Performance displays real Active Flight plus operation-owned governed calculation context", () => {
   const presentation = read("components/ft-performance/FtPerformancePresentation.tsx");
+  const controller = read("components/ft-performance/use-performance-operation.ts");
 
   assert.match(presentation, /current\.departure\.icao/);
-  assert.match(presentation, /current\.weight\.value/);
-  assert.match(presentation, /buildTakeoffPerformanceContext/);
-  assert.match(presentation, /identifier: runwayContext\.runwayIdent/);
-  assert.match(presentation, /airportIcao: current\.departure\.icao/);
+  assert.match(controller, /current\.weight\.value/);
+  assert.match(controller, /buildTakeoffPerformanceContext/);
+  assert.match(controller, /identifier: runwayContext\.runwayIdent/);
+  assert.match(controller, /airportIcao: current\.departure\.icao/);
   assert.match(presentation, /takeoffCalculator\?\.flapOptions/);
   assert.match(presentation, /aria-label="Takeoff anti-ice"/);
   assert.match(presentation, /Performance setup required/);
   assert.doesNotMatch(presentation, /\b94\.2\b|\b121\b|\b126\b|\b135\b|\b4,820\b/);
 });
 
-test("UX6.6 preserves P2 runtime ownership and recalculation behavior", () => {
+test("UX6.6 preserves P2 runtime ownership and recalculation behavior through the P1.3 controller", () => {
   const presentation = read("components/ft-performance/FtPerformancePresentation.tsx");
+  const controller = read("components/ft-performance/use-performance-operation.ts");
 
-  assert.match(presentation, /computePerformance/);
-  assert.match(presentation, /readTakeoffPerformanceState/);
-  assert.match(presentation, /writeTakeoffPerformanceResultV2/);
-  assert.match(presentation, /isContextValid/);
+  assert.match(presentation, /usePerformanceOperation/);
+  assert.doesNotMatch(presentation, /computePerformance|readTakeoffPerformanceState|writeTakeoffPerformanceResultV2/);
+  assert.match(controller, /computePerformance/);
+  assert.match(controller, /readTakeoffPerformanceState/);
+  assert.match(controller, /writeTakeoffPerformanceResultV2/);
+  assert.match(controller, /isContextValid/);
   assert.match(presentation, /FtPerformanceInvalidation/);
   assert.match(presentation, /FtPerformanceStrip/);
 });

@@ -93,7 +93,7 @@ Legacy v1 migration rule:
 
 `dependencySnapshotId` is audit/debug metadata only, not an operation validity dependency.
 
-### P1.3 — Canonical Performance operation controller — NEXT
+### P1.3 — Canonical Performance operation controller — IN PROGRESS
 
 Introduce one shared operation state owner, conceptually:
 
@@ -228,7 +228,7 @@ After Landing + wind + Partial Power:
 
 1. **P1.1 — LEARN / EFB split + Active Flight top-bar reconciliation** — COMPLETE · PR #211 + PR #213
 2. **P1.2 — Snapshot V2** — COMPLETE · PR #214
-3. **P1.3 — canonical Performance operation controller** — NEXT
+3. **P1.3 — canonical Performance operation controller** — IN PROGRESS
 4. P1.4 — Flight Brief EFB home
 5. B5 — Landing integration
 6. Takeoff wind source extraction + runtime
