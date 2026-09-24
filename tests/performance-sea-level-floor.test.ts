@@ -62,7 +62,7 @@ test("LFMN-like -100 ft PA can resolve N1, V1 and Takeoff Distance through the S
   assert.equal(v1.status, "ready");
   assert.equal(distance.status, "ready");
 
-  assert.equal(n1.method, "bounded-linear-interpolation");
+  assert.equal(n1.method, "exact-source-row");
   assert.equal(v1.method, "bounded-linear-interpolation");
   assert.equal(distance.method, "bounded-linear-interpolation");
 });
