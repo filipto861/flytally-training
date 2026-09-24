@@ -523,7 +523,7 @@
   ],
   "constraints": {
     "antiIce": "OFF",
-    "maxN1ReductionPct": null,
+    "maxN1ReductionPoints": null,
     "pressureAltitudeLimitFt": 3000,
     "operationalUseBlocked": true
   },
