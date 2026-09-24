@@ -252,7 +252,7 @@ For eventual operational enablement:
 4. apply all source limits and fail-closed boundaries;
 5. persist the assumed temperature, configuration identity, TORA, ASDA, applied wind and source dataset identities in Snapshot V2.
 
-### PP.4 — pilot UI staging / operational enablement — IN PROGRESS · SOURCE-GATED
+### PP.4 — pilot UI staging COMPLETE · operational enablement remains SOURCE-GATED
 
 A source-supported **training preview** may now be staged in the pilot Performance UI without promoting the result into the operational Takeoff snapshot.
 
@@ -269,9 +269,11 @@ The staged contract is:
 - the result must be visibly marked **SOURCE-SUPPORTED TRAINING PREVIEW** and must state that the independent 25% rated-thrust check is not yet source-closed.
 - the preview is ephemeral and is **not** persisted into Takeoff Snapshot V2.
 
+The source-supported Aeronca training preview is accepted for production staging in PR #226. It remains visibly non-operational and ephemeral.
+
 Operational Partial Power remains blocked until the independent 25% rated-takeoff-thrust requirement can be evaluated from authoritative source data.
 
-Do not enable operational UI/Snapshot persistence until that source requirement is closed.
+Do not enable operational Snapshot V2 persistence or operational-use status until that source requirement is closed.
 
 Required acceptance will include:
 
