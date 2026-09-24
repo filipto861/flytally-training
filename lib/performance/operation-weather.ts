@@ -113,12 +113,12 @@ export function autoApplyAvailableWeather(
   const oatC = current.oatC.source === "manual" || available.temperatureC === undefined
     ? current.oatC
     : { value: available.temperatureC, source: "metar" as const };
-  const metarBound = qnhHpa.source === "metar" || oatC.source === "metar";
-
   return {
     qnhHpa,
     oatC,
-    observation: metarBound ? available : null,
+    // The observation is independently APPLIED for runway-wind provenance.
+    // Manual QNH/OAT overrides must not silently discard its wind.
+    observation: available,
   };
 }
 
@@ -132,12 +132,10 @@ export function explicitlyApplyAvailableWeather(
   const oatC = available.temperatureC === undefined
     ? current.oatC
     : { value: available.temperatureC, source: "metar" as const };
-  const metarBound = qnhHpa.source === "metar" || oatC.source === "metar";
-
   return {
     qnhHpa,
     oatC,
-    observation: metarBound ? available : null,
+    observation: available,
   };
 }
 
@@ -153,13 +151,11 @@ export function setManualWeatherField(
       source: "manual" as const,
     },
   };
-  const metarBound =
-    next.qnhHpa.source === "metar"
-    || next.oatC.source === "metar";
-
   return {
     ...next,
-    observation: metarBound ? current.observation : null,
+    // QNH/OAT provenance is field-scoped. The APPLIED observation remains
+    // available to the wind calculation until the user explicitly replaces it.
+    observation: current.observation,
   };
 }
 
