@@ -124,6 +124,22 @@ The datasets include explicit zero-wind identity nodes and intentionally sparse 
 
 Flaps 20 remains intentionally unpublished until its applicable AFM graphical correction source is directly verified.
 
+## B6.3 canonical operation integration status
+
+The draft branch now wires the verified transform into the canonical Takeoff operation:
+
+- APPLIED METAR observation supplies the signed runway wind component;
+- calm wind resolves explicitly to 0 kt;
+- variable wind without a usable direction remains unavailable rather than guessed;
+- the operational component is rounded to 0.1 kt for snapshot identity and calculation stability;
+- corrected V1 and Takeoff Distance are persisted in Snapshot V2;
+- Snapshot V2 stores the derived runway wind component and invalidates independently on wind drift;
+- manual QNH/OAT overrides no longer discard the APPLIED observation, because that observation independently owns runway-wind provenance;
+- the Takeoff calculator source identity is bumped to `takeoff-summary-wind-v1`, so pre-B6 snapshots cannot silently remain current;
+- Flaps 20 with exactly 0 kt wind may continue to use its governed zero-wind baseline, while any nonzero wind fails closed until a verified Flaps 20 correction source exists.
+
+This integration remains pending local typecheck/targeted acceptance before B6.3 is considered complete.
+
 ## Acceptance before operational integration
 
 Source/data gate:
