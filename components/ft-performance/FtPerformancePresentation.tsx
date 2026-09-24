@@ -12,7 +12,10 @@ import { formatObservationZulu } from "@/lib/weather/metar-snapshot-helpers";
 import { FtPerformanceContextLabel, type FtPerformanceContextKind } from "./FtPerformanceContextLabel";
 import { FtPerformanceInvalidation } from "./FtPerformanceInvalidation";
 import { FtPerformanceStrip } from "./FtPerformanceStrip";
-import { usePerformanceOperation } from "./use-performance-operation";
+import {
+  usePerformanceOperation,
+  type TakeoffPerformanceOperationController,
+} from "./use-performance-operation";
 import styles from "./ft-performance.module.css";
 
 function sourceLabel(source: OperationWeatherSource): string {
@@ -32,31 +35,19 @@ function runwayDescription(context: SelectedRunwayContext | undefined): string {
   ].filter(Boolean).join(" · ");
 }
 
-export function FtPerformancePresentation({
+export function FtPerformanceOperationPresentation({
   aircraftId,
-  activeFlight,
-  datasets,
+  operation,
   takeoffCalculator,
-  selectedVariant,
   view,
   showInputs = false,
 }: Readonly<{
   aircraftId: string;
-  activeFlight?: ActiveFlight | null;
-  datasets: readonly PerformanceDataset[];
+  operation: TakeoffPerformanceOperationController;
   takeoffCalculator?: PilotTakeoffCalculatorDefinition;
-  selectedVariant?: string;
   view: FtPerformanceContextKind;
   showInputs?: boolean;
 }>) {
-  const operation = usePerformanceOperation("TAKEOFF", {
-    aircraftId,
-    activeFlight,
-    selectedVariant,
-    datasets,
-    takeoffCalculator,
-  });
-
   const {
     currentFlight: current,
     hydrated,
@@ -400,5 +391,41 @@ export function FtPerformancePresentation({
         <div className={styles.compactResult}>{resultContent}</div>
       )}
     </section>
+  );
+}
+
+export function FtPerformancePresentation({
+  aircraftId,
+  activeFlight,
+  datasets,
+  takeoffCalculator,
+  selectedVariant,
+  view,
+  showInputs = false,
+}: Readonly<{
+  aircraftId: string;
+  activeFlight?: ActiveFlight | null;
+  datasets: readonly PerformanceDataset[];
+  takeoffCalculator?: PilotTakeoffCalculatorDefinition;
+  selectedVariant?: string;
+  view: FtPerformanceContextKind;
+  showInputs?: boolean;
+}>) {
+  const operation = usePerformanceOperation("TAKEOFF", {
+    aircraftId,
+    activeFlight,
+    selectedVariant,
+    datasets,
+    takeoffCalculator,
+  });
+
+  return (
+    <FtPerformanceOperationPresentation
+      aircraftId={aircraftId}
+      operation={operation}
+      takeoffCalculator={takeoffCalculator}
+      view={view}
+      showInputs={showInputs}
+    />
   );
 }
