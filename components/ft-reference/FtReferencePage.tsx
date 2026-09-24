@@ -33,7 +33,7 @@ export function FtReferencePage({
       data-ft-reference-page="true"
     >
       <header className={styles.pageHeader}>
-        <p>FLIGHT · REFERENCE</p>
+        <p>LEARN · REFERENCE</p>
         <h1>Reference</h1>
         <span>
           Source-governed cockpit reference and direct links to the aircraft&apos;s
@@ -76,9 +76,9 @@ export function FtReferencePage({
 
       <Link
         className={styles.backToAircraft}
-        href={withVariantQuery(`/aircraft/${aircraftId}`, selectedVariant)}
+        href={withVariantQuery(`/aircraft/${aircraftId}/learn`, selectedVariant)}
       >
-        Back to aircraft
+        Back to Learn
       </Link>
     </main>
   );

@@ -81,7 +81,7 @@ export async function FtShell({
     ]);
 
   const aircraftIdentity = aircraft?.displayName ?? aircraftId;
-  const trainingProfileLabel =
+  const aircraftProfileLabel =
     aircraft?.variantProfiles?.[0]?.displayName ??
     aircraft?.variants[0] ??
     "Current governed package";
@@ -142,7 +142,7 @@ export async function FtShell({
           <FtTopBar
             aircraftId={aircraftId}
             aircraftIdentity={aircraftIdentity}
-            trainingProfileLabel={trainingProfileLabel}
+            aircraftProfileLabel={aircraftProfileLabel}
             activeFlight={activeFlight}
             navigationControl={<FtNavDrawer aircraftId={aircraftId} />}
           />

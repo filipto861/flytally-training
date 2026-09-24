@@ -43,4 +43,4 @@ npm run verify
 
 Before using a new PostgreSQL database, initialize the Training-owned schema with `npm run db:init`. Production deployment order and environment contracts are documented in `DEPLOYMENT.md`.
 
-See `ARCHITECTURE.md`, `CONTENT_ARCHITECTURE.md`, `DEVELOPMENT.md`, `ROADMAP.md`, `V1_RELEASE.md` and `NO_CODE_ACCEPTANCE.md` before changing product or release boundaries.
+See `ARCHITECTURE.md`, `CONTENT_ARCHITECTURE.md`, `DEVELOPMENT.md`, `V1_RELEASE.md` and `NO_CODE_ACCEPTANCE.md` for supporting constraints. **`ROADMAP.md` is the single authoritative active product/implementation roadmap.** Historical milestone/specification documents are evidence only, not competing roadmaps.

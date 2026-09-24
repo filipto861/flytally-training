@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import {
   createContext,
   useCallback,
@@ -11,6 +12,7 @@ import {
   type ReactNode,
 } from "react";
 
+import { getAircraftProductModeForPathname } from "@/lib/aircraft-product-mode";
 import {
   fastPathChecklistProgress,
   restoreFastPathChecklistSession,
@@ -62,6 +64,8 @@ export function FtFastPathProvider({
   selectedVariant?: string;
   children: ReactNode;
 }>) {
+  const pathname = usePathname();
+  const efbMode = getAircraftProductModeForPathname(pathname, aircraftId) === "efb";
   const [panel, dispatch] = useReducer(
     reduceFastPathPanelState,
     initialFastPathPanelState,
@@ -105,8 +109,9 @@ export function FtFastPathProvider({
   }, [checklist, checklistHydrated, checklistSnapshot, selectedVariant]);
 
   const openPanel = useCallback((tab: FastPathTab) => {
+    if (!efbMode) return;
     dispatch({ type: "open", tab });
-  }, []);
+  }, [efbMode]);
   const closePanel = useCallback(() => {
     dispatch({ type: "close" });
   }, []);
@@ -115,6 +120,16 @@ export function FtFastPathProvider({
   }, []);
 
   useEffect(() => {
+    if (efbMode) return;
+    dispatch({ type: "close" });
+  }, [efbMode]);
+
+  useEffect(() => {
+    if (!efbMode) {
+      setShortcutsReady(false);
+      return;
+    }
+
     const handleKeyDown = (event: globalThis.KeyboardEvent) => {
       const tab = fastPathTabForShortcut(event);
       if (tab) {
@@ -133,8 +148,9 @@ export function FtFastPathProvider({
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
+      setShortcutsReady(false);
     };
-  }, [closePanel, openPanel]);
+  }, [closePanel, efbMode, openPanel]);
 
   const toggleChecklistItem = useCallback(
     (itemId: string) => {

@@ -92,21 +92,20 @@ test("W0 does not mount the new shell from existing aircraft page files", () => 
   }
 });
 
-test("W0 keeps five content destinations and four fast-path destinations after W1 centralizes IA", () => {
-  const contentIa = read("lib/aircraft-content-ia.ts");
+test("P1.1 shell owns mode-specific navigation while preserving four EFB fast-path actions", () => {
+  const productMode = read("lib/aircraft-product-mode.ts");
+  const sideNav = read("components/ft-shell/FtSideNav.tsx");
   const fastPath = read("components/ft-shell/navigation.ts");
 
-  for (const label of ["AIRCRAFT", "PROCEDURES", "PERFORMANCE", "TRAINING", "FLIGHT"]) {
-    assert.match(contentIa, new RegExp(`label: "${label}"`));
+  for (const label of ["Learn", "Systems", "Procedures", "Limitations", "Reference", "Flight Brief", "Performance", "Flight Deck"]) {
+    assert.match(productMode, new RegExp(`label: "${label}"`));
   }
   for (const label of ["CHECKLIST", "QRH", "PERF", "REF"]) {
     assert.match(fastPath, new RegExp(`label: "${label}"`));
   }
 
-  assert.match(contentIa, /"procedures"/);
-  assert.match(contentIa, /"performance"/);
-  assert.match(contentIa, /"training"/);
-  assert.match(contentIa, /"fly"/);
+  assert.match(sideNav, /getAircraftProductModeForPathname/);
+  assert.match(sideNav, /getAircraftModeDestinations/);
   assert.match(fastPath, /\/abnormal/);
   assert.match(fastPath, /\/reference/);
 });

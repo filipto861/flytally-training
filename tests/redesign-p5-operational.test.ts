@@ -74,13 +74,12 @@ test("P5.1 explicitly isolates the legacy operational checklist storage for P5.5
   assert.doesNotMatch(operationalChecklist, /checklistSessionStorageKey/);
 });
 
-test("P5.1 keeps REF owned by P7 and outside P5", () => {
-  const roadmap = read("REDESIGN.md");
+test("P5.1 keeps REF ownership documented in the historical P5 contract", () => {
   const inventory = read("P5_OPERATIONAL_FAST_PATH.md");
+  const roadmap = read("ROADMAP.md");
 
-  assert.match(roadmap, /P7 — Reference \/ REF fast-path closure/);
-  assert.match(roadmap, /REF is no longer part of P5/);
   assert.match(inventory, /REF.*Not P5.*owned by P7/i);
+  assert.match(roadmap, /one authoritative roadmap: this file/i);
 });
 
 test("P5 reusable operational paths remain aircraft-agnostic", () => {

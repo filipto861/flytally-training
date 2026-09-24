@@ -79,16 +79,17 @@ test("W1 content IA points only at existing aircraft route files", () => {
   }
 });
 
-test("W1 side nav and drawer consume the central content IA without hardcoded aircraft hrefs", () => {
+test("P1.1 side nav and drawer consume the central Learn/EFB mode contract", () => {
   for (const file of [
     "components/ft-shell/FtSideNav.tsx",
     "components/ft-shell/FtNavDrawer.tsx",
   ]) {
     const source = read(file);
-    assert.match(source, /@\/lib\/aircraft-content-ia/);
-    assert.match(source, /getAircraftContentIa/);
-    assert.match(source, /isAircraftContentDestinationActive/);
-    assert.doesNotMatch(source, /\/aircraft\/\$\{|\/procedures|\/performance|\/training|\/fly/);
+    assert.match(source, /@\/lib\/aircraft-product-mode/);
+    assert.match(source, /getAircraftModeDestinations/);
+    assert.match(source, /getAircraftProductModeForPathname/);
+    assert.match(source, /isAircraftModeDestinationActive/);
+    assert.doesNotMatch(source, /\/procedures"|\/performance"|\/training"|\/fly"/);
   }
 });
 

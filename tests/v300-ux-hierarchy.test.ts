@@ -20,11 +20,12 @@ test("v3.0 preserves the focused Training task model instead of rebuilding navig
   assert.doesNotMatch(nav,/multi-aircraft|billing|compliance/i);
 });
 
-test("v3.0 roadmap puts learner UX consolidation before multi-aircraft scale",()=>{
+test("current roadmap supersedes historical v3.0 sequencing with the LEARN/EFB architecture",()=>{
   const roadmap=read("ROADMAP.md");
-  assert.match(roadmap,/v3\.0 — UX & Product Consolidation ✅/);
-  assert.match(roadmap,/v3\.1 — Multi-aircraft product scale/);
-  assert.match(roadmap,/Home \/ Fly \/ Learn \/ Reference/);
+  assert.match(roadmap,/single authoritative product\/implementation roadmap/i);
+  assert.match(roadmap,/LEARN.*aircraft knowledge/i);
+  assert.match(roadmap,/EFB.*operational flight tools/i);
+  assert.match(roadmap,/P1\.1 — LEARN \/ EFB product mode split — IN PROGRESS/);
 });
 
 
@@ -43,8 +44,7 @@ test("v3.0 U5 makes learner continuation discoverable without changing the four-
   for(const label of ["Home","Fly","Learn","Reference"])assert.ok(read("components/aircraft-workspace-nav.tsx").includes(`label: "${label}"`));
 });
 
-test("v3.0 U5 roadmap advances learner polish to mobile/accessibility acceptance",()=>{
+test("current roadmap retains responsive acceptance as a global merge requirement",()=>{
   const roadmap=read("ROADMAP.md");
-  assert.match(roadmap,/U5 Training learner polish ✅/);
-  assert.match(roadmap,/U6 mobile\/accessibility acceptance ✅/);
+  assert.match(roadmap,/desktop\/iPad\/mobile acceptance required before merge/i);
 });

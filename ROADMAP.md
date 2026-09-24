@@ -1,271 +1,232 @@
 # FlyTally Training Roadmap
 
-> **Redesign tracking:** The W/P/C redesign sequence (new shell, legacy retirement)
-> is tracked separately in [`REDESIGN.md`](./REDESIGN.md).
+**Status:** Active  
+**Owner:** Filip Točík  
+**Last updated:** 2026-09-23
 
-## Release strategy
+> This file is the single authoritative product/implementation roadmap for FlyTally Training.
+> Historical milestone/specification documents may remain in the repository as implementation evidence,
+> but they are not roadmaps and must not override this file or current executable contracts.
 
-FlyTally Training is being built toward one complete first product release: **v1.0**.
+## Product direction
 
-The capabilities below are not separate public v0.x products. They are internal implementation milestones that together form v1.0. We may deliver them incrementally to production while developing, but FlyTally Training is not considered feature-complete until the full v1.0 acceptance scope is satisfied.
+FlyTally Training now has two explicit product modes:
 
-## Reference aircraft
+- **LEARN** — aircraft knowledge, systems, procedures, limitations, reference and training.
+- **EFB** — operational flight tools: Flight Brief, Performance, operational checklist/QRH and future W&B.
 
-**Learjet 35/36** is the v1.0 reference implementation and testbed.
+Core ownership rule:
 
-Every major v1.0 capability must work end-to-end on the Learjet before v1.0 is declared complete. The Learjet is not allowed to become a hard-coded special case: subsequent aircraft must fit the same product and content model.
+> **Active Flight defines what flight. Performance defines what calculation.**
 
-## Product objective
+The product must keep learning state separate from operational flight state. Source-backed aviation data remains fail-closed: no silent extrapolation, fabricated values, active-runway guessing, or unsupported corrections.
 
-The target user is a simulator pilot learning a new aircraft/add-on.
+## Current baseline
 
-The product should make it possible to move from an unfamiliar aircraft to a competent first simulator flight in roughly **2-4 focused hours**, without requiring the user to read the full source manual first.
+Reference aircraft: **Learjet 35A/36A**
 
-The default normal learning journey always starts **Cold & Dark** and ends **Shutdown / Cold & Dark**.
+Completed foundations:
 
-The primary path is practical:
+- governed aircraft performance configuration;
+- real airport/runway-end domain with OurAirports provenance;
+- Active Flight creation without mandatory runway/flaps;
+- operation-owned Takeoff setup;
+- AviationWeather.gov METAR integration;
+- source-backed Takeoff N1 / V1 / VR / V2 / Takeoff Distance;
+- explicit Calculate/Recalculate workflow;
+- persisted Takeoff result with dependency-based stale detection;
+- responsive UX6 shell on desktop, iPad and mobile.
 
-`Choose aircraft -> Quick Start -> First Flight from Cold & Dark -> Practice -> Reference -> Progress`
+Latest completed functional phase:
 
-Manual chapter order remains available as reference structure, but it must not define the main learner journey.
+- **B4 Integrated Takeoff Performance — merged via PR #210**
+- final local gate: 1025 Node tests passed, 1 skipped, build passed, Playwright 356/356.
 
-## v1.0 internal implementation milestones
+## Phase 1 — LEARN / EFB separation and Performance operation architecture
 
-### M1 — Product shell and aircraft experience
+Architecture is frozen. Implement sequentially; do not combine phases into one PR.
 
-- aircraft library
-- aircraft detail page
-- Start Here experience
-- Quick Start entry point
-- Learn / Checklist / Practice / Reference / Progress information architecture
-- source/manual metadata visible without dominating the pilot workflow
+### P1.1 — LEARN / EFB product mode split — IN PROGRESS · PR #211
 
-**Learjet acceptance:** Learjet 35/36 is discoverable, its controlled training source is registered, and the pilot can enter the practical training path immediately.
+Goal: make user intent explicit before entering the aircraft workspace.
 
-### M2 — First Flight and normal checklist engine
+LEARN contains only learning/knowledge surfaces:
+- Learn home / training;
+- Systems;
+- Procedures;
+- Limitations;
+- Reference;
+- scenarios/orientation where applicable.
 
-- complete guided normal flight from Cold & Dark to Shutdown
-- simulator-oriented checklist derived from available source material
-- phase-by-phase flow
-- item completion and reset
-- concise Why? explanation per action where useful
-- source reference per technical item
-- individual phase practice
+EFB contains only operational surfaces:
+- Flight Brief;
+- Performance;
+- operational checklist;
+- QRH / abnormal quick reference;
+- future W&B when source-backed.
 
-Checklist modes required for v1.0:
-- Learn
-- Practice
-- Flow
-- Challenge & Response
+Rules:
+- aircraft/variant is shared context, not an EFB destination;
+- legacy routes remain compatible;
+- no Performance math/storage changes in P1.1;
+- preserve UX6 visual language and responsive behavior.
 
-**Learjet acceptance:** a pilot can complete one normal sector from a fully cold cockpit to shutdown using the Training UI.
+### P1.2 — Versioned Performance Snapshot V2 — PLANNED
 
-### M3 — Cockpit orientation
+Introduce:
+- `schemaVersion: 2`;
+- `TakeoffSnapshotV2`;
+- `LandingSnapshotV2`;
+- separate operation storage identity;
+- explicit source/input/result/validity contracts.
 
-- cockpit regions/panels
-- checklist/procedure item -> cockpit location mapping
-- Show me interaction
-- image/diagram hotspot support
-- independent cockpit orientation practice
+Legacy v1 migration rule:
+- preserve known QNH/OAT/result values;
+- do not fabricate weather observation identity;
+- mark weather provenance as legacy/unknown;
+- migrated legacy result may be shown as historical/stored but requires recalculation before it becomes fully CURRENT V2 operational data;
+- retain v1 storage key as read/migration fallback.
 
-A 3D cockpit is not required.
+`dependencySnapshotId` is audit/debug metadata only, not an operation validity dependency.
 
-**Learjet acceptance:** key controls used by the normal flow can be located from the training interface.
+### P1.3 — Canonical Performance operation controller — PLANNED
 
-### M4 — Essential systems and Quick Start learning
+Introduce one shared operation state owner, conceptually:
 
-Short pilot-focused lessons rather than manual reproductions.
+- `usePerformanceOperation("TAKEOFF")`;
+- `usePerformanceOperation("LANDING")`.
 
-Each system follows a consistent structure:
-- what it does
-- what feeds/powers it
-- what the pilot controls
-- what the pilot monitors
-- normal configuration
-- important failure implications
-- short knowledge check
-- source references
+Owns:
+- setup;
+- applied weather;
+- available weather observation;
+- result snapshot;
+- validity/diff;
+- calculate/recalculate;
+- manual override;
+- apply latest METAR.
 
-Learjet baseline systems:
-- electrical
-- fuel
-- powerplant
-- hydraulics
-- pneumatics / bleed air
-- pressurization
-- flight controls
-- anti-ice / rain protection
-- landing gear and brakes
-
-**Learjet acceptance:** essential systems can be learned quickly enough to support the First Flight and abnormal training paths.
-
-### M5 — Abnormal and emergency practice
-
-- scenario-based abnormal/emergency training
-- recognition
-- aircraft-control priority
-- immediate actions
-- checklist/procedure continuation
-- targeted repeat practice
-
-Learjet target scenarios include, where supported by the available source set:
-- engine failure
-- engine fire
-- rejected takeoff
-- generator/electrical failure
-- hydraulic failure
-- pressurization failure / decompression
-- anti-ice related failures
-- landing gear / flap abnormalities
-
-**Learjet acceptance:** the pilot can practice representative high-value failures without reading an entire emergency chapter first.
-
-### M6 — Quick Reference, knowledge and progress
-
-Quick Reference:
-- important speeds
-- limitations
-- engine limits
-- fuel capacities
-- pressurization references
-- memory items
-- system summaries
-- checklist quick access
-- controlled source/manual references
-- compact FLY mode for use while flying the simulator
-
-Knowledge:
-- source-linked question bank
-- short quizzes by system/procedure
-- immediate explanations
-- weak-area review
-- memory/procedure recall
-
-Progress:
-- aircraft completion state
-- checklist/procedure attempts
-- quiz attempts and scores
-- weak-area identification
-- recently practiced items
-
-**Learjet acceptance:** progress across the complete Learjet learning path can be measured and revisited.
-
-### M7 — Persistence and FlyTally identity
-
-- PostgreSQL-backed product data
-- persistent user progress
-- cross-device continuation
-- aircraft learning state
-- checklist/procedure attempts
-- quiz history
-- stable FlyTally user identity
-
-Training should share identity with FlyTally Logbook through an explicit account/session contract. Do not copy Logbook internals or directly couple the two databases.
-
-**Learjet acceptance:** a user can leave Training and return later without losing Learjet progress.
-
-### M8 — Content engine and aircraft administration
-
-The product must make the second aircraft materially easier to add than the first.
-
-Required administration workflow:
-- create aircraft/type and variants
-- upload/register manuals
-- immutable manual revisions
-- revision metadata
-- source references by revision / section / page
-- AI-assisted extraction into draft content
-- draft lesson/procedure/checklist/question generation
-- human review/edit
-- explicit approval
-- publish
-- revision-change detection
-- stale-content review workflow
-
-AI may draft and structure. It may not silently publish technical content or become the source of authority.
-
-**Learjet acceptance:** the Learjet content set can be managed through the same content model intended for future aircraft rather than only through hard-coded source files.
-
-## v1.0 definition of done
-
-FlyTally Training v1.0 is complete only when the Learjet 35/36 demonstrates all of the following in production:
-
-- Quick Start
-- cockpit orientation
-- complete Cold & Dark -> Shutdown First Flight
-- normal simulator checklist
-- Learn / Practice / Flow / Challenge & Response checklist modes
-- essential systems
-- abnormal/emergency scenarios
-- Quick Reference / FLY mode
-- quizzes and weak-area review
-- persistent progress
-- source provenance and manual revision control
-- content administration / approval workflow
-- stable FlyTally identity boundary
-- responsive production UX on `training.fly-tally.com`
-
-## Explicitly outside v1.0
-
-- flight-school administration
-- organizations, instructors and students
-- regulatory training records or certificates
-- LMS/SCORM enterprise workflows
-- native mobile applications
-- 3D cockpit rendering
-- direct MSFS/X-Plane telemetry or switch-state tracking
-- multiplayer crew synchronization
-- voice recognition as a required workflow
-
-These may be evaluated after the individual simulator-training product is proven.
-
-## Cross-product release track — authoritative from 18 September 2026
-
-The aircraft-training milestone history below remains valid. For shared FlyTally releases, this track is authoritative.
-
-### v2.8 — Compliance & Safety Foundation ✅
-
-Completed across Training and Logbook, including source-authority/freshness fail-closed behavior, privacy self-service, cross-product erasure, security and release audit controls.
-
-### v2.9 — Commercial & External Validation — technical implementation complete ✅
-
-Training participates in one shared FlyTally launch boundary. C1 keeps the canonical legal/commercial state in Logbook, requires an explicit source/publication-rights review for Training content, and does not add a duplicate Training launch flag.
-
-C2 covers the versioned commercial legal publication boundary. C3 ✅ adds shared provider-agnostic entitlements: Logbook remains the authority, Training validates signed entitlement-bearing identity assertions and enforces `training.access` without knowing a billing provider. C4 ✅ adds the shared signature-assurance/regulatory-validation boundary without claiming QES, manufacturer or authority approval; external validation evidence remains pending. C5 ✅ adds the shared brand/public-claims boundary and canonical claims link without claiming trademark, manufacturer or authority approval; external evidence remains pending. C6 ✅ binds Training to the canonical final release audit without duplicating launch state. The current commercial verdict remains blocked pending real external evidence and commercial-runtime decisions.
-
-### v3.0 — UX & Product Consolidation ✅
-
-Before adding another aircraft, consolidate the product experience across FlyTally Logbook and Training.
-
-Training keeps the existing aircraft-agnostic `Home / Fly / Learn / Reference` model. v3.0 focuses on task hierarchy, progressive disclosure, terminology, cockpit-use density, mobile behavior and removal of avoidable friction. The first U1 change keeps aircraft selection ahead of the optional PWA install prompt.
-
-The shared sequence is U0 audit → U1 navigation/task hierarchy → U2 Licences & recency → U3 Aircraft/Data/Settings → U4 flight workflow clarity → U5 Training learner polish ✅ → U6 mobile/accessibility acceptance ✅.
-
-U6 closes v3.0 with keyboard skip navigation, touch-target and safe-area hardening, overflow containment, reduced-motion support and forced-colors fallbacks while preserving the operational Fly deck and the aircraft-agnostic content model.
-
-### v3.1 — Multi-aircraft product scale ✅
-
-Return to the original post-v1 objective after UX consolidation: prove repeatable no-code multi-aircraft onboarding and product scale without weakening source governance or Flight Deck safety.
-
-The v3.1 sequence is:
-
-- **M1 — architecture audit ✅**: confirm which boundaries are already genuinely aircraft-agnostic and identify semantic coupling that would block a real second aircraft. The audit found the database/admin/applicability/progress/navigation foundations ready; the principal blocker is the Learjet-shaped performance calculator vocabulary.
-- **M2 — generic operational calculator contracts ✅**: **M2A ✅** adds governed declarative phase/calculator metadata and arbitrary aircraft-owned field keys; **M2B1 ✅** executes declared factors, constraints and generic metrics; **M2B2 ✅** renders governed labels/units/metrics in Performance and Fly and adds declarative W&B presentation units; **M2C ✅** proves the complete path through governed PostgreSQL publication/read-back with deliberately non-Learjet performance vocabulary and non-SI W&B presentation. Final disposable acceptance run **35375263162** completed successfully on the approved `FlyTally Training Acceptance / no-code-acceptance-20260910` branch.
-- **M3 — Studio hardening for repeatable aircraft packages ✅**: **M3A ✅** adds common/variant equipment and registered applicability pickers; **M3B ✅** adds guided performance/W&B composition plus exact registered source insertion with automatic provenance linking; **M3C ✅** makes unrestricted applicability valid without raw JSON, introduces one shared package-release readiness gate (contracts, current applicability, source authority/provenance and freshness), wires that gate into Studio and server-side catalogue publication, and extends the disposable no-code acceptance harness to require package readiness before release. **M4 next** onboards the first real structurally different aircraft through Studio/data only.
-- **M4 — real second-aircraft onboarding ✅**: the production BRISTELL LSA package (S/N 809/2025 · OK-EUI 10) is published entirely as governed aircraft/source/configuration/content data. It has 3 controlled source revisions, 42 exact references and 8 approved/source-linked live modules with no open stale-source flags; the learner/core repository contains no BRISTELL/Rotax/KW-21/S/N-specific branch or registration.
-- **M5 — second-aircraft operational acceptance ✅**: **M5A ✅** fixes the generic Flight Deck metadata boundary and routes already-published pre-v3.1 runway grids through one isolated aircraft-neutral declarative compatibility adapter. **M5B ✅** verifies the real production second-aircraft configuration/applicability, exact and bounded runway-grid calculations, W&B loading, sparse capability discovery and per-aircraft progress behavior against source-backed values. Home / Fly / Learn / Reference remain capability-driven with no aircraft-specific learner code. **M6 next** proves the third-aircraft path is now predominantly content/admin work.
-- **M6 — scale closure ✅**: a third deliberately sparse aircraft is created entirely through the existing structured-authoring/content/admin contracts with one Systems module. Contract validation, sparse onboarding/readiness, capability discovery and aircraft-scoped behavior pass without any new learner/runtime implementation. The M6 change set contains only acceptance tests and release evidence — no `app/`, `components/` or production `lib/` aircraft logic. **v3.1 is complete.**
-
-The detailed M1 findings and M2 entry criteria are recorded in `V31_M1_MULTI_AIRCRAFT_ARCHITECTURE_AUDIT.md`.
-
-### v3.2 — Learjet Performance — next
-
-Return to the demanding reference aircraft and build the complete source-governed performance experience on top of the generic v3.1 contracts: takeoff/landing, climb/cruise/descent, corrections, limits and transparent calculation detail. Aircraft-specific source data may differ; calculator/runtime architecture must remain generic.
-
-### v3.3 — Learjet Operational Training
-
-Connect performance, systems, procedures, limitations and scenarios into a deeper practical type-training flow after the v3.2 performance foundation is complete.
-
-## After v1.0
-
-The first post-v1.0 objective is **multi-aircraft scaling**: prove that the same content/admin architecture can bring additional aircraft online efficiently without weakening the Learjet-quality standard.
+Weather rule:
+- AVAILABLE observation and APPLIED weather are separate;
+- before calculation, clean AUTO bindings may follow latest METAR;
+- after calculation, newer METAR must not silently replace applied inputs;
+- show **NEWER WEATHER AVAILABLE** and require explicit **APPLY & RECALCULATE**;
+- manual overrides remain sticky;
+- displayed wind must correspond to APPLIED weather, not merely latest fetched METAR.
+
+No Takeoff wind correction math in this phase.
+
+### P1.4 — Flight Brief becomes EFB home — PLANNED
+
+Flight Brief is the EFB landing surface.
+
+It may initiate Performance through the same canonical operation controller/snapshot, but it does not own a second calculator or persistence model.
+
+Target behavior:
+- Takeoff card: runway, N1, V1, VR, V2, TOD, validity state;
+- Calculate/Edit opens shared responsive sheet/drawer;
+- dedicated Performance page remains available;
+- desktop side drawer; iPad/mobile responsive sheet/full-height treatment.
+
+## B5 — Integrated Landing Performance — NEXT AFTER PHASE 1
+
+Destination-owned Landing workflow reusing the same operation architecture:
+
+- destination RunwayEnd;
+- destination METAR;
+- Landing weight;
+- governed Flaps 40 configuration;
+- explicit Calculate Landing;
+- independent Landing snapshot/invalidation;
+- Flight Brief integration.
+
+Existing source-backed Learjet data available now:
+- VREF vs gross weight;
+- Landing Climb Speed vs gross weight;
+- Approach Climb Speed vs gross weight;
+- Factored Landing Distance Flaps 40 vs pressure altitude / OAT / gross weight.
+
+Do not add unsupported wind/slope/declared-distance corrections until source extraction is complete.
+
+## Takeoff wind correction — PLANNED AFTER PHASE 1
+
+Source topology is frozen as two independent post-baseline transforms:
+
+- `(zeroWindDistanceFt, runwayWindComponentKt) -> correctedTakeoffDistanceFt`
+- `(zeroWindV1Kias, runwayWindComponentKt) -> correctedV1Kias`
+
+Requirements:
+- digitize directly from the highest-quality AFM/FlightSafety chart;
+- verify multiple zero-wind ordinates;
+- explicitly re-check the suspicious 8,000/10,000 ft region before authoring production data;
+- extract headwind and tailwind envelopes independently;
+- do not assume symmetry;
+- validate against FlightSafety worked examples;
+- no extrapolation outside published source envelope.
+
+Diagnostic measurements made during architecture review are topology evidence only, not production data.
+
+## Partial Power / Reduced Thrust Takeoff — PLANNED
+
+Raw source extraction may proceed independently after Phase 1.
+
+Required source datasets:
+- no thrust reversers;
+- Aeronca thrust reversers;
+- TR-4000 thrust reversers.
+
+Source procedure:
+1. determine highest allowable Assumed Temperature from runway/weight constraints;
+2. determine V1 using that Assumed Temperature;
+3. determine reduced N1 from Ambient Temperature + Assumed Temperature;
+4. enforce aircraft/configuration applicability and source limits.
+
+Solver/runtime waits until:
+- Snapshot V2/weather applied-state exists;
+- wind datasets are authoritative;
+- applicability contract is complete;
+- declared-distance/TORA workflow is frozen.
+
+## Runway declared distances
+
+Physical runway surface length is not TORA/ASDA/TODA/LDA.
+
+Until an authoritative declared-distance source exists:
+- display physical runway length only as context;
+- do not silently treat it as TORA;
+- runway-limited/Partial Power calculations must use an explicit declared-distance input or future authoritative provider.
+
+## Later product work
+
+After Landing + wind + Partial Power:
+- Flight Brief Takeoff/Landing convergence;
+- source-backed operational W&B where available;
+- navigation/icon cleanup;
+- second/third aircraft acceptance against the same LEARN/EFB and Performance contracts;
+- legacy compatibility cleanup once migration telemetry/tests prove it is safe.
+
+## Global acceptance principles
+
+- one authoritative roadmap: this file;
+- aircraft-agnostic runtime, aircraft-specific governed data;
+- explicit Calculate action;
+- no hidden recalculation;
+- immutable calculation snapshots;
+- operation-scoped invalidation;
+- source provenance visible and auditable;
+- manual overrides explicit and sticky;
+- no arbitrary METAR operational-expiry thresholds;
+- no silent extrapolation;
+- no fabricated aviation authority;
+- desktop/iPad/mobile acceptance required before merge.
+
+## Active implementation order
+
+1. **P1.1 — LEARN / EFB split** — IN PROGRESS · PR #211
+2. P1.2 — Snapshot V2
+3. P1.3 — canonical Performance operation controller
+4. P1.4 — Flight Brief EFB home
+5. B5 — Landing integration
+6. Takeoff wind source extraction + runtime
+7. Partial Power source extraction + solver/runtime
+8. Declared-distance provider/input hardening

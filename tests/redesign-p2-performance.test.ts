@@ -188,16 +188,16 @@ test("P2 wraps existing performance runtime without importing presentation into 
   }
 });
 
-test("P2 uses one context-label vocabulary across training, Flight Brief and operational entry points", () => {
+test("P1.1 uses one context-label vocabulary across EFB, Flight Brief and operational entry points", () => {
   const label = read("components/ft-performance/FtPerformanceContextLabel.tsx");
   const page = read("components/ft-performance/FtPerformancePage.tsx");
   const brief = read("components/ft-flight/FtFlightBrief.tsx");
   const fastPath = read("components/ft-fast-path/FtFastPathPanel.tsx");
 
-  assert.match(label, /training: "Training view"/);
+  assert.match(label, /efb: "EFB"/);
   assert.match(label, /brief: "Flight brief"/);
   assert.match(label, /operational: "Operational"/);
-  assert.match(page, /view="training"/);
+  assert.match(page, /view="efb"/);
   assert.match(brief, /view="brief"/);
   assert.match(fastPath, /view="operational"/);
 });
