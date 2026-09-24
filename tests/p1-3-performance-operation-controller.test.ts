@@ -187,6 +187,28 @@ test("P1.3 wind presentation is derived from APPLIED observation and never direc
   assert.doesNotMatch(windBlock, /availableWeather/);
 });
 
+test("B6 apply-latest keeps APPLIED weather and result atomic until recalculation can run", () => {
+  const controller = read("components/ft-performance/use-performance-operation.ts");
+  const applyBlock = controller.slice(
+    controller.indexOf("function applyLatestMetar"),
+    controller.indexOf("const invalidationMessage"),
+  );
+  const presentation = read("components/ft-performance/FtPerformancePresentation.tsx");
+
+  assert.match(applyBlock, /if \(result\) \{[\s\S]*calculateWithWeather\(nextWeather\);[\s\S]*return;/);
+  assert.doesNotMatch(
+    applyBlock.slice(
+      applyBlock.indexOf("if (result)"),
+      applyBlock.indexOf("return;", applyBlock.indexOf("if (result)")) + "return;".length,
+    ),
+    /setAppliedWeather\(nextWeather\)/,
+  );
+  assert.match(
+    presentation,
+    /disabled=\{busy \|\| !canCalculate\}[\s\S]*Apply & recalculate/,
+  );
+});
+
 test("P1.3 UI exposes one operation-level latest-METAR action and the explicit newer-weather contract", () => {
   const presentation = read("components/ft-performance/FtPerformancePresentation.tsx");
 
