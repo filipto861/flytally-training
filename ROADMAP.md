@@ -330,7 +330,7 @@ The detailed future sequence is tracked in **Active implementation order** below
    - three configuration-specific N1 schedules — COMPLETE
    - assumed-temperature source semantics captured without guessing unresolved parentheses
    - local gate: typecheck PASS + 8/8 targeted source tests
-   - solver remains blocked on declared-distance TORA/ASDA workflow
+   - at this phase boundary the solver remained blocked on declared-distance TORA/ASDA; that prerequisite was subsequently completed in PR #220
 8. **Declared-distance provider/input hardening (TORA + ASDA)** — COMPLETE · PR #220
    - generic declared-distance/provenance contract — COMPLETE
    - fail-closed `min(TORA, ASDA)` takeoff constraint — COMPLETE
@@ -345,7 +345,7 @@ The detailed future sequence is tracked in **Active implementation order** below
    - explicit lower-of-TORA/ASDA, ambient + assumed weight-limit checks, no invented temperatures
    - Learjet candidate adapter with Flaps 8 B6 wind preservation / Flaps 20 nonzero-wind fail-closed — ACCEPTED locally
    - local adapter gate: typecheck PASS + 100/100 targeted tests
-   - adapter remains N1-free and operational Partial Power N1 stays blocked on unresolved P-6/P-6.1 parenthesized semantics
+   - at PP.2 completion the adapter intentionally remained N1-free; reduced-N1 source/runtime work followed in PR #222, while unresolved configuration-specific source semantics remain fail-closed
 10. **Partial Power reduced-N1 source/runtime boundary** — COMPLETE · PR #222
    - preserve explicit thrust-reverser configuration identity
    - exact-source-cell boundary — COMPLETE
