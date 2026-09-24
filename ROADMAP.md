@@ -393,9 +393,10 @@ The detailed future sequence is tracked in **Active implementation order** below
      - first local gate exposed a Node ESM JSON-fixture import incompatibility before the new preview cases executed; test/runtime boundary was corrected so the Node-testable preview core is JSON-import-free and tests load JSON fixtures explicitly through fs
      - targeted verification after the fix: typecheck PASS · PP.2/PP.3/PP.4 targeted suite **42/42 PASS** · production build PASS
      - first full repository verify: **1197 total / 1194 PASS / 2 FAIL / 1 SKIP**; both failures were stale source-text assertions caused by the intentional split Full Rated/Partial Power calculation gates and the shared displayed-calculation METAR atomicity guard, not runtime calculation failures
-     - stale DD.4 and P1.3 regression assertions updated to the new controller contract; full verify re-run required
+     - stale DD.4 and P1.3 regression assertions updated to the new controller contract
+     - final full repository verify after the assertion fixes: **1197 total / 1196 PASS / 0 FAIL / 1 SKIP** · production build PASS
      - full Playwright browser acceptance on the runtime implementation: **388/388 PASS**
-     - final full repository verify still required before merge
+     - automated acceptance is green; manual Partial Power UI smoke remains before merge
      - **follow-up:** manual-weather Partial Power currently has no manual runway-wind input. Add either explicit manual wind entry or an explicit source-safe zero-wind confirmation path before treating manual weather as complete for Partial Power
    - **14.2 Independent 25% rated-thrust source closure — BLOCKED**
      - FlightSafety requires thrust reduction <=25% of rated takeoff thrust for the existing ambient condition
