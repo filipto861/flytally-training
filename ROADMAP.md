@@ -160,9 +160,9 @@ Canonical source-backed outputs:
 
 B5 intentionally does not apply unsupported wind/slope/declared-distance corrections.
 
-## B6 — Takeoff wind correction — IN PROGRESS · branch `feat/b6-takeoff-wind`
+## B6 — Takeoff wind correction — COMPLETE · PR #218
 
-B6 generic runtime gate (2026-09-24): `npm run typecheck` PASS; targeted B4/B8/B6 Node suite **38/38 PASS** on local Windows checkout. B6.1 source-grid gate then passed **48/48** with typecheck PASS. B6.3 canonical operation integration passed its targeted local gate at **81/81 PASS** with typecheck PASS on head `221097dd9ee46d7f49edfe9faecbac0b069eccbc`. Post-gate review then hardened backward compatibility so aircraft that do not declare a wind-correction contract retain their governed baseline, while Learjet Flaps 20 explicitly opts into fail-closed wind behavior pending source verification. B6.4 deterministic browser acceptance is staged and awaits the final local/full regression gate.
+B6 acceptance complete (2026-09-24). Gate progression: generic runtime **38/38 PASS**; source-grid gate **48/48 PASS**; canonical operation gate **81/81 PASS**; post-race-fix targeted gate **35/35 PASS**; production build PASS; targeted responsive Playwright **4/4 PASS**; final full Node suite **1092 total / 1091 PASS / 0 FAIL / 1 SKIP**; final production build PASS; full Playwright **384/384 PASS** across desktop, mobile, iPad landscape and iPad portrait.
 
 Source topology is frozen as two independent post-baseline transforms:
 
@@ -270,10 +270,10 @@ After wind + Partial Power:
 3. **P1.3 — canonical Performance operation controller** — COMPLETE · PR #215
 4. **P1.4 — Flight Brief EFB home** — COMPLETE · PR #216
 5. **B5 — Landing integration** — COMPLETE · PR #217
-6. **B6 — Takeoff wind correction** — IN PROGRESS · `feat/b6-takeoff-wind`
-   - B6.1 source extraction + correction contract
-   - B6.2 generic correction runtime
-   - B6.3 canonical Takeoff operation integration
-   - B6.4 acceptance
+6. **B6 — Takeoff wind correction** — COMPLETE · PR #218
+   - B6.1 source extraction + correction contract — COMPLETE
+   - B6.2 generic correction runtime — COMPLETE
+   - B6.3 canonical Takeoff operation integration — COMPLETE
+   - B6.4 acceptance — COMPLETE
 7. Partial Power source extraction + solver/runtime
 8. Declared-distance provider/input hardening
