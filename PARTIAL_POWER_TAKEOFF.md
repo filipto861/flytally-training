@@ -188,17 +188,32 @@ The solver must return no solution when any required operational dependency is u
 
 Declared-distance TORA/ASDA is frozen by PR #220 and the assumed-temperature candidate engine is merged via PR #221. Operational Partial Power output remains blocked on the reduced-N1 source/runtime boundary.
 
-A fail-closed exact-source-cell boundary is staged in `lib/performance/partial-power-n1.ts`. It deliberately:
-- accepts only exact ambient/assumed-temperature source coordinates;
+The first PP.3 local gate is accepted: typecheck PASS + **18/18** PP.3/PP.1 targeted tests.
+
+A fail-closed source boundary is staged in `lib/performance/partial-power-n1.ts`. It deliberately:
+- accepts exact ambient/assumed-temperature source coordinates for all three schedules;
 - rejects assumed temperature at or below ambient for reduced-thrust use;
 - blocks every parenthesized source cell instead of assigning unsupported semantics;
 - enforces anti-ice OFF;
 - enforces the P-6.2 TR-4000 pressure-altitude limit;
-- performs no interpolation or extrapolation;
-- returns a non-operational `source-value` status rather than a production-ready result;
 - keeps all three source extracts unregistered from the operational performance package.
 
-Current source review still contains no authoritative legend defining the P-6/P-6.1 parentheses. Until such a definition is found, parenthesized cells remain blocked. Interpolation for reduced N1 is also not enabled by this boundary.
+### Aeronca interpolation authority
+
+An additional source review found **FAA-approved AFMS W1072 Figure 5** for the Aeronca thrust-reverser nozzle. The published worked example uses:
+- Assumed Temperature: **82°F**;
+- Ambient Temperature: **50°F**;
+- Reduced Thrust Setting: **91% N1**.
+
+Because 82°F is not a CL-102B P-6.1 table breakpoint, that FAA-approved continuous chart is direct evidence that interpolation is intended for the Aeronca schedule. PP.3 therefore stages bounded interpolation for **Aeronca only**, using the P-6.1 numerical grid as the source lattice and the W1072 chart/example as interpolation authority.
+
+The interpolation remains fail-closed:
+- no extrapolation;
+- every required source corner must exist;
+- no interpolation region may touch a parenthesized source cell;
+- no-reverser and TR-4000 interpolation remain unauthorized.
+
+Current source review still contains no authoritative legend defining the P-6/P-6.1 parentheses. Until such a definition is found, those cells remain blocked.
 
 1. find the highest source-supported Assumed Temperature satisfying the runway and weight constraint;
 2. calculate V1 using that Assumed Temperature;
