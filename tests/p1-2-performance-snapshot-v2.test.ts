@@ -161,6 +161,12 @@ test("P1.2 native Takeoff snapshot captures explicit identity source inputs resu
 });
 
 test("P1.2 V2 validity dependencies exclude the global Active Flight dependency snapshot id", () => {
+  const dependencyOnlyChange = {
+    ...context,
+    dependencySnapshotId: "afd1:changed-audit-only",
+  };
+  assert.equal(computeContextHash(dependencyOnlyChange), computeContextHash(context));
+
   const snapshot = createTakeoffSnapshotV2(result, {
     variant: "FC-530",
     runwayContext,
@@ -278,17 +284,20 @@ test("P1.2 migration preserves a known legacy OAT even when the old context had 
   assert.equal(restored.requiresRecalculation, true);
 });
 
-test("P1.2 invalid V2 data fails closed and does not resurrect the retained v1 key", () => {
+test("P1.2 invalid V2 data fails closed and never resurrects the retained v1 key", () => {
   const storage = new MemoryStorage();
   writePerformanceResult(storage, result);
 
   const v2Key = performanceSnapshotV2Key("TAKEOFF", "learjet-35a", "flight-p12-001");
-  storage.setItem(v2Key, JSON.stringify({ schemaVersion: 2, operation: "TAKEOFF" }));
+  const invalidV2 = JSON.stringify({ schemaVersion: 2, operation: "TAKEOFF" });
+  storage.setItem(v2Key, invalidV2);
 
-  const restored = readTakeoffPerformanceState(storage, "learjet-35a", "flight-p12-001");
-  assert.equal(restored, null);
-  assert.equal(storage.getItem(v2Key), null);
+  assert.equal(readTakeoffPerformanceState(storage, "learjet-35a", "flight-p12-001"), null);
+  assert.equal(storage.getItem(v2Key), invalidV2);
   assert.ok(storage.getItem(performanceResultKey("learjet-35a", "flight-p12-001")));
+
+  assert.equal(readTakeoffPerformanceState(storage, "learjet-35a", "flight-p12-001"), null);
+  assert.equal(storage.getItem(v2Key), invalidV2);
 });
 
 test("P1.2 Landing Snapshot V2 contract is operation-separated and validates source-backed fields", () => {
