@@ -330,6 +330,17 @@ export function weatherObservationRefV2(
     observedAt: snapshot.observedAt,
     fetchedAt: snapshot.fetchedAt,
     rawText: snapshot.rawText,
+    ...(snapshot.windDirectionTrueDeg === undefined
+      ? {}
+      : { windDirectionTrueDeg: snapshot.windDirectionTrueDeg }),
+    ...(snapshot.windSpeedKt === undefined
+      ? {}
+      : { windSpeedKt: snapshot.windSpeedKt }),
+    ...(snapshot.windGustKt === undefined
+      ? {}
+      : { windGustKt: snapshot.windGustKt }),
+    windVariable: snapshot.windVariable,
+    windCalm: snapshot.windCalm,
   };
 }
 

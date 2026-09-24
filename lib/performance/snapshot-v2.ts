@@ -13,6 +13,11 @@ export type WeatherObservationRefV2 = {
   readonly observedAt: string;
   readonly fetchedAt: string;
   readonly rawText: string;
+  readonly windDirectionTrueDeg?: number;
+  readonly windSpeedKt?: number;
+  readonly windGustKt?: number;
+  readonly windVariable?: boolean;
+  readonly windCalm?: boolean;
 };
 
 export type AppliedWeatherFieldV2 = {
@@ -257,7 +262,12 @@ function weatherObservation(value: unknown): value is WeatherObservationRefV2 {
     && row.station.length > 0
     && validIso(row.observedAt)
     && validIso(row.fetchedAt)
-    && typeof row.rawText === "string",
+    && typeof row.rawText === "string"
+    && finiteOptionalNumber(row.windDirectionTrueDeg)
+    && finiteOptionalNumber(row.windSpeedKt)
+    && finiteOptionalNumber(row.windGustKt)
+    && (row.windVariable === undefined || typeof row.windVariable === "boolean")
+    && (row.windCalm === undefined || typeof row.windCalm === "boolean"),
   );
 }
 
