@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import { learjet35aPerformancePackage } from "../aircraft-data/learjet-35a/performance/package.ts";
+import { browserTrainingPerformancePackage } from "../lib/browser-training-fixture.ts";
 import type { SelectedRunwayContext } from "../lib/aviation/airport-types.ts";
 import {
   computeLandingPerformance,
@@ -214,6 +215,33 @@ test("B5 Landing dependency validity is operation-scoped", () => {
     }),
     ["variant", "pressure-altitude", "performance-source"],
   );
+});
+
+test("B5 deterministic browser fixture carries a valid Landing package for browser acceptance", () => {
+  const definition = browserTrainingPerformancePackage.landingCalculator;
+  assert.ok(definition);
+
+  const browserContext: LandingPerformanceContext = {
+    activeFlightId: "browser-flight",
+    aircraftId: "browser-ci-aircraft",
+    dependencySnapshotId: "browser-audit",
+    weight: { value: 12000, unit: "lb" },
+    runway: { identifier: "34", airportIcao: "LOWW" },
+    configuration: { flaps: "40" },
+    weather: { qnh: 1013.25, oat: 15 },
+  };
+
+  const result = computeLandingPerformance(
+    browserContext,
+    browserTrainingPerformancePackage.content.datasets,
+    definition,
+    { pressureAltitudeFt: 600, oatC: 15 },
+  );
+
+  assert.equal(result.vref.value, 118);
+  assert.equal(result.landingClimbSpeed.value, 118);
+  assert.equal(result.approachClimbSpeed.value, 124);
+  assert.equal(result.landingDistance.value, 2800);
 });
 
 test("B5 controller binds airport and weather to destination and keeps Landing persistence separate", () => {
