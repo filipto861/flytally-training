@@ -148,6 +148,74 @@ const performance:AircraftPerformanceContent={
       },
     },
     {
+      id:"browser-b6-v1-wind",
+      title:"B6 deterministic V1 wind correction",
+      description:"Browser-only post-baseline transform for B6 acceptance.",
+      kind:"lookup-table",
+      phase:"takeoff",
+      axes:[
+        {key:"zeroWindV1Kias",label:"Zero-wind V1",unit:"KIAS",values:[110,115]},
+        {key:"runwayWindComponentKt",label:"Runway wind component",unit:"kt",values:[-10,0,10,20,30]},
+      ],
+      outputs:[
+        {key:"correctedV1Kias",label:"Wind-corrected V1",unit:"KIAS"},
+      ],
+      rows:[
+        {inputs:{zeroWindV1Kias:110,runwayWindComponentKt:-10},outputs:{correctedV1Kias:108}},
+        {inputs:{zeroWindV1Kias:110,runwayWindComponentKt:0},outputs:{correctedV1Kias:110}},
+        {inputs:{zeroWindV1Kias:110,runwayWindComponentKt:10},outputs:{correctedV1Kias:111}},
+        {inputs:{zeroWindV1Kias:110,runwayWindComponentKt:20},outputs:{correctedV1Kias:113}},
+        {inputs:{zeroWindV1Kias:110,runwayWindComponentKt:30},outputs:{correctedV1Kias:114}},
+        {inputs:{zeroWindV1Kias:115,runwayWindComponentKt:-10},outputs:{correctedV1Kias:113}},
+        {inputs:{zeroWindV1Kias:115,runwayWindComponentKt:0},outputs:{correctedV1Kias:115}},
+        {inputs:{zeroWindV1Kias:115,runwayWindComponentKt:10},outputs:{correctedV1Kias:116}},
+        {inputs:{zeroWindV1Kias:115,runwayWindComponentKt:20},outputs:{correctedV1Kias:118}},
+        {inputs:{zeroWindV1Kias:115,runwayWindComponentKt:30},outputs:{correctedV1Kias:119}},
+      ],
+      interpolation:"linear-explicit",
+      calculator:{
+        kind:"post-baseline-transform",
+        operation:"takeoff",
+        baselineAxisKey:"zeroWindV1Kias",
+        modifierAxisKey:"runwayWindComponentKt",
+        outputKey:"correctedV1Kias",
+      },
+    },
+    {
+      id:"browser-b6-takeoff-distance-wind",
+      title:"B6 deterministic takeoff-distance wind correction",
+      description:"Browser-only post-baseline transform for B6 acceptance.",
+      kind:"lookup-table",
+      phase:"takeoff",
+      axes:[
+        {key:"zeroWindDistanceFt",label:"Zero-wind takeoff distance",unit:"ft",values:[3100,3500]},
+        {key:"runwayWindComponentKt",label:"Runway wind component",unit:"kt",values:[-10,0,10,20,30]},
+      ],
+      outputs:[
+        {key:"correctedDistanceFt",label:"Wind-corrected takeoff distance",unit:"ft"},
+      ],
+      rows:[
+        {inputs:{zeroWindDistanceFt:3100,runwayWindComponentKt:-10},outputs:{correctedDistanceFt:3500}},
+        {inputs:{zeroWindDistanceFt:3100,runwayWindComponentKt:0},outputs:{correctedDistanceFt:3100}},
+        {inputs:{zeroWindDistanceFt:3100,runwayWindComponentKt:10},outputs:{correctedDistanceFt:2900}},
+        {inputs:{zeroWindDistanceFt:3100,runwayWindComponentKt:20},outputs:{correctedDistanceFt:2700}},
+        {inputs:{zeroWindDistanceFt:3100,runwayWindComponentKt:30},outputs:{correctedDistanceFt:2500}},
+        {inputs:{zeroWindDistanceFt:3500,runwayWindComponentKt:-10},outputs:{correctedDistanceFt:4000}},
+        {inputs:{zeroWindDistanceFt:3500,runwayWindComponentKt:0},outputs:{correctedDistanceFt:3500}},
+        {inputs:{zeroWindDistanceFt:3500,runwayWindComponentKt:10},outputs:{correctedDistanceFt:3300}},
+        {inputs:{zeroWindDistanceFt:3500,runwayWindComponentKt:20},outputs:{correctedDistanceFt:3100}},
+        {inputs:{zeroWindDistanceFt:3500,runwayWindComponentKt:30},outputs:{correctedDistanceFt:2900}},
+      ],
+      interpolation:"linear-explicit",
+      calculator:{
+        kind:"post-baseline-transform",
+        operation:"takeoff",
+        baselineAxisKey:"zeroWindDistanceFt",
+        modifierAxisKey:"runwayWindComponentKt",
+        outputKey:"correctedDistanceFt",
+      },
+    },
+    {
       id:"browser-p2-takeoff-summary",
       title:"Takeoff summary",
       description:"Deterministic browser-only source grid for P2 presentation acceptance.",
@@ -218,6 +286,38 @@ const browserTakeoffCalculator:PilotTakeoffCalculatorDefinition={
           outputKey:"takeoffDistance",
           inputs:[{input:"takeoffWeight",axisKey:"takeoffWeight"}],
         },
+      },
+      vr:{
+        datasetId:"browser-p2-takeoff-summary",
+        outputKey:"vr",
+        inputs:[{input:"takeoffWeight",axisKey:"takeoffWeight"}],
+      },
+      v2:{
+        datasetId:"browser-p2-takeoff-summary",
+        outputKey:"v2",
+        inputs:[{input:"takeoffWeight",axisKey:"takeoffWeight"}],
+      },
+    },
+    {
+      value:"8-wind",
+      label:"8° · B6 wind fixture",
+      v1:{
+        antiIceOff:{
+          datasetId:"browser-p2-takeoff-summary",
+          outputKey:"v1",
+          inputs:[{input:"takeoffWeight",axisKey:"takeoffWeight"}],
+        },
+      },
+      takeoffDistance:{
+        antiIceOff:{
+          datasetId:"browser-p2-takeoff-summary",
+          outputKey:"takeoffDistance",
+          inputs:[{input:"takeoffWeight",axisKey:"takeoffWeight"}],
+        },
+      },
+      windCorrection:{
+        v1:{datasetId:"browser-b6-v1-wind"},
+        takeoffDistance:{datasetId:"browser-b6-takeoff-distance-wind"},
       },
       vr:{
         datasetId:"browser-p2-takeoff-summary",

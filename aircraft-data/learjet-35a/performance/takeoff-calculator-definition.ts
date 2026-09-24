@@ -1,7 +1,7 @@
 import type { PilotTakeoffCalculatorDefinition } from "../../../lib/pilot-takeoff-calculator.ts";
 
 export const learjet35aTakeoffCalculatorDefinition: PilotTakeoffCalculatorDefinition = {
-  id: "takeoff-summary",
+  id: "takeoff-summary-wind-v1",
   title: "Takeoff Calculator",
   inputs: {
     pressureAltitude: { label: "Pressure Altitude", unit: "ft" },
@@ -47,6 +47,14 @@ export const learjet35aTakeoffCalculatorDefinition: PilotTakeoffCalculatorDefini
           ],
         },
       },
+      windCorrection: {
+        v1: {
+          datasetId: "learjet-35a-v1-wind-flaps8",
+        },
+        takeoffDistance: {
+          datasetId: "learjet-35a-takeoff-distance-wind-flaps8",
+        },
+      },
       vr: {
         datasetId: "learjet-35a-vr-flaps8",
         outputKey: "vr",
@@ -83,6 +91,11 @@ export const learjet35aTakeoffCalculatorDefinition: PilotTakeoffCalculatorDefini
           ],
         },
       },
+      // Wind correction is operationally required for nonzero wind, but the
+      // applicable Flaps 20 AFM correction source is not yet directly verified.
+      // The empty declaration makes that boundary explicit: zero wind may use
+      // the governed baseline; nonzero/unknown wind fails closed.
+      windCorrection: {},
       vr: {
         datasetId: "learjet-35a-vr-flaps20",
         outputKey: "vr",

@@ -4,8 +4,10 @@ import landingDistanceFlaps40Json from "./landing-distance-flaps40.json";
 import takeoffN1Json from "./takeoff-n1.json";
 import takeoffDistanceFlaps20Json from "./takeoff-distance-flaps20.json";
 import takeoffDistanceFlaps8Json from "./takeoff-distance-flaps8.json";
+import takeoffDistanceWindFlaps8Json from "./takeoff-distance-wind-flaps8.json";
 import v1Flaps20Json from "./v1-flaps20.json";
 import v1Flaps8Json from "./v1-flaps8.json";
+import v1WindFlaps8Json from "./v1-wind-flaps8.json";
 import v2Flaps20Json from "./v2-flaps20.json";
 import v2Flaps8Json from "./v2-flaps8.json";
 import vrFlaps20Json from "./vr-flaps20.json";
@@ -22,8 +24,10 @@ const landingClimbSpeed = landingClimbSpeedJson as unknown as PerformanceDataset
 const landingDistanceFlaps40 = landingDistanceFlaps40Json as unknown as PerformanceDataset;
 const takeoffN1 = takeoffN1Json as unknown as PerformanceDataset;
 const takeoffDistanceFlaps8 = takeoffDistanceFlaps8Json as unknown as PerformanceDataset;
+const takeoffDistanceWindFlaps8 = takeoffDistanceWindFlaps8Json as unknown as PerformanceDataset;
 const takeoffDistanceFlaps20 = takeoffDistanceFlaps20Json as unknown as PerformanceDataset;
 const v1Flaps8 = v1Flaps8Json as unknown as PerformanceDataset;
+const v1WindFlaps8 = v1WindFlaps8Json as unknown as PerformanceDataset;
 const v1Flaps20 = v1Flaps20Json as unknown as PerformanceDataset;
 const vrFlaps8 = vrFlaps8Json as unknown as PerformanceDataset;
 const vrFlaps20 = vrFlaps20Json as unknown as PerformanceDataset;
@@ -45,8 +49,10 @@ export const learjet35aPerformancePackage: BundledPerformancePackage = {
       landingDistanceFlaps40,
       takeoffN1,
       takeoffDistanceFlaps8,
+      takeoffDistanceWindFlaps8,
       takeoffDistanceFlaps20,
       v1Flaps8,
+      v1WindFlaps8,
       v1Flaps20,
       vrFlaps8,
       vrFlaps20,

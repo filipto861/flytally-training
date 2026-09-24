@@ -2,6 +2,7 @@
 
 import {
   calculateMultiAxisMetricGrid,
+  calculatePostBaselineTransform,
 } from "../performance-calculator.ts";
 import {
   calculatePilotTakeoffSummary,
@@ -41,6 +42,7 @@ import {
 export type PerformanceCalculationInputs = {
   readonly pressureAltitudeFt?: number;
   readonly oatC?: number;
+  readonly runwayWindComponentKt?: number;
 };
 
 export type PerformanceResult = {
@@ -245,14 +247,100 @@ export function computePerformance(
     antiIce: context.configuration.antiIce,
   });
 
+  const flap = definition.flapOptions.find(
+    (candidate) => candidate.value === context.configuration.flaps,
+  ) ?? definition.flapOptions[0];
+
+  const applyWindCorrection = (
+    baseline: PilotTakeoffMetricResult,
+    datasetId: string | undefined,
+    label: string,
+  ): PilotTakeoffMetricResult => {
+    if (baseline.status !== "ready" || baseline.value === undefined) return baseline;
+
+    const windComponent = inputs.runwayWindComponentKt;
+    if (windComponent === undefined) {
+      return {
+        status: "missing",
+        unit: baseline.unit,
+        precision: baseline.precision,
+        reason: `Runway wind component is required for wind-corrected ${label}.`,
+      };
+    }
+
+    if (!datasetId) {
+      if (Math.abs(windComponent) < 1e-9) return baseline;
+      return {
+        status: "unavailable",
+        unit: baseline.unit,
+        precision: baseline.precision,
+        reason: `No source-backed wind correction is available for ${label} in this flap configuration.`,
+      };
+    }
+
+    const dataset = datasets.find((candidate) => candidate.id === datasetId);
+    if (!dataset) {
+      return {
+        status: "unavailable",
+        unit: baseline.unit,
+        precision: baseline.precision,
+        reason: `Wind-correction source dataset unavailable for ${label}.`,
+      };
+    }
+
+    const corrected = calculatePostBaselineTransform(
+      dataset,
+      baseline.value,
+      windComponent,
+    );
+    if (corrected.status === "incomplete") {
+      return {
+        status: "missing",
+        unit: baseline.unit,
+        precision: baseline.precision,
+        reason: corrected.reason,
+      };
+    }
+    if (corrected.status !== "ready" || corrected.value === undefined) {
+      return {
+        status: "out-of-range",
+        unit: baseline.unit,
+        precision: baseline.precision,
+        reason: corrected.reason,
+      };
+    }
+
+    return {
+      status: "ready",
+      value: corrected.value,
+      unit: corrected.unit ?? baseline.unit,
+      precision: baseline.precision,
+    };
+  };
+
+  const v1 = flap?.windCorrection
+    ? applyWindCorrection(
+        summary.v1,
+        flap.windCorrection.v1?.datasetId,
+        "V1",
+      )
+    : summary.v1;
+  const takeoffDistance = flap?.windCorrection
+    ? applyWindCorrection(
+        summary.takeoffDistance,
+        flap.windCorrection.takeoffDistance?.datasetId,
+        "Takeoff Distance",
+      )
+    : summary.takeoffDistance;
+
   return {
     context,
     contextHash: computeContextHash(context),
     n1: summary.n1,
-    v1: summary.v1,
+    v1,
     vr: summary.vr,
     v2: summary.v2,
-    takeoffDistance: summary.takeoffDistance,
+    takeoffDistance,
     computedAt: new Date(now).toISOString(),
     source: "takeoff-calculator",
     calculationInputs: inputs,
@@ -320,7 +408,8 @@ function calculationInputs(value: unknown): value is PerformanceCalculationInput
   return Boolean(
     row
     && finiteOptionalNumber(row.pressureAltitudeFt)
-    && finiteOptionalNumber(row.oatC),
+    && finiteOptionalNumber(row.oatC)
+    && finiteOptionalNumber(row.runwayWindComponentKt),
   );
 }
 
@@ -420,6 +509,8 @@ export function takeoffSourceDatasetIds(
             : flap.takeoffDistance.antiIceOff
         )
       : undefined,
+    flap.windCorrection?.v1,
+    flap.windCorrection?.takeoffDistance,
   ];
 
   return [...new Set(
@@ -459,7 +550,6 @@ export function createTakeoffSnapshotV2(
   }
   if (
     options.observation
-    && metarBound
     && options.observation.station.toUpperCase() !== options.runwayContext.airportIcao.toUpperCase()
   ) {
     throw new Error("Snapshot V2 METAR station does not match the Takeoff airport.");
@@ -492,7 +582,7 @@ export function createTakeoffSnapshotV2(
       weight: result.context.weight,
       configuration: result.context.configuration,
       weather: {
-        observation: metarBound ? options.observation : null,
+        observation: options.observation,
         qnhHpa: {
           value: weather.qnh,
           source: options.qnhSource,
@@ -507,6 +597,9 @@ export function createTakeoffSnapshotV2(
       ...(result.calculationInputs.pressureAltitudeFt === undefined
         ? {}
         : { pressureAltitudeFt: result.calculationInputs.pressureAltitudeFt }),
+      ...(result.calculationInputs.runwayWindComponentKt === undefined
+        ? {}
+        : { runwayWindComponentKt: result.calculationInputs.runwayWindComponentKt }),
     },
     source: {
       runtime: result.source,
@@ -638,6 +731,9 @@ export function performanceResultFromTakeoffSnapshotV2(
         ? {}
         : { pressureAltitudeFt: snapshot.derived.pressureAltitudeFt }),
       ...(weather?.oatC === undefined ? {} : { oatC: weather.oatC.value }),
+      ...(snapshot.derived.runwayWindComponentKt === undefined
+        ? {}
+        : { runwayWindComponentKt: snapshot.derived.runwayWindComponentKt }),
     },
   };
 }

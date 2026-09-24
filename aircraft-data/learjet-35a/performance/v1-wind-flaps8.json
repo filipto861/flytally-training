@@ -1,0 +1,488 @@
+{
+  "id": "learjet-35a-v1-wind-flaps8",
+  "title": "V1 Wind Correction · Flaps 8°",
+  "description": "Graph-digitized post-baseline wind correction for Learjet 35A/36A Flaps 8° critical engine failure speed V1.",
+  "kind": "lookup-table",
+  "phase": "takeoff",
+  "calculator": {
+    "kind": "post-baseline-transform",
+    "operation": "takeoff",
+    "baselineAxisKey": "zeroWindV1Kias",
+    "modifierAxisKey": "runwayWindComponentKt",
+    "outputKey": "correctedV1Kias"
+  },
+  "axes": [
+    {
+      "key": "zeroWindV1Kias",
+      "label": "Zero-wind V1",
+      "unit": "KIAS",
+      "values": [
+        103,
+        105,
+        110,
+        115,
+        120,
+        125,
+        130,
+        135,
+        140,
+        142
+      ]
+    },
+    {
+      "key": "runwayWindComponentKt",
+      "label": "Runway wind component",
+      "unit": "KT",
+      "values": [
+        -10,
+        0,
+        10,
+        20,
+        30
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "key": "correctedV1Kias",
+      "label": "Wind-corrected V1",
+      "unit": "KIAS"
+    }
+  ],
+  "rows": [
+    {
+      "inputs": {
+        "zeroWindV1Kias": 103,
+        "runwayWindComponentKt": 0
+      },
+      "outputs": {
+        "correctedV1Kias": 103
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 103,
+        "runwayWindComponentKt": 10
+      },
+      "outputs": {
+        "correctedV1Kias": 103
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 103,
+        "runwayWindComponentKt": 20
+      },
+      "outputs": {
+        "correctedV1Kias": 103
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 103,
+        "runwayWindComponentKt": 30
+      },
+      "outputs": {
+        "correctedV1Kias": 103
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 103,
+        "runwayWindComponentKt": -10
+      },
+      "outputs": {
+        "correctedV1Kias": 103
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 105,
+        "runwayWindComponentKt": 0
+      },
+      "outputs": {
+        "correctedV1Kias": 105
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 105,
+        "runwayWindComponentKt": 10
+      },
+      "outputs": {
+        "correctedV1Kias": 106
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 105,
+        "runwayWindComponentKt": 20
+      },
+      "outputs": {
+        "correctedV1Kias": 106
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 105,
+        "runwayWindComponentKt": 30
+      },
+      "outputs": {
+        "correctedV1Kias": 107
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 105,
+        "runwayWindComponentKt": -10
+      },
+      "outputs": {
+        "correctedV1Kias": 104
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 110,
+        "runwayWindComponentKt": 0
+      },
+      "outputs": {
+        "correctedV1Kias": 110
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 110,
+        "runwayWindComponentKt": 10
+      },
+      "outputs": {
+        "correctedV1Kias": 111
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 110,
+        "runwayWindComponentKt": 20
+      },
+      "outputs": {
+        "correctedV1Kias": 111
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 110,
+        "runwayWindComponentKt": 30
+      },
+      "outputs": {
+        "correctedV1Kias": 112
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 110,
+        "runwayWindComponentKt": -10
+      },
+      "outputs": {
+        "correctedV1Kias": 109
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 115,
+        "runwayWindComponentKt": 0
+      },
+      "outputs": {
+        "correctedV1Kias": 115
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 115,
+        "runwayWindComponentKt": 10
+      },
+      "outputs": {
+        "correctedV1Kias": 116
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 115,
+        "runwayWindComponentKt": 20
+      },
+      "outputs": {
+        "correctedV1Kias": 116
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 115,
+        "runwayWindComponentKt": 30
+      },
+      "outputs": {
+        "correctedV1Kias": 117
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 115,
+        "runwayWindComponentKt": -10
+      },
+      "outputs": {
+        "correctedV1Kias": 113
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 120,
+        "runwayWindComponentKt": 0
+      },
+      "outputs": {
+        "correctedV1Kias": 120
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 120,
+        "runwayWindComponentKt": 10
+      },
+      "outputs": {
+        "correctedV1Kias": 121
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 120,
+        "runwayWindComponentKt": 20
+      },
+      "outputs": {
+        "correctedV1Kias": 121
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 120,
+        "runwayWindComponentKt": 30
+      },
+      "outputs": {
+        "correctedV1Kias": 122
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 120,
+        "runwayWindComponentKt": -10
+      },
+      "outputs": {
+        "correctedV1Kias": 118
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 125,
+        "runwayWindComponentKt": 0
+      },
+      "outputs": {
+        "correctedV1Kias": 125
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 125,
+        "runwayWindComponentKt": 10
+      },
+      "outputs": {
+        "correctedV1Kias": 126
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 125,
+        "runwayWindComponentKt": 20
+      },
+      "outputs": {
+        "correctedV1Kias": 126
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 125,
+        "runwayWindComponentKt": 30
+      },
+      "outputs": {
+        "correctedV1Kias": 127
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 125,
+        "runwayWindComponentKt": -10
+      },
+      "outputs": {
+        "correctedV1Kias": 123
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 130,
+        "runwayWindComponentKt": 0
+      },
+      "outputs": {
+        "correctedV1Kias": 130
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 130,
+        "runwayWindComponentKt": 10
+      },
+      "outputs": {
+        "correctedV1Kias": 131
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 130,
+        "runwayWindComponentKt": 20
+      },
+      "outputs": {
+        "correctedV1Kias": 131
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 130,
+        "runwayWindComponentKt": 30
+      },
+      "outputs": {
+        "correctedV1Kias": 132
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 130,
+        "runwayWindComponentKt": -10
+      },
+      "outputs": {
+        "correctedV1Kias": 128
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 135,
+        "runwayWindComponentKt": 0
+      },
+      "outputs": {
+        "correctedV1Kias": 135
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 135,
+        "runwayWindComponentKt": 10
+      },
+      "outputs": {
+        "correctedV1Kias": 136
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 135,
+        "runwayWindComponentKt": 20
+      },
+      "outputs": {
+        "correctedV1Kias": 137
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 135,
+        "runwayWindComponentKt": 30
+      },
+      "outputs": {
+        "correctedV1Kias": 138
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 135,
+        "runwayWindComponentKt": -10
+      },
+      "outputs": {
+        "correctedV1Kias": 133
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 140,
+        "runwayWindComponentKt": 0
+      },
+      "outputs": {
+        "correctedV1Kias": 140
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 140,
+        "runwayWindComponentKt": 10
+      },
+      "outputs": {
+        "correctedV1Kias": 141
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 140,
+        "runwayWindComponentKt": 20
+      },
+      "outputs": {
+        "correctedV1Kias": 142
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 140,
+        "runwayWindComponentKt": 30
+      },
+      "outputs": {
+        "correctedV1Kias": 142
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 140,
+        "runwayWindComponentKt": -10
+      },
+      "outputs": {
+        "correctedV1Kias": 137
+      }
+    },
+    {
+      "inputs": {
+        "zeroWindV1Kias": 142,
+        "runwayWindComponentKt": 0
+      },
+      "outputs": {
+        "correctedV1Kias": 142
+      }
+    }
+  ],
+  "interpolation": "linear-explicit",
+  "notes": [
+    "Flaps 8° only.",
+    "Wind convention is signed runway component: tailwind negative, headwind positive.",
+    "The AFM graphical wind correction already incorporates the regulatory 50% headwind and 150% tailwind treatment; do not pre-factor the runway wind component before this transform.",
+    "Values were digitized from the graphical wind panel and rounded to the nearest 1 KIAS, consistent with the chart reading resolution.",
+    "The 103 KIAS lower line is retained as an explicit source cap across the published wind envelope.",
+    "The upper headwind branch reaches the chart/source cap near 142 KIAS; unsupported sparse source combinations are intentionally absent and must fail closed.",
+    "Zero-wind rows are explicit identity points.",
+    "Bounded interpolation is permitted only when every required stored source corner exists; no extrapolation."
+  ],
+  "sources": [
+    {
+      "manualId": "FM-102",
+      "chapter": "Section V · Performance",
+      "section": "Critical Engine Failure Speed V1 · Flaps 8°",
+      "pageLabel": "5-41 · Figure 5-26",
+      "note": "Gates Learjet 35A/36A AFM chart reproduced in FlightSafety Learjet 35/36 Pilot Training Manual Figure 20-3."
+    }
+  ]
+}

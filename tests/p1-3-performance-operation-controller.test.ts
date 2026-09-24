@@ -83,6 +83,30 @@ test("P1.3 explicit latest-METAR action may replace manual bindings because it i
   assert.equal(applied.observation?.observedAt, newer.observedAt);
 });
 
+test("B6 APPLIED observation remains available for runway wind when QNH and OAT are manual", () => {
+  const metarApplied = explicitlyApplyAvailableWeather(
+    EMPTY_OPERATION_WEATHER,
+    newer,
+  );
+  const manualQnh = setManualWeatherField(metarApplied, "qnhHpa", 1009);
+  const manualBoth = setManualWeatherField(manualQnh, "oatC", 11);
+
+  assert.deepEqual(manualBoth.qnhHpa, { value: 1009, source: "manual" });
+  assert.deepEqual(manualBoth.oatC, { value: 11, source: "manual" });
+  assert.equal(manualBoth.observation?.observedAt, newer.observedAt);
+  assert.equal(manualBoth.observation?.windSpeedKt, newer.windSpeedKt);
+
+  const manualBeforeMetar = setManualWeatherField(
+    setManualWeatherField(EMPTY_OPERATION_WEATHER, "qnhHpa", 1009),
+    "oatC",
+    11,
+  );
+  const auto = autoApplyAvailableWeather(manualBeforeMetar, newer);
+  assert.deepEqual(auto.qnhHpa, { value: 1009, source: "manual" });
+  assert.deepEqual(auto.oatC, { value: 11, source: "manual" });
+  assert.equal(auto.observation?.observedAt, newer.observedAt);
+});
+
 test("P1.3 stored APPLIED observation restores its wind independently of a newer AVAILABLE observation", () => {
   const stored: AppliedWeatherV2 = {
     observation: {
@@ -148,13 +172,41 @@ test("P1.3 presentation delegates operation state calculation persistence and we
 
 test("P1.3 wind presentation is derived from APPLIED observation and never directly from AVAILABLE weather", () => {
   const controller = read("components/ft-performance/use-performance-operation.ts");
+  const helperBlock = controller.slice(
+    controller.indexOf("function windComponentsForAppliedWeather"),
+    controller.indexOf("function roundedRunwayWindComponentKt"),
+  );
   const windBlock = controller.slice(
     controller.indexOf("const wind = useMemo"),
     controller.indexOf("const currentContext = useMemo"),
   );
 
-  assert.match(windBlock, /appliedWeather\.observation/);
+  assert.match(helperBlock, /weather\.observation/);
+  assert.doesNotMatch(helperBlock, /availableWeather/);
+  assert.match(windBlock, /windComponentsForAppliedWeather\(appliedWeather, runwayContext\)/);
   assert.doesNotMatch(windBlock, /availableWeather/);
+});
+
+test("B6 apply-latest keeps APPLIED weather and result atomic until recalculation can run", () => {
+  const controller = read("components/ft-performance/use-performance-operation.ts");
+  const applyBlock = controller.slice(
+    controller.indexOf("function applyLatestMetar"),
+    controller.indexOf("const invalidationMessage"),
+  );
+  const presentation = read("components/ft-performance/FtPerformancePresentation.tsx");
+
+  assert.match(applyBlock, /if \(result\) \{[\s\S]*calculateWithWeather\(nextWeather\);[\s\S]*return;/);
+  assert.doesNotMatch(
+    applyBlock.slice(
+      applyBlock.indexOf("if (result)"),
+      applyBlock.indexOf("return;", applyBlock.indexOf("if (result)")) + "return;".length,
+    ),
+    /setAppliedWeather\(nextWeather\)/,
+  );
+  assert.match(
+    presentation,
+    /disabled=\{busy \|\| !canCalculate\}[\s\S]*Apply & recalculate/,
+  );
 });
 
 test("P1.3 UI exposes one operation-level latest-METAR action and the explicit newer-weather contract", () => {

@@ -30,6 +30,14 @@ export type MultiAxisMetricGridCalculation = {
   readonly metrics?: readonly MetricLookupResult[];
 };
 
+export type PostBaselineTransformCalculation = {
+  readonly status: "incomplete" | "unsupported" | "ready";
+  readonly reason?: string;
+  readonly method?: "exact-source-row" | "bounded-linear-interpolation";
+  readonly value?: number;
+  readonly unit?: string;
+};
+
 export type DistanceFactorInput = Readonly<{
   baselineDistance?: number;
   runwayAvailable?: number;
@@ -382,6 +390,50 @@ export function calculateMultiAxisMetricGrid(
     status: "ready",
     method: selection.status === "exact" ? "exact-source-row" : "bounded-linear-interpolation",
     metrics,
+  };
+}
+
+export function calculatePostBaselineTransform(
+  dataset: PerformanceDataset | undefined,
+  baselineValue: number | undefined,
+  modifierValue: number | undefined,
+): PostBaselineTransformCalculation {
+  if (!dataset || dataset.calculator?.kind !== "post-baseline-transform") {
+    return { status: "unsupported", reason: "No declarative post-baseline transform is available." };
+  }
+  const calculator = dataset.calculator;
+  if (baselineValue === undefined) {
+    const axis = dataset.axes.find((candidate) => candidate.key === calculator.baselineAxisKey);
+    return { status: "incomplete", reason: `Enter ${axis?.label ?? calculator.baselineAxisKey}.` };
+  }
+  if (modifierValue === undefined) {
+    const axis = dataset.axes.find((candidate) => candidate.key === calculator.modifierAxisKey);
+    return { status: "incomplete", reason: `Enter ${axis?.label ?? calculator.modifierAxisKey}.` };
+  }
+
+  const filters = {
+    [calculator.baselineAxisKey]: performanceScalarKey(baselineValue),
+    [calculator.modifierAxisKey]: performanceScalarKey(modifierValue),
+  };
+  const selection = getPerformanceSelectionState(dataset, filters);
+  if (!selection.resultRow || (selection.status !== "exact" && selection.status !== "interpolated")) {
+    return {
+      status: "unsupported",
+      reason: "The baseline/modifier pair is outside the published source grid or requires unavailable source corners. FlyTally will not extrapolate.",
+    };
+  }
+
+  const declaredOutput = dataset.outputs.find((candidate) => candidate.key === calculator.outputKey);
+  const value = selection.resultRow.outputs[calculator.outputKey];
+  if (!declaredOutput || typeof value !== "number" || !Number.isFinite(value)) {
+    return { status: "unsupported", reason: "The source transform does not contain its declared numeric output for this result." };
+  }
+
+  return {
+    status: "ready",
+    method: selection.status === "exact" ? "exact-source-row" : "bounded-linear-interpolation",
+    value,
+    unit: declaredOutput.unit,
   };
 }
 

@@ -88,6 +88,7 @@ export type TakeoffSnapshotV2 = {
   };
   readonly derived: {
     readonly pressureAltitudeFt?: number;
+    readonly runwayWindComponentKt?: number;
   };
   readonly source: PerformanceSnapshotSourceV2;
   readonly result: {
@@ -328,6 +329,7 @@ export function isTakeoffSnapshotV2(value: unknown): value is TakeoffSnapshotV2 
     && takeoffInputs(row.inputs)
     && derived
     && finiteOptionalNumber(derived.pressureAltitudeFt)
+    && finiteOptionalNumber(derived.runwayWindComponentKt)
     && takeoffSource(row.source)
     && result
     && metric(result.n1)
@@ -350,6 +352,7 @@ export function isTakeoffSnapshotV2(value: unknown): value is TakeoffSnapshotV2 
 export type TakeoffSnapshotV2CurrentDependencies = {
   readonly variant: string | null;
   readonly pressureAltitudeFt?: number;
+  readonly runwayWindComponentKt?: number;
   readonly calculatorId: string | null;
   readonly datasetIds: readonly string[];
 };
@@ -357,6 +360,7 @@ export type TakeoffSnapshotV2CurrentDependencies = {
 export type TakeoffSnapshotV2DependencyChange =
   | "variant"
   | "pressure-altitude"
+  | "runway-wind"
   | "performance-source";
 
 function normalizedIds(ids: readonly string[]): readonly string[] {
@@ -374,6 +378,9 @@ export function diffTakeoffSnapshotV2Dependencies(
   }
   if (snapshot.derived.pressureAltitudeFt !== current.pressureAltitudeFt) {
     changes.push("pressure-altitude");
+  }
+  if (snapshot.derived.runwayWindComponentKt !== current.runwayWindComponentKt) {
+    changes.push("runway-wind");
   }
 
   const storedIds = normalizedIds(snapshot.source.datasetIds);

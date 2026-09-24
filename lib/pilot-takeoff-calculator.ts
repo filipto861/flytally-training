@@ -13,6 +13,10 @@ export type PilotTakeoffMetricBinding = {
   readonly precision?: number;
 };
 
+export type PilotTakeoffPostBaselineTransformBinding = {
+  readonly datasetId: string;
+};
+
 export type PilotTakeoffFlapOption = {
   readonly value: string;
   readonly label: string;
@@ -23,6 +27,10 @@ export type PilotTakeoffFlapOption = {
   readonly takeoffDistance?: {
     readonly antiIceOff: PilotTakeoffMetricBinding;
     readonly antiIceOn?: PilotTakeoffMetricBinding;
+  };
+  readonly windCorrection?: {
+    readonly v1?: PilotTakeoffPostBaselineTransformBinding;
+    readonly takeoffDistance?: PilotTakeoffPostBaselineTransformBinding;
   };
   readonly vr: PilotTakeoffMetricBinding;
   readonly v2: PilotTakeoffMetricBinding;
