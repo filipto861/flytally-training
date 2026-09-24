@@ -308,7 +308,7 @@ function useTakeoffPerformanceOperation(
       if (!stored) {
         setRunwayIdentifierState("");
         setToraFtState("");
-      setToraInputSource("empty");
+        setToraInputSource("empty");
         setAsdaFt("");
         setTakeoffWeight(String(current.weight.value));
         setTakeoffWeightUnit(current.weight.unit);
