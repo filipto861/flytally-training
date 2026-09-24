@@ -2,43 +2,11 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
 
-type SourceCell = {
-  ambientTemperatureF: number;
-  assumedTemperatureF: number;
-  n1: number;
-  sourceStyle?: "parenthesized";
-};
-
-type PartialPowerSourceExtract = {
-  schemaVersion: 1;
-  status: "source-extract-only";
-  id: string;
-  configuration: {
-    thrustReversers: "none" | "aeronca" | "tr4000";
-    label: string;
-  };
-  source: {
-    manualId: string;
-    pageLabel: string;
-  };
-  axes: {
-    ambientTemperatureF: number[];
-    assumedTemperatureF: number[];
-  };
-  output: {
-    key: string;
-    unit: string;
-    sourcePrecision: number;
-  };
-  cells: SourceCell[];
-  constraints: {
-    antiIce: "OFF";
-    maxN1ReductionPct: number | null;
-    pressureAltitudeLimitFt: number | null;
-    operationalUseBlocked: boolean;
-  };
-  notes: string[];
-};
+import {
+  validatePartialPowerN1SourceExtract,
+  type PartialPowerN1SourceCell as SourceCell,
+  type PartialPowerN1SourceExtract as PartialPowerSourceExtract,
+} from "../lib/performance/partial-power-source.ts";
 
 function load(file: string): PartialPowerSourceExtract {
   return JSON.parse(
@@ -71,6 +39,7 @@ function cell(
 
 test("PP.1 source extracts remain non-operational governed evidence", () => {
   for (const extract of extracts) {
+    assert.deepEqual(validatePartialPowerN1SourceExtract(extract), []);
     assert.equal(extract.schemaVersion, 1);
     assert.equal(extract.status, "source-extract-only");
     assert.equal(extract.source.manualId, "CL-102B");
@@ -80,6 +49,39 @@ test("PP.1 source extracts remain non-operational governed evidence", () => {
     assert.equal(extract.constraints.antiIce, "OFF");
     assert.equal(extract.constraints.operationalUseBlocked, true);
   }
+});
+
+test("PP.1 source validator rejects operationalization and bad source geometry", () => {
+  assert.ok(
+    validatePartialPowerN1SourceExtract({
+      ...none,
+      status: "operational",
+    }).some((error) => /source-extract-only/.test(error)),
+  );
+
+  assert.ok(
+    validatePartialPowerN1SourceExtract({
+      ...none,
+      cells: [
+        ...none.cells,
+        {
+          ambientTemperatureF: 80,
+          assumedTemperatureF: 70,
+          n1: 96,
+        },
+      ],
+    }).some((error) => /below ambient/.test(error)),
+  );
+
+  assert.ok(
+    validatePartialPowerN1SourceExtract({
+      ...none,
+      cells: [
+        ...none.cells,
+        none.cells[0],
+      ],
+    }).some((error) => /duplicates coordinate/.test(error)),
+  );
 });
 
 test("PP.1 preserves the three separate thrust-reverser source schedules", () => {
