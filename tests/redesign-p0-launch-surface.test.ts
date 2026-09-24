@@ -90,7 +90,8 @@ test("P1.1 mode chooser keeps Active Flight context inside the EFB choice", () =
   const surface = read("components/ft-launch/FtLaunchSurface.tsx");
   const page = read("app/aircraft/[aircraftId]/page.tsx");
 
-  assert.match(surface, /currentFlight = activeFlight\?\.lifecycle === "ACTIVE"/);
+  assert.match(surface, /useActiveFlightState\(aircraftId, activeFlight\)/);
+  assert.match(surface, /currentFlight = flight\?\.lifecycle === "ACTIVE"/);
   assert.match(surface, /aria-label="EFB mode"/);
   assert.match(surface, /currentFlight\.departure\.icao/);
   assert.match(surface, /currentFlight\.destination\.icao/);

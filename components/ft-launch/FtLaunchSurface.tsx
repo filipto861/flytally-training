@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 
 import type { ActiveFlight } from "@/lib/active-flight/types";
+import { useActiveFlightState } from "@/components/ft-flight/use-active-flight";
 import { withVariantQuery } from "@/lib/aircraft-applicability";
 import type { PersistedTrainingProgressEvent } from "@/lib/progress-events";
 
@@ -22,7 +25,8 @@ export function FtLaunchSurface({
   activeFlight?: ActiveFlight | null;
   recentItems?: readonly FtRecentItem[];
 }>) {
-  const currentFlight = activeFlight?.lifecycle === "ACTIVE" ? activeFlight : null;
+  const { flight } = useActiveFlightState(aircraftId, activeFlight);
+  const currentFlight = flight?.lifecycle === "ACTIVE" ? flight : null;
 
   return (
     <main
