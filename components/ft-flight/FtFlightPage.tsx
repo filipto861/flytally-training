@@ -23,10 +23,15 @@ export function FtFlightPage({
   takeoffCalculator?: PilotTakeoffCalculatorDefinition;
 }>) {
   return (
-    <main className={styles.flightPage} aria-label="Flight workspace" data-ft-flight-page="true">
+    <main
+      className={styles.flightPage}
+      aria-label="Flight workspace"
+      data-ft-flight-page="true"
+      data-efb-home="true"
+    >
       <header className={styles.pageHeader}>
-        <p className={styles.eyebrow}>FLIGHT</p>
-        <h1>Flight</h1>
+        <p className={styles.eyebrow}>EFB</p>
+        <h1>Flight Brief</h1>
         <p className={styles.pageContext}>{aircraftName}</p>
       </header>
 

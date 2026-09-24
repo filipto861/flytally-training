@@ -57,9 +57,10 @@ test("UX6.6 Flight visually promotes lifecycle state and brief dependencies", ()
   assert.match(active, /data-lifecycle=\{flight\?\.lifecycle \?\? "NONE"\}/);
   assert.match(active, /current\.departure\.icao/);
   assert.match(active, /current\.destination\.icao/);
-  assert.match(brief, /FtPerformancePresentation/);
+  assert.match(brief, /FtPerformanceStrip/);
+  assert.match(brief, /FtPerformanceEditorSheet/);
   assert.match(css, /\.flightSummary\s*\{[\s\S]*grid-template-columns/);
-  assert.match(css, /\.brief\s*\{[\s\S]*grid-template-columns:\s*repeat\(3/);
+  assert.match(css, /\.brief\s*\{[\s\S]*grid-template-columns:\s*repeat\(2/);
 });
 
 test("UX6.6 uses approved semantic tokens without hardcoded palette values", () => {

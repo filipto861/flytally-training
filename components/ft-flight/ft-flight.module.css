@@ -237,7 +237,7 @@
 }
 
 .brief {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: start;
   gap: var(--ft-space-3);
 }
@@ -393,6 +393,196 @@
   outline-offset: var(--ft-focus-offset);
 }
 
+.takeoffBriefCard {
+  gap: var(--ft-space-3);
+}
+
+.takeoffBriefHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ft-space-3);
+}
+
+.takeoffBriefHeader > div:first-child {
+  display: grid;
+  gap: var(--ft-space-1);
+}
+
+.takeoffBriefStatus {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--ft-space-2);
+}
+
+.statusBadge,
+.statusBadgeStale,
+.runwayBadge {
+  min-height: calc(var(--ft-space-6) - var(--ft-space-1));
+  display: inline-flex;
+  align-items: center;
+  padding-inline: var(--ft-space-2);
+  border-radius: var(--ft-radius-pill);
+  font-family: var(--ft-font-data);
+  font-size: 0.62rem;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+}
+
+.statusBadge {
+  background: var(--ft-accent-soft);
+  color: var(--ft-accent);
+}
+
+.statusBadgeStale {
+  background: var(--ft-state-recalc-bg);
+  color: var(--ft-state-recalc);
+}
+
+.runwayBadge {
+  border: var(--ft-rule-default);
+  background: var(--ft-bg-inset);
+  color: var(--ft-text-secondary);
+}
+
+.takeoffBriefEmpty {
+  min-height: calc(var(--ft-space-7) * 2);
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: var(--ft-space-2);
+  padding: var(--ft-space-4);
+  border-block: var(--ft-rule-default);
+  text-align: center;
+}
+
+.takeoffBriefEmpty strong {
+  color: var(--ft-text-primary);
+  font-family: var(--ft-font-ui);
+}
+
+.takeoffBriefEmpty span {
+  max-width: 42rem;
+  color: var(--ft-text-metadata);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.takeoffBriefActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ft-space-2);
+  align-items: center;
+}
+
+.takeoffWeatherNotice {
+  margin: 0;
+  color: var(--ft-state-recalc);
+  font-family: var(--ft-font-data);
+  font-size: 0.68rem;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+}
+
+.performanceEditorLayer {
+  position: fixed;
+  inset: 0;
+  z-index: 130;
+  display: grid;
+  justify-items: end;
+}
+
+.performanceEditorBackdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: color-mix(in srgb, var(--ft-text-primary) 22%, transparent);
+}
+
+.performanceEditorPanel {
+  position: relative;
+  box-sizing: border-box;
+  width: min(52rem, calc(100vw - var(--ft-shell-rail-width)));
+  height: 100dvh;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  border-inline-start: var(--ft-rule-strong);
+  background: var(--ft-bg-workspace);
+  color: var(--ft-text-primary);
+  box-shadow: calc(var(--ft-space-2) * -1) 0 var(--ft-space-6)
+    color-mix(in srgb, var(--ft-text-primary) 12%, transparent);
+  animation: ft-performance-editor-slide-in var(--ft-motion-panel) ease-out;
+}
+
+.performanceEditorHeader {
+  min-height: var(--ft-shell-topbar-height);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--ft-space-3);
+  padding: var(--ft-space-3) var(--ft-space-4);
+  padding-top: calc(var(--ft-space-3) + env(safe-area-inset-top));
+  border-bottom: var(--ft-rule-default);
+  background: var(--ft-bg-panel);
+}
+
+.performanceEditorHeader > div {
+  display: grid;
+  gap: var(--ft-space-1);
+}
+
+.performanceEditorHeader h2 {
+  margin: 0;
+  color: var(--ft-text-primary);
+  font-family: var(--ft-font-ui);
+  font-size: 1.125rem;
+}
+
+.performanceEditorClose {
+  min-width: var(--ft-touch-target-min);
+  min-height: var(--ft-touch-target-min);
+  border: var(--ft-rule-default);
+  border-radius: var(--ft-radius-4);
+  background: var(--ft-bg-inset);
+  color: var(--ft-text-primary);
+  font: inherit;
+  cursor: pointer;
+}
+
+.performanceEditorBody {
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: var(--ft-space-4);
+  padding-bottom: calc(var(--ft-space-7) + env(safe-area-inset-bottom));
+}
+
+.performanceEditorClose:focus-visible {
+  outline: var(--ft-focus-width) solid var(--ft-focus);
+  outline-offset: var(--ft-focus-offset);
+}
+
+@keyframes ft-performance-editor-slide-in {
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes ft-performance-editor-slide-up {
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
 .performanceGrid {
   overflow: hidden;
   display: grid;
@@ -447,6 +637,25 @@
   .briefHeader,
   .briefSection:first-of-type {
     grid-column: auto;
+  }
+
+  .takeoffBriefHeader {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .takeoffBriefStatus {
+    justify-content: flex-start;
+  }
+
+  .performanceEditorLayer {
+    justify-items: stretch;
+  }
+
+  .performanceEditorPanel {
+    width: 100%;
+    border-inline-start: 0;
+    animation-name: ft-performance-editor-slide-up;
   }
 
   .primaryAction,
@@ -504,9 +713,18 @@
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .performanceEditorPanel {
+    animation: none;
+  }
+}
+
 @media (forced-colors: active) {
   .primaryAction,
-  .secondaryAction {
+  .secondaryAction,
+  .performanceEditorClose,
+  .statusBadge,
+  .statusBadgeStale {
     outline: var(--ft-focus-width) solid Highlight;
     outline-offset: calc(var(--ft-focus-offset) * -1);
   }

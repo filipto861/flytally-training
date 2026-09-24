@@ -411,9 +411,10 @@ async function openP1Flight(page: Page): Promise<Locator> {
   return flight;
 }
 
-test("P1 Flight page exposes the Flight Brief structure", async ({ page }) => {
+test("P1.4 Flight Brief is the EFB landing surface", async ({ page }) => {
   const flight = await openP1Flight(page);
-  await expect(flight.getByRole("heading", { name: "Flight", exact: true })).toBeVisible();
+  await expect(flight).toHaveAttribute("data-efb-home", "true");
+  await expect(flight.getByRole("heading", { name: "Flight Brief", exact: true, level: 1 })).toBeVisible();
   await expect(
     flight.getByRole("region", { name: "Flight Brief" }),
   ).toBeVisible();
@@ -433,14 +434,15 @@ test("P1 Flight page shows the Active Flight empty state", async ({ page }) => {
   ).toHaveAttribute("href", new RegExp(`${aircraftPath}/fly`));
 });
 
-test("P1 Flight Brief Performance stays visibly empty without active-flight data", async ({ page }) => {
+test("P1.4 Flight Brief Takeoff card stays visibly empty without Active Flight", async ({ page }) => {
   const flight = await openP1Flight(page);
-  const performance = flight.getByRole("region", { name: "Performance", exact: true });
+  const takeoff = flight.getByRole("region", { name: "Takeoff performance brief" });
 
-  await expect(performance).toHaveAttribute("data-empty", "true");
-  await expect(performance.getByText("Flight brief", { exact: true })).toBeVisible();
-  await expect(performance).toContainText("No active flight.");
-  await expect(performance.locator('[data-ft-performance-strip="true"]')).toHaveCount(0);
+  await expect(takeoff).toHaveAttribute("data-performance-validity", "no-active-flight");
+  await expect(takeoff.getByText("NO ACTIVE FLIGHT", { exact: true })).toBeVisible();
+  await expect(takeoff.getByText("RUNWAY NOT SET", { exact: true })).toBeVisible();
+  await expect(takeoff).toContainText("No Takeoff calculation yet");
+  await expect(takeoff.locator('[data-ft-performance-strip="true"]')).toHaveCount(0);
 });
 
 test("P1 Flight Brief Flight Considerations stays visibly empty", async ({ page }) => {
@@ -589,10 +591,10 @@ test("D0 activates Flight Brief context without inventing downstream brief data"
   const brief = page.getByRole("region", { name: "Flight Brief" });
   await expect(brief).toHaveAttribute("data-flight-context", "active");
 
-  const performance = page.getByRole("region", { name: "Performance", exact: true });
-  await expect(performance).toHaveAttribute("data-empty", "true");
-  await expect(performance.getByText("Flight brief", { exact: true })).toBeVisible();
-  await expect(performance).toContainText("Performance setup required");
+  const takeoff = brief.getByRole("region", { name: "Takeoff performance brief" });
+  await expect(takeoff).toHaveAttribute("data-performance-validity", "not-calculated");
+  await expect(takeoff.getByText("NOT CALCULATED", { exact: true })).toBeVisible();
+  await expect(takeoff.getByRole("button", { name: "Calculate Takeoff", exact: true })).toBeVisible();
   await expect(
     page.getByRole("region", { name: "Flight Considerations" }),
   ).toContainText("No considerations yet.");
@@ -671,13 +673,64 @@ test("P1.1 PERFORMANCE top-level identifies its EFB context", async ({ page }) =
   await expect(workspace.getByText("EFB", { exact: true })).toBeVisible();
 });
 
-test("P2 Flight Brief reuses the same performance result with Flight brief context", async ({ page }) => {
+test("P1.4 Flight Brief reuses the same Performance snapshot in its Takeoff card", async ({ page }) => {
   await calculateP2Performance(page);
   await page.goto(`${shellOnBase}${aircraftPath}/flight`);
 
-  const performance = page.getByRole("region", { name: "Performance", exact: true });
-  await expect(performance.getByText("Flight brief", { exact: true })).toBeVisible();
-  await expect(performance.locator('[data-metric="takeoffDistance"]')).toContainText("3,100 ft");
+  const takeoff = page.getByRole("region", { name: "Takeoff performance brief" });
+  await expect(takeoff).toHaveAttribute("data-performance-validity", "current");
+  await expect(takeoff.getByText("CURRENT", { exact: true })).toBeVisible();
+  await expect(takeoff.getByText("RWY 24", { exact: true })).toBeVisible();
+  await expect(takeoff.locator('[data-metric="takeoffDistance"]')).toContainText("3,100 ft");
+});
+
+test("P1.4 Flight Brief Calculate/Edit uses one shared responsive Performance editor", async ({ page }) => {
+  await createD0ActiveFlight(page);
+
+  const brief = page.getByRole("region", { name: "Flight Brief" });
+  const takeoff = brief.getByRole("region", { name: "Takeoff performance brief" });
+  const trigger = takeoff.getByRole("button", { name: "Calculate Takeoff", exact: true });
+
+  await expect(takeoff).toHaveAttribute("data-performance-validity", "not-calculated");
+  await expect(takeoff.getByText("RUNWAY NOT SET", { exact: true })).toBeVisible();
+
+  await trigger.click();
+
+  const editor = page.getByRole("dialog", { name: "Takeoff performance editor" });
+  await expect(editor).toBeVisible();
+  await expect(editor.locator('[data-performance-view="brief"]')).toBeVisible();
+
+  await editor.getByLabel("Takeoff runway").selectOption("24");
+  await editor.getByLabel("QNH").fill("1013.25");
+  await editor.getByLabel("OAT").fill("15");
+  await editor.getByRole("button", { name: "Calculate Takeoff", exact: true }).click();
+
+  await expect(editor.locator('[data-metric="takeoffDistance"]')).toContainText("3,100 ft");
+  await editor.getByRole("button", { name: "Close Takeoff performance editor", exact: true }).click();
+
+  await expect(editor).toHaveCount(0);
+  await expect(takeoff).toHaveAttribute("data-performance-validity", "current");
+  await expect(takeoff.getByText("CURRENT", { exact: true })).toBeVisible();
+  await expect(takeoff.getByText("RWY 24", { exact: true })).toBeVisible();
+  await expect(takeoff.locator('[data-metric="n1"]')).toContainText("94 %");
+  await expect(takeoff.locator('[data-metric="takeoffDistance"]')).toContainText("3,100 ft");
+
+  const edit = takeoff.getByRole("button", { name: "Edit Performance", exact: true });
+  await expect(edit).toBeFocused();
+  await edit.click();
+
+  const reopened = page.getByRole("dialog", { name: "Takeoff performance editor" });
+  await expect(reopened.getByLabel("Takeoff runway")).toHaveValue("24");
+  await expect(reopened.getByLabel("QNH")).toHaveValue("1013.25");
+  await expect(reopened.getByLabel("OAT")).toHaveValue("15");
+  await reopened.getByRole("button", { name: "Close Takeoff performance editor", exact: true }).click();
+
+  await takeoff.getByRole("link", { name: "Open full Performance", exact: true }).click();
+  await expect(page).toHaveURL(new RegExp(`${aircraftPath}/performance`));
+  const fullPerformance = page
+    .getByRole("main", { name: "Performance workspace" })
+    .getByRole("region", { name: "Performance", exact: true });
+  await expect(fullPerformance.locator('[data-metric="takeoffDistance"]')).toContainText("3,100 ft");
 });
 
 test("P2 PERF fast path reuses the same performance result with Operational context", async ({ page }) => {

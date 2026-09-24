@@ -122,7 +122,7 @@ Weather rule:
 
 No Takeoff wind correction math in this phase.
 
-### P1.4 — Flight Brief becomes EFB home — NEXT
+### P1.4 — Flight Brief becomes EFB home — IN PROGRESS · PR #216
 
 Flight Brief is the EFB landing surface.
 
@@ -231,7 +231,7 @@ After Landing + wind + Partial Power:
 1. **P1.1 — LEARN / EFB split + Active Flight top-bar reconciliation** — COMPLETE · PR #211 + PR #213
 2. **P1.2 — Snapshot V2** — COMPLETE · PR #214
 3. **P1.3 — canonical Performance operation controller** — COMPLETE · PR #215
-4. **P1.4 — Flight Brief EFB home** — NEXT
+4. **P1.4 — Flight Brief EFB home** — IN PROGRESS · PR #216
 5. B5 — Landing integration
 6. Takeoff wind source extraction + runtime
 7. Partial Power source extraction + solver/runtime
