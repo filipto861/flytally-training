@@ -683,7 +683,7 @@ test("B6 Takeoff wind correction uses APPLIED weather and explicit newer-METAR r
         station: "LKPR",
         observedAt,
         fetchedAt: observedAt,
-        rawText: `LKPR B6 FIXTURE 240${String(windSpeedKt).padStart(2, "0")}KT 15/08 Q1013`,
+        rawText: `LKPR B6 FIXTURE 245${String(windSpeedKt).padStart(2, "0")}KT 15/08 Q1013`,
         temperatureC: 15,
         qnhHpa: 1013.25,
         // LKPR RWY 24 is 245°T in the bundled OurAirports snapshot.
@@ -746,7 +746,12 @@ test("B6 Takeoff wind correction uses APPLIED weather and explicit newer-METAR r
   await expect(restored.locator('[data-metric="v1"]')).toContainText("112 KIAS");
   await expect(restored.locator('[data-metric="takeoffDistance"]')).toContainText("2,800 ft");
 
-  await restored.getByRole("button", { name: "Apply & recalculate", exact: true }).click();
+  const applyAndRecalculate = restored.getByRole(
+    "button",
+    { name: "Apply & recalculate", exact: true },
+  );
+  await expect(applyAndRecalculate).toBeEnabled();
+  await applyAndRecalculate.click();
 
   await expect(restored.getByText("+20.0 kt", { exact: true })).toBeVisible();
   await expect(restored.locator('[data-metric="v1"]')).toContainText("113 KIAS");
