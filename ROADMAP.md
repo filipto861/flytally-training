@@ -373,13 +373,12 @@ The detailed future sequence is tracked in **Active implementation order** below
    - acceptance: targeted 76/76 PASS · full Node 1191 total / 1190 PASS / 0 FAIL / 1 SKIP · production build PASS · full Playwright 388/388 PASS · production readiness HTTP 200
    - merged to `main` in PR #224; production merge commit `7d90482dcb909e159fbfe95a94bc315e971b9374`
 
-13. **Performance source-envelope completion** — IN PROGRESS · started 2026-09-24
-   - audit each current Learjet performance dataset against the highest-authority applicable AFM/AFMS source rather than assuming the narrower checklist-table envelope is final
-   - extend governed datasets only where the actual source chart publishes a wider envelope
-   - cover N1, V1, Takeoff Distance, VR/V2 and Landing datasets independently because their valid source regions may differ
-   - preserve irregular/sparse chart boundaries explicitly; do not convert an irregular source region into an unsafe rectangular envelope
-   - add exact-boundary, just-inside, just-outside and interpolation-seam regression tests for every expanded dataset
-   - no arbitrary mathematical extrapolation; source-envelope completion means digitizing additional published source data
+13. **Performance source-envelope completion** — DEFERRED · authoritative Section V source pages unavailable
+   - keep the currently digitized Learjet source envelopes as the governed operational limits
+   - use bounded interpolation between published source nodes when all required source corners exist
+   - do not extrapolate beyond the current published/encoded envelope merely to increase coverage
+   - values outside the governed source envelope remain unavailable / fail-closed
+   - reopen this phase only if the applicable authoritative AFM/AFMS performance pages become available
 
 14. **Partial Power / Derated Takeoff operational enablement + pilot UI** — BLOCKED ON SOURCE CLOSURE
    - add an explicit Takeoff thrust-mode selector to the operational Performance UI:
