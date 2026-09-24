@@ -454,6 +454,16 @@ export function evaluateLearjet35aAeroncaPartialPower(
     };
   }
 
+  const prepared = prepareLearjet35aAssumedTemperature(
+    datasets,
+    definition,
+    request,
+  );
+  if (prepared.status === "unsupported") return prepared;
+
+  const preliminary = solveHighestAssumedTemperature(prepared.solverRequest);
+  if (preliminary.status !== "ready") return preliminary;
+
   const fullRatedN1Dataset = datasetById(datasets, FULL_RATED_N1_DATASET_ID);
   if (!fullRatedN1Dataset) {
     return {
@@ -476,13 +486,6 @@ export function evaluateLearjet35aAeroncaPartialPower(
       reason: "Aeronca full-rated Takeoff N1 is outside the source-supported region.",
     };
   }
-
-  const prepared = prepareLearjet35aAssumedTemperature(
-    datasets,
-    definition,
-    request,
-  );
-  if (prepared.status === "unsupported") return prepared;
 
   const ambientTemperatureF = sourceFahrenheitForCelsius(
     request.ambientTemperatureC,
