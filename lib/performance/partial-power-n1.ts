@@ -132,7 +132,7 @@ export type PartialPowerN1SourceValueResult =
   | {
       readonly status: "blocked";
       readonly reason:
-        | PartialPowerN1ExactLookupResult["reason"]
+        | Extract<PartialPowerN1ExactLookupResult, { status: "blocked" }>["reason"]
         | "interpolation-not-authorized"
         | "interpolation-source-region-incomplete"
         | "interpolation-source-region-unresolved";
