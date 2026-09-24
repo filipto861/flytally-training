@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-import { learjet35aPerformancePackage } from "../aircraft-data/learjet-35a/performance/package.ts";
+import { learjet35aLandingCalculatorDefinition } from "../aircraft-data/learjet-35a/performance/landing-calculator-definition.ts";
 import { browserTrainingPerformancePackage } from "../lib/browser-training-fixture.ts";
 import type { SelectedRunwayContext } from "../lib/aviation/airport-types.ts";
 import {
@@ -26,9 +26,25 @@ import {
 } from "../lib/performance/snapshot-v2.ts";
 import type { MetarSnapshot } from "../lib/weather/metar-types.ts";
 import type { ActiveFlight } from "../lib/active-flight/types.ts";
+import type { PerformanceDataset } from "../lib/universal-aircraft-content.ts";
 
 const read = (path: string) =>
   readFileSync(new URL("../" + path, import.meta.url), "utf8");
+
+const loadPerformanceDataset = (file: string): PerformanceDataset =>
+  JSON.parse(
+    readFileSync(
+      new URL("../aircraft-data/learjet-35a/performance/" + file, import.meta.url),
+      "utf8",
+    ),
+  ) as PerformanceDataset;
+
+const learjetLandingDatasets = [
+  loadPerformanceDataset("vref.json"),
+  loadPerformanceDataset("landing-climb-speed.json"),
+  loadPerformanceDataset("approach-climb-speed.json"),
+  loadPerformanceDataset("landing-distance-flaps40.json"),
+] as const;
 
 class MemoryStorage implements PerformanceResultStorage {
   readonly rows = new Map<string, string>();
@@ -120,12 +136,11 @@ test("B5 Landing context is destination-owned and excludes Takeoff configuration
 });
 
 test("B5 computes the existing source-backed Landing metrics without VAPP or wind correction", () => {
-  const definition = learjet35aPerformancePackage.landingCalculator;
-  assert.ok(definition);
+  const definition = learjet35aLandingCalculatorDefinition;
 
   const result = computeLandingPerformance(
     context,
-    learjet35aPerformancePackage.content.datasets,
+    learjetLandingDatasets,
     definition,
     { pressureAltitudeFt: 0, oatC: 16 },
     "2026-09-24T08:30:00.000Z",
@@ -140,12 +155,11 @@ test("B5 computes the existing source-backed Landing metrics without VAPP or win
 });
 
 test("B5 persists a native Landing V2 snapshot independently from Takeoff", () => {
-  const definition = learjet35aPerformancePackage.landingCalculator;
-  assert.ok(definition);
+  const definition = learjet35aLandingCalculatorDefinition;
 
   const result = computeLandingPerformance(
     context,
-    learjet35aPerformancePackage.content.datasets,
+    learjetLandingDatasets,
     definition,
     { pressureAltitudeFt: 0, oatC: 16 },
     "2026-09-24T08:30:00.000Z",
@@ -186,12 +200,11 @@ test("B5 persists a native Landing V2 snapshot independently from Takeoff", () =
 });
 
 test("B5 Landing dependency validity is operation-scoped", () => {
-  const definition = learjet35aPerformancePackage.landingCalculator;
-  assert.ok(definition);
+  const definition = learjet35aLandingCalculatorDefinition;
 
   const result = computeLandingPerformance(
     context,
-    learjet35aPerformancePackage.content.datasets,
+    learjetLandingDatasets,
     definition,
     { pressureAltitudeFt: 0, oatC: 16 },
   );
