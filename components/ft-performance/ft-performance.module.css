@@ -307,33 +307,11 @@
 
 .partialPowerSetup {
   display: grid;
-  gap: var(--ft-space-3);
-  padding: var(--ft-space-3);
-  border: var(--ft-rule-default);
-  border-radius: var(--ft-radius-4);
-  background: var(--ft-bg-inset);
-}
-
-.partialPowerSetup header {
-  display: grid;
-  gap: var(--ft-space-1);
-}
-
-.partialPowerSetup header strong {
-  color: var(--ft-text-primary);
-  font-size: 0.86rem;
-}
-
-.partialPowerSetup header p:last-child,
-.partialPowerSourceNote {
-  margin: 0;
-  color: var(--ft-text-metadata);
-  font-size: 0.7rem;
-  line-height: 1.45;
 }
 
 .eligibilityChecks {
   display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--ft-space-2);
 }
 
@@ -342,13 +320,14 @@
   display: flex;
   align-items: center;
   gap: var(--ft-space-2);
-  padding: var(--ft-space-2) var(--ft-space-3);
+  padding: var(--ft-space-2);
   border: var(--ft-rule-default);
   border-radius: var(--ft-radius-4);
-  background: var(--ft-bg-panel);
+  background: var(--ft-bg-inset);
   color: var(--ft-text-secondary);
-  font-size: 0.74rem;
-  font-weight: 650;
+  font-size: 0.68rem;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .eligibilityChecks input {
@@ -363,9 +342,10 @@
 }
 
 .partialPowerWarning {
-  display: grid;
-  gap: var(--ft-space-1);
-  padding: var(--ft-space-3);
+  display: flex;
+  align-items: center;
+  min-height: calc(var(--ft-space-6) - var(--ft-space-1));
+  padding-inline: var(--ft-space-2);
   border: var(--ft-rule-default);
   border-color: var(--ft-state-recalc);
   border-radius: var(--ft-radius-4);
@@ -375,15 +355,8 @@
 .partialPowerWarning strong {
   color: var(--ft-state-recalc);
   font-family: var(--ft-font-data);
-  font-size: 0.68rem;
+  font-size: 0.62rem;
   letter-spacing: 0.04em;
-}
-
-.partialPowerWarning p {
-  margin: 0;
-  color: var(--ft-text-secondary);
-  font-size: 0.72rem;
-  line-height: 1.45;
 }
 
 .partialPowerMetrics {
@@ -430,25 +403,22 @@
 
 .partialPowerFacts {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   margin: 0;
-  border-top: var(--ft-rule-default);
+  border: var(--ft-rule-default);
+  border-radius: var(--ft-radius-4);
+  overflow: hidden;
 }
 
 .partialPowerFacts > div {
   display: grid;
   gap: var(--ft-space-1);
-  padding: var(--ft-space-2) 0;
-  border-bottom: var(--ft-rule-default);
+  padding: var(--ft-space-2) var(--ft-space-3);
+  border-inline-end: var(--ft-rule-default);
 }
 
-.partialPowerFacts > div:nth-child(odd) {
-  padding-inline-end: var(--ft-space-3);
-}
-
-.partialPowerFacts > div:nth-child(even) {
-  padding-inline-start: var(--ft-space-3);
-  border-inline-start: var(--ft-rule-default);
+.partialPowerFacts > div:last-child {
+  border-inline-end: 0;
 }
 
 .partialPowerFacts dd {
@@ -951,7 +921,8 @@
   .setupGrid,
   .environmentFacts,
   .partialPowerMetrics,
-  .partialPowerFacts {
+  .partialPowerFacts,
+  .eligibilityChecks {
     grid-template-columns: minmax(0, 1fr);
   }
 
@@ -966,10 +937,14 @@
     border-bottom: 0;
   }
 
-  .partialPowerFacts > div:nth-child(odd),
-  .partialPowerFacts > div:nth-child(even) {
-    padding-inline: 0;
-    border-inline-start: 0;
+  .partialPowerFacts > div {
+    padding-inline: var(--ft-space-3);
+    border-inline-end: 0;
+    border-bottom: var(--ft-rule-default);
+  }
+
+  .partialPowerFacts > div:last-child {
+    border-bottom: 0;
   }
 
   .environmentFacts > div:nth-child(odd),
