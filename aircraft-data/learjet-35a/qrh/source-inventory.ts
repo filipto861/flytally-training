@@ -325,7 +325,8 @@ export const learjet35aQrhSourceInventory = {
 } as const;
 
 export const learjet35aQrhContractAudit = {
-  preservedByCurrentContract: [
+  status: "historical-qrh1-audit",
+  preservedBeforeQrh2: [
     "procedure title/category",
     "source WARNING/CAUTION/NOTE notices",
     "page-level source references",
@@ -341,7 +342,7 @@ export const learjet35aQrhContractAudit = {
     {
       id: "memory-items",
       finding:
-        "CL-102B memory items are source presentation semantics, but the operational UI currently infers immediate/memory emphasis from stage-label text.",
+        "CL-102B memory items are source presentation semantics, but the operational UI at QRH.1 audit time infers immediate/memory emphasis from stage-label text.",
     },
     {
       id: "training-required-fields",
@@ -361,7 +362,15 @@ export const learjet35aQrhContractAudit = {
     {
       id: "section-intro",
       finding:
-        "CL-102B Emergency and Abnormal sections each carry section-level operating principles that are not represented in the current operational QRH DTO.",
+        "CL-102B Emergency and Abnormal sections each carry section-level operating principles that are not represented in the QRH.1 operational QRH DTO.",
     },
+  ],
+  qrh2Resolution: [
+    "schemaVersion 2 requires explicit Emergency/Abnormal procedure class",
+    "memory-item semantics are explicit on source stages/actions and are never inferred from labels",
+    "operational source content no longer requires training setup/objectives/debrief fields",
+    "conditional branches are represented as nested source steps without flattening",
+    "source effectivity is explicit and mapped effectivity is invalid without a registered applicability selector",
+    "Emergency/Abnormal section introductions have a first-class source-backed contract",
   ],
 } as const;

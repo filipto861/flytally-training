@@ -92,7 +92,8 @@ test("QRH.1 preserves source memory and page-effectivity semantics explicitly", 
   assert.match(effectivity, /no-reverser/i);
 });
 
-test("QRH.1 contract audit names the current source-fidelity gaps", () => {
+test("QRH.1 historical audit remains traceable while QRH.2 resolves the contract gaps", () => {
+  assert.equal(learjet35aQrhContractAudit.status, "historical-qrh1-audit");
   assert.deepEqual(
     learjet35aQrhContractAudit.gaps.map((gap) => gap.id),
     [
@@ -104,27 +105,21 @@ test("QRH.1 contract audit names the current source-fidelity gaps", () => {
       "section-intro",
     ],
   );
+  assert.equal(learjet35aQrhContractAudit.qrh2Resolution.length, 6);
 
   const universal = read("lib/universal-abnormal-emergency.ts");
   const operational = read("components/operational-emergency.tsx");
-  const applicability = read("lib/universal-aircraft-content.ts");
 
-  assert.match(universal, /difficulty:/);
-  assert.match(universal, /minutes:/);
-  assert.match(universal, /setup:/);
-  assert.match(universal, /objectives:/);
-  assert.match(universal, /debrief:/);
-  assert.match(universal, /prompt:/);
-  assert.match(universal, /explanation:/);
+  assert.match(universal, /schemaVersion:\s*2/);
+  assert.match(universal, /procedureClass/);
+  assert.match(universal, /memoryItem/);
+  assert.match(universal, /AircraftQrhConditionBranch/);
+  assert.match(universal, /AircraftQrhTrainingOverlay/);
+  assert.match(universal, /AircraftQrhEffectivity/);
+  assert.match(universal, /AircraftQrhSectionIntroduction/);
 
-  assert.match(operational, /<span>EMERGENCY<\/span>/);
-  assert.match(operational, /\/immediate\|memory\/i/);
-
-  const applicabilityStart = applicability.indexOf("export type AircraftApplicability");
-  assert.ok(applicabilityStart >= 0);
-  const applicabilityBlock = applicability.slice(
-    applicabilityStart,
-    applicability.indexOf("};", applicabilityStart) + 2,
-  );
-  assert.doesNotMatch(applicabilityBlock, /serial/i);
+  assert.match(operational, /scenario\.procedureClass\.toUpperCase\(\)/);
+  assert.match(operational, /stage\.memoryItem/);
+  assert.doesNotMatch(operational, /<span>EMERGENCY<\/span>/);
+  assert.doesNotMatch(operational, /\/immediate\|memory\/i/);
 });

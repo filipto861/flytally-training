@@ -38,10 +38,14 @@ test("P5.1 keeps operational QRH free of training-only fields", () => {
   const mapper = read("lib/operational-flight-data.ts");
   const emergency = read("components/operational-emergency.tsx");
 
-  assert.match(mapper, /expectedResponse: \[\.\.\.stage\.expectedResponse\]/);
-  assert.match(mapper, /sources: stage\.sources\.map/);
-  assert.match(emergency, /stage\.expectedResponse\.map/);
+  assert.match(mapper, /procedureClass: scenario\.procedureClass/);
+  assert.match(mapper, /steps: mapV2Steps\(stage\.steps, sources\)/);
+  assert.match(mapper, /memoryItem: stage\.memoryItem/);
+  assert.match(emergency, /scenario\.procedureClass\.toUpperCase\(\)/);
+  assert.match(emergency, /stage\.memoryItem/);
+  assert.match(emergency, /<Steps steps=\{stage\.steps\} \/>/);
   assert.match(emergency, /Source &amp; authority/);
+  assert.doesNotMatch(emergency, /\/immediate\|memory\/i/);
 
   for (const pattern of [
     /scenario\.setup/,
