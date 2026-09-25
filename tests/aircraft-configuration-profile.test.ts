@@ -7,6 +7,7 @@ import {
 
 test("configuration metadata parser accepts and normalizes a complex profile", () => {
   const result = parseAircraftConfigurationMetadata({
+    serialNumber: " 35-113 ",
     baseVariant: " 35a ",
     capabilityTags: ["rvsm", "rvsm", "autoflight.fc200"],
     modifications: [{
@@ -22,6 +23,7 @@ test("configuration metadata parser accepts and normalizes a complex profile", (
   });
 
   assert.deepEqual(result, {
+    serialNumber: "35-113",
     baseVariant: "35a",
     capabilityTags: ["rvsm", "autoflight.fc200"],
     modifications: [{
@@ -74,5 +76,12 @@ test("configuration metadata parser rejects unknown fields", () => {
       baseVarient: "35a",
     }),
     /unsupported aircraft configuration metadata field/i,
+  );
+});
+
+test("configuration metadata parser accepts an exact manufacturer serial identifier without interpreting it", () => {
+  assert.deepEqual(
+    parseAircraftConfigurationMetadata({ serialNumber: " SN A-001/REV2 " }),
+    { serialNumber: "SN A-001/REV2" },
   );
 });

@@ -135,3 +135,39 @@ test("M1-D2 governance validates every structured configuration namespace", () =
   assert.match(governance, /assertApplicabilityModificationsRegistered/);
   assert.match(governance, /assertApplicabilityConfigurationEquipmentRegistered/);
 });
+
+test("M1-D3 registration traversal includes identifiers nested inside applicability anyOf branches", () => {
+  const payload = {
+    items: [{
+      applicability: {
+        anyOf: [
+          { serialNumberRanges: [{ prefix: "35-", from: 202 }] },
+          { modificationsAllOf: ["amk-78-13"] },
+          { configurationEquipmentAllOf: ["thrust-reverser-aeronca"] },
+        ],
+      },
+    }],
+  };
+
+  assert.deepEqual(collectEmbeddedModificationKeys(payload), ["amk-78-13"]);
+  assert.deepEqual(
+    collectEmbeddedConfigurationEquipmentKeys(payload),
+    ["thrust-reverser-aeronca"],
+  );
+  assert.doesNotThrow(() =>
+    assertApplicabilityModificationsRegistered(
+      payload,
+      ["amk-78-13"],
+      "generic-aircraft",
+    ),
+  );
+  assert.throws(
+    () =>
+      assertApplicabilityConfigurationEquipmentRegistered(
+        payload,
+        [],
+        "generic-aircraft",
+      ),
+    /unregistered configuration equipment identifier/i,
+  );
+});

@@ -553,3 +553,117 @@ test("variant context can be carried across module links", () => {
   assert.equal(withVariantQuery("/aircraft/x/performance", "35A"), "/aircraft/x/performance?variant=35A");
   assert.equal(withVariantQuery("/aircraft/x/performance?mode=training", "35A"), "/aircraft/x/performance?mode=training&variant=35A");
 });
+
+test("generic serial applicability supports exact and open/closed numeric families without inference", () => {
+  const configured = {
+    variant: "configured",
+    serialNumber: "35-113",
+    equipment: new Set<string>(),
+  } as const;
+
+  assert.equal(
+    matchesAircraftApplicability(
+      { serialNumbers: ["35-107", "35-113"] },
+      configured,
+    ),
+    true,
+  );
+  assert.equal(
+    matchesAircraftApplicability(
+      { serialNumberRanges: [{ prefix: "35-", from: 113 }] },
+      configured,
+    ),
+    true,
+  );
+  assert.equal(
+    matchesAircraftApplicability(
+      { serialNumberRanges: [{ prefix: "35-", from: 82, to: 112 }] },
+      configured,
+    ),
+    false,
+  );
+  assert.equal(
+    matchesAircraftApplicability(
+      { serialNumberRanges: [{ prefix: "36-", from: 32 }] },
+      configured,
+    ),
+    false,
+  );
+  assert.equal(
+    matchesAircraftApplicability(
+      { serialNumberRanges: [{ prefix: "35-", from: 113 }] },
+      { variant: "configured", equipment: new Set<string>() },
+    ),
+    false,
+  );
+});
+
+test("generic applicability OR-composition models serial-range or modification effectivity fail-closed", () => {
+  const sourceEffectivity = {
+    anyOf: [
+      { serialNumberRanges: [{ prefix: "35-", from: 202 }] },
+      { modificationsAllOf: ["amk-example"] },
+    ],
+  } as const;
+
+  assert.equal(
+    matchesAircraftApplicability(sourceEffectivity, {
+      variant: "configured",
+      serialNumber: "35-206",
+      equipment: new Set<string>(),
+      modifications: new Map(),
+    }),
+    true,
+  );
+  assert.equal(
+    matchesAircraftApplicability(sourceEffectivity, {
+      variant: "configured",
+      serialNumber: "35-100",
+      equipment: new Set<string>(),
+      modifications: new Map([["amk-example", "installed" as const]]),
+    }),
+    true,
+  );
+  assert.equal(
+    matchesAircraftApplicability(sourceEffectivity, {
+      variant: "configured",
+      serialNumber: "35-100",
+      equipment: new Set<string>(),
+      modifications: new Map([["amk-example", "unknown" as const]]),
+    }),
+    false,
+  );
+  assert.equal(
+    matchesAircraftApplicability(sourceEffectivity, {
+      variant: "configured",
+      equipment: new Set<string>(),
+    }),
+    false,
+  );
+});
+
+test("persisted aircraft serial is carried into the common applicability runtime", () => {
+  const aircraft = {
+    id: "serial-aircraft",
+    variants: ["configured"],
+    equipmentTags: [],
+    variantProfiles: [{
+      key: "configured",
+      displayName: "Configured",
+      equipmentTags: [],
+      configuration: {
+        serialNumber: "36-054",
+      },
+    }],
+  } as const;
+
+  const configuration = configurationForAircraftVariant(aircraft, "configured");
+  assert.equal(configuration.serialNumber, "36-054");
+  assert.equal(
+    matchesAircraftApplicability(
+      { serialNumberRanges: [{ prefix: "36-", from: 54 }] },
+      configuration,
+    ),
+    true,
+  );
+});

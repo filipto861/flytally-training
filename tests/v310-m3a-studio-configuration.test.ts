@@ -83,3 +83,9 @@ test("v3.1 M3A remains aircraft agnostic",()=>{
   ].join("\n");
   assert.doesNotMatch(implementation,/learjet|bristell|cessna|boeing|rotax/i);
 });
+
+test("QRH.3E Studio configuration surface exposes serial identity without aircraft-specific UI", () => {
+  const settings=read("app/admin/aircraft/[aircraftId]/settings/page.tsx");
+  assert.match(settings,/serialNumber/);
+  assert.match(settings,/verified serial number/i);
+});

@@ -38,6 +38,7 @@ test("complex configuration resolves explicit Learjet-style installation metadat
       equipmentTags: ["fc-200"],
     },
     configuration: {
+      serialNumber: "35-113",
       baseVariant: "35a",
       capabilityTags: [
         "autoflight.fc200",
@@ -73,6 +74,7 @@ test("complex configuration resolves explicit Learjet-style installation metadat
   const result = resolveEffectiveAircraftConfiguration(input);
 
   assert.equal(result.variantKey, "35a-zr-lite-aeromech");
+  assert.equal(result.serialNumber, "35-113");
   assert.equal(result.baseVariantKey, "35a");
   assert.deepEqual(result.equipmentTags, ["fc-200"]);
   assert.deepEqual(result.capabilityTags, [
@@ -191,4 +193,26 @@ test("persisted profile configuration feeds the effective resolver without a sec
   assert.equal(result.baseVariantKey, "35a");
   assert.deepEqual(result.capabilityTags, ["rvsm"]);
   assert.equal(result.modifications[0]?.key, "zr-lite");
+});
+
+test("snapshot id changes when the exact aircraft serial changes", () => {
+  const base = {
+    aircraft: { id: "generic-aircraft", equipmentTags: [] },
+    variantProfile: {
+      key: "configured",
+      displayName: "Configured",
+      equipmentTags: [],
+    },
+    configuration: {
+      serialNumber: "SN-001",
+      baseVariant: "base",
+    },
+  } as const;
+
+  const first = resolveEffectiveAircraftConfiguration(base);
+  const second = resolveEffectiveAircraftConfiguration({
+    ...base,
+    configuration: { ...base.configuration, serialNumber: "SN-002" },
+  });
+  assert.notEqual(first.snapshotId, second.snapshotId);
 });
