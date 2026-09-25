@@ -15,6 +15,14 @@ This file is the authoritative version history for completed FlyTally Training w
 ## 2026-09-25
 
 ### Changed
+- **PR #254 — QRH.3O Learjet Instruments Abnormal source batch**
+  - staged the complete two-procedure CL-102B Instruments Abnormal family from A-25/A-25.1 and A-26;
+  - preserved distinct `With Rosemount Pitot-Static System` and `Without Rosemount Pitot-Static System` source procedures through explicit generic `rosemount-pitot-static-system` configuration state, with unknown installation remaining fail-closed;
+  - preserved source-specific overspeed/stick-puller behavior, static-source recovery differences, the AFM airspeed/altitude correction-chart reference and V.G. MON gyro guidance;
+  - visual source review found no boxed memory items on A-25 through A-26;
+  - acceptance on head `7534297`: typecheck PASS; targeted QRH/applicability/P5/P6/W2 suite 173/173 PASS; full Node suite 1334 total / 1333 PASS / 0 FAIL / 1 SKIP; production build PASS; no Playwright rerun required because no browser/presentation behavior changed.
+
+### Changed
 - **PR #253 — QRH.3N Learjet Hydraulic Abnormal source batch**
   - staged the complete two-procedure CL-102B Hydraulic Abnormal family from A-23/A-24;
   - preserved the LO HYD pressure-result branch, the complete alternate-gear extension sequence and the source references to hydraulic-system-failure and gear-up landing procedures;

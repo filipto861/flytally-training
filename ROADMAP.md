@@ -710,7 +710,11 @@ The detailed future sequence is tracked in **Active implementation order** below
          - `LO HYD LIGHT` preserves the source `IF INSTALLED` qualifier through explicit generic `lo-hyd-light` configuration equipment; unknown/absent installation state fails closed while the all-aircraft alternate-gear procedure remains available
          - preserve the A-23 pressure-result branch, A-24 alternate-gear extension sequence and source references to hydraulic-system-failure and gear-up landing procedures; visual review found no boxed memory items
          - QRH.3N acceptance on head `dff2221`: typecheck PASS · targeted QRH/applicability/P5/P6/W2 suite 166/166 PASS · full Node suite 1327 total / 1326 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright not required because no browser/presentation behavior changed
-         - **QRH.3O Instruments Abnormal source batch — NEXT:** continue with PITOT-STATIC SYSTEM MALFUNCTION and V.G. MON LIGHT, preserving source effectivity and configuration-specific instrument-system paths
+         - **QRH.3O Instruments Abnormal source batch — COMPLETE · PR #254:** digitized PITOT-STATIC SYSTEM MALFUNCTION from A-25/A-25.1 and V.G. MON LIGHT from A-26
+         - PITOT-STATIC SYSTEM MALFUNCTION preserves distinct `With Rosemount Pitot-Static System` and `Without Rosemount Pitot-Static System` source paths through explicit generic `rosemount-pitot-static-system` configuration state; unknown installation remains fail-closed
+         - preserve the source-specific overspeed/stick-puller logic, static-source recovery differences, AFM correction-chart reference and A-26 gyro-monitor guidance; visual review found no boxed memory items
+         - QRH.3O acceptance on head `7534297`: typecheck PASS · targeted QRH/applicability/P5/P6/W2 suite 173/173 PASS · full Node suite 1334 total / 1333 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright not required because no browser/presentation behavior changed
+         - **QRH.3P Landing Gear Abnormal source batch — NEXT:** continue with the three Landing Gear procedures beginning on A-26/A-27, preserving exact gear-extension and anti-skid/nose-wheel-steering source branches
          - publish through the governed abnormal-domain lifecycle and verify operational-readiness gating
        - **QRH.4 cockpit acceptance — PLANNED**
          - verify fast-path category/procedure navigation, Emergency-vs-Abnormal distinction, memory-item emphasis, configuration filtering and source/authority disclosure on desktop/mobile/iPad
