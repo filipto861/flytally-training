@@ -88,12 +88,16 @@ The complete N-2 through N-18 normal-checklist sequence has now been transcribed
 
 Configuration-sensitive items are represented with explicit applicability rules and therefore fail closed when the current target profile reports the relevant equipment as unknown.
 
-## Publication blocker
+## Publication path
 
-The payload embeds the existing source identity `CL-102B`, matching the source ID already used by Learjet performance data. Production currently does **not** expose a registered CL-102B source family in the Learjet aircraft source inventory, so CHECKLIST publication must remain blocked until that source revision is registered with an operational authority role and exact source reference(s).
+The payload embeds the source identity `CL-102B`, matching the source ID already used by Learjet performance data. Production did not previously expose a registered CL-102B source family in the Learjet aircraft source inventory.
 
-After source registration:
-1. run the focused content/applicability gate;
-2. create a governed `checklists:bundle` draft from the reviewed payload;
-3. approve and publish through the normal content lifecycle;
-4. verify CHECKLIST fast-path population for `fc530-standard` in production.
+`tooling/publish-learjet-checklist.ts` is therefore intentionally guarded and performs the missing governance steps only after explicit operator confirmation:
+1. validate the reviewed universal checklist payload;
+2. register the reviewed CL-102B Change 2 source revision as **OPERATING_REFERENCE** if it is not already present;
+3. register the Normal Procedures N-2–N-18 source reference if needed;
+4. create a governed `checklists:bundle` draft;
+5. approve and publish through the existing content lifecycle;
+6. refuse competing/conflicting source identities and avoid republishing an identical payload.
+
+The publisher does not run on deploy. Production publication remains an explicit release action after the focused code/content gate passes.
