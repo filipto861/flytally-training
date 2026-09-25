@@ -1,0 +1,254 @@
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import test from "node:test";
+
+import { learjet35aSimBriefProfile } from "../aircraft-data/learjet-35a/simbrief-profile.ts";
+import {
+  activeFlightDependencyReference,
+  parseActiveFlightInput,
+} from "../lib/active-flight/validation.ts";
+import {
+  parseNormalizedSimBriefOfp,
+  parseSimBriefIdentity,
+  parseSimBriefLatestOfp,
+  simBriefAircraftCompatible,
+  simBriefLatestOfpUrl,
+} from "../lib/simbrief/ofp.ts";
+import {
+  clearSimBriefIdentity,
+  readSimBriefIdentity,
+  SIMBRIEF_IDENTITY_STORAGE_KEY,
+  writeSimBriefIdentity,
+  type SimBriefPreferenceStorage,
+} from "../lib/simbrief/preferences.ts";
+
+const read = (path: string) =>
+  fs.readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
+
+function memoryStorage(): SimBriefPreferenceStorage {
+  const values = new Map<string, string>();
+  return {
+    getItem(key) {
+      return values.get(key) ?? null;
+    },
+    setItem(key, value) {
+      values.set(key, value);
+    },
+    removeItem(key) {
+      values.delete(key);
+    },
+  };
+}
+
+const rawOfp = {
+  fetch: { status: "Success" },
+  params: {
+    request_id: "123456789",
+    time_generated: "1790360000",
+    units: "kgs",
+  },
+  origin: {
+    icao_code: "LKPR",
+    name: "Vaclav Havel Airport Prague",
+  },
+  destination: {
+    icao_code: "EGSS",
+    name: "London Stansted Airport",
+  },
+  weights: {
+    est_tow: "15000",
+  },
+  aircraft: {
+    icaocode: "LJ35",
+    icao_code: "LJ35",
+  },
+};
+
+test("15.1 accepts Navigraph Alias and 1-7 digit Pilot ID without conflating them", () => {
+  assert.deepEqual(
+    parseSimBriefIdentity({ kind: "alias", value: "Filip Test" }),
+    { kind: "alias", value: "Filip Test" },
+  );
+  assert.deepEqual(
+    parseSimBriefIdentity({ kind: "pilot-id", value: "1234567" }),
+    { kind: "pilot-id", value: "1234567" },
+  );
+  assert.equal(
+    parseSimBriefIdentity({ kind: "pilot-id", value: "12345678" }),
+    null,
+  );
+  assert.equal(
+    parseSimBriefIdentity({ kind: "pilot-id", value: "ABC123" }),
+    null,
+  );
+});
+
+test("15.1 latest-OFP URL uses official JSON v2 and explicit identity kind", () => {
+  const alias = simBriefLatestOfpUrl({
+    kind: "alias",
+    value: "Filip Test",
+  });
+  assert.equal(alias.origin, "https://www.simbrief.com");
+  assert.equal(alias.pathname, "/api/xml.fetcher.php");
+  assert.equal(alias.searchParams.get("username"), "Filip Test");
+  assert.equal(alias.searchParams.get("userid"), null);
+  assert.equal(alias.searchParams.get("json"), "v2");
+
+  const pilotId = simBriefLatestOfpUrl({
+    kind: "pilot-id",
+    value: "1234567",
+  });
+  assert.equal(pilotId.searchParams.get("userid"), "1234567");
+  assert.equal(pilotId.searchParams.get("username"), null);
+  assert.equal(pilotId.searchParams.get("json"), "v2");
+});
+
+test("15.1 parses only the normalized OFP fields Active Flight consumes", () => {
+  const parsed = parseSimBriefLatestOfp(rawOfp);
+  assert.ok(parsed);
+  assert.deepEqual(parsed.departure, {
+    icao: "LKPR",
+    name: "Vaclav Havel Airport Prague",
+  });
+  assert.deepEqual(parsed.destination, {
+    icao: "EGSS",
+    name: "London Stansted Airport",
+  });
+  assert.deepEqual(parsed.weight, { value: 15000, unit: "kg" });
+  assert.equal(parsed.aircraftIcaoCode, "LJ35");
+  assert.equal(parsed.requestId, "123456789");
+  assert.equal(parsed.generatedAt, new Date(1790360000 * 1000).toISOString());
+
+  assert.deepEqual(parseNormalizedSimBriefOfp(parsed), parsed);
+});
+
+test("15.1 preserves lb OFP weight units and fails closed on unsupported units", () => {
+  const pounds = parseSimBriefLatestOfp({
+    ...rawOfp,
+    params: { ...rawOfp.params, units: "lbs" },
+    weights: { est_tow: "33000" },
+  });
+  assert.deepEqual(pounds?.weight, { value: 33000, unit: "lb" });
+
+  assert.equal(
+    parseSimBriefLatestOfp({
+      ...rawOfp,
+      params: { ...rawOfp.params, units: "stones" },
+    }),
+    null,
+  );
+});
+
+test("15.1 Learjet compatibility is aircraft-owned and requires SimBrief ICAO LJ35", () => {
+  assert.deepEqual(learjet35aSimBriefProfile.acceptedIcaoCodes, ["LJ35"]);
+  assert.equal(
+    simBriefAircraftCompatible(learjet35aSimBriefProfile, "LJ35"),
+    true,
+  );
+  assert.equal(
+    simBriefAircraftCompatible(learjet35aSimBriefProfile, "LJ45"),
+    false,
+  );
+});
+
+test("15.1 SimBrief identifier preference is device-local and malformed data self-clears", () => {
+  const storage = memoryStorage();
+  writeSimBriefIdentity(storage, { kind: "alias", value: "Filip Test" });
+  assert.equal(
+    storage.getItem(SIMBRIEF_IDENTITY_STORAGE_KEY),
+    JSON.stringify({ kind: "alias", value: "Filip Test" }),
+  );
+  assert.deepEqual(readSimBriefIdentity(storage), {
+    kind: "alias",
+    value: "Filip Test",
+  });
+
+  storage.setItem(SIMBRIEF_IDENTITY_STORAGE_KEY, "{broken");
+  assert.equal(readSimBriefIdentity(storage), null);
+  assert.equal(storage.getItem(SIMBRIEF_IDENTITY_STORAGE_KEY), null);
+
+  writeSimBriefIdentity(storage, { kind: "pilot-id", value: "1234567" });
+  clearSimBriefIdentity(storage);
+  assert.equal(storage.getItem(SIMBRIEF_IDENTITY_STORAGE_KEY), null);
+});
+
+test("15.1 Active Flight accepts field-level SimBrief provenance without changing performance dependency semantics", () => {
+  const importedAt = "2026-09-25T20:00:00.000Z";
+  const base = {
+    aircraftId: "learjet-35a",
+    departure: { icao: "LKPR" },
+    destination: { icao: "EGSS" },
+    weight: { value: 15000, unit: "kg" as const },
+    brief: null,
+  };
+  const withProvenance = parseActiveFlightInput({
+    ...base,
+    prefillProvenance: {
+      provider: "simbrief",
+      requestId: "123456789",
+      generatedAt: "2026-09-25T19:55:00.000Z",
+      importedAt,
+      aircraftIcaoCode: "LJ35",
+      fields: ["departure", "destination", "weight"],
+    },
+  });
+  assert.ok(withProvenance);
+  assert.deepEqual(withProvenance.prefillProvenance?.fields, [
+    "departure",
+    "destination",
+    "weight",
+  ]);
+
+  const withoutProvenance = parseActiveFlightInput(base);
+  assert.ok(withoutProvenance);
+  assert.equal(
+    activeFlightDependencyReference(withProvenance),
+    activeFlightDependencyReference(withoutProvenance),
+  );
+
+  assert.equal(
+    parseActiveFlightInput({
+      ...base,
+      prefillProvenance: {
+        provider: "simbrief",
+        requestId: "123456789",
+        generatedAt: null,
+        importedAt,
+        aircraftIcaoCode: "LJ35",
+        fields: ["weight", "weight"],
+      },
+    }),
+    null,
+  );
+});
+
+test("15.1 provider proxy is explicit-action, no-store and never background-polls SimBrief", () => {
+  const route = read("app/api/simbrief/latest/route.ts");
+  const activeFlight = read("components/ft-flight/FtActiveFlight.tsx");
+
+  assert.match(route, /export async function POST/);
+  assert.match(route, /isTrustedMutationRequest/);
+  assert.match(route, /cache: "no-store"/);
+  assert.match(route, /AbortSignal\.timeout\(10_000\)/);
+  assert.match(route, /simBriefLatestOfpUrl/);
+  assert.match(route, /simBriefAircraftCompatible/);
+  assert.doesNotMatch(route, /setInterval|setTimeout\(|cron|poll/i);
+
+  assert.match(activeFlight, /onClick=\{importSimBrief\}/);
+  assert.match(activeFlight, /Import latest OFP/);
+  assert.doesNotMatch(activeFlight, /useEffect[\s\S]*importLatestSimBriefOfp/);
+});
+
+test("15.1 provenance persistence is schema-owned, exported and DML-only at runtime", () => {
+  const schema = read("lib/active-flight/schema.ts");
+  const migration = read("migrations/20260925_active_flight_prefill_provenance.sql");
+  const store = read("lib/active-flight/store.ts");
+  const privacy = read("lib/training-privacy.ts");
+
+  assert.match(schema, /prefill_provenance JSONB NULL/);
+  assert.match(schema, /ADD COLUMN IF NOT EXISTS prefill_provenance/);
+  assert.match(migration, /ADD COLUMN IF NOT EXISTS prefill_provenance JSONB NULL/);
+  assert.match(store, /prefill_provenance/);
+  assert.doesNotMatch(store, /CREATE\s+(TABLE|INDEX)|ALTER\s+TABLE/i);
+  assert.match(privacy, /prefill_provenance/);
+});
