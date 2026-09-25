@@ -563,8 +563,8 @@ The detailed future sequence is tracked in **Active implementation order** below
        - **15.3b.3 Production DB credential handoff for one-shot checklist publication — BLOCKED / ENVIRONMENT**
          - explicit publish now reaches the runtime guard correctly, but local `.env.local` does not contain `TRAINING_DATABASE_URL`
          - production itself is healthy and database-backed; the missing value is local release-environment access, not a production database outage or checklist-content failure
-         - use Vercel CLI to pull the Production environment into a temporary local env file without exposing the credential in chat or source control
-         - run the guarded publisher against that temporary env, then delete the temporary file immediately
+         - preferred release path: use Vercel CLI `env run -e production -- ...` so the one-shot publisher executes with the linked project's Production environment without writing production credentials into repository files or chat
+         - retain the explicit `CONFIRM_LEARJET_CHECKLIST_PUBLISH=yes` guard; if the local clone is not linked to the Vercel project, link it first
          - after successful publication: production CHECKLIST smoke, readiness smoke, close 15.3b and record the release in CHANGELOG
      - **15.3c QRH fast path — CONTENT GAP CONFIRMED**
        - runtime/UI is implemented and deliberately fails closed unless the published abnormal module is fresh and all linked sources are CONTROLLING or OPERATING_REFERENCE
