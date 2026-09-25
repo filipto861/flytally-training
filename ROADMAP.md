@@ -588,7 +588,9 @@ The detailed future sequence is tracked in **Active implementation order** below
          - one-time migration imports the pre-existing unscoped canonical session (sessionStorage) or legacy operational state into the new scoped session and consumes the old key so it cannot seed later flights repeatedly
          - Learn checklist-training persistence remains unscoped/session-based and separate from Active Flight operational state
          - focused coverage added for Active Flight key isolation, one-time migration, shared Flight Deck/Fast Path ownership, reset controls and browser synchronization
-         - acceptance pending: typecheck · targeted session/P5/15.3b.5 tests · production build; targeted browser smoke if local server is available
+         - first focused gate: session/runtime cases passed, but typecheck/build exposed one callback-narrowing error in Fast Path reset and P5.6 exposed one stale source-text assertion after the intended e2e test rename
+         - both gate findings are fixed without changing runtime behavior: reset callback now captures the already-validated phase id, and P5.6 expects the new flight-scoped migration test title
+         - acceptance pending: rerun typecheck · targeted session/P5/15.3b.5 tests · production build; targeted browser smoke if local server is available
      - **15.3c QRH fast path — CONTENT GAP CONFIRMED**
        - runtime/UI is implemented and deliberately fails closed unless the published abnormal module is fresh and all linked sources are CONTROLLING or OPERATING_REFERENCE
        - there is no Learjet bundled QRH/emergency fallback
