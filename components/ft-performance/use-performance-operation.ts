@@ -383,13 +383,14 @@ function useTakeoffPerformanceOperation(
       return;
     }
 
+    const stationIcao = icao;
     const controller = new AbortController();
     let active = true;
 
     async function refreshMetar(): Promise<void> {
       try {
         const response = await fetch(
-          `/api/weather/metar?icao=${encodeURIComponent(icao)}`,
+          `/api/weather/metar?icao=${encodeURIComponent(stationIcao)}`,
           {
             cache: "no-store",
             signal: controller.signal,
