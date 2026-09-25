@@ -120,6 +120,58 @@ export function parseSimBriefLatestOfp(value: unknown): SimBriefLatestOfp | null
   };
 }
 
+export function parseNormalizedSimBriefOfp(
+  value: unknown,
+): SimBriefLatestOfp | null {
+  const row = object(value);
+  if (!row) return null;
+  const departureRow = object(row.departure);
+  const destinationRow = object(row.destination);
+  const weightRow = object(row.weight);
+  const departure = departureRow
+    ? airport({
+        icao_code: departureRow.icao,
+        name: departureRow.name,
+      })
+    : null;
+  const destination = destinationRow
+    ? airport({
+        icao_code: destinationRow.icao,
+        name: destinationRow.name,
+      })
+    : null;
+  const weightValue = numeric(weightRow?.value);
+  const unit = weightUnit(weightRow?.unit);
+  const aircraftIcaoCode = text(row.aircraftIcaoCode, 8)?.toUpperCase();
+  const requestId = text(row.requestId, 64);
+  const generatedAt =
+    row.generatedAt === null
+      ? null
+      : text(row.generatedAt, 64);
+
+  if (
+    !departure
+    || !destination
+    || !weightValue
+    || weightValue <= 0
+    || !unit
+    || !aircraftIcaoCode
+    || !requestId
+    || (generatedAt !== null && (!generatedAt || Number.isNaN(Date.parse(generatedAt))))
+  ) {
+    return null;
+  }
+
+  return {
+    departure,
+    destination,
+    weight: { value: weightValue, unit },
+    aircraftIcaoCode,
+    requestId,
+    generatedAt: generatedAt ? new Date(generatedAt).toISOString() : null,
+  };
+}
+
 export function simBriefAircraftCompatible(
   profile: SimBriefAircraftProfile,
   aircraftIcaoCode: string,
