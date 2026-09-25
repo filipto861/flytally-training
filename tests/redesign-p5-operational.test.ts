@@ -76,10 +76,10 @@ test("P5.1 new-shell Flight Deck consumes canonical checklist state while preser
 });
 
 test("P5.1 keeps REF ownership documented in the historical P5 contract", () => {
-  const inventory = read("P5_OPERATIONAL_FAST_PATH.md");
+  const inventory = read("TECHNICAL_DOCUMENTATION.md");
   const roadmap = read("ROADMAP.md");
 
-  assert.match(inventory, /REF.*Not P5.*owned by P7/i);
+  assert.match(inventory, /REF was not P5 work; it was owned by the P7 reference phase/i);
   assert.match(roadmap, /one authoritative roadmap: this file/i);
 });
 
