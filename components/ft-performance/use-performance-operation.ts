@@ -823,12 +823,13 @@ function useTakeoffPerformanceOperation(
       || key === lastAutoCalculatedWeatherKey.current
       || !hasDisplayedCalculation
       || !canCalculate
+      || busy
       || calculationPending.current
     ) return;
 
     lastAutoCalculatedWeatherKey.current = key;
     calculateWithWeather(appliedWeather);
-  }, [appliedWeather, canCalculate, hasDisplayedCalculation]);
+  }, [appliedWeather, busy, canCalculate, hasDisplayedCalculation]);
 
   const invalidationMessage = storedState?.requiresRecalculation
     ? "This stored result was migrated from legacy performance data without complete weather provenance. Recalculate to create a current V2 snapshot."
