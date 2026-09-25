@@ -47,15 +47,27 @@ For the operational CHECKLIST dataset, CL-102B is therefore treated as an operat
 
 ## Applicability/equipment mapping required before publication
 
-The following source distinctions must be mapped to the aircraft configuration vocabulary already used by FlyTally before affected checklist items are published:
+The current production target profile `fc530-standard` explicitly declares:
+- equipment tags: `msfs-flysimware`, `fc-530`, `rosemount-pitot-static`, `tfe731-2-2b`, `standard-flaps`;
+- installed configuration equipment: autopilot (FC-530), pitot-static (Rosemount), engine (TFE731-2-2B);
+- thrust-reverser state: **unknown**;
+- drag-chute state: **unknown**.
 
-- Rosemount pitot-static system;
+The digitized payload therefore:
+- selects Rosemount-specific normal-checklist wording for this profile;
+- includes FC-530-specific trim checks;
+- filters FC-200-only items out;
+- fails closed on TR-4000/Aeronca-specific and drag-chute items until the target simulator equipment is positively identified;
+- fails closed on optional installed-equipment items where the profile does not declare an installed state.
+
+The following source distinctions remain to be completed in the configuration vocabulary before all source items can be displayed:
 - TR-4000 thrust reversers;
 - Aeronca thrust reversers / position indication;
-- FC-200 autopilot;
-- other explicit “if installed” qualifiers encountered during item-level extraction.
+- optional emergency lights, auxiliary heat, coffee/oven, electrically heated windshield, fuselage fuel valve and IN NORMAL/OUT DEFOG equipment where applicable.
 
-Do not infer these tags from aircraft names, simulator variants or serial-number guesses.
+The CL-102B FL410 oxygen-mask check is serial-number/effectivity dependent. The current checklist applicability contract has no aircraft serial-number predicate, so that item is intentionally **not** included in operational output yet. Add explicit serial/effectivity support rather than representing it as common content.
+
+Do not infer optional equipment or serial effectivity from aircraft names, simulator variants or guesses.
 
 ## Digitization rules
 
@@ -68,19 +80,18 @@ Do not infer these tags from aircraft names, simulator variants or serial-number
 7. Every phase/item in the final universal payload must carry a registered source reference.
 8. Publication remains blocked until the canonical registered CL-102B manual/revision/source-reference IDs are confirmed and the item-level applicability mapping is complete.
 
-## Next extraction batch
+## Digitization status
 
-Begin with the configuration-common core:
-- Cabin Preflight;
-- Starting Engines;
-- Runway Lineup common items;
-- After Takeoff common items;
-- Climb;
-- Cruise;
-- Descent;
-- Approach common items;
-- Go Around;
-- After Landing common items;
-- Shutdown common items.
+The complete N-2 through N-18 normal-checklist sequence has now been transcribed into `normal-checklist.ts`, excluding N-15 performance tables and the unresolved serial-number-only FL410 oxygen-mask item.
 
-Then add configuration-scoped items/branches after the equipment-tag mapping is verified.
+Configuration-sensitive items are represented with explicit applicability rules and therefore fail closed when the current target profile reports the relevant equipment as unknown.
+
+## Publication blocker
+
+The payload embeds the existing source identity `CL-102B`, matching the source ID already used by Learjet performance data. Production currently does **not** expose a registered CL-102B source family in the Learjet aircraft source inventory, so CHECKLIST publication must remain blocked until that source revision is registered with an operational authority role and exact source reference(s).
+
+After source registration:
+1. run the focused content/applicability gate;
+2. create a governed `checklists:bundle` draft from the reviewed payload;
+3. approve and publish through the normal content lifecycle;
+4. verify CHECKLIST fast-path population for `fc530-standard` in production.
