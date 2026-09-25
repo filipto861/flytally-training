@@ -15,6 +15,14 @@ This file is the authoritative version history for completed FlyTally Training w
 ## 2026-09-25
 
 ### Changed
+- **PR #259 — QRH.3T generic graphical operating-envelope support**
+  - added an aircraft-agnostic QRH operating-envelope figure contract, operational projection and responsive SVG presentation for source-digitized visual-reference geometry;
+  - represented both CL-102B E-13 AIRSTART ENVELOPE and A-35.2 THRUST REVERSER RESTOW ENVELOPE with source axes, labelled regions/guides/annotations and exact source-page provenance;
+  - kept figure geometry explicitly non-computational: no interpolation, lookup or automated envelope-membership decision is permitted;
+  - attached E-13 to all four airstart procedures and A-35.2 to the TR-4000 inadvertent-deployment procedure, removing the final known graphical representation blockers without Learjet-specific runtime branches;
+  - acceptance: typecheck PASS; targeted QRH/applicability/P5/P6/W2 suite 98/98 PASS; full Node suite 1363 total / 1362 PASS / 0 FAIL / 1 SKIP; production build PASS; Playwright 392/392 PASS across desktop Chromium, mobile Chromium, iPad landscape and iPad portrait.
+
+### Changed
 - **PR #258 — QRH.3S Learjet Thrust Reversers Abnormal source batch**
   - staged all six textual CL-102B Thrust Reversers abnormal procedures from A-34.1/A-35.1 Aeronca and A-34.2 TR-4000;
   - explicitly accounted for the seventh indexed item, the graphical A-35.2 THRUST REVERSER RESTOW ENVELOPE, without flattening its source geometry into textual thresholds;
