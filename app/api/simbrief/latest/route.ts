@@ -6,10 +6,10 @@ import { isNewShellEnabled } from "@/lib/feature-flags";
 import { isTrustedMutationRequest } from "@/lib/request-security";
 import {
   parseSimBriefIdentity,
-  parseSimBriefLatestOfp,
   simBriefAircraftCompatible,
-  simBriefLatestOfpUrl,
 } from "@/lib/simbrief/ofp";
+import { fetchLatestSimBriefOfp } from "@/lib/simbrief/provider";
+import { getTrainingSession } from "@/lib/training-session";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -36,6 +36,8 @@ function cleanAircraftId(value: unknown): string | null {
 export async function POST(request: Request) {
   if (!isNewShellEnabled()) return response("feature_disabled", 404);
   if (!isTrustedMutationRequest(request)) return response("untrusted_origin", 403);
+  const session = await getTrainingSession();
+  if (!session) return response("unauthorized", 401);
 
   let body: unknown;
   try {
@@ -59,41 +61,21 @@ export async function POST(request: Request) {
   if (!aircraft) return response("invalid_aircraft", 400);
   if (!profile) return response("simbrief_not_configured", 400);
 
-  let providerResponse: Response;
-  try {
-    providerResponse = await fetch(simBriefLatestOfpUrl(identity), {
-      method: "GET",
-      cache: "no-store",
-      headers: {
-        accept: "application/json",
-        "user-agent": "FlyTally-Training/SimBrief-Import",
-      },
-      signal: AbortSignal.timeout(10_000),
-    });
-  } catch (error) {
-    if (error instanceof Error && error.name === "TimeoutError") {
-      return response("simbrief_timeout", 504);
-    }
-    return response("simbrief_unavailable", 502);
-  }
-
-  if (providerResponse.status === 400) {
+  const provider = await fetchLatestSimBriefOfp(identity);
+  if (provider.status === "not-found") {
     return response("simbrief_no_flight", 404);
   }
-  if (!providerResponse.ok) {
+  if (provider.status === "timeout") {
+    return response("simbrief_timeout", 504);
+  }
+  if (provider.status === "unavailable") {
     return response("simbrief_unavailable", 502);
   }
-
-  let providerBody: unknown;
-  try {
-    providerBody = await providerResponse.json();
-  } catch {
+  if (provider.status === "invalid-response") {
     return response("simbrief_invalid_response", 502);
   }
 
-  const ofp = parseSimBriefLatestOfp(providerBody);
-  if (!ofp) return response("simbrief_invalid_response", 502);
-
+  const ofp = provider.ofp;
   if (!simBriefAircraftCompatible(profile, ofp.aircraftIcaoCode)) {
     return response("aircraft_mismatch", 409, {
       actualIcaoCode: ofp.aircraftIcaoCode,
