@@ -285,6 +285,7 @@ test("P5 QRH fast path renders governed operational content without navigation",
     qrh.getByRole("heading", { name: "If generic condition persists", exact: true }),
   ).toBeVisible();
   await expect(qrh.getByText("Action C", { exact: true })).toBeVisible();
+  await expect(qrh.getByText("Source information C", { exact: true })).toBeVisible();
   await expect(qrh.getByText("Action D", { exact: true })).toBeVisible();
 
   const authority = qrh.locator("details").filter({ hasText: "Source & authority" });
