@@ -743,9 +743,12 @@ The detailed future sequence is tracked in **Active implementation order** below
          - acceptance: typecheck PASS · focused QRH.3U suite 18/18 PASS · full Node suite 1381 total / 1380 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright 392/392 PASS; hotfix targeted 29/29 PASS · hotfix full Node 1384 total / 1383 PASS / 0 FAIL / 1 SKIP
          - governed production publication version `8b2b0468-10b5-4711-b1c7-3787f375aa84` published successfully on 2026-09-25; production readiness remained 200/ready with source-governed release checks true and no runtime errors
          - authenticated production smoke for `fc530-standard` confirmed operational QRH content is present (including ENGINE FIRE and E-13 AIRSTART ENVELOPE), the prior `QRH unavailable` state is gone, and configuration-specific content such as TR-4000 RESTOW and NICAD-only BATTERY OVERHEAT remains correctly filtered when those installation facts are not asserted
-       - **QRH.4 cockpit acceptance — PLANNED**
-         - verify fast-path category/procedure navigation, Emergency-vs-Abnormal distinction, memory-item emphasis, configuration filtering and source/authority disclosure on desktop/mobile/iPad
-         - full Node/build/Playwright plus authenticated production publication/smoke before closure
+       - **QRH.4 cockpit acceptance — IN PROGRESS**
+         - verify fast-path category/procedure navigation, Emergency-vs-Abnormal distinction, memory-item emphasis, configuration filtering, graphical-envelope presentation and source/authority disclosure on desktop/mobile/iPad
+         - acceptance must exercise the real Fast Path scroll container rather than window-only scrolling; mobile QRH Quick Access must collapse/re-expand correctly inside the full-screen drawer
+         - Emergency and Abnormal procedures must remain textually explicit and visually distinguishable without relying on color alone; memory-item metadata must remain visibly emphasized and machine-identifiable for acceptance
+         - package-level acceptance must prove fail-closed filtering still hides unknown NICAD/TR-4000 configuration content while retaining source-authoritative all-aircraft procedures
+         - full Node/build/Playwright plus authenticated production smoke before closure
      - **15.3d PERF fast path — POPULATED / PARTIAL CONTENT COMPLETE**
        - current Learjet bundled performance package contains the implemented Takeoff/Landing datasets and calculator definitions, so PERF does not depend solely on a DB-published performance bundle
        - current package covers Takeoff N1, takeoff weight limits, V1/VR/V2, takeoff distance/wind support, VREF, approach/landing climb speeds and landing distance within their governed source envelopes
