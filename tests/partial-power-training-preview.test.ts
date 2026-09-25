@@ -140,21 +140,28 @@ test("PP.4 controller defaults to Full Rated and never persists a Partial Power 
   assert.match(partialBranch, /return;/);
 });
 
-test("PP.4 pilot UI keeps Partial Power explicit, compact and visibly source-limited", () => {
-  const source = fs.readFileSync(
+test("PP.4 pilot UI keeps Partial Power explicit and strips checklist-style setup", () => {
+  const presentation = fs.readFileSync(
     new URL("../components/ft-performance/FtPerformancePresentation.tsx", import.meta.url),
     "utf8",
   );
+  const controller = fs.readFileSync(
+    new URL("../components/ft-performance/use-performance-operation.ts", import.meta.url),
+    "utf8",
+  );
 
-  assert.match(source, /Takeoff thrust mode/);
-  assert.match(source, />Full Rated</);
-  assert.match(source, />Partial Power · Aeronca</);
-  assert.match(source, /setPartialPowerThrustReversers\("aeronca"\)/);
-  assert.doesNotMatch(source, /Partial Power thrust reverser configuration/);
-  assert.match(source, /TRAINING · 25% LIMIT UNVERIFIED/);
-  assert.match(source, />Dry hard-paved</);
-  assert.match(source, />Anti-skid operative</);
-  assert.match(source, /Full-rated &lt;30 days/);
-  assert.doesNotMatch(source, /These confirmations are required by the source procedure/);
-  assert.doesNotMatch(source, /Full Rated is the operational default/);
+  assert.match(presentation, /Takeoff thrust mode/);
+  assert.match(presentation, />Full Rated</);
+  assert.match(presentation, />Partial Power · Aeronca</);
+  assert.match(controller, /setPartialPowerThrustReversers\(value === "partial-power" \? "aeronca" : "unknown"\)/);
+  assert.doesNotMatch(presentation, /Partial Power thrust reverser configuration/);
+  assert.doesNotMatch(presentation, /Dry hard-paved/);
+  assert.doesNotMatch(presentation, /Anti-skid operative/);
+  assert.doesNotMatch(presentation, /Full-rated &lt;30 days/);
+  assert.match(presentation, /ASDA override/);
+  assert.match(presentation, /TRAINING · 25% LIMIT UNVERIFIED/);
+  assert.match(
+    controller,
+    /runwayDryHardPaved: true,[\s\S]*antiSkidOperative: true,[\s\S]*fullRatedTakeoffWithin30Days: true/,
+  );
 });
