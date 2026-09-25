@@ -89,8 +89,6 @@ export function FtPerformanceOperationPresentation({
     invalidationMessage,
     canCalculate,
     airportDataState,
-    selectedAirportName,
-    selectedAirportElevationFt,
     runwayOptions,
     runwayContext,
     runwayIdentifier,
@@ -103,7 +101,6 @@ export function FtPerformanceOperationPresentation({
     flaps,
     antiIce,
     thrustMode,
-    partialPowerThrustReversers,
     partialPowerRunwayDryHardPaved,
     partialPowerAntiSkidOperative,
     partialPowerFullRatedTakeoffWithin30Days,
@@ -144,17 +141,10 @@ export function FtPerformanceOperationPresentation({
   const partialPowerContent = !partialPowerPreview ? (
     <div className={styles.resultEmpty}>
       <span>PARTIAL POWER</span>
-      <strong>Source-supported preview not computed yet</strong>
-      <p>Complete the Partial Power inputs and evaluate the assumed-temperature calculation.</p>
+      <strong>Ready to calculate</strong>
     </div>
   ) : partialPowerPreview.evaluation.status === "source-supported" ? (
     <div className={styles.partialPowerResult}>
-      <div className={styles.partialPowerWarning} role="status">
-        <strong>SOURCE-SUPPORTED TRAINING PREVIEW</strong>
-        <p>
-          This result is not operationally accepted. The independent maximum 25% rated-takeoff-thrust reduction check is not yet source-closed.
-        </p>
-      </div>
       <div className={styles.partialPowerMetrics}>
         <div><span>Assumed Temp</span><strong>{partialPowerPreview.evaluation.assumedTemperature.toFixed(1)} °C</strong></div>
         <div><span>Target N1</span><strong>{partialPowerPreview.evaluation.reducedN1.toFixed(1)} %</strong></div>
@@ -176,14 +166,7 @@ export function FtPerformanceOperationPresentation({
           <dt>Usable field length</dt>
           <dd>{Math.round(partialPowerPreview.evaluation.usableTakeoffFieldLength).toLocaleString("en-US")} ft · {partialPowerPreview.evaluation.limitingDeclaredDistance}</dd>
         </div>
-        <div>
-          <dt>Configuration</dt>
-          <dd>Aeronca thrust reversers</dd>
-        </div>
       </dl>
-      <p className={styles.timestamp}>
-        Preview calculated {new Date(partialPowerPreview.computedAt).toLocaleString("en-GB")}
-      </p>
     </div>
   ) : (
     <div className={styles.resultEmpty}>
@@ -256,9 +239,7 @@ export function FtPerformanceOperationPresentation({
             <header className={styles.paneHeader}>
               <p className={styles.eyebrow}>TAKEOFF INPUTS</p>
               <h2>{current.departure.icao} departure</h2>
-              <p className={styles.inputHelp}>
-                Active Flight supplies the route and planning weight. Performance owns the selected runway, Takeoff configuration and applied calculation environment.
-              </p>
+
             </header>
 
             <div className={styles.setupGrid}>
@@ -278,13 +259,9 @@ export function FtPerformanceOperationPresentation({
                     </option>
                   ))}
                 </select>
-                <small>
-                  {airportDataState === "error"
-                    ? "Airport/runway data unavailable."
-                    : selectedAirportName && selectedAirportElevationFt !== undefined
-                      ? `${selectedAirportName} · field elevation ${selectedAirportElevationFt.toLocaleString("en-US")} ft`
-                      : "Departure airport not present in the bundled runway dataset."}
-                </small>
+                {airportDataState === "error" ? (
+                  <small>Runway data unavailable</small>
+                ) : null}
               </label>
 
               <label className={styles.setupField}>
@@ -301,28 +278,31 @@ export function FtPerformanceOperationPresentation({
                   />
                   <small>{takeoffWeightUnit}</small>
                 </span>
-                <small>Initialized from Active Flight planning weight.</small>
+
               </label>
 
               <label className={styles.setupField}>
                 <span>Takeoff thrust</span>
                 <select
                   aria-label="Takeoff thrust mode"
-                  onChange={(event) => setThrustMode(
-                    event.target.value === "partial-power" ? "partial-power" : "full-rated",
-                  )}
+                  onChange={(event) => {
+                    const nextMode = event.target.value === "partial-power"
+                      ? "partial-power"
+                      : "full-rated";
+                    setThrustMode(nextMode);
+                    if (nextMode === "partial-power") {
+                      setPartialPowerThrustReversers("aeronca");
+                    }
+                  }}
                   value={thrustMode}
                 >
                   <option value="full-rated">Full Rated</option>
-                  <option value="partial-power">Partial Power / Assumed Temperature</option>
+                  <option value="partial-power">Partial Power · Aeronca</option>
                 </select>
-                <small>
-                  Full Rated is the operational default. Partial Power is currently exposed as a source-supported training preview only.
-                </small>
               </label>
 
               <label className={styles.setupField}>
-                <span>TORA <small>{thrustMode === "partial-power" ? "required" : "optional"}</small></span>
+                <span>TORA</span>
                 <span className={styles.inputWithUnit}>
                   <input
                     aria-label="Takeoff TORA"
@@ -337,25 +317,14 @@ export function FtPerformanceOperationPresentation({
                   <small>ft</small>
                 </span>
                 {toraInputSource === "airport-surface-suggestion" ? (
-                  <span className={styles.prefillNotice}>
-                    <small>
-                      Prefilled from the airport database runway surface length. This is not an authoritative declared TORA.
-                    </small>
-                    <button
-                      className={styles.inlineAction}
-                      onClick={confirmSuggestedTora}
-                      type="button"
-                    >
-                      Confirm verified TORA
-                    </button>
-                  </span>
-                ) : (
-                  <small>
-                    {toraInputSource === "manual"
-                      ? "Verified/manual declared TORA."
-                      : "Declared TORA is required only for runway-limited / Partial Power calculations."}
-                  </small>
-                )}
+                  <button
+                    className={styles.inlineAction}
+                    onClick={confirmSuggestedTora}
+                    type="button"
+                  >
+                    Confirm TORA
+                  </button>
+                ) : null}
               </label>
 
               <label className={styles.setupField}>
@@ -370,7 +339,7 @@ export function FtPerformanceOperationPresentation({
                     <option key={option.value} value={option.value}>{option.label}</option>
                   ))}
                 </select>
-                <small>Governed by the aircraft Takeoff performance package.</small>
+
               </label>
 
               <label className={styles.setupField}>
@@ -383,37 +352,31 @@ export function FtPerformanceOperationPresentation({
                   <option value="off">OFF</option>
                   <option value="on">ON</option>
                 </select>
-                <small>Unsupported source combinations fail closed.</small>
+
               </label>
+
+              {thrustMode === "partial-power" ? (
+                <label className={styles.setupField}>
+                  <span>ASDA</span>
+                  <span className={styles.inputWithUnit}>
+                    <input
+                      aria-label="Takeoff ASDA"
+                      inputMode="decimal"
+                      min="1"
+                      onChange={(event) => setAsdaFt(event.target.value)}
+                      placeholder="Declared ASDA"
+                      step="1"
+                      type="number"
+                      value={asdaFt}
+                    />
+                    <small>ft</small>
+                  </span>
+                </label>
+              ) : null}
             </div>
 
             {thrustMode === "partial-power" ? (
               <section className={styles.partialPowerSetup} aria-label="Partial Power setup">
-                <header>
-                  <p className={styles.eyebrow}>PARTIAL POWER</p>
-                  <strong>Reduced-thrust eligibility</strong>
-                  <p>
-                    These confirmations are required by the source procedure. Aeronca is the only configuration with source-authorized reduced-N1 interpolation in the current package.
-                  </p>
-                </header>
-
-                <label className={styles.setupField}>
-                  <span>Thrust reversers</span>
-                  <select
-                    aria-label="Partial Power thrust reverser configuration"
-                    onChange={(event) => setPartialPowerThrustReversers(
-                      event.target.value as "unknown" | "none" | "aeronca" | "tr4000",
-                    )}
-                    value={partialPowerThrustReversers}
-                  >
-                    <option value="unknown">Select installed configuration</option>
-                    <option value="aeronca">Aeronca thrust reversers</option>
-                    <option value="none">Without thrust reversers</option>
-                    <option value="tr4000">TR-4000 thrust reversers</option>
-                  </select>
-                  <small>No configuration is inferred from aircraft name, serial number or simulator variant.</small>
-                </label>
-
                 <div className={styles.eligibilityChecks}>
                   <label>
                     <input
@@ -421,7 +384,7 @@ export function FtPerformanceOperationPresentation({
                       onChange={(event) => setPartialPowerRunwayDryHardPaved(event.target.checked)}
                       type="checkbox"
                     />
-                    <span>Runway is dry and hard-paved</span>
+                    <span>Dry hard-paved</span>
                   </label>
                   <label>
                     <input
@@ -429,7 +392,7 @@ export function FtPerformanceOperationPresentation({
                       onChange={(event) => setPartialPowerAntiSkidOperative(event.target.checked)}
                       type="checkbox"
                     />
-                    <span>Anti-skid is ON and operative</span>
+                    <span>Anti-skid operative</span>
                   </label>
                   <label>
                     <input
@@ -437,45 +400,31 @@ export function FtPerformanceOperationPresentation({
                       onChange={(event) => setPartialPowerFullRatedTakeoffWithin30Days(event.target.checked)}
                       type="checkbox"
                     />
-                    <span>Full-rated-thrust takeoff accomplished within preceding 30 days</span>
+                    <span>Full-rated &lt;30 days</span>
                   </label>
                 </div>
-
-                <p className={styles.partialPowerSourceNote}>
-                  Anti-ice must remain OFF. The current preview also requires verified TORA + ASDA and a source-backed runway wind component.
-                </p>
               </section>
-            ) : null}
-
-            <details
-              className={styles.declaredDistanceDetails}
-              open={thrustMode === "partial-power" ? true : undefined}
-            >
-              <summary>
-                {thrustMode === "partial-power"
-                  ? "Declared-distance details · required for Partial Power"
-                  : "Declared-distance details"}
-              </summary>
-              <label className={styles.setupField}>
-                <span>ASDA <small>only when separately declared</small></span>
-                <span className={styles.inputWithUnit}>
-                  <input
-                    aria-label="Takeoff ASDA"
-                    inputMode="decimal"
-                    min="1"
-                    onChange={(event) => setAsdaFt(event.target.value)}
-                    placeholder="Declared ASDA"
-                    step="1"
-                    type="number"
-                    value={asdaFt}
-                  />
-                  <small>ft</small>
-                </span>
-                <small>
-                  ASDA can differ from TORA when a stopway or other declared-distance limitation applies, so FlyTally does not silently assume they are equal.
-                </small>
-              </label>
-            </details>
+            ) : (
+              <details className={styles.declaredDistanceDetails}>
+                <summary>Declared-distance details</summary>
+                <label className={styles.setupField}>
+                  <span>ASDA</span>
+                  <span className={styles.inputWithUnit}>
+                    <input
+                      aria-label="Takeoff ASDA"
+                      inputMode="decimal"
+                      min="1"
+                      onChange={(event) => setAsdaFt(event.target.value)}
+                      placeholder="Declared ASDA"
+                      step="1"
+                      type="number"
+                      value={asdaFt}
+                    />
+                    <small>ft</small>
+                  </span>
+                </label>
+              </details>
+            )}
 
             <div className={styles.contextPanel}>
               <div className={styles.contextPanelHeader}>
@@ -499,27 +448,18 @@ export function FtPerformanceOperationPresentation({
                   Available · AviationWeather.gov · observed {formatObservationZulu(availableWeather.observedAt)}
                 </p>
               ) : weatherFetchState === "unavailable" ? (
-                <p className={styles.sourceMeta}>Live METAR unavailable. Enter the required values manually.</p>
+                <p className={styles.sourceMeta}>METAR unavailable</p>
               ) : null}
 
               {appliedWeather.observation ? (
                 <p className={styles.sourceMeta}>
                   Applied METAR · observed {formatObservationZulu(appliedWeather.observation.observedAt)}
                 </p>
-              ) : (
-                <p className={styles.sourceMeta}>
-                  Applied weather · QNH {sourceLabel(appliedWeather.qnhHpa.source)} · OAT {sourceLabel(appliedWeather.oatC.source)}
-                </p>
-              )}
+              ) : null}
 
               {newerWeatherAvailable && availableWeather ? (
                 <div className={styles.weatherUpdate} role="status">
-                  <div>
-                    <strong>NEWER WEATHER AVAILABLE</strong>
-                    <span>
-                      {formatObservationZulu(availableWeather.observedAt)} available; the current calculation keeps its applied weather until you choose to update it.
-                    </span>
-                  </div>
+                  <strong>NEWER WEATHER AVAILABLE</strong>
                   <button
                     className={styles.inlineAction}
                     disabled={busy || !canCalculate}
@@ -531,7 +471,6 @@ export function FtPerformanceOperationPresentation({
                 </div>
               ) : latestWeatherActionNeeded && availableWeather ? (
                 <div className={styles.weatherAction}>
-                  <span>Latest METAR is available without replacing manual/applied values automatically.</span>
                   <button
                     className={styles.inlineAction}
                     disabled={busy || Boolean(hasDisplayedCalculation && !canCalculate)}
@@ -635,8 +574,8 @@ export function FtPerformanceOperationPresentation({
                 ? "Calculating…"
                 : thrustMode === "partial-power"
                   ? partialPowerPreview
-                    ? "Recalculate Partial Power Preview"
-                    : "Calculate Partial Power Preview"
+                    ? "Recalculate Partial Power"
+                    : "Calculate Partial Power"
                   : result
                     ? "Recalculate Takeoff"
                     : "Calculate Takeoff"}
@@ -645,8 +584,8 @@ export function FtPerformanceOperationPresentation({
             {!canCalculate ? (
               <p className={styles.requirementNote}>
                 {thrustMode === "partial-power"
-                  ? "Select runway and thrust-reverser configuration, provide valid Takeoff weight/QNH/OAT, verify TORA + ASDA, and use weather with a source-backed runway wind before evaluating Partial Power."
-                  : "Select runway and provide valid Takeoff weight, flap configuration, QNH and OAT before calculating."}
+                  ? "Complete required Partial Power inputs."
+                  : "Complete required Takeoff inputs."}
               </p>
             ) : null}
           </section>
@@ -659,7 +598,7 @@ export function FtPerformanceOperationPresentation({
               </div>
               {thrustMode === "partial-power" ? (
                 <span className={styles.resultBadgeStale}>
-                  SOURCE CHECK
+                  TRAINING · 25% LIMIT UNVERIFIED
                 </span>
               ) : result ? (
                 <span className={stale ? styles.resultBadgeStale : styles.resultBadge}>
