@@ -5,7 +5,7 @@ import test from "node:test";
 const read = (path: string) =>
   readFileSync(new URL("../" + path, import.meta.url), "utf8");
 
-test("DD.4 Takeoff operation owns TORA suggestion/manual state and separate ASDA input", () => {
+test("DD.4 Takeoff operation owns editable TORA and an optional ASDA override", () => {
   const controller = read("components/ft-performance/use-performance-operation.ts");
   const presentation = read("components/ft-performance/FtPerformancePresentation.tsx");
 
@@ -82,17 +82,15 @@ test("DD.4 airport surface length is only a visible TORA suggestion until explic
   );
 });
 
-test("DD.4 ASDA is de-emphasized in UI but never silently assumed equal to TORA", () => {
+test("DD.4 Partial Power defaults ASDA to TORA conservatively unless an override is entered", () => {
+  const controller = read("components/ft-performance/use-performance-operation.ts");
   const presentation = read("components/ft-performance/FtPerformancePresentation.tsx");
 
-  assert.match(presentation, /Declared-distance details/);
-  assert.match(presentation, /aria-label="Takeoff ASDA"/);
   assert.match(
-    presentation,
-    /thrustMode === "partial-power"[\s\S]*aria-label="Takeoff ASDA"/,
+    controller,
+    /const asda = asdaFt\.trim\(\)[\s\S]*manualDeclaredDistanceFt\(Number\(asdaFt\)\)[\s\S]*: tora;/,
   );
-  assert.doesNotMatch(
-    presentation,
-    /ASDA can differ from TORA[\s\S]*does not silently assume they are equal/,
-  );
+  assert.match(presentation, /ASDA override/);
+  assert.match(presentation, /aria-label="Takeoff ASDA"/);
+  assert.match(presentation, /placeholder=\{toraFt \|\| "ASDA"\}/);
 });
