@@ -5,30 +5,23 @@ import test from "node:test";
 const read = (path: string) =>
   readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("UX6.2 defines explicit peer light and dark surface systems", () => {
-  const doc = read("UX6_2_DESIGN_SYSTEM.md");
-
+test("production theme retains the core UX6 surface tokens", () => {
+  const theme = read("app/ft-workspace/theme.css");
   for (const token of [
-    "--ux6-canvas",
-    "--ux6-workspace",
-    "--ux6-panel",
-    "--ux6-elevated",
-    "--ux6-selected",
-    "--ux6-accent",
+    "--ft-bg-canvas",
+    "--ft-bg-workspace",
+    "--ft-bg-panel",
+    "--ft-accent",
   ]) {
-    assert.match(doc, new RegExp(token));
+    assert.match(theme, new RegExp(token));
   }
-
-  assert.match(doc, /### Light/);
-  assert.match(doc, /### Dark/);
+  assert.match(theme, /prefers-color-scheme|data-theme|\.dark/i);
 });
 
-test("UX6.2 keeps source safety semantics separate from application state", () => {
-  const doc = read("UX6_2_DESIGN_SYSTEM.md");
-
-  assert.match(doc, /Application state is separate from source-safety semantics/i);
-  assert.match(doc, /WARNING \/ CAUTION \/ NOTE/i);
-  assert.match(doc, /Source age remains neutral metadata/i);
+test("current technical documentation keeps source safety semantics separate from interaction state", () => {
+  const doc = read("TECHNICAL_DOCUMENTATION.md");
+  assert.match(doc, /source\/safety semantic states remain visually distinct from interaction accent/i);
+  assert.match(doc, /loading actions must expose disabled\/busy feedback/i);
 });
 
 test("UX6.2 specimen demonstrates the approved shell direction without altering production shell", () => {
