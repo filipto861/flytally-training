@@ -76,12 +76,29 @@ const applicabilityArrayKeys=[
   "configurationEquipmentAllOf",
   "configurationEquipmentAnyOf",
   "configurationEquipmentNoneOf",
+  "serialNumbers",
 ] as const;
-function validateApplicability(value:unknown,path:string,errors:string[]):void{
+function validateApplicability(value:unknown,path:string,errors:string[],depth=0):void{
   if(!object(value)){errors.push(`${path} must be an applicability object`);return;}
+  if(depth>8){errors.push(`${path} exceeds the supported applicability nesting depth`);return;}
   for(const key of applicabilityArrayKeys){
     const candidate=value[key];
     if(candidate!==undefined&&(!strings(candidate)||candidate.length===0))errors.push(`${path}.${key} must be a non-empty array of text when supplied`);
+  }
+  if(value.serialNumberRanges!==undefined){
+    if(!objects(value.serialNumberRanges)||value.serialNumberRanges.length===0){
+      errors.push(`${path}.serialNumberRanges must be a non-empty array when supplied`);
+    }else value.serialNumberRanges.forEach((range,index)=>{
+      const rangePath=`${path}.serialNumberRanges[${index}]`;
+      if(range.prefix!==undefined&&!text(range.prefix))errors.push(`${rangePath}.prefix must be non-empty text when supplied`);
+      if(!Number.isInteger(range.from)||Number(range.from)<0)errors.push(`${rangePath}.from must be a non-negative integer`);
+      if(range.to!==undefined&&(!Number.isInteger(range.to)||Number(range.to)<Number(range.from)))errors.push(`${rangePath}.to must be an integer greater than or equal to from`);
+    });
+  }
+  if(value.anyOf!==undefined){
+    if(!Array.isArray(value.anyOf)||value.anyOf.length===0){
+      errors.push(`${path}.anyOf must be a non-empty array of applicability objects when supplied`);
+    }else value.anyOf.forEach((branch,index)=>validateApplicability(branch,`${path}.anyOf[${index}]`,errors,depth+1));
   }
   if(value.note!==undefined&&!text(value.note))errors.push(`${path}.note must be non-empty text when supplied`);
 }

@@ -32,6 +32,8 @@ export type AircraftConfigurationEquipment = {
 };
 
 export type AircraftConfigurationMetadata = {
+  /** Exact manufacturer serial identifier used by source effectivity. */
+  readonly serialNumber?: string;
   readonly baseVariant?: string;
   readonly capabilityTags?: readonly string[];
   readonly modifications?: readonly AircraftConfigurationModification[];
@@ -262,12 +264,19 @@ export function parseAircraftConfigurationMetadata(
   assertKnownFields(
     metadata,
     [
+      "serialNumber",
       "baseVariant",
       "capabilityTags",
       "modifications",
       "equipment",
     ],
     "aircraft configuration metadata",
+  );
+
+  const serialNumber = optionalConfigurationText(
+    metadata.serialNumber,
+    "aircraft serial number",
+    128,
   );
 
   const baseVariant =
@@ -301,6 +310,7 @@ export function parseAircraftConfigurationMetadata(
         );
 
   return {
+    ...(serialNumber ? { serialNumber } : {}),
     ...(baseVariant ? { baseVariant } : {}),
     ...(capabilityTags !== undefined
       ? { capabilityTags }

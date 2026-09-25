@@ -50,7 +50,7 @@ const outputBindingKeys = new Set(["sourceTemperatureOutput","groundRunOutput","
 const stringArrayKeys = new Set([
   "components","controls","indications","normalOperation","limitations","abnormalCues","remember","prerequisites",
   "completionCriteria","notes","choices","objectives","debrief","expectedResponse","procedures","variants",
-  "equipmentAllOf","equipmentAnyOf","equipmentNoneOf","checklistItemIds","outputKeys","selectorValues","paragraphs",
+  "equipmentAllOf","equipmentAnyOf","equipmentNoneOf","serialNumbers","checklistItemIds","outputKeys","selectorValues","paragraphs",
 ]);
 
 function asJson(value: unknown): JsonValue {
@@ -170,6 +170,8 @@ function emptyArrayPrototype(key:string,path:readonly PathPart[],root:JsonValue)
   if(key==="stages"&&path.some(part=>part==="training"))return {stageId:"",prompt:"",explanation:""};
   if(key==="stages"&&path.some(part=>part==="scenarios"))return {id:"",label:"",memoryItem:false,steps:[],sources:[]};
   if(key==="branches")return {id:"",label:"",steps:[]};
+  if(key==="serialNumberRanges")return {prefix:"",from:0,to:0};
+  if(key==="anyOf")return {serialNumbers:[]};
   if(key==="constraints")return {when:{selectorValues:[]},input:{key:"",label:"",unit:""},operator:"lte",value:0,message:""};
   if(key==="options")return {value:"",label:"",factorOutputKey:""};
   return "";

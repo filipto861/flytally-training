@@ -18,6 +18,15 @@ export function isUniversalTrainingContentDomain(value: string): value is Univer
   return (universalTrainingContentDomains as readonly string[]).includes(value);
 }
 
+export type AircraftSerialRange = {
+  /** Optional literal prefix before the numeric sequence, e.g. "35-" or "SN". */
+  readonly prefix?: string;
+  /** Inclusive numeric lower bound. */
+  readonly from: number;
+  /** Inclusive upper bound. Omit for an open-ended "... & on" source range. */
+  readonly to?: number;
+};
+
 export type AircraftApplicability = {
   readonly variants?: readonly string[];
   readonly equipmentAllOf?: readonly string[];
@@ -37,6 +46,18 @@ export type AircraftApplicability = {
   readonly configurationEquipmentAllOf?: readonly string[];
   readonly configurationEquipmentAnyOf?: readonly string[];
   readonly configurationEquipmentNoneOf?: readonly string[];
+
+  /** Exact manufacturer serial identifiers. */
+  readonly serialNumbers?: readonly string[];
+  /** Source-defined numeric serial families such as 35-107 or 36-032 & on. */
+  readonly serialNumberRanges?: readonly AircraftSerialRange[];
+
+  /**
+   * OR-composition for source effectivity such as "serial range ... and prior
+   * aircraft incorporating AMK ...". Direct rules on this object remain ANDed
+   * with the result of this group.
+   */
+  readonly anyOf?: readonly AircraftApplicability[];
 
   readonly note?: string;
 };
