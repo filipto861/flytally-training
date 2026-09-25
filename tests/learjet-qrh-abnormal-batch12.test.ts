@@ -3,7 +3,6 @@ import test from "node:test";
 
 import {
   learjet35aQrhAbnormalBatch12,
-  learjet35aQrhAbnormalBatch12DeferredFigures,
   learjet35aQrhAbnormalBatch12ReleaseStatus,
 } from "../aircraft-data/learjet-35a/qrh/abnormal-batch-12.ts";
 import { learjet35aQrhThrustReverserConfigurationKeys } from "../aircraft-data/learjet-35a/qrh/emergency-batch-6.ts";
@@ -52,22 +51,26 @@ test("QRH.3S Thrust Reversers Abnormal batch satisfies the generic v2 contract",
   );
 });
 
-test("QRH.3S accounts for all seven indexed thrust-reverser abnormal entries without flattening the A-35.2 figure", () => {
+test("QRH.3T accounts for all seven indexed thrust-reverser abnormal entries including A-35.2", () => {
   assert.equal(
     learjet35aQrhAbnormalBatch12.scenarios.length +
-      learjet35aQrhAbnormalBatch12DeferredFigures.length,
+      (learjet35aQrhAbnormalBatch12.figures?.length ?? 0),
     7,
   );
-  assert.deepEqual(learjet35aQrhAbnormalBatch12DeferredFigures, [
-    {
-      id: "thrust-reverser-restow-envelope",
-      title: "THRUST REVERSER RESTOW ENVELOPE",
-      pageLabel: "A-35.2",
-      effectivity: "With TR-4000 Thrust Reversers",
-      reason:
-        "The source is a graphical indicated-airspeed/altitude operating envelope with distinct ENGINE SHUTDOWN and ENGINE SHUTDOWN OR FLIGHT IDLE restow regions. Do not flatten its geometry into textual thresholds; keep fail-closed until generic source-figure/envelope support is defined.",
-    },
-  ]);
+  const figure = learjet35aQrhAbnormalBatch12.figures?.[0];
+  assert.ok(figure);
+  assert.equal(figure.id, "thrust-reverser-restow-envelope");
+  assert.equal(figure.geometryPolicy, "source-digitized-visual-reference");
+  assert.deepEqual(figure.sources.map((item) => item.pageLabel), ["A-35.2"]);
+  assert.deepEqual(figure.xAxis.ticks, [100, 125, 150, 175, 200]);
+  assert.deepEqual(figure.yAxis.ticks, [0, 5, 10, 15, 20]);
+  assert.deepEqual(
+    figure.regions.map((region) => [region.id, region.fill]),
+    [
+      ["engine-shutdown-or-flight-idle", "shaded"],
+      ["engine-shutdown", "hatched"],
+    ],
+  );
 });
 
 test("QRH.3S Aeronca configuration receives only the four Aeronca procedures", () => {
@@ -194,7 +197,7 @@ test("QRH.3S preserves Aeronca flight and post-landing source branches", () => {
   );
 });
 
-test("QRH.3S preserves TR-4000 malfunction/restow behavior and blocks on the graphical envelope", () => {
+test("QRH.3T preserves TR-4000 malfunction/restow behavior and attaches the graphical envelope", () => {
   const annunciated = learjet35aQrhAbnormalBatch12.scenarios.find(
     (scenario) => scenario.id === "tr4000-annunciated-thrust-reverser-malfunction",
   );
@@ -213,7 +216,8 @@ test("QRH.3S preserves TR-4000 malfunction/restow behavior and blocks on the gra
   assert.match(inadvertentText, /Assure Restow Envelope/);
   assert.match(inadvertentText, /Above 160 KIAS/);
   assert.match(inadvertentText, /DEPLOY light stops flashing, ARM light goes out, and restow has occurred/);
-  assert.match(inadvertent.boundaryNote ?? "", /A-35\.2 THRUST REVERSER RESTOW ENVELOPE/);
+  assert.deepEqual(inadvertent.figureIds, ["thrust-reverser-restow-envelope"]);
+  assert.equal("boundaryNote" in inadvertent, false);
 });
 
 test("QRH.3S visual review found no boxed memory items on the textual thrust-reverser pages", () => {
