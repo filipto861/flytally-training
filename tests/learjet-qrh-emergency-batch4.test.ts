@@ -7,6 +7,7 @@ import {
   learjet35aQrhEmergencyBatch4ReleaseStatus,
 } from "../aircraft-data/learjet-35a/qrh/emergency-batch-4.ts";
 import {
+  type AircraftQrhScenario,
   type AircraftQrhStep,
   validateUniversalAbnormalEmergencyPayload,
 } from "../lib/universal-abnormal-emergency.ts";
@@ -35,7 +36,9 @@ test("QRH.3D keeps serial/AMK-specific E-20 and E-22/E-23 families fail-closed",
     learjet35aQrhEmergencyBatch4DeferredEffectivity.map((item) => item.id),
     ["bleed-air-light", "cabin-cockpit-fire-smoke-fumes"],
   );
-  const ids = new Set(learjet35aQrhEmergencyBatch4.scenarios.map((scenario) => scenario.id));
+  const ids = new Set<string>(
+    learjet35aQrhEmergencyBatch4.scenarios.map((scenario) => scenario.id),
+  );
   assert.equal(ids.has("bleed-air-light"), false);
   assert.equal(ids.has("cabin-cockpit-fire-smoke-fumes"), false);
 });
@@ -53,7 +56,9 @@ test("QRH.3D Emergency Descent memory box is exactly steps 1 through 8", () => {
 });
 
 test("QRH.3D preserves boxed memory boundaries across flight-control procedures", () => {
-  const byId = new Map(learjet35aQrhEmergencyBatch4.scenarios.map((scenario) => [scenario.id, scenario] as const));
+  const byId = new Map<string, AircraftQrhScenario>(
+    learjet35aQrhEmergencyBatch4.scenarios.map((scenario) => [scenario.id, scenario]),
+  );
   const memoryActions = (scenarioId: string) => {
     const scenario = byId.get(scenarioId);
     assert.ok(scenario);
@@ -75,7 +80,9 @@ test("QRH.3D preserves boxed memory boundaries across flight-control procedures"
 });
 
 test("QRH.3D preserves emergency braking, evacuation, stall and aborted-takeoff memory boxes", () => {
-  const byId = new Map(learjet35aQrhEmergencyBatch4.scenarios.map((scenario) => [scenario.id, scenario] as const));
+  const byId = new Map<string, AircraftQrhScenario>(
+    learjet35aQrhEmergencyBatch4.scenarios.map((scenario) => [scenario.id, scenario]),
+  );
   const memoryActions = (scenarioId: string) => {
     const scenario = byId.get(scenarioId);
     assert.ok(scenario);
