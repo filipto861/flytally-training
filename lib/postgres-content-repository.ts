@@ -1,7 +1,7 @@
 import "server-only";
 
 import type { AircraftAbnormalTraining } from "./abnormal-scenarios";
-import { commonAircraftEquipmentProfileKey, parseAircraftConfigurationMetadata } from "./aircraft-configuration-profile";
+import { aircraftApplicabilityRegistryProfileKey, commonAircraftEquipmentProfileKey, parseAircraftConfigurationMetadata } from "./aircraft-configuration-profile";
 import type { TrainingAircraft, TrainingAircraftVariantProfile, TrainingManualRevision } from "./aircraft-catalog";
 import type { CockpitOrientation } from "./cockpit-orientation";
 import type { TrainingContentDomain } from "./content-admin-types";
@@ -91,7 +91,7 @@ export class PostgresTrainingContentRepository implements TrainingContentReposit
     return aircraftRows.map(row=>{
       const configuredProfiles=variantsByAircraft.get(row.aircraft_id)??[];
       const commonProfile=configuredProfiles.find(profile=>profile.key===commonAircraftEquipmentProfileKey);
-      const variantProfiles=configuredProfiles.filter(profile=>profile.key!==commonAircraftEquipmentProfileKey);
+      const variantProfiles=configuredProfiles.filter(profile=>profile.key!==commonAircraftEquipmentProfileKey&&profile.key!==aircraftApplicabilityRegistryProfileKey);
       return{
         id:row.aircraft_id,
         manufacturer:row.manufacturer,
@@ -114,7 +114,7 @@ export class PostgresTrainingContentRepository implements TrainingContentReposit
     ]);
     const configuredProfiles=(variantRaw as VariantRow[]).map(mapVariant);
     const commonProfile=configuredProfiles.find(profile=>profile.key===commonAircraftEquipmentProfileKey);
-    const variantProfiles=configuredProfiles.filter(profile=>profile.key!==commonAircraftEquipmentProfileKey);
+    const variantProfiles=configuredProfiles.filter(profile=>profile.key!==commonAircraftEquipmentProfileKey&&profile.key!==aircraftApplicabilityRegistryProfileKey);
     const manuals=manualRaw as ManualRow[];
     return{
       id:row.aircraft_id,
