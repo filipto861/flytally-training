@@ -471,7 +471,7 @@ test("P5.6 e2e replaces the QRH placeholder contract and covers legacy checklist
 
   assert.match(e2e, /P5 QRH fast path renders governed operational content without navigation/);
   assert.match(e2e, /Generic Condition A/);
-  assert.match(e2e, /P5 legacy checklist progress migrates into the shared new-shell session/);
+  assert.match(e2e, /P5 legacy checklist progress migrates into the flight-scoped new-shell session/);
   assert.doesNotMatch(e2e, /W3 QRH placeholder can open the canonical full page/);
 });
 
