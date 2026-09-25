@@ -341,24 +341,6 @@
   gap: var(--ft-space-3);
 }
 
-.partialPowerWarning {
-  display: flex;
-  align-items: center;
-  min-height: calc(var(--ft-space-6) - var(--ft-space-1));
-  padding-inline: var(--ft-space-2);
-  border: var(--ft-rule-default);
-  border-color: var(--ft-state-recalc);
-  border-radius: var(--ft-radius-4);
-  background: var(--ft-state-recalc-bg);
-}
-
-.partialPowerWarning strong {
-  color: var(--ft-state-recalc);
-  font-family: var(--ft-font-data);
-  font-size: 0.62rem;
-  letter-spacing: 0.04em;
-}
-
 .partialPowerMetrics {
   overflow: hidden;
   display: grid;
