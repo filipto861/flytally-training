@@ -129,6 +129,57 @@ test("15.3b source-qualified optional equipment remains explicit without inventi
 });
 
 
+
+
+test("15.3b every embedded applicability identifier is registered by the current Learjet profile", () => {
+  const registeredEquipment = new Set([
+    "msfs-flysimware",
+    "fc-530",
+    "rosemount-pitot-static",
+    "tfe731-2-2b",
+    "standard-flaps",
+  ]);
+  const registeredConfigurationEquipment = new Set([
+    "autopilot",
+    "pitot-static",
+    "engine",
+    "thrust-reverser",
+    "drag-chute",
+  ]);
+
+  for (const phase of learjet35aNormalChecklist.phases) {
+    for (const item of phase.items) {
+      for (const key of item.applicability?.equipmentAllOf ?? []) {
+        assert.ok(registeredEquipment.has(key), `unregistered equipment applicability: ${key}`);
+      }
+      for (const key of item.applicability?.equipmentAnyOf ?? []) {
+        assert.ok(registeredEquipment.has(key), `unregistered equipment applicability: ${key}`);
+      }
+      for (const key of item.applicability?.equipmentNoneOf ?? []) {
+        assert.ok(registeredEquipment.has(key), `unregistered equipment applicability: ${key}`);
+      }
+      for (const key of item.applicability?.configurationEquipmentAllOf ?? []) {
+        assert.ok(
+          registeredConfigurationEquipment.has(key),
+          `unregistered configuration-equipment applicability: ${key}`,
+        );
+      }
+      for (const key of item.applicability?.configurationEquipmentAnyOf ?? []) {
+        assert.ok(
+          registeredConfigurationEquipment.has(key),
+          `unregistered configuration-equipment applicability: ${key}`,
+        );
+      }
+      for (const key of item.applicability?.configurationEquipmentNoneOf ?? []) {
+        assert.ok(
+          registeredConfigurationEquipment.has(key),
+          `unregistered configuration-equipment applicability: ${key}`,
+        );
+      }
+    }
+  }
+});
+
 test("15.3b governed CL-102B source manifest matches the reviewed file and operational authority boundary", () => {
   assert.equal(learjet35aChecklistSourceManifest.manualId, "CL-102B");
   assert.equal(learjet35aChecklistSourceManifest.revision, "Change 2");
