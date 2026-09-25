@@ -38,7 +38,8 @@ test("Fly only enables QRH presentation for validated universal abnormal content
 });
 
 test("QRH presentation preserves published actions and removes training interaction",()=>{
-  assert.match(emergency,/step\.kind === "action"/);\n  assert.match(emergency,/<strong>\{step\.text\}<\/strong>/);
+  assert.match(emergency,/step\.kind === "action"/);
+  assert.match(emergency,/<strong>\{step\.text\}<\/strong>/);
   assert.match(emergency,/notice\.text/);
   assert.match(emergency,/sourceLabel/);
   assert.match(emergency,/Current approved aircraft documents remain authoritative/);

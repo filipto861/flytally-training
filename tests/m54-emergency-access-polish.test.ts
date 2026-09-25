@@ -36,7 +36,8 @@ test("M54 emergency index is cockpit touch-first and sticky on mobile",()=>{
 });
 
 test("M54 keeps QRH content operational-only",()=>{
-  assert.match(emergency,/<Steps steps=\{stage\.steps\} \/>/);\n  assert.match(emergency,/step\.text/);
+  assert.match(emergency,/<Steps steps=\{stage\.steps\} \/>/);
+  assert.match(emergency,/step\.text/);
   assert.match(emergency,/Source &amp; authority/);
   assert.doesNotMatch(emergency,/scenario\.setup|scenario\.objectives|scenario\.debrief|stage\.prompt|stage\.explanation|scenario\.minutes|scenario\.difficulty/);
 });
