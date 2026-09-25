@@ -145,9 +145,6 @@ export function FtPerformanceOperationPresentation({
     </div>
   ) : partialPowerPreview.evaluation.status === "source-supported" ? (
     <div className={styles.partialPowerResult}>
-      <div className={styles.partialPowerWarning} role="status">
-        <strong>TRAINING PREVIEW · 25% THRUST LIMIT UNVERIFIED</strong>
-      </div>
       <div className={styles.partialPowerMetrics}>
         <div><span>Assumed Temp</span><strong>{partialPowerPreview.evaluation.assumedTemperature.toFixed(1)} °C</strong></div>
         <div><span>Target N1</span><strong>{partialPowerPreview.evaluation.reducedN1.toFixed(1)} %</strong></div>
@@ -601,7 +598,7 @@ export function FtPerformanceOperationPresentation({
               </div>
               {thrustMode === "partial-power" ? (
                 <span className={styles.resultBadgeStale}>
-                  TRAINING PREVIEW
+                  TRAINING · 25% LIMIT UNVERIFIED
                 </span>
               ) : result ? (
                 <span className={stale ? styles.resultBadgeStale : styles.resultBadge}>
