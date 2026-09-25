@@ -105,9 +105,18 @@ test("publication contract validates generic serial-range and OR applicability",
   };
   assert.deepEqual(validateContentPayload("procedures", valid, aircraftId), []);
 
-  const malformed = structuredClone(valid);
-  const applicability = malformed.procedures[0]!.applicability;
-  applicability.serialNumberRanges = [{ prefix: "35-", from: 120, to: 119 }];
+  const malformed = {
+    aircraftId,
+    title: "Malformed serial range",
+    procedures: [{
+      id: "bad-range",
+      title: "Bad range",
+      applicability: {
+        serialNumberRanges: [{ prefix: "35-", from: 120, to: 119 }],
+      },
+      steps: [{ id: "step", action: "Action" }],
+    }],
+  };
   assert.match(
     validateContentPayload("procedures", malformed, aircraftId).join("\n"),
     /serialNumberRanges\[0\]\.to/,
