@@ -99,28 +99,33 @@ test("15.3b fc530-standard selects Rosemount and FC-530 items while failing clos
 
   assert.ok(!ids.has("bse-alt-static"));
   assert.ok(!ids.has("bse-pilot-altimeter"));
-  assert.ok(!ids.has("afterto-fc200-appr"));
-  assert.ok(!ids.has("beforeldg-yaw-fc200"));
+
+  assert.ok(!ids.has("tbto2-thrust-reversers"));
+  assert.ok(!ids.has("tbto1-thrust-reversers"));
+  assert.ok(!ids.has("exterior-drag-chute"));
+  assert.ok(!ids.has("bse-drag-chute"));
 
   assert.ok(!ids.has("lineup-tr4000"));
   assert.ok(!ids.has("approach-aeronca-position"));
-  assert.ok(!ids.has("exterior-drag-chute"));
-  assert.ok(!ids.has("bse-drag-chute"));
+  assert.ok(!ids.has("afterto-fc200-appr"));
+  assert.ok(!ids.has("beforeldg-yaw-fc200"));
 });
 
-test("15.3b optional equipment remains hidden when the target profile has no declared installed state", () => {
+test("15.3b source-qualified optional equipment remains explicit without inventing unregistered applicability tags", () => {
   const filtered = filterChecklistForConfiguration(
     learjet35aNormalChecklist,
     fc530Standard,
   );
-  const ids = new Set(itemIds(filtered));
+  const byId = new Map(
+    filtered.phases.flatMap((phase) => phase.items.map((item) => [item.id, item] as const)),
+  );
 
-  assert.ok(!ids.has("bse-emergency-lights"));
-  assert.ok(!ids.has("start-aux-heat"));
-  assert.ok(!ids.has("bt2-coffee"));
-  assert.ok(!ids.has("tbto2-heated-windshield"));
-  assert.ok(!ids.has("bse-fuselage-valve"));
-  assert.ok(!ids.has("bse-in-normal-out-defog"));
+  assert.match(byId.get("bse-emergency-lights")?.challenge ?? "", /if installed/i);
+  assert.match(byId.get("start-aux-heat")?.challenge ?? "", /if installed/i);
+  assert.match(byId.get("bt2-coffee")?.challenge ?? "", /if installed/i);
+  assert.match(byId.get("tbto2-heated-windshield")?.challenge ?? "", /if installed/i);
+  assert.match(byId.get("bse-fuselage-valve")?.challenge ?? "", /if installed/i);
+  assert.match(byId.get("bse-in-normal-out-defog")?.challenge ?? "", /if installed/i);
 });
 
 
