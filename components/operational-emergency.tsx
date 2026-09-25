@@ -334,11 +334,20 @@ export function OperationalEmergency({ emergency }: Readonly<{ emergency: Operat
     };
 
     updateCollapsedState();
-    const scrollTarget: Window | HTMLElement = fastPathScroller ?? window;
-    scrollTarget.addEventListener("scroll", updateCollapsedState, { passive: true });
+    if (fastPathScroller) {
+      fastPathScroller.addEventListener("scroll", updateCollapsedState, {
+        passive: true,
+      });
+    } else {
+      window.addEventListener("scroll", updateCollapsedState, { passive: true });
+    }
     window.addEventListener("resize", updateCollapsedState);
     return () => {
-      scrollTarget.removeEventListener("scroll", updateCollapsedState);
+      if (fastPathScroller) {
+        fastPathScroller.removeEventListener("scroll", updateCollapsedState);
+      } else {
+        window.removeEventListener("scroll", updateCollapsedState);
+      }
       window.removeEventListener("resize", updateCollapsedState);
     };
   }, []);
