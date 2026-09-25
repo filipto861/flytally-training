@@ -113,7 +113,7 @@ Training-only fields must not leak into operational QRH/checklist projections.
 
 AI may assist with extraction, structuring, drafting and review support, but it is never source authority.
 
-AI output remains draft until source provenance and required human governed review/approval are present. Proprietary, NDA-restricted or otherwise non-shareable material must not be sent to an external provider unless that processing is permitted. Server-side governance remains authoritative and accepted authoring changes create a new immutable human draft rather than rewriting an approved version in place.
+Human governed review/approval is required before AI-assisted technical content may be approved or published. AI output remains draft until source provenance and that required review/approval are present. Proprietary, NDA-restricted or otherwise non-shareable material must not be sent to an external provider unless that processing is permitted. Server-side governance remains authoritative and accepted authoring changes create a new immutable human draft rather than rewriting an approved version in place.
 
 ### 3.4 Source rights are separate from technical publication
 
@@ -475,11 +475,17 @@ TRAINING_DATABASE_URL='postgresql://...' npm run db:init
 
 Ordinary runtime requests must never silently self-provision schema.
 
+The destructive no-code PostgreSQL acceptance path uses `TRAINING_ACCEPTANCE_DATABASE_URL` and must point only to a disposable/preview PostgreSQL database, never production.
+
 ### 15.4 Production
 
 Production deployment follows validated merge to `main` and serves `training.fly-tally.com`.
 
 Required production environment includes the Training database/session/identity secrets and `TRAINING_CONTENT_BACKEND=postgres`.
+
+The Logbook side of the identity handoff must expose `TRAINING_APP_URL=https://training.fly-tally.com` and the same `FLYTALLY_IDENTITY_SECRET` configured in Training.
+
+Production release verification includes `GET /api/readiness`; the operational readiness profile controls whether this endpoint returns HTTP 200 or a fail-closed non-ready status.
 
 A green application build is not sufficient by itself. Release acceptance includes production readiness/smoke appropriate to the change.
 
@@ -521,9 +527,21 @@ Current external/commercial gates include:
 - practical DSAR/incident/support processes;
 - shared Logbook commercial entitlement/release decision.
 
+The canonical v2.9 commercial-readiness contract lives in FlyTally Logbook, which remains the canonical legal and launch boundary. The canonical C4 assurance taxonomy and authority-validation state live in FlyTally Logbook as well; Training does not maintain parallel commercial, regulatory or signature-assurance truth sources.
+
 Training must not claim EASA, ÚCL, LAA ČR, manufacturer or operator approval unless an actual approval and exact scope are recorded.
 
-“Source-backed” means traceable to governed source material. It does not mean externally approved.
+The governed technical workflow and source-authority workflow are distinct from publication-rights clearance: neither one proves copyright, NDA, licence or derivative-publication rights. Source-derived content must therefore not be treated as commercially publishable merely because it is technically published in Training.
+
+QES is a reviewed strategy decision, not a presumed requirement. Existing account attestations, signature captures and server evidence must not be relabelled as advanced or qualified electronic signatures.
+
+A manufacturer review of aircraft training content would not automatically make FlyTally an authority-approved training organisation or approved logbook. External validation evidence remains pending until the canonical cross-product evidence gate records it.
+
+“Source-backed” means traceable to governed source material. Those descriptions do not mean manufacturer, operator or aviation-authority approval.
+
+Training must not market a technically published aircraft package as manufacturer-approved, EASA/ÚCL/LAA-approved, official, fully compliant or otherwise externally endorsed merely because its source and human review gates passed.
+
+Training must not add a registered-trademark claim or the `®` symbol unless the shared brand/claims evidence state later permits it.
 
 ---
 

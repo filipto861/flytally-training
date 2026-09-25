@@ -9,7 +9,7 @@ const read=(file:string)=>fs.readFileSync(path.join(root,file),"utf8");
 test("v2.9 Training keeps one canonical cross-product legal and launch boundary",()=>{
   const links=read("components/legal-links.tsx");
   const env=read(".env.example");
-  const docs=read("docs/compliance/V2_9_COMMERCIAL_VALIDATION.md");
+  const docs=read("TECHNICAL_DOCUMENTATION.md");
 
   assert.match(links,/NEXT_PUBLIC_FLYTALLY_LEGAL_URL/);
   assert.match(links,/https:\/\/fly-tally\.com\/legal/);
@@ -19,7 +19,7 @@ test("v2.9 Training keeps one canonical cross-product legal and launch boundary"
 });
 
 test("v2.9 Training separates technical publication from publication rights",()=>{
-  const docs=read("docs/compliance/V2_9_COMMERCIAL_VALIDATION.md");
+  const docs=read("TECHNICAL_DOCUMENTATION.md");
   assert.match(docs,/neither one proves copyright, NDA, licence or derivative-publication rights/i);
   assert.match(docs,/must therefore not be treated as commercially publishable/i);
   assert.match(docs,/QES is a reviewed strategy decision, not a presumed requirement/i);

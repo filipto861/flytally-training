@@ -8,7 +8,7 @@ const read = (path: string) =>
 test("production theme retains the core UX6 surface tokens", () => {
   const theme = read("app/ft-workspace/theme.css");
   for (const token of [
-    "--ft-bg-canvas",
+    "--ft-bg-shell",
     "--ft-bg-workspace",
     "--ft-bg-panel",
     "--ft-accent",
