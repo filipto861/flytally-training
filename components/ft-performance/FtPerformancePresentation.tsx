@@ -19,23 +19,6 @@ import {
 } from "./use-performance-operation";
 import styles from "./ft-performance.module.css";
 
-function sourceLabel(source: OperationWeatherSource): string {
-  if (source === "metar") return "METAR";
-  if (source === "manual") return "MANUAL";
-  if (source === "legacy-unknown") return "STORED";
-  return "NOT SET";
-}
-
-function runwayDescription(context: SelectedRunwayContext | undefined): string {
-  if (!context) return "Select runway";
-  return [
-    `RWY ${context.runwayIdent}`,
-    `${context.surfaceLengthFt.toLocaleString("en-US")} ft`,
-    context.surface ?? undefined,
-    context.headingTrueDeg === undefined ? undefined : `${Math.round(context.headingTrueDeg)}°T`,
-  ].filter(Boolean).join(" · ");
-}
-
 function previewMetric(
   metric: PartialPowerPreviewState["vr"],
 ): string {
@@ -95,21 +78,16 @@ export function FtPerformanceOperationPresentation({
     toraFt,
     toraInputSource,
     asdaFt,
-    declaredDistanceConstraint,
     takeoffWeight,
     takeoffWeightUnit,
     flaps,
     antiIce,
     thrustMode,
-    partialPowerRunwayDryHardPaved,
-    partialPowerAntiSkidOperative,
-    partialPowerFullRatedTakeoffWithin30Days,
     partialPowerPreview,
     appliedWeather,
     availableWeather,
     weatherFetchState,
-    newerWeatherAvailable,
-    latestWeatherActionNeeded,
+    manualWeatherOverride,
     pressureAltitudeFt,
     performancePressureAltitudeFt,
     pressureAltitudeMethod,
@@ -123,15 +101,11 @@ export function FtPerformanceOperationPresentation({
     setFlaps,
     setAntiIce,
     setThrustMode,
-    setPartialPowerThrustReversers,
-    setPartialPowerRunwayDryHardPaved,
-    setPartialPowerAntiSkidOperative,
-    setPartialPowerFullRatedTakeoffWithin30Days,
     setManualQnh,
     setManualOat,
     calculate,
     recalculate,
-    applyLatestMetar,
+    useAutomaticMetar,
   } = operation;
 
   const hasDisplayedCalculation = thrustMode === "partial-power"
@@ -285,15 +259,9 @@ export function FtPerformanceOperationPresentation({
                 <span>Takeoff thrust</span>
                 <select
                   aria-label="Takeoff thrust mode"
-                  onChange={(event) => {
-                    const nextMode = event.target.value === "partial-power"
-                      ? "partial-power"
-                      : "full-rated";
-                    setThrustMode(nextMode);
-                    if (nextMode === "partial-power") {
-                      setPartialPowerThrustReversers("aeronca");
-                    }
-                  }}
+                  onChange={(event) => setThrustMode(
+                    event.target.value === "partial-power" ? "partial-power" : "full-rated",
+                  )}
                   value={thrustMode}
                 >
                   <option value="full-rated">Full Rated</option>
@@ -355,58 +323,11 @@ export function FtPerformanceOperationPresentation({
 
               </label>
 
-              {thrustMode === "partial-power" ? (
-                <label className={styles.setupField}>
-                  <span>ASDA</span>
-                  <span className={styles.inputWithUnit}>
-                    <input
-                      aria-label="Takeoff ASDA"
-                      inputMode="decimal"
-                      min="1"
-                      onChange={(event) => setAsdaFt(event.target.value)}
-                      placeholder="Declared ASDA"
-                      step="1"
-                      type="number"
-                      value={asdaFt}
-                    />
-                    <small>ft</small>
-                  </span>
-                </label>
-              ) : null}
             </div>
 
             {thrustMode === "partial-power" ? (
-              <section className={styles.partialPowerSetup} aria-label="Partial Power setup">
-                <div className={styles.eligibilityChecks}>
-                  <label>
-                    <input
-                      checked={partialPowerRunwayDryHardPaved}
-                      onChange={(event) => setPartialPowerRunwayDryHardPaved(event.target.checked)}
-                      type="checkbox"
-                    />
-                    <span>Dry hard-paved</span>
-                  </label>
-                  <label>
-                    <input
-                      checked={partialPowerAntiSkidOperative}
-                      onChange={(event) => setPartialPowerAntiSkidOperative(event.target.checked)}
-                      type="checkbox"
-                    />
-                    <span>Anti-skid operative</span>
-                  </label>
-                  <label>
-                    <input
-                      checked={partialPowerFullRatedTakeoffWithin30Days}
-                      onChange={(event) => setPartialPowerFullRatedTakeoffWithin30Days(event.target.checked)}
-                      type="checkbox"
-                    />
-                    <span>Full-rated &lt;30 days</span>
-                  </label>
-                </div>
-              </section>
-            ) : (
               <details className={styles.declaredDistanceDetails}>
-                <summary>Declared-distance details</summary>
+                <summary>ASDA override</summary>
                 <label className={styles.setupField}>
                   <span>ASDA</span>
                   <span className={styles.inputWithUnit}>
@@ -415,7 +336,7 @@ export function FtPerformanceOperationPresentation({
                       inputMode="decimal"
                       min="1"
                       onChange={(event) => setAsdaFt(event.target.value)}
-                      placeholder="Declared ASDA"
+                      placeholder={toraFt || "ASDA"}
                       step="1"
                       type="number"
                       value={asdaFt}
@@ -424,62 +345,36 @@ export function FtPerformanceOperationPresentation({
                   </span>
                 </label>
               </details>
-            )}
+            ) : null}
 
             <div className={styles.contextPanel}>
               <div className={styles.contextPanelHeader}>
                 <div>
                   <p className={styles.eyebrow}>ENVIRONMENT</p>
-                  <strong>{current.departure.icao} weather</strong>
+                  <strong>{current.departure.icao}</strong>
                 </div>
                 <span className={styles.sourceChip} data-state={weatherFetchState}>
-                  {weatherFetchState === "loading"
-                    ? "LOADING"
-                    : weatherFetchState === "ready"
-                      ? "METAR AVAILABLE"
-                      : weatherFetchState === "unavailable"
-                        ? "MANUAL"
-                        : "—"}
+                  {manualWeatherOverride
+                    ? "MANUAL"
+                    : appliedWeather.observation
+                      ? `METAR ${formatObservationZulu(appliedWeather.observation.observedAt)}`
+                      : weatherFetchState === "loading"
+                        ? "LOADING"
+                        : weatherFetchState === "unavailable"
+                          ? "NO METAR"
+                          : "AUTO"}
                 </span>
               </div>
 
-              {availableWeather ? (
-                <p className={styles.sourceMeta}>
-                  Available · AviationWeather.gov · observed {formatObservationZulu(availableWeather.observedAt)}
-                </p>
-              ) : weatherFetchState === "unavailable" ? (
-                <p className={styles.sourceMeta}>METAR unavailable</p>
-              ) : null}
-
-              {appliedWeather.observation ? (
-                <p className={styles.sourceMeta}>
-                  Applied METAR · observed {formatObservationZulu(appliedWeather.observation.observedAt)}
-                </p>
-              ) : null}
-
-              {newerWeatherAvailable && availableWeather ? (
-                <div className={styles.weatherUpdate} role="status">
-                  <strong>NEWER WEATHER AVAILABLE</strong>
-                  <button
-                    className={styles.inlineAction}
-                    disabled={busy || !canCalculate}
-                    onClick={applyLatestMetar}
-                    type="button"
-                  >
-                    {busy ? "Recalculating…" : "Apply & recalculate"}
-                  </button>
-                </div>
-              ) : latestWeatherActionNeeded && availableWeather ? (
-                <div className={styles.weatherAction}>
-                  <button
-                    className={styles.inlineAction}
-                    disabled={busy || Boolean(hasDisplayedCalculation && !canCalculate)}
-                    onClick={applyLatestMetar}
-                    type="button"
-                  >
-                    {hasDisplayedCalculation ? "Apply latest & recalculate" : "Use latest METAR"}
-                  </button>
-                </div>
+              {manualWeatherOverride && availableWeather ? (
+                <button
+                  className={styles.inlineAction}
+                  disabled={busy}
+                  onClick={useAutomaticMetar}
+                  type="button"
+                >
+                  AUTO METAR
+                </button>
               ) : null}
 
               <div className={styles.inputGrid}>
@@ -497,9 +392,7 @@ export function FtPerformanceOperationPresentation({
                     />
                     <small>hPa</small>
                   </span>
-                  <small className={styles.fieldMeta}>
-                    {sourceLabel(appliedWeather.qnhHpa.source)}
-                  </small>
+
                 </label>
 
                 <label>
@@ -516,9 +409,7 @@ export function FtPerformanceOperationPresentation({
                     />
                     <small>°C</small>
                   </span>
-                  <small className={styles.fieldMeta}>
-                    {sourceLabel(appliedWeather.oatC.source)}
-                  </small>
+
                 </label>
               </div>
 
@@ -533,24 +424,6 @@ export function FtPerformanceOperationPresentation({
                     <dd>{performancePressureAltitudeFt?.toLocaleString("en-US")} ft · S.L. chart floor</dd>
                   </div>
                 ) : null}
-                <div>
-                  <dt>Runway context</dt>
-                  <dd>{runwayDescription(runwayContext)}</dd>
-                </div>
-                <div>
-                  <dt>Declared takeoff limit</dt>
-                  <dd>
-                    {declaredDistanceConstraint.status === "ready"
-                      ? `${declaredDistanceConstraint.usableTakeoffFieldLengthFt.toLocaleString("en-US")} ft · ${declaredDistanceConstraint.limitingDistance}`
-                      : declaredDistanceConstraint.status === "invalid"
-                        ? "Invalid declared distance"
-                        : toraInputSource === "airport-surface-suggestion"
-                          ? "TORA prefill needs verification"
-                          : declaredDistanceConstraint.missing.length === 2
-                            ? "Not provided"
-                            : `Missing ${declaredDistanceConstraint.missing.join(" + ")}`}
-                  </dd>
-                </div>
                 <div>
                   <dt>Headwind</dt>
                   <dd>{wind ? `${wind.headwindKt >= 0 ? "+" : ""}${wind.headwindKt.toFixed(1)} kt` : "—"}</dd>
