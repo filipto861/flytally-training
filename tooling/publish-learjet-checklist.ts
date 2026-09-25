@@ -79,7 +79,7 @@ async function main(): Promise<void> {
         `CL-102B ${source.revision} already exists with revision id ${conflictingFamily.revisionId}; refusing to create a competing identity.`,
       );
       process.exitCode = 1;
-    return;
+      return;
     }
 
     await registerGovernedManualRevision(
@@ -198,7 +198,6 @@ async function main(): Promise<void> {
   console.log(
     `Learjet checklist published successfully as governed version ${versionId}.`,
   );
-
 }
 
 void main().catch((error: unknown) => {
