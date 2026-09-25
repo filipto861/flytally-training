@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 import { useFtFastPath } from "./FtFastPathProvider";
 import styles from "./ft-fast-path.module.css";
@@ -13,7 +13,11 @@ export function FtFastPathChecklist() {
     checklistProgress,
     toggleChecklistItem,
     selectChecklistPhase,
+    resetChecklistPhase,
+    resetChecklistAll,
   } = useFtFastPath();
+  const [resetPhaseArmed, setResetPhaseArmed] = useState(false);
+  const [resetAllArmed, setResetAllArmed] = useState(false);
 
   const currentPhase = useMemo(() => {
     if (!checklist || !checklistSnapshot) return undefined;
@@ -42,11 +46,40 @@ export function FtFastPathChecklist() {
   }
 
   const completed = new Set(checklistSnapshot.completedIds);
-  const flatItems = checklist.phases.flatMap((phase) => phase.items);
-  const nextItem = flatItems.find((item) => !completed.has(item.id));
+  const currentPhaseCompleted = currentPhase.items.filter((item) =>
+    completed.has(item.id),
+  ).length;
+  const currentPhaseComplete =
+    currentPhase.items.length > 0
+    && currentPhaseCompleted === currentPhase.items.length;
+  const nextItem = currentPhase.items.find((item) => !completed.has(item.id));
   const nextIndex = nextItem
-    ? flatItems.findIndex((item) => item.id === nextItem.id) + 1
-    : flatItems.length;
+    ? currentPhase.items.findIndex((item) => item.id === nextItem.id) + 1
+    : currentPhase.items.length;
+  const currentPhaseIndex = checklist.phases.findIndex(
+    (phase) => phase.id === currentPhase.id,
+  );
+  const nextPhase = checklist.phases[currentPhaseIndex + 1];
+
+  function resetPhase() {
+    setResetAllArmed(false);
+    if (!resetPhaseArmed) {
+      setResetPhaseArmed(true);
+      return;
+    }
+    resetChecklistPhase(currentPhase.id);
+    setResetPhaseArmed(false);
+  }
+
+  function resetAll() {
+    setResetPhaseArmed(false);
+    if (!resetAllArmed) {
+      setResetAllArmed(true);
+      return;
+    }
+    resetChecklistAll();
+    setResetAllArmed(false);
+  }
 
   return (
     <section className={styles.checklist} aria-label="Fast path checklist">
@@ -83,10 +116,10 @@ export function FtFastPathChecklist() {
         <span>CURRENT STEP</span>
         <strong>
           {nextItem
-            ? `${nextIndex}/${flatItems.length} · ${nextItem.challenge}${
+            ? `${nextIndex}/${currentPhase.items.length} · ${nextItem.challenge}${
                 nextItem.response ? ` — ${nextItem.response}` : ""
               }`
-            : "Checklist complete"}
+            : `${currentPhase.title} complete`}
         </strong>
       </div>
 
@@ -95,15 +128,44 @@ export function FtFastPathChecklist() {
         <select
           aria-label="Fast path checklist phase"
           value={currentPhase.id}
-          onChange={(event) => selectChecklistPhase(event.currentTarget.value)}
+          onChange={(event) => {
+            setResetPhaseArmed(false);
+            setResetAllArmed(false);
+            selectChecklistPhase(event.currentTarget.value);
+          }}
         >
-          {checklist.phases.map((phase) => (
-            <option key={phase.id} value={phase.id}>
-              {phase.title}
-            </option>
-          ))}
+          {checklist.phases.map((phase) => {
+            const phaseComplete =
+              phase.items.length > 0
+              && phase.items.every((item) => completed.has(item.id));
+            return (
+              <option key={phase.id} value={phase.id}>
+                {phaseComplete ? "✓ " : ""}{phase.title}
+              </option>
+            );
+          })}
         </select>
       </label>
+
+      <div className={styles.checklistActions}>
+        <span>{currentPhaseCompleted}/{currentPhase.items.length}</span>
+        <button
+          type="button"
+          disabled={currentPhaseCompleted === 0}
+          onBlur={() => setResetPhaseArmed(false)}
+          onClick={resetPhase}
+        >
+          {resetPhaseArmed ? "Confirm phase" : "Reset phase"}
+        </button>
+        <button
+          type="button"
+          disabled={checklistProgress.completed === 0}
+          onBlur={() => setResetAllArmed(false)}
+          onClick={resetAll}
+        >
+          {resetAllArmed ? "Confirm all" : "Reset all"}
+        </button>
+      </div>
 
       <div className={styles.checklistItems}>
         {currentPhase.items.map((item) => {
@@ -127,6 +189,16 @@ export function FtFastPathChecklist() {
           );
         })}
       </div>
+
+      {currentPhaseComplete && nextPhase ? (
+        <button
+          type="button"
+          className={styles.nextPhaseButton}
+          onClick={() => selectChecklistPhase(nextPhase.id)}
+        >
+          Next phase · {nextPhase.title} →
+        </button>
+      ) : null}
     </section>
   );
 }
