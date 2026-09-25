@@ -65,13 +65,14 @@ test("P5.1 preserves the canonical shared checklist-session key", () => {
   assert.doesNotMatch(adapter, /flytally:flight-checklist:v1:/);
 });
 
-test("P5.1 explicitly isolates the legacy operational checklist storage for P5.5", () => {
+test("P5.1 new-shell Flight Deck consumes canonical checklist state while preserving legacy flag-off storage", () => {
   const operationalChecklist = read("components/operational-checklist.tsx");
 
+  assert.match(operationalChecklist, /useOptionalFtFastPath/);
+  assert.match(operationalChecklist, /sharedChecklist\.toggleChecklistItem/);
+  assert.match(operationalChecklist, /sharedChecklist\.selectChecklistPhase/);
   assert.match(operationalChecklist, /flytally:flight-checklist:v1:/);
-  assert.match(operationalChecklist, /window\.localStorage/);
-  assert.match(operationalChecklist, /type StoredFlightChecklist/);
-  assert.doesNotMatch(operationalChecklist, /checklistSessionStorageKey/);
+  assert.match(operationalChecklist, /if \(!hydrated \|\| sharedActive\) return/);
 });
 
 test("P5.1 keeps REF ownership documented in the historical P5 contract", () => {
@@ -444,6 +445,7 @@ test("P5.5 fast path and checklist training both invoke the same legacy migratio
 
   assert.match(adapter, /restoreChecklistSessionWithLegacyMigration/);
   assert.match(provider, /window\.localStorage/);
+  assert.match(provider, /checklistSessionScope/);
   assert.match(runner, /restoreChecklistSessionWithLegacyMigration/);
   assert.match(runner, /window\.localStorage/);
 });
