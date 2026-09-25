@@ -514,12 +514,17 @@ The detailed future sequence is tracked in **Active implementation order** below
    - **15.3 EFB / FLY content-completeness audit — AUDIT COMPLETE · IMPLEMENTATION PLANNED**
      - audit scope: EFB side-nav **FLY**, fast-path **CHECKLIST / QRH / PERF / REF**, and the corresponding Learjet 35A governed data dependencies
      - historical cause confirmed: the M39 Learjet clean reset intentionally retired the previous Learjet checklist/procedure/system/performance/limitation/abnormal payloads; the current rebuild has since restored bundled Takeoff/Landing performance, but the operational fast-path still depends on separately published governed modules for CHECKLIST, QRH and REF
-     - **15.3a FLY route dead-end — IN PROGRESS / HIGH PRIORITY**
+     - **15.3a FLY route dead-end — IMPLEMENTED / VERIFYING · HIGH PRIORITY**
        - new-shell EFB navigation currently sends **FLY** to `/aircraft/:id/fly`
        - that route still uses the older strict Flight Deck composition and calls `notFound()` when no operationally-ready published checklist/performance/abnormal module survives readiness gating
        - unlike the current EFB Flight Brief/PERF path, the legacy FLY route does not merge the Learjet bundled performance package, so the aircraft can have working Takeoff/Landing performance and still have a dead FLY destination
        - fix the new-shell FLY destination so it opens a valid EFB Flight Deck using the current new-shell data composition; preserve fail-closed behavior per individual missing module instead of making the entire destination disappear
        - preserve legacy/flag-off behavior separately; do not weaken source-authority or freshness gates for checklist/QRH data
+       - implementation: new-shell `/fly` now stays reachable even when DB operational modules are sparse, merges the current bundled Learjet Performance package into the Flight Deck, and keeps checklist/QRH behind existing operational-readiness gates
+       - new-shell route no longer applies the all-modules-missing `notFound()` boundary; the strict all-missing 404 remains flag-off/legacy only
+       - Flight Deck now renders an explicit fail-closed empty state if an aircraft genuinely has no operational modules
+       - targeted regression coverage added in `tests/p1-5-fly-route.test.ts`; M53 operational-boundary expectation updated for the bundled-performance merge
+       - acceptance pending: targeted 15.3a/M53/P1 navigation tests, typecheck/build, then production smoke
      - **15.3b CHECKLIST fast path — CONTENT GAP CONFIRMED**
        - runtime/UI is implemented and functional
        - Learjet fast-path checklist requires a governed published universal `checklists` payload (or legacy normal-flight fallback); there is no Learjet bundled checklist fallback in the current rebuild
