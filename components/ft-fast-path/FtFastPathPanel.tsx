@@ -157,7 +157,7 @@ export function FtFastPathPanel({
           </button>
         </header>
 
-        <div className={styles.panelBody}>
+        <div className={styles.panelBody} data-fast-path-scroll-container="true">
           {activeTab === "checklist" ? (
             <FtFastPathChecklist />
           ) : activeTab === "qrh" ? (
