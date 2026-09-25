@@ -529,7 +529,7 @@ The detailed future sequence is tracked in **Active implementation order** below
        - production deployment `dpl_C45SzjJxxoJKqRjqMNM1yZ75o1Ve` reached **READY** and is aliased to `training.fly-tally.com`
        - production FLY smoke: `/aircraft/learjet-35a/fly` HTTP 200 and renders the new-shell `data-ft-fly-page` workspace with Performance content
        - production readiness smoke: HTTP 200 · `status=ready` · operational profile true · source-governed release profile true
-     - **15.3b CHECKLIST fast path — CONTENT GAP CONFIRMED**
+     - **15.3b CHECKLIST fast path — IN PROGRESS · SOURCE DIGITIZATION**
        - runtime/UI is implemented and functional
        - Learjet fast-path checklist requires a governed published universal `checklists` payload (or legacy normal-flight fallback); there is no Learjet bundled checklist fallback in the current rebuild
        - source inventory confirms CL-102B contains the Normal Procedures checklist sequence, including Exterior Preflight, Cabin Preflight, Before Starting Engines, Starting Engines, Before Taxi, Taxi/Before Takeoff, Runway Lineup, After Takeoff, Climb, Cruise, Descent, Approach, Before Landing, After Landing and shutdown/secure phases
