@@ -15,6 +15,14 @@ This file is the authoritative version history for completed FlyTally Training w
 ## 2026-09-25
 
 ### Changed
+- **PR #250 — QRH.3K Learjet Environmental Abnormal source batch**
+  - staged the complete five-procedure CL-102B Environmental Abnormal family from A-14 through A-16.1;
+  - preserved A-15/A-15.1 and A-16/A-16.1 serial-number source variants plus the A-14 AMK 90-3 emergency-airflow control split;
+  - gated the source's `IF INSTALLED` emergency-airflow procedure through explicit generic configuration equipment and retained fail-closed behavior when required installation or modification state is unknown;
+  - visual source review found no boxed memory items on A-14 through A-16.1; the legacy A-16/A-16.1 comparison glyph is explicitly documented and normalized in staged source text rather than propagated as a PDF encoding artifact;
+  - acceptance on head `137b9b0`: typecheck PASS; targeted QRH/applicability/P5/P6/W2 suite 145/145 PASS; full Node suite 1306 total / 1305 PASS / 0 FAIL / 1 SKIP; production build PASS; no Playwright rerun required because no browser/presentation behavior changed.
+
+### Changed
 - **PR #249 — QRH.3J Learjet Engine Abnormal source batch**
   - staged the complete six-procedure CL-102B Engine Abnormal family from A-11 through A-13;
   - preserved source decision branches for abnormal engine operation, fuel-computer failure, engine overspeed and starter-engaged-light troubleshooting instead of flattening them into linear actions;
