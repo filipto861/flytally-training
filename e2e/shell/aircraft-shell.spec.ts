@@ -689,6 +689,7 @@ test("15.1 SimBrief import explicitly prefills Active Flight and preserves field
   const dialog = page.getByRole("dialog", { name: "Start new flight" });
   await expect(dialog.getByRole("region", { name: "SimBrief import" })).toBeVisible();
   await dialog.getByLabel("Navigraph Alias").fill("FilipTest");
+  await dialog.getByLabel("Remember this identifier on this device").check();
   await dialog.getByRole("button", { name: "Import latest OFP", exact: true }).click();
 
   await expect(dialog.getByLabel("Departure ICAO")).toHaveValue("LKPR");
