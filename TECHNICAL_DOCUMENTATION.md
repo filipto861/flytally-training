@@ -113,11 +113,15 @@ Training-only fields must not leak into operational QRH/checklist projections.
 
 AI may assist with extraction, structuring, drafting and review support, but it is never source authority.
 
-AI output remains draft until source provenance and required human approval are present. Proprietary/NDA-restricted material must not be sent to an external provider unless that processing is permitted.
+AI output remains draft until source provenance and required human governed review/approval are present. Proprietary, NDA-restricted or otherwise non-shareable material must not be sent to an external provider unless that processing is permitted. Server-side governance remains authoritative and accepted authoring changes create a new immutable human draft rather than rewriting an approved version in place.
 
 ### 3.4 Source rights are separate from technical publication
 
 A governed technical publication is not proof of copyright, licence, NDA, manufacturer, regulator or commercial-publication permission. Public/commercial source-rights validation is a separate external/legal gate.
+
+### 3.5 Fingerprint re-source boundary
+
+Re-sourcing an existing governed payload to a fingerprint-backed source record preserves the exact existing payload. It creates a new immutable human draft with updated provenance; it does not auto-approve or auto-publish. The current source-ingestion model records source identity/fingerprint metadata and does not host or serve source documents.
 
 ---
 
@@ -272,13 +276,13 @@ Uses the canonical Performance presentation/controller and governed aircraft per
 
 ### REF
 
-Uses governed universal limitations/reference data. REF must not duplicate Performance calculations or promote legacy reference content into operational output.
+Uses governed universal limitations/reference data. PERF already owns operational performance lookup, so REF must not duplicate Performance calculations or promote legacy `reference-knowledge` content into operational output. In the historical ownership split, REF was not P5 work; it was owned by the P7 reference phase.
 
 ---
 
 ## 10. Performance architecture
 
-Performance uses generic declarative calculator/runtime contracts plus governed aircraft datasets.
+Performance uses generic declarative calculator/runtime contracts plus governed aircraft datasets. Performance operation semantics are declared by data contracts; generic runtime must not depend on magic aircraft-specific axis/output names. Existing reference-aircraft behaviour must be reproducible through data declarations rather than named-aircraft branches.
 
 Core rules:
 
@@ -288,6 +292,7 @@ Core rules:
 - AVAILABLE weather and APPLIED weather are distinct;
 - manual overrides are explicit/sticky;
 - bounded interpolation only where declared and source-supported;
+- runtime must never rewrite a governed dataset from interpolation `none` to `linear-explicit`;
 - no silent extrapolation;
 - sparse source regions fail closed;
 - source provenance remains auditable;
@@ -414,6 +419,7 @@ Administration is separate from learner UI.
 
 Admin capabilities include:
 
+- structured content builder workflows that create new immutable human drafts while server-side governance remains authoritative;
 - aircraft/variant/configuration registration;
 - source revision/reference registration;
 - drafting/review;
@@ -502,6 +508,8 @@ Do not treat in-memory serverless rate limiting as a durable security control.
 Technical readiness and commercial/legal clearance are separate.
 
 Training links to the canonical FlyTally legal centre rather than maintaining a competing legal truth source.
+
+Current commercial launch remains blocked until the canonical FlyTally/Logbook external evidence and commercial-runtime gates are completed. A healthy Training `/api/readiness` response must not be interpreted as commercial, legal, regulator, trademark or source-rights clearance.
 
 Current external/commercial gates include:
 
