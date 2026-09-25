@@ -8,6 +8,7 @@ import type { RuntimeChecklist } from "./checklist-runtime.ts";
 export type ChecklistCanonicalStorage = {
   getItem(key: string): string | null;
   setItem(key: string, value: string): void;
+  removeItem?(key: string): void;
 };
 
 export type LegacyOperationalChecklistStorage = {
@@ -49,6 +50,17 @@ function safeSet(
     storage.setItem(key, value);
   } catch {
     // Checklist remains usable when browser persistence is unavailable.
+  }
+}
+
+function safeRemoveCanonical(
+  storage: ChecklistCanonicalStorage,
+  key: string,
+): void {
+  try {
+    storage.removeItem?.(key);
+  } catch {
+    // A stale canonical key can remain without affecting the active scoped key.
   }
 }
 
@@ -95,8 +107,18 @@ export function restoreChecklistSessionWithLegacyMigration(
   canonicalStorage: ChecklistCanonicalStorage,
   legacyStorage: LegacyOperationalChecklistStorage,
   selectedVariant?: string,
+  sessionScope?: string,
+  previousCanonicalStorage?: ChecklistCanonicalStorage,
 ): ChecklistSessionSnapshot {
-  const canonicalKey = checklistSessionStorageKey(checklist, selectedVariant);
+  const canonicalKey = checklistSessionStorageKey(
+    checklist,
+    selectedVariant,
+    sessionScope,
+  );
+  const unscopedCanonicalKey = checklistSessionStorageKey(
+    checklist,
+    selectedVariant,
+  );
   const legacyKey = legacyOperationalChecklistStorageKey(
     checklist,
     selectedVariant,
@@ -110,12 +132,36 @@ export function restoreChecklistSessionWithLegacyMigration(
     );
     safeSet(canonicalStorage, canonicalKey, JSON.stringify(canonical));
 
-    // Once canonical state exists, legacy state is never allowed to take
-    // precedence on a later shell transition.
     if (safeGet(legacyStorage, legacyKey) !== null) {
       safeRemove(legacyStorage, legacyKey);
     }
     return canonical;
+  }
+
+  if (sessionScope && previousCanonicalStorage) {
+    const previousRaw = safeGet(
+      previousCanonicalStorage,
+      unscopedCanonicalKey,
+    );
+    if (previousRaw !== null) {
+      const migratedCanonical = normalizeChecklistSessionSnapshot(
+        parseJson(previousRaw),
+        checklist,
+      );
+      safeSet(
+        canonicalStorage,
+        canonicalKey,
+        JSON.stringify(migratedCanonical),
+      );
+      safeRemoveCanonical(
+        previousCanonicalStorage,
+        unscopedCanonicalKey,
+      );
+      if (safeGet(legacyStorage, legacyKey) !== null) {
+        safeRemove(legacyStorage, legacyKey);
+      }
+      return migratedCanonical;
+    }
   }
 
   const legacyRaw = safeGet(legacyStorage, legacyKey);
