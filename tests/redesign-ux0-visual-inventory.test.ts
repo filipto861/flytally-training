@@ -6,7 +6,7 @@ const read = (path: string) =>
   readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("UX0 inventory preserves the frozen five-destination IA", () => {
-  const inventory = read("UX0_VISUAL_INVENTORY.md");
+  const inventory = read("TECHNICAL_DOCUMENTATION.md");
 
   assert.match(
     inventory,
@@ -19,7 +19,7 @@ test("UX0 inventory preserves the frozen five-destination IA", () => {
 });
 
 test("UX0 explicitly classifies the current shell as a development scaffold", () => {
-  const inventory = read("UX0_VISUAL_INVENTORY.md");
+  const inventory = read("TECHNICAL_DOCUMENTATION.md");
 
   assert.match(inventory, /functional\s+development scaffold/i);
   assert.match(inventory, /technical wireframe/i);
@@ -27,7 +27,7 @@ test("UX0 explicitly classifies the current shell as a development scaffold", ()
 });
 
 test("UX0 audits all four browser acceptance classes", () => {
-  const inventory = read("UX0_VISUAL_INVENTORY.md");
+  const inventory = read("TECHNICAL_DOCUMENTATION.md");
 
   for (const viewport of [
     "Desktop Chromium",
@@ -40,7 +40,7 @@ test("UX0 audits all four browser acceptance classes", () => {
 });
 
 test("UX0 identifies shell-level composition before page polish", () => {
-  const inventory = read("UX0_VISUAL_INVENTORY.md");
+  const inventory = read("TECHNICAL_DOCUMENTATION.md");
 
   assert.match(inventory, /content frame\/max-width/i);
   assert.match(inventory, /sidebar width/i);
@@ -50,7 +50,7 @@ test("UX0 identifies shell-level composition before page polish", () => {
 });
 
 test("UX0 keeps operational semantics separate from visual emphasis", () => {
-  const inventory = read("UX0_VISUAL_INVENTORY.md");
+  const inventory = read("TECHNICAL_DOCUMENTATION.md");
 
   assert.match(inventory, /No fake authority cues/i);
   assert.match(inventory, /must not imply source validity, recency or safety state/i);
