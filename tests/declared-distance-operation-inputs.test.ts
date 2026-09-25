@@ -74,11 +74,12 @@ test("DD.4 airport surface length is only a visible TORA suggestion until explic
     controller,
     /toraInputSource === "manual"[\s\S]*manualDeclaredDistanceFt/,
   );
-  assert.match(
+  assert.match(presentation, /confirmSuggestedTora/);
+  assert.match(presentation, /Confirm TORA/);
+  assert.doesNotMatch(
     presentation,
     /This is not an authoritative declared TORA\./,
   );
-  assert.match(presentation, /Confirm verified TORA/);
 });
 
 test("DD.4 ASDA is de-emphasized in UI but never silently assumed equal to TORA", () => {
@@ -87,6 +88,10 @@ test("DD.4 ASDA is de-emphasized in UI but never silently assumed equal to TORA"
   assert.match(presentation, /Declared-distance details/);
   assert.match(presentation, /aria-label="Takeoff ASDA"/);
   assert.match(
+    presentation,
+    /thrustMode === "partial-power"[\s\S]*aria-label="Takeoff ASDA"/,
+  );
+  assert.doesNotMatch(
     presentation,
     /ASDA can differ from TORA[\s\S]*does not silently assume they are equal/,
   );
