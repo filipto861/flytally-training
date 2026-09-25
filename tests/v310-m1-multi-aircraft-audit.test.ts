@@ -56,8 +56,8 @@ test("v3.1 M1 preserves aircraft-scoped persisted progress", () => {
 });
 
 test("v3.1 M1 records the known semantic calculator debt instead of hiding it", () => {
-  const audit = read("V31_M1_MULTI_AIRCRAFT_ARCHITECTURE_AUDIT.md");
-  assert.match(audit, /P0 — performance semantics are still encoded in application code/);
-  assert.match(audit, /No performance operation may depend on magic axis\/output names/i);
-  assert.match(audit, /Existing Learjet behaviour must be reproduced by data declarations/i);
+  const audit = read("TECHNICAL_DOCUMENTATION.md");
+  assert.match(audit, /Performance operation semantics are declared by data contracts/i);
+  assert.match(audit, /must not depend on magic aircraft-specific axis\/output names/i);
+  assert.match(audit, /reference-aircraft behaviour must be reproducible through data declarations/i);
 });
