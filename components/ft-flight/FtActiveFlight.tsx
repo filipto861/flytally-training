@@ -91,7 +91,7 @@ export function FtActiveFlight({
     kind: "alias",
     value: "",
   });
-  const [rememberSimBrief, setRememberSimBrief] = useState(true);
+  const [rememberSimBrief, setRememberSimBrief] = useState(false);
   const [prefillProvenance, setPrefillProvenance] =
     useState<SimBriefPrefillProvenance | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -429,7 +429,13 @@ export function FtActiveFlight({
                     <input
                       type="checkbox"
                       checked={rememberSimBrief}
-                      onChange={(event) => setRememberSimBrief(event.target.checked)}
+                      onChange={(event) => {
+                        const checked = event.target.checked;
+                        setRememberSimBrief(checked);
+                        if (!checked) {
+                          clearSimBriefIdentity(window.localStorage);
+                        }
+                      }}
                     />
                     Remember this identifier on this device
                   </label>
