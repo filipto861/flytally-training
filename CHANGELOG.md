@@ -48,3 +48,4 @@ This file is the authoritative version history for completed FlyTally Training w
 ### Production
 - PR #227 deployed successfully to `training.fly-tally.com`.
 - PR #228 deployed successfully to `training.fly-tally.com`.
+- **PR #229** deployed successfully to `training.fly-tally.com`; the Learjet 35A FLY route now returns HTTP 200 in the new EFB shell and production readiness remains healthy.
