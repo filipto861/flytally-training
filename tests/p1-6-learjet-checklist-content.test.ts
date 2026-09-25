@@ -263,16 +263,55 @@ test("15.3b.1 publisher boots under the real CJS/tsx runtime and reaches the con
   );
 });
 
-test("15.3b publication tooling is guarded by explicit operator confirmation", () => {
+test("15.3b publication tooling keeps the explicit CLI guard and reuses the governed release helper", () => {
   const tool = fs.readFileSync(
     new URL("../tooling/publish-learjet-checklist.ts", import.meta.url),
     "utf8",
   );
+  const release = fs.readFileSync(
+    new URL("../lib/learjet-checklist-release.ts", import.meta.url),
+    "utf8",
+  );
 
   assert.match(tool, /CONFIRM_LEARJET_CHECKLIST_PUBLISH !== "yes"/);
-  assert.match(tool, /validateUniversalTrainingContentPayload/);
-  assert.match(tool, /registerGovernedManualRevision/);
-  assert.match(tool, /createGovernedDraftVersion/);
-  assert.match(tool, /approveGovernedContentVersion/);
-  assert.match(tool, /publishGovernedContentVersion/);
+  assert.match(tool, /publishLearjetChecklistRelease/);
+  assert.doesNotMatch(tool, /createGovernedDraftVersion/);
+
+  assert.match(release, /validateUniversalTrainingContentPayload/);
+  assert.match(release, /registerGovernedManualRevision/);
+  assert.match(release, /createGovernedDraftVersion/);
+  assert.match(release, /approveGovernedContentVersion/);
+  assert.match(release, /publishGovernedContentVersion/);
+  assert.match(release, /status: "unchanged"/);
+  assert.match(release, /checksum_sha256/);
+});
+
+test("15.3b.4 production checklist release is admin-authenticated and explicitly confirmed", () => {
+  const actions = fs.readFileSync(
+    new URL("../app/admin/release-actions.ts", import.meta.url),
+    "utf8",
+  );
+  const page = fs.readFileSync(
+    new URL("../app/admin/page.tsx", import.meta.url),
+    "utf8",
+  );
+
+  const actionStart = actions.indexOf(
+    "export async function publishLearjetChecklistReleaseAction",
+  );
+  assert.notEqual(actionStart, -1);
+  const action = actions.slice(actionStart);
+
+  assert.ok(
+    action.indexOf("await requireTrainingAdmin()")
+      < action.indexOf('confirmLearjetChecklistRelease") !== "yes"'),
+  );
+  assert.match(action, /publishLearjetChecklistRelease\(session\.subject\)/);
+  assert.match(action, /revalidatePath\("\/aircraft\/learjet-35a\/fly"\)/);
+  assert.doesNotMatch(action, /TRAINING_DATABASE_URL/);
+
+  assert.match(page, /Publish reviewed Learjet checklist/);
+  assert.match(page, /confirmLearjetChecklistRelease/);
+  assert.match(page, /publishLearjetChecklistReleaseAction/);
+  assert.match(page, /required/);
 });

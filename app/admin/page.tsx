@@ -4,7 +4,10 @@ import { PendingActionButton } from "@/components/pending-action-button";
 import { listAdminAircraft } from "@/lib/content-admin-repository";
 import { listStaticNativeUpgradeDomains } from "@/lib/governed-static-bootstrap";
 import { bootstrapStaticAction,createAircraftAction,initializeTrainingDatabaseAction } from "./actions";
-import { publishReviewedStaticAircraftReleaseAction } from "./release-actions";
+import {
+  publishLearjetChecklistReleaseAction,
+  publishReviewedStaticAircraftReleaseAction,
+} from "./release-actions";
 import styles from "./admin.module.css";
 
 export const dynamic="force-dynamic";
@@ -26,7 +29,8 @@ export default async function AdminPage(){
     <details className={styles.tools}><summary>Platform tools</summary>
       <section className={styles.toolBlock}><h3>Initialize Training database</h3><p>Create Training-owned runtime tables from the explicit administrator path. Normal learner requests do not perform schema changes.</p><form action={initializeTrainingDatabaseAction}><PendingActionButton pendingLabel="Initializing…">Initialize database</PendingActionButton></form></section>
       {releaseCandidates.length?<section className={styles.toolBlock}><h3>Publish reviewed repository content</h3><p>Migration path for reviewed in-repository content. Normal aircraft authoring happens inside each aircraft workspace.</p><form action={publishReviewedStaticAircraftReleaseAction}><p><label>Aircraft <select name="aircraftId" required>{releaseCandidates.map(item=><option key={item.id} value={item.id}>{item.displayName}</option>)}</select></label></p><p><label><input type="checkbox" name="confirmReviewedAircraftRelease" value="yes" required/> I confirm the current source-backed repository content was reviewed.</label></p><PendingActionButton pendingLabel="Publishing…">Approve and publish</PendingActionButton></form></section>:null}
-      <section className={styles.toolBlock}><h3>Import, approve and publish current training seed</h3><p>Controlled migration only. This action records approval and publication under my administrator identity; it is not a passive import and is not the normal content-authoring path. The migration alone does not satisfy controlled-manual production readiness or replace the source-provenance release gate.</p><form action={bootstrapStaticAction}><p><label><input type="checkbox" name="confirmApprovedSeed" value="yes" required/> I confirm that I have reviewed the current source-backed training seed and authorize this migration to record approval and publication under my administrator identity.</label></p><PendingActionButton pendingLabel="Publishing…">Import, approve and publish training seed</PendingActionButton></form></section>
+      <section className={styles.toolBlock}><h3>Publish reviewed Learjet checklist</h3><p>One-shot governed release of the reviewed CL-102B Change 2 Normal Procedures package. Runs inside the authenticated production Training runtime and uses the existing source registration, validation, approval and publication gates.</p><form action={publishLearjetChecklistReleaseAction}><p><label><input type="checkbox" name="confirmLearjetChecklistRelease" value="yes" required/> I confirm that I reviewed the Learjet 35A/36A CL-102B checklist package and authorize publication under my administrator identity.</label></p><PendingActionButton pendingLabel="Publishing checklist…">Publish Learjet checklist</PendingActionButton></form></section>
+            <section className={styles.toolBlock}><h3>Import, approve and publish current training seed</h3><p>Controlled migration only. This action records approval and publication under my administrator identity; it is not a passive import and is not the normal content-authoring path. The migration alone does not satisfy controlled-manual production readiness or replace the source-provenance release gate.</p><form action={bootstrapStaticAction}><p><label><input type="checkbox" name="confirmApprovedSeed" value="yes" required/> I confirm that I have reviewed the current source-backed training seed and authorize this migration to record approval and publication under my administrator identity.</label></p><PendingActionButton pendingLabel="Publishing…">Import, approve and publish training seed</PendingActionButton></form></section>
     </details>
   </main>;
 }
