@@ -1,6 +1,7 @@
 import "server-only";
 
 import {
+  aircraftApplicabilityRegistryProfileKey,
   commonAircraftEquipmentProfileKey,
   parseAircraftConfigurationMetadata,
 } from "./aircraft-configuration-profile";
@@ -162,8 +163,19 @@ export async function assertEmbeddedApplicabilityMatchesAircraft(aircraftId: str
   const rows = await sql`SELECT variant_key,metadata FROM training_aircraft_variants WHERE aircraft_id=${aircraftId}` as Array<{variant_key:string;metadata:unknown}>;
   const equipmentTags = [...new Set(rows.flatMap((row) => stringArray(variantMetadata(row.metadata).equipmentTags)))];
 
+  const registryRow = rows.find(
+    (row) => row.variant_key === aircraftApplicabilityRegistryProfileKey,
+  );
+  const registry = variantMetadata(
+    variantMetadata(registryRow?.metadata).applicabilityRegistry,
+  );
+
   const profiles = rows
-    .filter((row) => row.variant_key !== commonAircraftEquipmentProfileKey)
+    .filter(
+      (row) =>
+        row.variant_key !== commonAircraftEquipmentProfileKey
+        && row.variant_key !== aircraftApplicabilityRegistryProfileKey,
+    )
     .map((row) => {
       const metadata = variantMetadata(row.metadata);
       return {
@@ -179,12 +191,20 @@ export async function assertEmbeddedApplicabilityMatchesAircraft(aircraftId: str
   const capabilityTags = [...new Set(
     profiles.flatMap((profile) => profile.configuration?.capabilityTags ?? []),
   )];
-  const modificationKeys = [...new Set(
-    profiles.flatMap((profile) => profile.configuration?.modifications?.map((item) => item.key) ?? []),
-  )];
-  const configurationEquipmentKeys = [...new Set(
-    profiles.flatMap((profile) => profile.configuration?.equipment?.map((item) => item.key) ?? []),
-  )];
+  const modificationKeys = [...new Set([
+    ...profiles.flatMap(
+      (profile) =>
+        profile.configuration?.modifications?.map((item) => item.key) ?? [],
+    ),
+    ...stringArray(registry.modificationKeys),
+  ])];
+  const configurationEquipmentKeys = [...new Set([
+    ...profiles.flatMap(
+      (profile) =>
+        profile.configuration?.equipment?.map((item) => item.key) ?? [],
+    ),
+    ...stringArray(registry.configurationEquipmentKeys),
+  ])];
 
   assertApplicabilityVariantsRegistered(payload, variantKeys, aircraftId);
   assertApplicabilityEquipmentRegistered(payload, equipmentTags, aircraftId);
