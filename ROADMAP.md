@@ -533,7 +533,10 @@ The detailed future sequence is tracked in **Active implementation order** below
        - runtime/UI is implemented and functional
        - Learjet fast-path checklist requires a governed published universal `checklists` payload (or legacy normal-flight fallback); there is no Learjet bundled checklist fallback in the current rebuild
        - source inventory confirms CL-102B contains the Normal Procedures checklist sequence, including Exterior Preflight, Cabin Preflight, Before Starting Engines, Starting Engines, Before Taxi, Taxi/Before Takeoff, Runway Lineup, After Takeoff, Climb, Cruise, Descent, Approach, Before Landing, After Landing and shutdown/secure phases
-       - next step: digitize the applicable CL-102B Normal Procedures into the universal checklist contract with effectivity/applicability preserved, link authoritative source references, publish, and verify fast-path population
+       - source inventory created at `aircraft-data/learjet-35a/checklists/SOURCE_INVENTORY.md`; normal-procedure phases N-2 through N-18 are mapped and N-15 performance data is explicitly excluded from checklist ownership
+       - item-level extraction must preserve Rosemount, TR-4000, Aeronca, FC-200 and other source-defined applicability distinctions
+       - publication is currently blocked on confirming the canonical registered CL-102B manual/revision/source-reference IDs and mapping those source distinctions to the existing FlyTally aircraft-configuration tags
+       - next step: digitize the configuration-common CL-102B Normal Procedures into the universal checklist contract, then add configuration-scoped items after tag mapping; link authoritative source references, publish, and verify fast-path population
      - **15.3c QRH fast path — CONTENT GAP CONFIRMED**
        - runtime/UI is implemented and deliberately fails closed unless the published abnormal module is fresh and all linked sources are CONTROLLING or OPERATING_REFERENCE
        - there is no Learjet bundled QRH/emergency fallback
