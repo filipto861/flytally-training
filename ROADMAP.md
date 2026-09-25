@@ -579,6 +579,16 @@ The detailed future sequence is tracked in **Active implementation order** below
          - authenticated administrator publication completed successfully in production
          - production FLY smoke for `fc530-standard`: CHECKLIST is populated; `Exterior Preflight`, `Cabin Preflight`, `Before Starting Engines`, `Starting Engines`, `Runway Lineup` and `Quick Turnaround` are present; `Checklist unavailable` is absent
          - production readiness smoke: HTTP 200 · `status=ready` · operational true · source-governed release true
+       - **15.3b.5 EFB checklist session unification — IN PROGRESS**
+         - acceptance bug confirmed in production: the main Flight Deck checklist and CHECKLIST fast-path panel can show different completion counts because they still own separate browser states
+         - make the new-shell EFB use one canonical checklist session for the main Flight Deck, top progress indicator and fast-path drawer; legacy flag-off behavior remains isolated
+         - synchronize completed items and selected phase in both directions
+         - add phase reset and reset-all controls to the fast-path drawer with explicit reset-all confirmation
+         - make fast-path CURRENT STEP follow the selected phase and show phase-complete/next-phase affordance instead of mixing a global first-unchecked item with a manually selected phase
+         - scope EFB checklist persistence to the current Active Flight ID and persist it beyond one browser tab; a new Active Flight starts clean while reopening the same Active Flight restores progress on the same device
+         - migrate the pre-existing unscoped canonical/session and legacy operational checklist state once so current progress is not silently lost
+         - preserve Learn checklist-training persistence separately from Active Flight operational state
+         - add focused unit/contract/browser coverage for shared state, phase synchronization, reset behavior and Active Flight session isolation
      - **15.3c QRH fast path — CONTENT GAP CONFIRMED**
        - runtime/UI is implemented and deliberately fails closed unless the published abnormal module is fresh and all linked sources are CONTROLLING or OPERATING_REFERENCE
        - there is no Learjet bundled QRH/emergency fallback
