@@ -7,7 +7,6 @@ import type { SelectedRunwayContext } from "@/lib/aviation/airport-types";
 import type { PilotTakeoffCalculatorDefinition } from "@/lib/pilot-takeoff-calculator";
 import type { OperationWeatherSource } from "@/lib/performance/operation-weather";
 import type { PerformanceDataset } from "@/lib/universal-aircraft-content";
-import { formatObservationZulu } from "@/lib/weather/metar-snapshot-helpers";
 
 import { FtPerformanceContextLabel, type FtPerformanceContextKind } from "./FtPerformanceContextLabel";
 import { FtPerformanceInvalidation } from "./FtPerformanceInvalidation";
@@ -446,32 +445,9 @@ export function FtPerformanceOperationPresentation({
                 </span>
               </div>
 
-              {availableWeather ? (
-                <p className={styles.sourceMeta}>
-                  Available · AviationWeather.gov · observed {formatObservationZulu(availableWeather.observedAt)}
-                </p>
-              ) : weatherFetchState === "unavailable" ? (
-                <p className={styles.sourceMeta}>Live METAR unavailable. Enter the required values manually.</p>
-              ) : null}
-
-              {appliedWeather.observation ? (
-                <p className={styles.sourceMeta}>
-                  Applied METAR · observed {formatObservationZulu(appliedWeather.observation.observedAt)}
-                </p>
-              ) : (
-                <p className={styles.sourceMeta}>
-                  Applied weather · QNH {sourceLabel(appliedWeather.qnhHpa.source)} · OAT {sourceLabel(appliedWeather.oatC.source)}
-                </p>
-              )}
-
               {newerWeatherAvailable && availableWeather ? (
                 <div className={styles.weatherUpdate} role="status">
-                  <div>
-                    <strong>NEWER WEATHER AVAILABLE</strong>
-                    <span>
-                      {formatObservationZulu(availableWeather.observedAt)} available; the current calculation keeps its applied weather until you choose to update it.
-                    </span>
-                  </div>
+                  <strong>NEWER METAR</strong>
                   <button
                     className={styles.inlineAction}
                     disabled={busy || !canCalculate}
@@ -597,7 +573,7 @@ export function FtPerformanceOperationPresentation({
               <p className={styles.requirementNote}>
                 {thrustMode === "partial-power"
                   ? "Complete required Partial Power inputs."
-                  : "Select runway and provide valid Takeoff weight, flap configuration, QNH and OAT before calculating."}
+                  : "Complete required Takeoff inputs."}
               </p>
             ) : null}
           </section>
