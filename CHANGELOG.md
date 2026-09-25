@@ -15,10 +15,10 @@ This file is the authoritative version history for completed FlyTally Training w
 ## 2026-09-25
 
 ### Changed
-- **PR #230 — Learjet operational checklist rebuild (code/content package merged; governed production publication pending)**
+- **PR #230 — Learjet operational checklist rebuild**
   - digitized CL-102B Normal Procedures N-2 through N-18 into the universal checklist contract;
   - added source provenance, target-profile applicability and guarded governed publication tooling;
-  - production CHECKLIST data remains pending the explicit governed database publication step.
+  - the reviewed CL-102B checklist package is now governed and published in production.
 - **PR #231 — Learjet checklist publisher CJS runtime fix**
   - replaced unsupported top-level await with an explicit async entrypoint;
   - added a real-runtime regression test proving the publisher reaches its confirmation guard under the project Node/tsx execution mode.
@@ -28,10 +28,10 @@ This file is the authoritative version history for completed FlyTally Training w
   - targeted acceptance: typecheck PASS, publisher/checklist suite 10/10 PASS, production build PASS.
 - **PR #233 — authenticated production-runtime Learjet checklist release flow**
   - moved the one-shot governed checklist publication into an authenticated Training-admin server action so protected production database credentials never need to be pulled or exposed locally;
-  - CLI and admin publication now share one governed release helper for CL-102B validation, source identity/fingerprint checks, source registration, idempotence, approval and publication;
+  - CLI and admin publication share one governed release helper for CL-102B validation, source identity/fingerprint checks, source registration, idempotence, approval and publication;
   - added the explicit **Publish reviewed Learjet checklist** admin control with required confirmation;
   - targeted acceptance: typecheck PASS, checklist/admin suite 11/11 PASS, production build PASS;
-  - production deployment is READY; the actual checklist content publication remains pending the explicit administrator release action.
+  - authenticated production publication completed successfully.
 - **PR #227 — Partial Power EFB simplification**
   - simplified the Learjet 35A Partial Power workflow to pilot-facing essentials;
   - exposed one explicit **Partial Power · Aeronca** mode;
@@ -66,3 +66,4 @@ This file is the authoritative version history for completed FlyTally Training w
 - PR #227 deployed successfully to `training.fly-tally.com`.
 - PR #228 deployed successfully to `training.fly-tally.com`.
 - **PR #229** deployed successfully to `training.fly-tally.com`; the Learjet 35A FLY route now returns HTTP 200 in the new EFB shell and production readiness remains healthy.
+- **PR #230 + #233 — Learjet CHECKLIST live in production**: the reviewed CL-102B Normal Procedures package was published through the authenticated governed release flow; production FLY renders populated checklist phases and `/api/readiness` remains HTTP 200 / ready with source-governed release healthy.
