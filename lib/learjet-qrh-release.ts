@@ -14,6 +14,7 @@ import {
   createGovernedDraftVersion,
   publishGovernedContentVersion,
 } from "./content-governed-lifecycle.ts";
+import { assertEmbeddedApplicabilityMatchesAircraft } from "./content-governance.ts";
 import { registerGovernedManualRevision } from "./governed-manual-registration.ts";
 import { sql } from "./db.ts";
 import { validateUniversalAbnormalEmergencyPayload } from "./universal-abnormal-emergency.ts";
@@ -173,6 +174,13 @@ export async function publishLearjetQrhRelease(
   const sourceReferenceIds = await ensureSourceReferences(subject);
 
   const source = learjet35aQrhSourceManifest;
+  // Fail before creating a draft when the current aircraft profile cannot
+  // prove every serial/modification/equipment selector embedded in the QRH.
+  // Approval/publication still re-run the same canonical governance check.
+  await assertEmbeddedApplicabilityMatchesAircraft(
+    source.aircraftId,
+    learjet35aQrhPackage,
+  );
   const payloadJson = JSON.stringify(learjet35aQrhPackage);
   const identicalPublished = await sql`
     SELECT v.version_id
