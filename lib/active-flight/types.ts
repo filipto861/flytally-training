@@ -1,3 +1,5 @@
+import type { SimBriefPrefillProvenance } from "../simbrief/types.ts";
+
 export type ActiveFlightLifecycle = "ACTIVE" | "PREVIOUS" | "ARCHIVED";
 
 export type ActiveFlightAirport = {
@@ -46,6 +48,7 @@ export type ActiveFlight = {
   readonly weather: ActiveFlightWeather | null;
   readonly performanceDependency: ActiveFlightPerformanceDependency;
   readonly brief: ActiveFlightBrief | null;
+  readonly prefillProvenance: SimBriefPrefillProvenance | null;
   readonly createdAt: string;
   readonly updatedAt: string;
   readonly activatedAt: string;
@@ -61,6 +64,7 @@ export type ActiveFlightInput = {
   readonly weight: ActiveFlightWeight;
   readonly configuration?: ActiveFlightConfiguration | null;
   readonly brief?: ActiveFlightBrief | null;
+  readonly prefillProvenance?: SimBriefPrefillProvenance | null;
 };
 
 export type ActiveFlightPatch = Partial<Omit<ActiveFlightInput, "aircraftId">>;
