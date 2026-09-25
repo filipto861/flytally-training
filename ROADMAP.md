@@ -488,6 +488,25 @@ The detailed future sequence is tracked in **Active implementation order** below
    - acceptance before merge: source/provenance review, targeted solver/runtime tests, snapshot invalidation tests, full Node suite, production build, desktop/mobile/iPad Playwright, and manual production smoke
 
 15. **Post-Partial-Power product work** — PLANNED
+   - **15.1 SimBrief Active Flight import + weight prefill — PLANNED**
+     - add a user-configurable Navigraph Alias / SimBrief Pilot ID
+     - use the supported latest-OFP fetch path with JSON v2 only in response to an explicit pilot import/refresh action; do not background-poll SimBrief
+     - one action should import the latest planned flight into the Active Flight workflow and prefill supported fields such as departure, destination and planned takeoff weight
+     - use SimBrief Estimated TOW as the Takeoff weight prefill when present, preserving the OFP weight unit and converting only through existing unit-safe helpers
+     - imported values remain pilot-editable; a manual Takeoff weight override must not be silently overwritten without a new explicit SimBrief import/refresh action
+     - preserve provenance so the UI can distinguish SimBrief-prefilled values from pilot-entered values without adding explanatory clutter
+     - validate that the imported aircraft/profile is compatible with the currently selected Training aircraft; fail closed rather than silently mapping an unrelated SimBrief airframe
+     - no periodic SimBrief polling; live METAR remains owned by the existing AviationWeather.gov workflow
+   - **15.2 Learjet climb + cruise Reference performance — PLANNED · source-gated**
+     - place this under **Reference**, not the Takeoff/Landing Performance workspace
+     - climb reference: altitude/weight-driven source-backed time, distance and fuel to climb, including FC-200 / FC-530 applicability where the source distinguishes them
+     - preserve the published climb schedule and source assumptions; no invented optimum-climb logic outside source data
+     - cruise reference should let the pilot choose altitude, weight/temperature inputs as required by the source, then choose a published cruise regime
+     - planned cruise regimes: two-engine Normal Cruise, High-Speed Cruise, Long-Range Cruise and Single-Engine Long-Range Cruise where source data is available
+     - output only source-supported values such as KTAS, fuel flow and published power/N1 setting where available
+     - keep Rosemount/non-Rosemount applicability separated if the source tables differ
+     - use bounded interpolation only where source geometry supports it; never extrapolate beyond published rows
+     - first implementation step is a source inventory/digitization pass against the best available Learjet manuals before UI/runtime work
    - Flight Brief Takeoff/Landing convergence
    - source-backed operational W&B where available
    - navigation/icon cleanup
