@@ -184,3 +184,37 @@ test("QRH.2 operational UI uses explicit semantics rather than label inference",
   assert.doesNotMatch(ui, /\/immediate\|memory\/i/);
   assert.doesNotMatch(ui, /<span>EMERGENCY<\/span>/);
 });
+
+test("QRH.3 generic information step preserves non-action source text through operational projection", () => {
+  const payload = {
+    schemaVersion: 2,
+    aircraftId: "generic-aircraft",
+    title: "Generic QRH",
+    scenarios: [{
+      id: "info",
+      title: "Information procedure",
+      procedureClass: "abnormal",
+      category: "Generic",
+      effectivity: { kind: "all-aircraft", sourceText: "ALL" },
+      stages: [{
+        id: "stage",
+        label: "Response",
+        sources: [source],
+        steps: [{
+          id: "info-step",
+          kind: "information",
+          label: "2",
+          text: "Source informational text.",
+        }],
+      }],
+    }],
+  } as const;
+
+  assert.deepEqual(validateUniversalAbnormalEmergencyPayload(payload), []);
+  const operational = toOperationalEmergency(payload);
+  const step = operational.scenarios[0]?.stages[0]?.steps[0];
+  assert.equal(step?.kind, "information");
+  if (!step || step.kind !== "information") assert.fail("information step missing");
+  assert.equal(step.label, "2");
+  assert.equal(step.text, "Source informational text.");
+});

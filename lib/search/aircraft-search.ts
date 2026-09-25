@@ -320,7 +320,7 @@ function systemCandidates(
 function qrhStepSearchText(steps: readonly AircraftQrhStep[]): string {
   const parts: string[] = [];
   for (const step of steps) {
-    if (step.kind === "action") {
+    if (step.kind === "action" || step.kind === "information") {
       parts.push(step.label ?? "", step.text);
       parts.push(...(step.notices?.map((notice) => notice.text) ?? []));
       continue;

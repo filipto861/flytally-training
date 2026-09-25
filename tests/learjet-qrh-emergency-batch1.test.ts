@@ -13,9 +13,9 @@ test("QRH.3A staged Learjet Emergency batch satisfies the generic v2 contract", 
   assert.deepEqual(validateUniversalAbnormalEmergencyPayload(learjet35aQrhEmergencyBatch1), []);
   assert.equal(learjet35aQrhEmergencyBatch1.schemaVersion, 2);
   assert.equal(learjet35aQrhEmergencyBatch1.sourcePolicy, "available-sources");
-  assert.equal(learjet35aQrhEmergencyBatch1.scenarios.length, 2);
+  assert.equal(learjet35aQrhEmergencyBatch1.scenarios.length, 4);
   assert.equal("training" in learjet35aQrhEmergencyBatch1.scenarios[0], false);
-  assert.equal("training" in learjet35aQrhEmergencyBatch1.scenarios[1], false);
+  for (const scenario of learjet35aQrhEmergencyBatch1.scenarios) assert.equal("training" in scenario, false);
 });
 
 test("QRH.3A source identity remains the reviewed CL-102B Change 2 family", () => {
@@ -23,6 +23,8 @@ test("QRH.3A source identity remains the reviewed CL-102B Change 2 family", () =
   assert.match(serialized, new RegExp(learjet35aChecklistSourceManifest.manualId));
   assert.match(serialized, /"pageLabel":"E-i"/);
   assert.match(serialized, /"pageLabel":"E-4"/);
+  assert.match(serialized, /"pageLabel":"E-5"/);
+  assert.match(serialized, /"pageLabel":"E-9–E-10"/);
   assert.match(serialized, /"pageLabel":"E-10"/);
   assert.match(serialized, /"pageLabel":"E-11"/);
   assert.match(
@@ -107,4 +109,25 @@ test("QRH.3A section guidance is source-backed and the partial batch is not misl
   assert.match(intro.paragraphs.join(" "), /Take Proper Action/);
   assert.match(learjet35aQrhEmergencyBatch1.sourceNote ?? "", /Partial QRH\.3/);
   assert.match(learjet35aQrhEmergencyBatch1.sourceNote ?? "", /Not a complete publishable/);
+});
+
+test("QRH.3A Electrical procedures preserve informational source text without recasting it as crew actions", () => {
+  const inverter = learjet35aQrhEmergencyBatch1.scenarios.find(
+    (scenario) => scenario.id === "ac-inverter-failure-total",
+  );
+  const generator = learjet35aQrhEmergencyBatch1.scenarios.find(
+    (scenario) => scenario.id === "generator-failure-dual",
+  );
+  assert.ok(inverter);
+  assert.ok(generator);
+
+  const inverterSerialized = JSON.stringify(inverter);
+  assert.match(inverterSerialized, /"kind":"information","label":"8"/);
+  assert.match(inverterSerialized, /Vertical & Directional Gyros/);
+
+  const generatorSerialized = JSON.stringify(generator);
+  assert.match(generatorSerialized, /"kind":"information","label":"a","text":"Engine response will be much slower\."/);
+  assert.match(generatorSerialized, /Fully charged batteries should power minimum equipment/);
+  assert.match(generatorSerialized, /Aircraft without Fuselage Valve Switch/);
+  assert.match(generatorSerialized, /Aircraft with Fuselage Valve Switch/);
 });

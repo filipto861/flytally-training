@@ -55,6 +55,18 @@ function Steps({ steps }: Readonly<{ steps: readonly OperationalEmergencyStep[] 
         </li>;
       }
 
+      if (step.kind === "information") {
+        return <li className={`${styles.informationStep}${step.memoryItem ? ` ${styles.memoryInformation}` : ""}`} key={step.id}>
+          <span>{step.label ?? "i"}</span>
+          <div className={styles.actionBody}>
+            <p>{step.text}</p>
+            {step.notices?.length ? <div className={styles.notices}>
+              {step.notices.map((notice, index) => <Notice key={`${step.id}-notice-${index}`} notice={notice} />)}
+            </div> : null}
+          </div>
+        </li>;
+      }
+
       return <li className={styles.conditionStep} key={step.id}>
         {step.notices?.length ? <div className={styles.notices}>
           {step.notices.map((notice, index) => <Notice key={`${step.id}-notice-${index}`} notice={notice} />)}
