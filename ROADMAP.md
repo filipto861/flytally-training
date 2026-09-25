@@ -23,7 +23,7 @@
 | REF / Limitations | ⏳ | Governed limitations content still to be populated |
 | Climb + Cruise Reference | ⏳ | Planned, source-gated |
 | SimBrief Active Flight import | ⏳ | Planned |
-| Documentation consolidation | 🚧 | In progress — consolidating technical Markdown into one maintained document |
+| Documentation consolidation | 🚧 | Implemented — verification pending |
 
 **Legend:** ✅ complete/live · 🚧 in progress · ⏳ planned · ⚠️ blocked/limited
 
@@ -42,18 +42,19 @@ Roadmap discipline is mandatory for this project:
 - chat history, PR descriptions and commit history are supporting evidence only; they do not replace roadmap or changelog maintenance;
 - when roadmap direction changes, preserve the prior decision/history rather than silently rewriting it away, so future development can reconstruct why the project moved in a given direction.
 
-## Documentation consolidation — IN PROGRESS
+## Documentation consolidation — IMPLEMENTED / VERIFYING
 
 Goal: keep repository documentation easy to navigate and continuously maintainable.
 
-- retain `README.md` as the repository entry point;
-- retain `ROADMAP.md` as the authoritative direction/status control;
-- retain `CHANGELOG.md` as the authoritative accepted/released history;
-- consolidate the current technical/product architecture, governance, deployment, UX, safety, performance and multi-aircraft contracts into one maintained `TECHNICAL_DOCUMENTATION.md`;
-- retire superseded milestone/specification Markdown files after their still-current contracts are incorporated into the consolidated document;
-- preserve historical detail through Git history, PRs and `CHANGELOG.md` rather than permanent root-level milestone documents;
-- update documentation-contract tests so they validate the consolidated technical document instead of obsolete milestone files;
-- add a concise progress/status table near the top of this roadmap and keep it synchronized with major roadmap phases.
+- repository Markdown surface reduced to four maintained files only: `README.md`, `ROADMAP.md`, `CHANGELOG.md`, `TECHNICAL_DOCUMENTATION.md`;
+- `README.md` is the short repository entry point;
+- `ROADMAP.md` remains the authoritative direction/status control;
+- `CHANGELOG.md` remains the authoritative accepted/released history;
+- `TECHNICAL_DOCUMENTATION.md` now consolidates current technical/product architecture, content/source governance, identity, persistence/privacy, Active Flight, operational checklist/fast path, performance, W&B, UX/PWA, admin, deployment, security/compliance and Learjet reference-aircraft contracts;
+- superseded milestone/specification Markdown files were removed from the active tree after their still-current contracts were incorporated; exact historical wording remains available through Git history and PRs;
+- documentation-contract tests are being redirected from retired milestone files to the consolidated technical reference or to the executable runtime contract itself;
+- the progress/status table near the top of this roadmap is now the concise project overview requested by the product owner;
+- acceptance pending: full Node test suite plus production build to catch any remaining stale Markdown-file dependencies before merge.
 
 ## Product direction
 
