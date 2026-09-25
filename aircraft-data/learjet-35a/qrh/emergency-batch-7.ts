@@ -45,6 +45,28 @@ const batteryCurrentFamily: AircraftApplicability = {
   anyOf: [batteryCurrentE6, batteryCurrentE61],
 };
 
+export const learjet35aQrhElectricalConfigurationKeys = {
+  nicadBatteries: "nicad-batteries",
+} as const;
+
+const nicadBatteryE6: AircraftApplicability = {
+  ...batteryCurrentE6,
+  configurationEquipmentAllOf: [
+    learjet35aQrhElectricalConfigurationKeys.nicadBatteries,
+  ],
+};
+
+const nicadBatteryE61: AircraftApplicability = {
+  ...batteryCurrentE61,
+  configurationEquipmentAllOf: [
+    learjet35aQrhElectricalConfigurationKeys.nicadBatteries,
+  ],
+};
+
+const nicadBatteryFamily: AircraftApplicability = {
+  anyOf: [nicadBatteryE6, nicadBatteryE61],
+};
+
 const essentialBusPriorSerials: AircraftApplicability = {
   anyOf: [
     { serialNumberRanges: [{ prefix: "35-", from: 1, to: 201 }] },
@@ -350,7 +372,8 @@ export const learjet35aQrhEmergencyBatch7ReleaseStatus =
  * Electrical emergency procedures that were not present in QRH.3A–3G:
  * BATTERY OVERHEAT LIGHT(S), CURRENT LIMITER FAILURE and ESSENTIAL BUS
  * FAILURE — DC POWER LOSS. E-6/E-6.1 and E-7/E-8/E-7.1 are represented with
- * their exact serial/AMK effectivity families. Visual source review found no
+ * their exact serial/AMK effectivity families, and BATTERY OVERHEAT retains
+ * the source's NICAD ONLY configuration qualifier explicitly. Visual source review found no
  * boxed memory items on these pages; annunciator depictions are indications,
  * not memory-item boxes.
  */
@@ -360,7 +383,7 @@ export const learjet35aQrhEmergencyBatch7 = {
   title: "Learjet 35/36 Emergency Procedures — inventory reconciliation batch 7",
   sourcePolicy: "available-sources",
   sourceNote:
-    "QRH.3U closes the three Electrical procedures missing from the earlier source batches and preserves the CL-102B E-6/E-6.1 and E-7/E-8/E-7.1 serial/AMK effectivity splits explicitly.",
+    "QRH.3U closes the three Electrical procedures missing from the earlier source batches, preserves the CL-102B E-6/E-6.1 and E-7/E-8/E-7.1 serial/AMK effectivity splits explicitly, and retains BATTERY OVERHEAT as NICAD-only configured-equipment content.",
   disclaimer:
     "CL-102B states that its procedures do not supersede the current FAA Approved Airplane Flight Manual; the AFM takes precedence in a conflict.",
   scenarios: [
@@ -375,7 +398,7 @@ export const learjet35aQrhEmergencyBatch7 = {
         mappingNote:
           "The source page is selected from exact aircraft serial number and AMK 85-1 incorporation state.",
       },
-      applicability: batteryCurrentFamily,
+      applicability: nicadBatteryFamily,
       sources: [
         source("E-6", "BATTERY OVERHEAT LIGHT(S) (NICAD ONLY)"),
         source("E-6.1", "BATTERY OVERHEAT LIGHT(S) (NICAD ONLY)"),
@@ -387,7 +410,7 @@ export const learjet35aQrhEmergencyBatch7 = {
           "E-6",
           "BATTERY OVERHEAT LIGHT(S) (NICAD ONLY)",
           "35-001 thru 35-508, 36-001 thru 36-053 not incorporating AMK 85-1",
-          batteryCurrentE6,
+          nicadBatteryE6,
           batterySteps("battery-overheat-e6"),
         ),
         mappedStage(
@@ -396,7 +419,7 @@ export const learjet35aQrhEmergencyBatch7 = {
           "E-6.1",
           "BATTERY OVERHEAT LIGHT(S) (NICAD ONLY)",
           "35-509 & on, 36-054 & on, and prior aircraft incorporating AMK 85-1",
-          batteryCurrentE61,
+          nicadBatteryE61,
           batterySteps("battery-overheat-e61"),
         ),
       ],
