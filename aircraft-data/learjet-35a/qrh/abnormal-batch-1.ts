@@ -509,7 +509,17 @@ export const learjet35aQrhAbnormalBatch1 = {
           [
             { id: "wing-heat-a7-1", kind: "action", label: "1", text: "STAB & WING HT CB (copilot’s main bus) — CHECK & RESET" },
             { id: "wing-heat-a7-2", kind: "action", label: "2", text: "Engine RPM — ADJUST AS REQ’D" },
-            { id: "wing-heat-a7-3", kind: "action", label: "3", text: "If WING TEMP indicator remains in the red range and/or visual indications of ice accumulation remain, fly out of icing conditions." },
+            {
+              id: "wing-heat-a7-ice-remains",
+              kind: "condition",
+              branches: [{
+                id: "wing-heat-a7-ice-remains-branch",
+                label: "3. If WING TEMP indicator remains in the red range and/or visual indications of ice accumulation remain",
+                steps: [
+                  { id: "wing-heat-a7-3", kind: "action", text: "Fly out of icing conditions." },
+                ],
+              }],
+            },
             {
               id: "wing-heat-a7-cabin-alt",
               kind: "condition",
@@ -535,7 +545,17 @@ export const learjet35aQrhAbnormalBatch1 = {
           [
             { id: "wing-heat-a71-1", kind: "action", label: "1", text: "STAB & WING HT CB (copilot’s main bus) — CHECK & RESET" },
             { id: "wing-heat-a71-2", kind: "action", label: "2", text: "Engine RPM — ADJUST AS REQ’D" },
-            { id: "wing-heat-a71-3", kind: "action", label: "3", text: "If WING TEMP indicator remains in the red range and/or visual indications of ice accumulation remain, fly out of icing conditions." },
+            {
+              id: "wing-heat-a71-ice-remains",
+              kind: "condition",
+              branches: [{
+                id: "wing-heat-a71-ice-remains-branch",
+                label: "3. If WING TEMP indicator remains in the red range and/or visual indications of ice accumulation remain",
+                steps: [
+                  { id: "wing-heat-a71-3", kind: "action", text: "Fly out of icing conditions." },
+                ],
+              }],
+            },
             { id: "wing-heat-a71-ref", kind: "action", text: "Refer to WING HEAT FAILURE LANDING procedure, Tab 15, this section, if landing must be made with ice or suspected ice on the wings." },
           ],
         ),
