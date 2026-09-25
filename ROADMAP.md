@@ -401,6 +401,7 @@ The detailed future sequence is tracked in **Active implementation order** below
      - production deployment `dpl_BDEuUEKaGrqokzYkyyb8YrPs1Vyn` reached **READY** and is aliased to `training.fly-tally.com`
      - production readiness smoke: HTTP 200 · `status=ready` · operational profile true · source-governed release profile true
      - **follow-up:** manual-weather Partial Power currently has no manual runway-wind input. Add either explicit manual wind entry or an explicit source-safe zero-wind confirmation path before treating manual weather as complete for Partial Power
+     - **follow-up:** Partial Power UI should aggregate and display **all current blockers at once** (configuration, eligibility, wind/flap/source limitations) instead of stopping on the first failure; this must remain explanatory only and must not weaken fail-closed behavior
    - **14.2 Independent 25% rated-thrust source closure — BLOCKED**
      - FlightSafety requires thrust reduction <=25% of rated takeoff thrust for the existing ambient condition
      - CL-102B P-6/P-6.1 provide configuration-specific reduced-N1 schedules and a 7.7 N1-point cap, but no verified N1-to-rated-thrust relationship has been found
