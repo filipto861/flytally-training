@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import { useOptionalFtFastPath } from "@/components/ft-fast-path/FtFastPathProvider";
 import type { OperationalChecklist as OperationalChecklistData, OperationalChecklistItem } from "@/lib/operational-flight-data";
 import styles from "./operational-checklist.module.css";
 
@@ -33,8 +34,23 @@ export function OperationalChecklist({
   const [resetArmed, setResetArmed] = useState(false);
   const [resetAllArmed, setResetAllArmed] = useState(false);
   const itemRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const sharedChecklist = useOptionalFtFastPath();
+  const sharedActive = Boolean(
+    sharedChecklist?.checklist
+    && sharedChecklist.checklist.aircraftId === checklist.aircraftId
+    && sharedChecklist.checklist.title === checklist.title,
+  );
+  const sharedSnapshot = sharedActive ? sharedChecklist?.checklistSnapshot : undefined;
+  const activePhaseId = sharedSnapshot?.selectedPhaseId ?? phaseId;
+  const activeCompleted = sharedSnapshot
+    ? new Set(sharedSnapshot.completedIds)
+    : completed;
 
   useEffect(() => {
+    if (sharedActive) {
+      setHydrated(true);
+      return;
+    }
     let stored: StoredFlightChecklist | undefined;
     try {
       const raw = window.localStorage.getItem(key);
@@ -49,46 +65,54 @@ export function OperationalChecklist({
     setPhaseId(validPhase);
     setCompleted(new Set((stored?.completedIds ?? []).filter((id) => validItemIds.has(id))));
     setHydrated(true);
-  }, [checklist, key]);
+  }, [checklist, key, sharedActive]);
 
   useEffect(() => {
-    if (!hydrated) return;
+    if (!hydrated || sharedActive) return;
     try {
       window.localStorage.setItem(key, JSON.stringify({ version: 1, phaseId, completedIds: [...completed] } satisfies StoredFlightChecklist));
     } catch {
       // Flight checklist remains usable if persistent browser storage is unavailable.
     }
-  }, [completed, hydrated, key, phaseId]);
+  }, [completed, hydrated, key, phaseId, sharedActive]);
 
-  const currentPhase = checklist.phases.find((phase) => phase.id === phaseId) ?? checklist.phases[0];
+  const currentPhase = checklist.phases.find((phase) => phase.id === activePhaseId) ?? checklist.phases[0];
   if (!currentPhase) return null;
   const phaseIndex = checklist.phases.findIndex((phase) => phase.id === currentPhase.id);
-  const completeInPhase = currentPhase.items.filter((item) => completed.has(item.id)).length;
+  const completeInPhase = currentPhase.items.filter((item) => activeCompleted.has(item.id)).length;
   const totalItems = checklist.phases.reduce((sum, phase) => sum + phase.items.length, 0);
-  const totalComplete = checklist.phases.reduce((sum, phase) => sum + phase.items.filter((item) => completed.has(item.id)).length, 0);
+  const totalComplete = checklist.phases.reduce((sum, phase) => sum + phase.items.filter((item) => activeCompleted.has(item.id)).length, 0);
   const overallPercent = totalItems ? Math.round((totalComplete / totalItems) * 100) : 0;
-  const nextUncheckedId = currentPhase.items.find((item) => !completed.has(item.id))?.id;
+  const nextUncheckedId = currentPhase.items.find((item) => !activeCompleted.has(item.id))?.id;
 
   function choosePhase(nextPhaseId: string) {
     setResetArmed(false);
     setResetAllArmed(false);
+    if (sharedActive && sharedChecklist) {
+      sharedChecklist.selectChecklistPhase(nextPhaseId);
+      return;
+    }
     setPhaseId(nextPhaseId);
   }
 
   function toggle(itemId: string) {
     setResetAllArmed(false);
-    const wasDone = completed.has(itemId);
+    const wasDone = activeCompleted.has(itemId);
     const shouldAdvance = !wasDone && nextUncheckedId === itemId;
     const itemIndex = currentPhase.items.findIndex((item) => item.id === itemId);
     const followingUnchecked = shouldAdvance
-      ? currentPhase.items.slice(itemIndex + 1).find((item) => !completed.has(item.id))
+      ? currentPhase.items.slice(itemIndex + 1).find((item) => !activeCompleted.has(item.id))
       : undefined;
 
-    setCompleted((current) => {
-      const next = new Set(current);
-      if (next.has(itemId)) next.delete(itemId); else next.add(itemId);
-      return next;
-    });
+    if (sharedActive && sharedChecklist) {
+      sharedChecklist.toggleChecklistItem(itemId);
+    } else {
+      setCompleted((current) => {
+        const next = new Set(current);
+        if (next.has(itemId)) next.delete(itemId); else next.add(itemId);
+        return next;
+      });
+    }
 
     if (followingUnchecked) {
       window.requestAnimationFrame(() => {
@@ -104,8 +128,12 @@ export function OperationalChecklist({
       setResetArmed(true);
       return;
     }
-    const ids = new Set(currentPhase.items.map((item) => item.id));
-    setCompleted((current) => new Set([...current].filter((id) => !ids.has(id))));
+    if (sharedActive && sharedChecklist) {
+      sharedChecklist.resetChecklistPhase(currentPhase.id);
+    } else {
+      const ids = new Set(currentPhase.items.map((item) => item.id));
+      setCompleted((current) => new Set([...current].filter((id) => !ids.has(id))));
+    }
     setResetArmed(false);
     const first = currentPhase.items[0];
     if (first) window.requestAnimationFrame(() => itemRefs.current[first.id]?.scrollIntoView({ behavior: "auto", block: "center" }));
@@ -118,8 +146,12 @@ export function OperationalChecklist({
       return;
     }
     const firstPhase = checklist.phases[0];
-    setCompleted(new Set());
-    setPhaseId(firstPhase?.id ?? "");
+    if (sharedActive && sharedChecklist) {
+      sharedChecklist.resetChecklistAll();
+    } else {
+      setCompleted(new Set());
+      setPhaseId(firstPhase?.id ?? "");
+    }
     setResetAllArmed(false);
     const firstItem = firstPhase?.items[0];
     if (firstItem) window.requestAnimationFrame(() => itemRefs.current[firstItem.id]?.scrollIntoView({ behavior: "auto", block: "center" }));
@@ -155,7 +187,7 @@ export function OperationalChecklist({
           <span>Phase {phaseIndex + 1} of {checklist.phases.length}</span>
           <select aria-label="Checklist phase" onChange={(event) => choosePhase(event.target.value)} value={currentPhase.id}>
             {checklist.phases.map((phase) => {
-              const phaseDone = phase.items.length > 0 && phase.items.every((item) => completed.has(item.id));
+              const phaseDone = phase.items.length > 0 && phase.items.every((item) => activeCompleted.has(item.id));
               return <option key={phase.id} value={phase.id}>{phaseDone ? "✓ " : ""}{phase.title}</option>;
             })}
           </select>
@@ -174,7 +206,7 @@ export function OperationalChecklist({
 
       <div className={styles.items}>
         {currentPhase.items.map((item) => {
-          const done = completed.has(item.id);
+          const done = activeCompleted.has(item.id);
           const isNext = !done && item.id === nextUncheckedId;
           const alerts = operationalAlerts(item);
           return <div className={`${styles.itemWrap} ${done ? styles.done : ""} ${isNext ? styles.nextItem : ""}`} key={item.id}>
