@@ -37,6 +37,7 @@ function localCreate(input: ActiveFlightInput): ActiveFlight {
       weight: input.weight,
       configuration: input.configuration ?? null,
       brief: input.brief ?? null,
+      prefillProvenance: input.prefillProvenance ?? null,
     },
     activeFlightDependencyReference(input),
     crypto.randomUUID(),
@@ -60,6 +61,10 @@ function localPatch(flight: ActiveFlight, patch: ActiveFlightPatch): ActiveFligh
     ...flight,
     ...merged,
     brief: patch.brief !== undefined ? patch.brief : flight.brief,
+    prefillProvenance:
+      patch.prefillProvenance !== undefined
+        ? patch.prefillProvenance
+        : flight.prefillProvenance,
     performanceDependency: {
       snapshotId: activeFlightDependencyReference(merged),
     },
