@@ -9,6 +9,7 @@ import {
   filterPerformanceForConfiguration,
   resolveSelectedVariant,
 } from "@/lib/aircraft-applicability";
+import { getBundledPerformancePackage } from "@/lib/bundled-performance-content";
 import { normalizeUniversalChecklist } from "@/lib/checklist-runtime";
 import { getPublishedAircraftModule } from "@/lib/content-repository";
 import { getTrainingContentRepository } from "@/lib/content-store";
@@ -18,6 +19,8 @@ import {
   toOperationalPerformanceDatasets,
 } from "@/lib/operational-flight-data";
 import { getOperationalFlightReadiness } from "@/lib/operational-content-readiness";
+import { mergePerformanceDatasets } from "@/lib/performance-package";
+import { isNewShellEnabled } from "@/lib/feature-flags";
 import { isUniversalAbnormalEmergencyContent } from "@/lib/universal-abnormal-emergency";
 import type { AircraftChecklistContent, AircraftPerformanceContent } from "@/lib/universal-aircraft-content";
 
@@ -29,7 +32,11 @@ export default async function FlyPage({
   searchParams: Promise<{ variant?: string }>;
 }>) {
   const [{ aircraftId }, { variant }] = await Promise.all([params, searchParams]);
+  const newShell = isNewShellEnabled();
   const repository = getTrainingContentRepository();
+  const bundledPerformance = newShell
+    ? getBundledPerformancePackage(aircraftId)
+    : undefined;
   const [aircraft, checklistContent, performanceContent, abnormalContent, operationalReadiness] = await Promise.all([
     repository.getAircraft(aircraftId),
     getPublishedAircraftModule<AircraftChecklistContent>(repository, aircraftId, "checklists"),
@@ -51,7 +58,17 @@ export default async function FlyPage({
   const configuredPerformance = operationalReadiness.performance.ready && performanceContent
     ? filterPerformanceForConfiguration(performanceContent, configuration)
     : undefined;
-  const datasets = toOperationalPerformanceDatasets(configuredPerformance?.datasets ?? []);
+  const configuredBundledPerformance = bundledPerformance
+    ? filterPerformanceForConfiguration(bundledPerformance.content, configuration)
+    : undefined;
+  const datasets = toOperationalPerformanceDatasets(
+    newShell
+      ? mergePerformanceDatasets(
+          configuredPerformance?.datasets ?? [],
+          configuredBundledPerformance?.datasets ?? [],
+        )
+      : configuredPerformance?.datasets ?? [],
+  );
 
   const configuredAbnormal = operationalReadiness.abnormal.ready && isUniversalAbnormalEmergencyContent(abnormalContent)
     ? filterAbnormalEmergencyForConfiguration(abnormalContent, configuration)
@@ -60,7 +77,31 @@ export default async function FlyPage({
     ? toOperationalEmergency(configuredAbnormal)
     : undefined;
 
-  if ((!checklist || !checklist.phases.length) && !datasets.length && !emergency?.scenarios.length) notFound();
+  const noOperationalModules =
+    (!checklist || !checklist.phases.length)
+    && !datasets.length
+    && !emergency?.scenarios.length;
+
+  if (!newShell && noOperationalModules) notFound();
+
+  const deck = (
+    <FlightDeck
+      aircraftId={aircraft.id}
+      aircraftName={aircraft.displayName}
+      checklist={checklist}
+      performanceDatasets={datasets}
+      emergency={emergency}
+      selectedVariant={selectedVariant}
+    />
+  );
+
+  if (newShell) {
+    return (
+      <main data-ft-fly-page="true" aria-label="Flight Deck workspace">
+        {deck}
+      </main>
+    );
+  }
 
   return (
     <main className="shell aircraft-detail flight-shell">
@@ -71,14 +112,7 @@ export default async function FlyPage({
         variantProfiles={aircraft.variantProfiles}
         selectedVariant={selectedVariant}
       />
-      <FlightDeck
-        aircraftId={aircraft.id}
-        aircraftName={aircraft.displayName}
-        checklist={checklist}
-        performanceDatasets={datasets}
-        emergency={emergency}
-        selectedVariant={selectedVariant}
-      />
+      {deck}
     </main>
   );
 }

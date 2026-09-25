@@ -27,6 +27,12 @@ This file is the authoritative version history for completed FlyTally Training w
   - retained manual QNH/OAT overrides with a compact **AUTO METAR** reset.
 
 ### Fixed
+- **PR #229 — EFB FLY route repair**
+  - new-shell FLY no longer dead-ends when governed DB modules are sparse;
+  - current bundled Learjet Takeoff/Landing performance is available in the Flight Deck;
+  - CHECKLIST and QRH retain their existing source-authority/freshness gates;
+  - the legacy flag-off FLY route keeps its historical strict behavior;
+  - an explicit fail-closed Flight Deck empty state is shown when no operational module is available.
 - Hardened Playwright local-server handling so tests do not silently reuse a server started with the wrong fixture or feature-flag environment.
 - Updated stale B4/declared-distance/weather regression contracts after the EFB simplification.
 
