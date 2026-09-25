@@ -717,7 +717,10 @@ The detailed future sequence is tracked in **Active implementation order** below
          - **QRH.3P Landing Gear Abnormal source batch — COMPLETE · PR #255:** digitized the complete three-procedure Landing Gear family on A-26/A-27: ALTERNATE GEAR EXTENSION/ELECTRICAL MALFUNCTION, ANTI-SKID GEN LIGHT — ANTI-SKID OFF OPERATION and NOSE WHEEL STEERING MALFUNCTION
          - preserve the A-26 electrical alternate-extension sequence, the A-27 conditional anti-skid path and distinct normal-taxi vs takeoff nose-wheel-steering procedures; all three pages are ALL-aircraft and visual review found no boxed memory items
          - QRH.3P acceptance on head `cd1a5d4`: typecheck PASS · targeted QRH/applicability/P5/P6/W2 suite 179/179 PASS · full Node suite 1340 total / 1339 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright not required because no browser/presentation behavior changed
-         - **QRH.3Q Landings Abnormal source batch — NEXT:** continue with the Landings family beginning at GEAR UP LANDING on A-27/A-28 and preserve multi-page continuations and landing-configuration branches
+         - **QRH.3Q Landings Abnormal source batch — IN PROGRESS:** digitize the complete ten-procedure Landings family from A-27 through A-33.2, including the multi-page GEAR UP LANDING continuation, hydraulic/flap/stabilizer/icing landing branches and ONE THRUST REVERSER DEPLOYED LANDING
+         - first nine Landings procedures are ALL-aircraft; ONE THRUST REVERSER DEPLOYED LANDING is source-qualified to explicit TR-4000 thrust-reverser configuration and must fail closed for Aeronca/unknown/contradictory identity
+         - visual review found no boxed memory items on A-27 through A-33.2; the vertical marks on A-31 are source change bars, not memory boxes
+         - **QRH.3R Turbulence Abnormal source batch — NEXT:** digitize TURBULENT AIR PENETRATION across the Without Thrust Reversers / Aeronca / TR-4000 A-33/A-33.1/A-33.2 effectivity family without duplicating the shared procedure by inference
          - publish through the governed abnormal-domain lifecycle and verify operational-readiness gating
        - **QRH.4 cockpit acceptance — PLANNED**
          - verify fast-path category/procedure navigation, Emergency-vs-Abnormal distinction, memory-item emphasis, configuration filtering and source/authority disclosure on desktop/mobile/iPad
