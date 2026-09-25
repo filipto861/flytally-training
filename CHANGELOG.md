@@ -15,6 +15,14 @@ This file is the authoritative version history for completed FlyTally Training w
 ## 2026-09-25
 
 ### Changed
+- **PR #248 — QRH.3I Learjet Electrical Abnormal source batch**
+  - staged the complete CL-102B Electrical Abnormal family from A-9/A-9.1 and A-10;
+  - preserved the exact early/late generator page provenance even where the operating response is repeated, while unknown serial identity continues to fail closed;
+  - retained the nested generator reset and inverter failure branches instead of flattening them, and kept auxiliary-inverter qualifiers as source text rather than inventing configuration facts;
+  - visual source review found no boxed memory items on A-9/A-9.1 or A-10;
+  - acceptance on head `06f36d0`: typecheck PASS; targeted QRH/applicability/P5/P6/W2 suite 132/132 PASS; full Node suite 1293 total / 1292 PASS / 0 FAIL / 1 SKIP; production build PASS; no Playwright rerun required because no browser/presentation behavior changed.
+
+### Changed
 - **PR #247 — QRH.3H Learjet Anti-Icing Abnormal source batch**
   - began CL-102B Abnormal Procedures digitization with the complete 12-procedure Anti-Icing family from A-4 through A-9/A-9.1 plus the A-i section introduction;
   - preserved exact early/late serial page effectivity, nested source conditions, and source-significant differences between paired pages rather than normalizing them;
