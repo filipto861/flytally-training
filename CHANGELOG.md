@@ -15,6 +15,13 @@ This file is the authoritative version history for completed FlyTally Training w
 ## 2026-09-25
 
 ### Changed
+- **PR #241 — QRH.3C Learjet airstart source batch**
+  - staged the four CL-102B textual airstart procedures from E-14 through E-18 while preserving separate Fuel Computer ON/OFF starter-assist and windmilling paths, source sequencing, nested restart branches and page-level provenance;
+  - preserved the source 20,000 ft Fuel Computer OFF restriction and reviewed E-14 through E-18 visually before leaving all memory-item flags unset;
+  - kept E-13 AIRSTART ENVELOPE as an explicit blocking dependency because its graphical operating envelope cannot be flattened into text without loss; the entire batch remains outside operational publication/fallback paths until a generic source-faithful figure representation exists;
+  - acceptance on head `98785d6`: typecheck PASS; targeted QRH/P5/P6/W2 suite 70/70 PASS; full Node suite 1251 total / 1250 PASS / 0 FAIL / 1 SKIP; production build PASS; no Playwright rerun required because this PR changes staged source content, tests and roadmap only.
+
+### Changed
 - **PR #240 — QRH.3B Learjet engine-fire and oil-pressure source batch**
   - staged source-backed CL-102B E-12 ENGINE FIRE — SHUTDOWN and E-19 OIL PRESSURE LIGHT(S) on the generic QRH v2 contract;
   - preserved explicit ALL-aircraft effectivity, nested source decision branches, and the exact boxed-memory boundary for the applicable E-12 branch without marking its alternate branch as memory;
