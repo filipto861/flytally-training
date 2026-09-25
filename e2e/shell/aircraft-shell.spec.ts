@@ -260,13 +260,13 @@ test("W3 Ctrl+Shift+2 opens QRH directly", async ({ page }) => {
     "true",
   );
   await expect(
-    panel.getByRole("region", { name: "Emergency quick reference" }),
+    panel.getByRole("region", { name: "QRH quick reference" }),
   ).toBeVisible();
 });
 
 test("P5 QRH fast path renders governed operational content without navigation", async ({ page }) => {
   const panel = await openFastPath(page, "QRH");
-  const qrh = panel.getByRole("region", { name: "Emergency quick reference" });
+  const qrh = panel.getByRole("region", { name: "QRH quick reference" });
 
   await expect(qrh).toBeVisible();
   await expect(
