@@ -655,9 +655,11 @@ The detailed future sequence is tracked in **Active implementation order** below
        - **QRH.3 source digitization/publication — IN PROGRESS**
          - digitize applicable CL-102B Emergency and Abnormal procedure content only after QRH.2 contract semantics are accepted
          - preserve exact page-level provenance, WARNING/CAUTION/NOTE, memory items, conditional branches and effectivity
-         - **QRH.3A Emergency source batch 1 — STAGED:** CL-102B E-i/E-4/E-5/E-9/E-10/E-11 digitized into the generic v2 contract (Emergency section guidance, DOOR LIGHT, AC INVERTER FAILURE — TOTAL, GENERATOR FAILURE (DUAL), ENGINE FAILURE); source-boxed Engine Failure memory items are explicit at action level; all reviewed pages are ALL-aircraft effectivity
+         - **QRH.3A Emergency source batch 1 — COMPLETE · PR #239:** CL-102B E-i/E-4/E-5/E-9/E-10/E-11 digitized into the generic v2 contract (Emergency section guidance, DOOR LIGHT, AC INVERTER FAILURE — TOTAL, GENERATOR FAILURE (DUAL), ENGINE FAILURE); source-boxed Engine Failure memory items are explicit at action level; all reviewed pages are ALL-aircraft effectivity
          - real CL-102B source review exposed informational/non-action procedure lines; the generic QRH step contract now carries an `information` step through validation, search, operational projection and presentation instead of falsely coercing those lines into crew actions
          - QRH.3A remains deliberately unbundled/unpublished until the complete applicable Learjet QRH package and effectivity mapping pass are ready; partial content must not become a production fallback
+         - QRH.3A acceptance on head `9809c04`: typecheck PASS · targeted QRH/P5/P6/W2 suite 58/58 PASS · full Node suite 1239 total / 1238 PASS / 0 FAIL / 1 SKIP · production build PASS · targeted Playwright QRH acceptance 8/8 PASS across desktop Chromium, mobile Chromium, iPad landscape and iPad portrait
+         - **QRH.3B Emergency source batch 2 — NEXT:** continue CL-102B Emergency Procedures from the next reviewed page group; preserve effectivity and memory semantics before any publication
          - publish through the governed abnormal-domain lifecycle and verify operational-readiness gating
        - **QRH.4 cockpit acceptance — PLANNED**
          - verify fast-path category/procedure navigation, Emergency-vs-Abnormal distinction, memory-item emphasis, configuration filtering and source/authority disclosure on desktop/mobile/iPad
