@@ -22,7 +22,7 @@ function flatten(steps: readonly AircraftQrhStep[]): AircraftQrhStep[] {
 test("QRH.3D ALL-aircraft emergency batch satisfies the generic v2 contract", () => {
   assert.equal(learjet35aQrhEmergencyBatch4ReleaseStatus, "staged-source-review");
   assert.deepEqual(validateUniversalAbnormalEmergencyPayload(learjet35aQrhEmergencyBatch4), []);
-  assert.equal(learjet35aQrhEmergencyBatch4.scenarios.length, 11);
+  assert.equal(learjet35aQrhEmergencyBatch4.scenarios.length, 12);
   assert.ok(
     learjet35aQrhEmergencyBatch4.scenarios.every(
       (scenario) => scenario.effectivity.kind === "all-aircraft" && scenario.effectivity.sourceText === "ALL",
