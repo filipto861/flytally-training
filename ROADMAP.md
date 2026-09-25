@@ -19,7 +19,7 @@
 | Takeoff + Landing Performance | ✅ | Source-backed operational workflow live |
 | Partial Power / Reduced Thrust | ⚠️ | Source-backed training preview live; operational enablement remains source-blocked |
 | Operational CHECKLIST | ✅ | CL-102B package live; shared Active Flight session synchronized |
-| Operational QRH | 🚧 | QRH.1 source inventory + contract-gap audit complete; contract/content rebuild in progress |
+| Operational QRH | 🚧 | QRH.2 source-faithful contract complete; QRH.3 CL-102B digitization/publication is next |
 | REF / Limitations | ⏳ | Governed limitations content still to be populated |
 | Climb + Cruise Reference | ⏳ | Planned, source-gated |
 | SimBrief Active Flight import | ⏳ | Planned |
@@ -643,14 +643,16 @@ The detailed future sequence is tracked in **Active implementation order** below
          - current applicability model can represent equipment/modification state but has no first-class aircraft serial-number range; serial/AMK source effectivity must therefore remain fail-closed until explicitly mapped
          - structured source inventory is committed in `aircraft-data/learjet-35a/qrh/source-inventory.ts`; it is audit evidence only and is not publishable operational content
          - acceptance: typecheck PASS · focused QRH.1 suite 4/4 PASS · full Node suite 1224 total / 1223 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright not required because QRH.1 changes source inventory, tests and roadmap only
-       - **QRH.2 contract hardening — IN PROGRESS**
+       - **QRH.2 contract hardening — COMPLETE · PR #238**
          - evolve the generic abnormal/emergency contract without Learjet-specific runtime branches
          - add explicit procedure class (Emergency / Abnormal), explicit memory-item semantics and source-faithful conditional/substep structure
          - separate source-exact operational procedure data from optional Training scenario metadata so QRH publication does not require invented training prose
          - preserve existing scenario-training compatibility through an explicit training projection/overlay rather than weakening source-governed QRH data
          - define a fail-closed mapping strategy for serial/AMK effectivity before any variant-specific Learjet procedure is published
-         - implementation branch `feat/qrh-v2-contract`: versioned v2 operational-first contract, explicit procedure class/memory semantics, nested condition branches, source effectivity mapping gate, optional Training overlay, section introductions and backward-compatible legacy projection
-       - **QRH.3 source digitization/publication — PLANNED**
+         - implementation delivers a versioned v2 operational-first contract, explicit procedure class/memory semantics, nested condition branches, source effectivity mapping gate, optional Training overlay, section introductions and backward-compatible legacy projection
+         - aircraft search indexes v2 source structure without depending on training-only metadata; deterministic browser acceptance now exercises v2 Emergency/Abnormal class, memory items and conditional branches directly
+         - acceptance on head `59bc099`: typecheck PASS · targeted QRH/P5/P6 suite 43/43 PASS · full Node suite 1232 total / 1231 PASS / 0 FAIL / 1 SKIP · production build PASS · targeted Playwright QRH acceptance 8/8 PASS across desktop Chromium, mobile Chromium, iPad landscape and iPad portrait
+       - **QRH.3 source digitization/publication — NEXT**
          - digitize applicable CL-102B Emergency and Abnormal procedure content only after QRH.2 contract semantics are accepted
          - preserve exact page-level provenance, WARNING/CAUTION/NOTE, memory items, conditional branches and effectivity
          - publish through the governed abnormal-domain lifecycle and verify operational-readiness gating
