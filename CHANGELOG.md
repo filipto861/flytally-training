@@ -14,6 +14,13 @@ This file is the authoritative version history for completed FlyTally Training w
 
 ## 2026-09-25
 
+### Documentation
+- Consolidated repository technical documentation into **`TECHNICAL_DOCUMENTATION.md`**.
+- Retired superseded M*, P*, UX*, V31*, architecture, deployment, compliance and source-inventory Markdown files; detailed historical evidence remains available through Git history and PRs.
+- Kept only the maintained documentation set: `README.md`, `ROADMAP.md`, `CHANGELOG.md`, and `TECHNICAL_DOCUMENTATION.md`.
+- Added the roadmap **Progress at a glance** table for terse status tracking.
+
+
 ### Fixed
 - **PR #234 — EFB checklist session synchronization**
   - main Flight Deck checklist, top checklist progress and CHECKLIST fast-path drawer now share one canonical EFB checklist session;
@@ -23,7 +30,7 @@ This file is the authoritative version history for completed FlyTally Training w
   - EFB checklist persistence is scoped to the current Active Flight ID and stored locally on the device, with one-time migration from prior unscoped/legacy checklist state;
   - Learn checklist-training persistence remains separate;
   - focused acceptance: typecheck PASS, targeted suite 30/30 PASS, production build PASS; targeted Playwright smoke was not run because local port 3000 was occupied;
-  - merged and deployed to production; manual synchronization smoke remains the final acceptance step.
+  - merged and deployed to production; product-owner manual smoke confirmed main checklist ↔ fast-path synchronization works.
 
 ### Changed
 - **PR #230 — Learjet operational checklist rebuild**
