@@ -8,6 +8,25 @@
 > Historical milestone/specification documents may remain in the repository as implementation evidence,
 > but they are not roadmaps and must not override this file or current executable contracts.
 
+## Progress overview
+
+| Area | Status | Current state |
+| --- | :---: | --- |
+| Core architecture / governed content | ✅ | Production foundation complete |
+| Multi-aircraft / no-code runtime | ✅ | Generic runtime and governed DB architecture established |
+| LEARN / EFB product shell | ✅ | Live in production |
+| Active Flight / Flight Brief | ✅ | Live in production |
+| Takeoff + Landing Performance | ✅ | Source-backed operational workflow live |
+| Partial Power / Reduced Thrust | ⚠️ | Source-backed training preview live; operational enablement remains source-blocked |
+| Operational CHECKLIST | ✅ | CL-102B package live; shared Active Flight session synchronized |
+| Operational QRH | ⏳ | Content rebuild is the next EFB content phase |
+| REF / Limitations | ⏳ | Governed limitations content still to be populated |
+| Climb + Cruise Reference | ⏳ | Planned, source-gated |
+| SimBrief Active Flight import | ⏳ | Planned |
+| Documentation consolidation | 🚧 | In progress — consolidating technical Markdown into one maintained document |
+
+**Legend:** ✅ complete/live · 🚧 in progress · ⏳ planned · ⚠️ blocked/limited
+
 ## Roadmap governance
 
 Roadmap discipline is mandatory for this project:
