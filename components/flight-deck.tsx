@@ -66,6 +66,12 @@ export function FlightDeck({
       </nav> : null}
 
       <div className={styles.content}>
+        {!available.length ? (
+          <section className={styles.emptyState} role="status">
+            <strong>Flight Deck data unavailable</strong>
+            <p>No source-authoritative operational module is available for this aircraft configuration yet.</p>
+          </section>
+        ) : null}
         {active === "checklist" && checklist
           ? <OperationalChecklist checklist={checklist} selectedVariant={selectedVariant} />
           : null}
