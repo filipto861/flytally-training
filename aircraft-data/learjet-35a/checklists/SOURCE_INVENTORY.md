@@ -71,6 +71,13 @@ The CL-102B FL410 oxygen-mask check is serial-number/effectivity dependent. The 
 
 Do not infer optional equipment or serial effectivity from aircraft names, simulator variants or guesses.
 
+## Source semantics not inferred
+
+- CL-102B uses the ◆ symbol to identify eligible through-flight checklist items. The parsed source does not preserve a reliable item-to-symbol association, and the current universal checklist contract has no explicit through-flight marker. No item is therefore marked as through-flight by inference.
+- CL-102B also uses bold print to emphasize selected Normal Procedure items. The parsed text does not preserve that typography reliably. No operational importance flag is inferred from lost formatting.
+- The N-10/N-11 Takeoff Pitch Trim Settings table is a reference/performance table rather than a challenge-response checklist item and is not duplicated into the checklist payload.
+- The N-13 FL410 oxygen-mask action is serial/effectivity-specific and remains deferred until serial/effectivity applicability can be expressed explicitly.
+
 ## Digitization rules
 
 1. Preserve CL-102B challenge and response wording; do not rewrite operational actions for style.
