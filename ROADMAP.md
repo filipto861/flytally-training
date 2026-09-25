@@ -721,9 +721,10 @@ The detailed future sequence is tracked in **Active implementation order** below
          - first nine Landings procedures are ALL-aircraft; ONE THRUST REVERSER DEPLOYED LANDING is source-qualified to explicit TR-4000 thrust-reverser configuration and must fail closed for Aeronca/unknown/contradictory identity
          - visual review found no boxed memory items on A-27 through A-33.2; the vertical marks on A-31 are source change bars, not memory boxes
          - QRH.3Q acceptance on head `4f4976e`: typecheck PASS · targeted QRH/applicability/P5/P6/W2 suite 187/187 PASS · full Node suite 1348 total / 1347 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright not required because no browser/presentation behavior changed
-         - **QRH.3R Turbulence Abnormal source batch — IN PROGRESS:** digitize TURBULENT AIR PENETRATION across the distinct A-33 Without Thrust Reversers, A-33.1 Aeronca and A-33.2 TR-4000 source-effectivity pages
+         - **QRH.3R Turbulence Abnormal source batch — COMPLETE · PR #257:** digitized TURBULENT AIR PENETRATION across the distinct A-33 Without Thrust Reversers, A-33.1 Aeronca and A-33.2 TR-4000 source-effectivity pages
          - preserve the identical six-step source procedure while selecting exactly one source page through explicit generic thrust-reverser configuration; unknown/absent/contradictory identity must fail closed
          - visual review found no boxed memory items on A-33/A-33.1/A-33.2
+         - QRH.3R acceptance on head `7646138`: typecheck PASS · targeted QRH/applicability/P5/P6/W2 suite 192/192 PASS · full Node suite 1353 total / 1352 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright not required because no browser/presentation behavior changed
          - **QRH.3S Thrust Reversers Abnormal source batch — NEXT:** continue with A-34.1/A-35.1 Aeronca and A-34.2/A-35.2 TR-4000 abnormal families, preserving configuration-specific procedure differences and keeping the graphical TR-4000 RESTOW ENVELOPE fail-closed until represented faithfully
          - publish through the governed abnormal-domain lifecycle and verify operational-readiness gating
        - **QRH.4 cockpit acceptance — PLANNED**

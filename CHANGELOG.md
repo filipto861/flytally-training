@@ -15,6 +15,14 @@ This file is the authoritative version history for completed FlyTally Training w
 ## 2026-09-25
 
 ### Changed
+- **PR #257 — QRH.3R Learjet Turbulence Abnormal source batch**
+  - staged CL-102B TURBULENT AIR PENETRATION across A-33 Without Thrust Reversers, A-33.1 Aeronca and A-33.2 TR-4000 source-effectivity pages;
+  - preserved identical six-step source text while keeping exact page provenance/effectivity and selecting exactly one source family through explicit generic thrust-reverser configuration;
+  - unknown, absent, partial or contradictory thrust-reverser identity remains fail-closed;
+  - visual source review found no boxed memory items on A-33/A-33.1/A-33.2;
+  - acceptance on head `7646138`: typecheck PASS; targeted QRH/applicability/P5/P6/W2 suite 192/192 PASS; full Node suite 1353 total / 1352 PASS / 0 FAIL / 1 SKIP; production build PASS; no Playwright rerun required because no browser/presentation behavior changed.
+
+### Changed
 - **PR #256 — QRH.3Q Learjet Landings Abnormal source batch**
   - staged the complete ten-procedure CL-102B Landings abnormal family from A-27 through A-33.2;
   - preserved the multi-page GEAR UP LANDING continuation, hydraulic-pressure and flap-deflection branches, jammed-stabilizer pull/push paths and the source-defined landing speed/distance adjustments;
