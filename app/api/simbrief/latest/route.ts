@@ -36,8 +36,7 @@ function cleanAircraftId(value: unknown): string | null {
 export async function POST(request: Request) {
   if (!isNewShellEnabled()) return response("feature_disabled", 404);
   if (!isTrustedMutationRequest(request)) return response("untrusted_origin", 403);
-  const session = await getTrainingSession();
-  if (!session) return response("unauthorized", 401);
+  if (!(await getTrainingSession())) return response("unauthorized", 401);
 
   let body: unknown;
   try {
