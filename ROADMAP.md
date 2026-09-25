@@ -433,7 +433,12 @@ The detailed future sequence is tracked in **Active implementation order** below
        - three source-text regression assertions still expected removed UI/old controller markers
      - corrective commits remove the obsolete Flight Brief notice, capture a non-optional METAR station value, and align DD/P1.3 tests with the simplified contract
      - targeted re-run after fixes: typecheck PASS · PP/DD/P1.3 targeted suite **24/24 PASS** · production build PASS
-     - acceptance pending: full verify, Playwright, production smoke
+     - first full verify after targeted green: **1197 total / 1195 PASS / 1 FAIL / 1 SKIP**; the only failure was a stale B4 source-text assertion still expecting the removed manual METAR action
+     - B4 assertion updated to the AUTO-METAR contract; no performance/runtime calculation failure was reported
+     - first full Playwright run was invalidated by local-server environment contamination: Playwright reused an already-running local server, so fixture and FT_NEW_SHELL webServer env were not applied; broad failures included missing Browser CI fixture, wrong flag-off behavior, and authenticated API behavior
+     - Playwright config hardened: existing local servers are no longer reused by default; explicit reuse now requires `PW_REUSE_EXISTING_SERVER=1`
+     - **no second full-suite rerun required for 14.1b**; acceptance may close with targeted unit/browser verification of the corrected contracts plus production readiness smoke
+     - acceptance pending: targeted B4 + PP/DD/P1.3 unit gate, targeted AUTO-METAR browser gate, production smoke
    - **14.2 Independent 25% rated-thrust source closure — BLOCKED**
      - FlightSafety requires thrust reduction <=25% of rated takeoff thrust for the existing ambient condition
      - CL-102B P-6/P-6.1 provide configuration-specific reduced-N1 schedules and a 7.7 N1-point cap, but no verified N1-to-rated-thrust relationship has been found
