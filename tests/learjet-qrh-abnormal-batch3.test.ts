@@ -57,7 +57,7 @@ test("QRH.3J all six A-11 through A-13 Engine procedures are ALL-aircraft", () =
   );
   assert.equal(filtered.scenarios.length, 6);
   assert.ok(
-    filtered.scenarios.every(
+    learjet35aQrhAbnormalBatch3.scenarios.every(
       (scenario) => scenario.effectivity.kind === "all-aircraft",
     ),
   );
