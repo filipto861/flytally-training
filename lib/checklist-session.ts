@@ -22,8 +22,13 @@ function uniqueKnown(values: unknown, known: ReadonlySet<string>): string[] {
   return [...new Set(values.filter((value): value is string => typeof value === "string" && known.has(value)))];
 }
 
-export function checklistSessionStorageKey(checklist: Pick<RuntimeChecklist, "aircraftId" | "title">, selectedVariant?: string): string {
-  return `flytally-training-checklist-session:${encodeURIComponent(checklist.aircraftId)}:${encodeURIComponent(selectedVariant ?? "common")}:${encodeURIComponent(checklist.title)}`;
+export function checklistSessionStorageKey(
+  checklist: Pick<RuntimeChecklist, "aircraftId" | "title">,
+  selectedVariant?: string,
+  sessionScope?: string,
+): string {
+  const base = `flytally-training-checklist-session:${encodeURIComponent(checklist.aircraftId)}:${encodeURIComponent(selectedVariant ?? "common")}:${encodeURIComponent(checklist.title)}`;
+  return sessionScope ? `${base}:${encodeURIComponent(sessionScope)}` : base;
 }
 
 export function initialChecklistPhaseId(checklist: RuntimeChecklist): string {
