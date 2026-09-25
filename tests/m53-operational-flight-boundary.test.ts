@@ -105,7 +105,8 @@ test("Fly filters applicability before crossing the operational mapper boundary"
   assert.match(flyPage,/filterChecklistForConfiguration/);
   assert.match(flyPage,/toOperationalChecklist\(runtimeChecklist\)/);
   assert.match(flyPage,/filterPerformanceForConfiguration/);
-  assert.match(flyPage,/toOperationalPerformanceDatasets\(configuredPerformance\?\.datasets \?\? \[\]\)/);
+  assert.match(flyPage,/mergePerformanceDatasets/);
+  assert.match(flyPage,/toOperationalPerformanceDatasets/);
   assert.match(flyPage,/filterAbnormalEmergencyForConfiguration/);
   assert.match(flyPage,/toOperationalEmergency\(configuredAbnormal\)/);
   assert.doesNotMatch(flyPage,/normalizeUniversalAbnormalEmergency|normalizeLegacyAbnormalTraining/);
