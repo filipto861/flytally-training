@@ -15,6 +15,13 @@ This file is the authoritative version history for completed FlyTally Training w
 ## 2026-09-25
 
 ### Changed
+- **PR #230 — Learjet operational checklist rebuild (code/content package merged; governed production publication pending)**
+  - digitized CL-102B Normal Procedures N-2 through N-18 into the universal checklist contract;
+  - added source provenance, target-profile applicability and guarded governed publication tooling;
+  - production CHECKLIST data remains pending the explicit governed database publication step.
+- **PR #231 — Learjet checklist publisher CJS runtime fix**
+  - replaced unsupported top-level await with an explicit async entrypoint;
+  - added a real-runtime regression test proving the publisher reaches its confirmation guard under the project Node/tsx execution mode.
 - **PR #227 — Partial Power EFB simplification**
   - simplified the Learjet 35A Partial Power workflow to pilot-facing essentials;
   - exposed one explicit **Partial Power · Aeronca** mode;
