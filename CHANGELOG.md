@@ -15,6 +15,14 @@ This file is the authoritative version history for completed FlyTally Training w
 ## 2026-09-25
 
 ### Changed
+- **PR #246 — QRH.3G Learjet thrust-reverser Emergency source batch**
+  - staged the remaining configuration-specific CL-102B Emergency takeoff thrust-reverser procedures from E-35/E-35.1;
+  - preserved Aeronca and TR-4000 as distinct source configurations through generic configuration-equipment applicability, with unknown, absent or contradictory installation identity failing closed;
+  - retained the source index split between INADVERTENT THRUST REVERSER DEPLOYMENT and the TR-4000 INDICATION OF THRUST REVERSER DEPLOYMENT title, along with source-specific control actions and references;
+  - visually verified boxed-memory boundaries for both Aeronca and TR-4000 source pages without inferring memory state from text;
+  - acceptance on head `f9f7d48`: typecheck PASS; targeted QRH/applicability/P5/P6/W2 suite 118/118 PASS; full Node suite 1279 total / 1278 PASS / 0 FAIL / 1 SKIP; production build PASS; no Playwright rerun required because no browser/presentation behavior changed.
+
+### Changed
 - **PR #245 — QRH.3F Learjet serial/AMK Emergency source batch**
   - staged source-faithful BLEED AIR LIGHT procedures from E-20/E-20.1/E-20.2 with exact serial discontinuities and AMK 76-7 handling;
   - staged CABIN/COCKPIT FIRE, SMOKE, OR FUMES from E-22/E-22.1/E-23/E-23.1/E-24 while preserving the independent first-page and electrical-continuation effectivity families instead of collapsing them into invented variants;
