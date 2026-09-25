@@ -418,7 +418,7 @@ The detailed future sequence is tracked in **Active implementation order** below
      - merged to `main` in PR #227 · merge commit `49e0f7c5497397fd706f011cafe086762fdc233b`
      - production deployment `dpl_ZCCsG6c7QzQY7t73uW3HnAbkA5nv` reached **READY** and is aliased to `training.fly-tally.com`
      - production readiness smoke: HTTP 200 · `status=ready` · operational profile true · source-governed release profile true
-   - **14.1b Partial Power EFB hard simplification — COMPLETE · PR #228 · APPROVED FOR PRODUCTION**
+   - **14.1b Partial Power EFB hard simplification — COMPLETE · PR #228 · LIVE IN PRODUCTION**
      - TORA remains always directly editable so intersection departures can be entered without a separate workflow
      - duplicate ASDA entry removed from the primary Partial Power flow; when no independent ASDA override is entered, **ASDA = TORA** is used as the conservative takeoff-field assumption so `min(TORA, ASDA)` cannot exceed TORA
      - optional compact **ASDA override** disclosure retained for independently known declared-distance data
@@ -441,6 +441,9 @@ The detailed future sequence is tracked in **Active implementation order** below
      - targeted closeout unit gate after B4 correction: **28/28 PASS**
      - targeted AUTO-METAR Playwright attempt did not start because port 3000 was already occupied; this is an environment/startup conflict, not a browser-test failure. Playwright correctly refused to reuse the existing server after the config hardening.
      - product owner explicitly approved production merge on 2026-09-25 without rerunning the blocked targeted browser pair; production smoke will be used as the remaining deployment acceptance check
+     - merged to `main` in PR #228 · merge commit `a87dca16cf38e2a540bd58f9d0f3a9c53d926d60`
+     - production deployment `dpl_37E5teXinHi2rEdj3bXXsz1BdgxH` reached **READY** and is aliased to `training.fly-tally.com`
+     - production readiness smoke: HTTP 200 · `status=ready` · operational profile true · source-governed release profile true
    - **14.2 Independent 25% rated-thrust source closure — BLOCKED**
      - FlightSafety requires thrust reduction <=25% of rated takeoff thrust for the existing ambient condition
      - CL-102B P-6/P-6.1 provide configuration-specific reduced-N1 schedules and a 7.7 N1-point cap, but no verified N1-to-rated-thrust relationship has been found
