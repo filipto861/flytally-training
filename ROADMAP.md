@@ -579,16 +579,20 @@ The detailed future sequence is tracked in **Active implementation order** below
          - authenticated administrator publication completed successfully in production
          - production FLY smoke for `fc530-standard`: CHECKLIST is populated; `Exterior Preflight`, `Cabin Preflight`, `Before Starting Engines`, `Starting Engines`, `Runway Lineup` and `Quick Turnaround` are present; `Checklist unavailable` is absent
          - production readiness smoke: HTTP 200 · `status=ready` · operational true · source-governed release true
-       - **15.3b.5 EFB checklist session unification — IN PROGRESS**
-         - acceptance bug confirmed in production: the main Flight Deck checklist and CHECKLIST fast-path panel can show different completion counts because they still own separate browser states
-         - make the new-shell EFB use one canonical checklist session for the main Flight Deck, top progress indicator and fast-path drawer; legacy flag-off behavior remains isolated
-         - synchronize completed items and selected phase in both directions
-         - add phase reset and reset-all controls to the fast-path drawer with explicit reset-all confirmation
-         - make fast-path CURRENT STEP follow the selected phase and show phase-complete/next-phase affordance instead of mixing a global first-unchecked item with a manually selected phase
-         - scope EFB checklist persistence to the current Active Flight ID and persist it beyond one browser tab; a new Active Flight starts clean while reopening the same Active Flight restores progress on the same device
-         - migrate the pre-existing unscoped canonical/session and legacy operational checklist state once so current progress is not silently lost
-         - preserve Learn checklist-training persistence separately from Active Flight operational state
-         - add focused unit/contract/browser coverage for shared state, phase synchronization, reset behavior and Active Flight session isolation
+       - **15.3b.5 EFB checklist session unification — IMPLEMENTED / VERIFYING**
+         - production acceptance bug addressed by making the new-shell EFB use the Fast Path provider as the single checklist state owner for the main Flight Deck, top progress indicator and fast-path drawer; legacy flag-off local checklist persistence remains isolated
+         - completed items and selected phase now synchronize bidirectionally between the main Flight Deck and CHECKLIST drawer
+         - CHECKLIST drawer now exposes reset-phase and two-step reset-all controls, phase completion markers and a next-phase affordance
+         - fast-path CURRENT STEP now follows the selected phase rather than mixing the global first-unchecked item with another displayed phase
+         - EFB canonical persistence now uses localStorage scoped by the current Active Flight ID; same-flight progress survives tab/browser navigation on the same device, while a new Active Flight receives an isolated clean session
+         - one-time migration imports the pre-existing unscoped canonical session (sessionStorage) or legacy operational state into the new scoped session and consumes the old key so it cannot seed later flights repeatedly
+         - Learn checklist-training persistence remains unscoped/session-based and separate from Active Flight operational state
+         - focused coverage added for Active Flight key isolation, one-time migration, shared Flight Deck/Fast Path ownership, reset controls and browser synchronization
+         - first focused gate: session/runtime cases passed, but typecheck/build exposed one callback-narrowing error in Fast Path reset and P5.6 exposed one stale source-text assertion after the intended e2e test rename
+         - both gate findings are fixed without changing runtime behavior: reset callback now captures the already-validated phase id, and P5.6 expects the new flight-scoped migration test title
+         - focused acceptance PASS (2026-09-25): typecheck PASS · targeted session/P5/15.3b.5 suite **30/30 PASS** · production build PASS
+         - targeted Playwright 15.3b.5 smoke was not executed because local port 3000 was already occupied; this is an environment blocker from the two-server Playwright harness, not a test failure
+         - accepted for merge with production manual synchronization smoke required immediately after deployment
      - **15.3c QRH fast path — CONTENT GAP CONFIRMED**
        - runtime/UI is implemented and deliberately fails closed unless the published abnormal module is fresh and all linked sources are CONTROLLING or OPERATING_REFERENCE
        - there is no Learjet bundled QRH/emergency fallback

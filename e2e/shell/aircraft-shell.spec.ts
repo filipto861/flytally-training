@@ -308,11 +308,44 @@ test("W3 checklist state persists after closing and reopening the panel", async 
 
 
 
-test("P5 legacy checklist progress migrates into the shared new-shell session", async ({ page }) => {
+test("15.3b.5 Flight Deck and fast path checklist stay synchronized", async ({ page }) => {
+  await page.goto(`${shellOnBase}${aircraftPath}/fly`);
+
+  const flightDeck = page.getByRole("region", {
+    name: "Browser CI Aircraft flight deck",
+  });
+  const mainChecklist = flightDeck.getByRole("region", {
+    name: "Browser CI Checklist",
+  });
+
+  const batteryButton = mainChecklist.getByRole("button", {
+    name: /Battery.*ON/,
+  });
+  await batteryButton.click();
+
+  const rail = page.getByRole("navigation", { name: "Operational fast path" });
+  await rail.getByRole("button", { name: "CHECKLIST", exact: true }).click();
+  const panel = page.getByRole("dialog", { name: "Operational fast path" });
+
+  await expect(panel.getByRole("checkbox", { name: /Battery/ })).toBeChecked();
+  await expect(panel.getByText("1/2", { exact: true }).first()).toBeVisible();
+
+  await panel.getByLabel("Fast path checklist phase").selectOption("taxi");
+  await expect(mainChecklist.getByLabel("Checklist phase")).toHaveValue("taxi");
+
+  await panel.getByRole("button", { name: "Reset all", exact: true }).click();
+  await panel.getByRole("button", { name: "Confirm all", exact: true }).click();
+  await expect(panel.getByRole("checkbox", { name: /Battery/ })).not.toBeChecked();
+
+  await page.keyboard.press("Escape");
+  await expect(mainChecklist.getByText("0/2", { exact: true })).toBeVisible();
+});
+
+test("P5 legacy checklist progress migrates into the flight-scoped new-shell session", async ({ page }) => {
   const legacyKey =
     "flytally:flight-checklist:v1:browser-ci-aircraft:Standard:Browser CI Checklist";
   const canonicalKey =
-    "flytally-training-checklist-session:browser-ci-aircraft:Standard:Browser%20CI%20Checklist";
+    "flytally-training-checklist-session:browser-ci-aircraft:Standard:Browser%20CI%20Checklist:flight%3Ano-active-flight";
 
   await page.addInitScript(
     ({ key, value }) => {
@@ -335,7 +368,7 @@ test("P5 legacy checklist progress migrates into the shared new-shell session", 
   const storageState = await page.evaluate(
     ({ legacy, canonical }) => ({
       legacy: window.localStorage.getItem(legacy),
-      canonical: window.sessionStorage.getItem(canonical),
+      canonical: window.localStorage.getItem(canonical),
     }),
     { legacy: legacyKey, canonical: canonicalKey },
   );

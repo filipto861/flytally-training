@@ -13,6 +13,8 @@ import {
 } from "react";
 
 import { getAircraftProductModeForPathname } from "@/lib/aircraft-product-mode";
+import { useActiveFlightState } from "@/components/ft-flight/use-active-flight";
+import type { ActiveFlight } from "@/lib/active-flight/types";
 import {
   fastPathChecklistProgress,
   restoreFastPathChecklistSession,
@@ -26,6 +28,8 @@ import {
   type FastPathTab,
 } from "@/lib/fast-path/panel-state";
 import {
+  checklistSessionStorageKey,
+  initialChecklistPhaseId,
   normalizeChecklistSessionSnapshot,
   type ChecklistSessionSnapshot,
 } from "@/lib/checklist-session";
@@ -49,6 +53,8 @@ type FtFastPathContextValue = {
   };
   readonly toggleChecklistItem: (itemId: string) => void;
   readonly selectChecklistPhase: (phaseId: string) => void;
+  readonly resetChecklistPhase: (phaseId: string) => void;
+  readonly resetChecklistAll: () => void;
 };
 
 const FtFastPathContext = createContext<FtFastPathContextValue | null>(null);
@@ -57,15 +63,28 @@ export function FtFastPathProvider({
   aircraftId,
   checklist,
   selectedVariant,
+  activeFlight,
   children,
 }: Readonly<{
   aircraftId: string;
   checklist?: RuntimeChecklist;
   selectedVariant?: string;
+  activeFlight?: ActiveFlight | null;
   children: ReactNode;
 }>) {
   const pathname = usePathname();
   const efbMode = getAircraftProductModeForPathname(pathname, aircraftId) === "efb";
+  const { flight } = useActiveFlightState(aircraftId, activeFlight);
+  const checklistSessionScope = efbMode
+    ? `flight:${flight?.lifecycle === "ACTIVE" ? flight.id : "no-active-flight"}`
+    : undefined;
+  const checklistStorageKey = checklist
+    ? checklistSessionStorageKey(
+        checklist,
+        selectedVariant,
+        checklistSessionScope,
+      )
+    : undefined;
   const [panel, dispatch] = useReducer(
     reduceFastPathPanelState,
     initialFastPathPanelState,
@@ -74,39 +93,73 @@ export function FtFastPathProvider({
     useState<ChecklistSessionSnapshot | undefined>(() =>
       checklist ? normalizeChecklistSessionSnapshot(undefined, checklist) : undefined,
     );
-  const [checklistHydrated, setChecklistHydrated] = useState(false);
+  const [hydratedChecklistKey, setHydratedChecklistKey] = useState<string>();
   const [shortcutsReady, setShortcutsReady] = useState(false);
 
+  const checklistHydrated =
+    !checklist || (
+      Boolean(checklistStorageKey)
+      && hydratedChecklistKey === checklistStorageKey
+    );
+
   useEffect(() => {
-    if (!checklist) {
+    if (!checklist || !checklistStorageKey) {
       setChecklistSnapshot(undefined);
-      setChecklistHydrated(true);
+      setHydratedChecklistKey(undefined);
       return;
     }
+    const canonicalStorage = efbMode
+      ? window.localStorage
+      : window.sessionStorage;
+    const previousCanonicalStorage = efbMode
+      ? window.sessionStorage
+      : undefined;
     setChecklistSnapshot(
       restoreFastPathChecklistSession(
         checklist,
-        window.sessionStorage,
+        canonicalStorage,
         selectedVariant,
         window.localStorage,
+        checklistSessionScope,
+        previousCanonicalStorage,
       ),
     );
-    setChecklistHydrated(true);
-  }, [checklist, selectedVariant]);
+    setHydratedChecklistKey(checklistStorageKey);
+  }, [
+    checklist,
+    checklistSessionScope,
+    checklistStorageKey,
+    efbMode,
+    selectedVariant,
+  ]);
 
   useEffect(() => {
-    if (!checklist || !checklistSnapshot || !checklistHydrated) return;
+    if (
+      !checklist
+      || !checklistSnapshot
+      || !checklistHydrated
+      || !checklistStorageKey
+    ) return;
     try {
       saveFastPathChecklistSession(
         checklist,
         checklistSnapshot,
-        window.sessionStorage,
+        efbMode ? window.localStorage : window.sessionStorage,
         selectedVariant,
+        checklistSessionScope,
       );
     } catch {
-      // Fast path remains usable when sessionStorage is unavailable.
+      // Checklist remains usable when browser persistence is unavailable.
     }
-  }, [checklist, checklistHydrated, checklistSnapshot, selectedVariant]);
+  }, [
+    checklist,
+    checklistHydrated,
+    checklistSessionScope,
+    checklistSnapshot,
+    checklistStorageKey,
+    efbMode,
+    selectedVariant,
+  ]);
 
   const openPanel = useCallback((tab: FastPathTab) => {
     if (!efbMode) return;
@@ -180,6 +233,53 @@ export function FtFastPathProvider({
     [checklist],
   );
 
+  const resetChecklistPhase = useCallback(
+    (phaseId: string) => {
+      if (!checklist) return;
+      const phase = checklist.phases.find((candidate) => candidate.id === phaseId);
+      if (!phase) return;
+      const phaseItemIds = new Set(phase.items.map((item) => item.id));
+      setChecklistSnapshot((current) => {
+        const snapshot =
+          current ?? normalizeChecklistSessionSnapshot(undefined, checklist);
+        return normalizeChecklistSessionSnapshot(
+          {
+            ...snapshot,
+            completedIds: snapshot.completedIds.filter(
+              (itemId) => !phaseItemIds.has(itemId),
+            ),
+            revealedFlowPhaseIds: snapshot.revealedFlowPhaseIds.filter(
+              (candidate) => candidate !== phaseId,
+            ),
+            revealedResponseIds: snapshot.revealedResponseIds.filter(
+              (itemId) => !phaseItemIds.has(itemId),
+            ),
+          },
+          checklist,
+        );
+      });
+    },
+    [checklist],
+  );
+
+  const resetChecklistAll = useCallback(() => {
+    if (!checklist) return;
+    setChecklistSnapshot((current) => {
+      const snapshot =
+        current ?? normalizeChecklistSessionSnapshot(undefined, checklist);
+      return normalizeChecklistSessionSnapshot(
+        {
+          ...snapshot,
+          selectedPhaseId: initialChecklistPhaseId(checklist),
+          completedIds: [],
+          revealedFlowPhaseIds: [],
+          revealedResponseIds: [],
+        },
+        checklist,
+      );
+    });
+  }, [checklist]);
+
   const checklistProgress = useMemo(
     () =>
       checklist && checklistSnapshot
@@ -203,6 +303,8 @@ export function FtFastPathProvider({
       checklistProgress,
       toggleChecklistItem,
       selectChecklistPhase,
+      resetChecklistPhase,
+      resetChecklistAll,
     }),
     [
       aircraftId,
@@ -214,6 +316,8 @@ export function FtFastPathProvider({
       openPanel,
       panel.activeTab,
       panel.open,
+      resetChecklistAll,
+      resetChecklistPhase,
       selectChecklistPhase,
       selectTab,
       shortcutsReady,
@@ -228,8 +332,12 @@ export function FtFastPathProvider({
   );
 }
 
+export function useOptionalFtFastPath(): FtFastPathContextValue | null {
+  return useContext(FtFastPathContext);
+}
+
 export function useFtFastPath(): FtFastPathContextValue {
-  const value = useContext(FtFastPathContext);
+  const value = useOptionalFtFastPath();
   if (!value) throw new Error("useFtFastPath must be used within FtFastPathProvider");
   return value;
 }

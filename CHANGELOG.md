@@ -14,6 +14,16 @@ This file is the authoritative version history for completed FlyTally Training w
 
 ## 2026-09-25
 
+### Fixed
+- **PR #234 — EFB checklist session synchronization**
+  - main Flight Deck checklist, top checklist progress and CHECKLIST fast-path drawer now share one canonical EFB checklist session;
+  - completed items and selected phase synchronize bidirectionally;
+  - fast-path drawer adds phase reset, two-step reset-all, phase-complete markers and next-phase navigation;
+  - fast-path CURRENT STEP now follows the selected phase;
+  - EFB checklist persistence is scoped to the current Active Flight ID and stored locally on the device, with one-time migration from prior unscoped/legacy checklist state;
+  - Learn checklist-training persistence remains separate;
+  - focused acceptance: typecheck PASS, targeted suite 30/30 PASS, production build PASS; targeted Playwright smoke was not run because local port 3000 was occupied and production manual synchronization smoke is required after deployment.
+
 ### Changed
 - **PR #230 — Learjet operational checklist rebuild**
   - digitized CL-102B Normal Procedures N-2 through N-18 into the universal checklist contract;
