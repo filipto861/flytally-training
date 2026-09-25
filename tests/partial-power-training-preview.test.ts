@@ -151,7 +151,7 @@ test("PP.4 pilot UI keeps Partial Power explicit, compact and visibly source-lim
   assert.match(source, />Partial Power · Aeronca</);
   assert.match(source, /setPartialPowerThrustReversers\("aeronca"\)/);
   assert.doesNotMatch(source, /Partial Power thrust reverser configuration/);
-  assert.match(source, /TRAINING PREVIEW · 25% THRUST LIMIT UNVERIFIED/);
+  assert.match(source, /TRAINING · 25% LIMIT UNVERIFIED/);
   assert.match(source, />Dry hard-paved</);
   assert.match(source, />Anti-skid operative</);
   assert.match(source, /Full-rated &lt;30 days/);
