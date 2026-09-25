@@ -560,6 +560,12 @@ The detailed future sequence is tracked in **Active implementation order** below
          - focused acceptance PASS (2026-09-25): typecheck PASS · publisher/checklist suite **10/10 PASS** · production build PASS
          - merged to `main` as `c6609df49d5ec9e2f7a7bda7715564f20ca564a6`
          - next action: rerun the explicit governed publication from `main`, then verify CHECKLIST population in production
+       - **15.3b.3 Production DB credential handoff for one-shot checklist publication — BLOCKED / ENVIRONMENT**
+         - explicit publish now reaches the runtime guard correctly, but local `.env.local` does not contain `TRAINING_DATABASE_URL`
+         - production itself is healthy and database-backed; the missing value is local release-environment access, not a production database outage or checklist-content failure
+         - use Vercel CLI to pull the Production environment into a temporary local env file without exposing the credential in chat or source control
+         - run the guarded publisher against that temporary env, then delete the temporary file immediately
+         - after successful publication: production CHECKLIST smoke, readiness smoke, close 15.3b and record the release in CHANGELOG
      - **15.3c QRH fast path — CONTENT GAP CONFIRMED**
        - runtime/UI is implemented and deliberately fails closed unless the published abnormal module is fresh and all linked sources are CONTROLLING or OPERATING_REFERENCE
        - there is no Learjet bundled QRH/emergency fallback
