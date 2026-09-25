@@ -15,7 +15,8 @@ test("DD.4 Takeoff operation owns editable TORA and an optional ASDA override", 
   assert.match(controller, /resolveTakeoffDeclaredDistanceConstraint/);
   assert.match(presentation, /aria-label="Takeoff TORA"/);
   assert.match(presentation, /aria-label="Takeoff ASDA"/);
-  assert.match(presentation, /Declared takeoff limit/);
+  assert.match(presentation, /ASDA override/);
+  assert.doesNotMatch(presentation, /Declared takeoff limit/);
 });
 
 test("DD.4 selecting a different runway clears prior declared-distance confirmation", () => {
@@ -52,7 +53,10 @@ test("DD.4 current full-rated snapshot does not persist or depend on TORA/ASDA",
   const controller = read("components/ft-performance/use-performance-operation.ts");
   const snapshotBlock = controller.slice(
     controller.indexOf("const snapshot = writeTakeoffPerformanceResultV2"),
-    controller.indexOf("weatherLocked.current = true"),
+    controller.indexOf(
+      "lastAutoCalculatedWeatherKey.current = weatherObservationKey(weather.observation)",
+      controller.indexOf("const snapshot = writeTakeoffPerformanceResultV2"),
+    ),
   );
 
   assert.equal(snapshotBlock.includes("toraFt"), false);
