@@ -565,7 +565,7 @@ The detailed future sequence is tracked in **Active implementation order** below
          - linking the repository and using Vercel `env run -e production` still cannot supply the database credential because the Production project marks it as a non-pullable Secret
          - production itself remains healthy and database-backed; this is a release-path limitation, not a database outage or checklist-content failure
          - do not copy or expose the Production DB secret merely to complete this release
-       - **15.3b.4 Authenticated production-runtime checklist release — IMPLEMENTED / VERIFYING**
+       - **15.3b.4 Authenticated production-runtime checklist release — COMPLETE · PR #233 · APPROVED FOR MERGE**
          - added shared server-only `publishLearjetChecklistRelease()` helper that owns payload validation, exact CL-102B manifest/fingerprint checks, source registration/reference creation, idempotence and the governed draft → approval → publication lifecycle
          - the CLI publisher now delegates to the same helper; there is no second weaker publication implementation
          - added authenticated Training-admin server action `publishLearjetChecklistReleaseAction`; administrator authorization is checked before the explicit confirmation value
@@ -573,7 +573,9 @@ The detailed future sequence is tracked in **Active implementation order** below
          - the action runs inside the production runtime, so it uses the already-configured protected `TRAINING_DATABASE_URL` without pulling or exposing the secret locally
          - release result is idempotent for an identical payload and revalidates Learjet admin, checklist and FLY surfaces
          - focused tests cover shared governance helper ownership, CLI guard preservation, admin gating/confirmation, runtime revalidation and absence of DB-secret handling in the action
-         - acceptance pending: typecheck · targeted checklist/admin test · production build; then merge/deploy and perform the explicit admin release in production
+         - focused acceptance PASS (2026-09-25): typecheck PASS · checklist/admin suite **11/11 PASS** · production build PASS
+         - the only build warning is the pre-existing non-blocking Turbopack workspace-root/package-lock warning
+         - after merge/deploy: perform the explicit admin release in production, then CHECKLIST + readiness smoke and close 15.3b
      - **15.3c QRH fast path — CONTENT GAP CONFIRMED**
        - runtime/UI is implemented and deliberately fails closed unless the published abnormal module is fresh and all linked sources are CONTROLLING or OPERATING_REFERENCE
        - there is no Learjet bundled QRH/emergency fallback
