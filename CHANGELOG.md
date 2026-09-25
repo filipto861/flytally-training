@@ -15,6 +15,13 @@ This file is the authoritative version history for completed FlyTally Training w
 ## 2026-09-25
 
 ### Changed
+- **PR #244 — QRH.3E.1 mapped QRH validator parity**
+  - aligned the QRH v2 mapped-effectivity precondition with the generic applicability contract added in QRH.3E;
+  - mapped QRH procedures can now use exact serials, serial-number ranges and nested `anyOf` applicability alternatives without being rejected by the QRH-specific guard;
+  - retained bounded recursion and fail-closed validation while introducing no learner/UI behavior change;
+  - acceptance on head `55ea2e3`: typecheck PASS; targeted QRH/applicability contract suite 38/38 PASS; full Node suite 1266 total / 1265 PASS / 0 FAIL / 1 SKIP; production build PASS; no Playwright rerun required.
+
+### Changed
 - **PR #243 — QRH.3E generic serial/effectivity architecture**
   - extended the aircraft-agnostic configuration model with an exact manufacturer serial identifier and included it in the effective-configuration snapshot identity;
   - extended generic content applicability with exact serials, bounded/open-ended serial-number ranges, and nested `anyOf` alternatives so source effectivity such as serial-range OR installed modification can be represented directly;
