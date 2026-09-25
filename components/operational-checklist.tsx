@@ -40,7 +40,10 @@ export function OperationalChecklist({
     && sharedChecklist.checklist.aircraftId === checklist.aircraftId
     && sharedChecklist.checklist.title === checklist.title,
   );
-  const sharedSnapshot = sharedActive ? sharedChecklist?.checklistSnapshot : undefined;
+  const sharedSnapshot =
+    sharedActive && sharedChecklist?.checklistHydrated
+      ? sharedChecklist.checklistSnapshot
+      : undefined;
   const activePhaseId = sharedSnapshot?.selectedPhaseId ?? phaseId;
   const activeCompleted = sharedSnapshot
     ? new Set(sharedSnapshot.completedIds)
@@ -76,7 +79,15 @@ export function OperationalChecklist({
     }
   }, [completed, hydrated, key, phaseId, sharedActive]);
 
-  const currentPhase = checklist.phases.find((phase) => phase.id === activePhaseId) ?? checklist.phases[0];
+  if (sharedActive && !sharedChecklist?.checklistHydrated) {
+    return (
+      <section className={styles.checklist} role="status">
+        Restoring checklist session…
+      </section>
+    );
+  }
+
+    const currentPhase = checklist.phases.find((phase) => phase.id === activePhaseId) ?? checklist.phases[0];
   if (!currentPhase) return null;
   const phaseIndex = checklist.phases.findIndex((phase) => phase.id === currentPhase.id);
   const completeInPhase = currentPhase.items.filter((item) => activeCompleted.has(item.id)).length;
