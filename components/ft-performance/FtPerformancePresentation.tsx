@@ -7,6 +7,7 @@ import type { SelectedRunwayContext } from "@/lib/aviation/airport-types";
 import type { PilotTakeoffCalculatorDefinition } from "@/lib/pilot-takeoff-calculator";
 import type { OperationWeatherSource } from "@/lib/performance/operation-weather";
 import type { PerformanceDataset } from "@/lib/universal-aircraft-content";
+import { formatObservationZulu } from "@/lib/weather/metar-snapshot-helpers";
 
 import { FtPerformanceContextLabel, type FtPerformanceContextKind } from "./FtPerformanceContextLabel";
 import { FtPerformanceInvalidation } from "./FtPerformanceInvalidation";
@@ -408,7 +409,7 @@ export function FtPerformanceOperationPresentation({
               </section>
             ) : (
               <details className={styles.declaredDistanceDetails}>
-                <summary>Declared distances</summary>
+                <summary>Declared-distance details</summary>
                 <label className={styles.setupField}>
                   <span>ASDA</span>
                   <span className={styles.inputWithUnit}>
@@ -445,9 +446,23 @@ export function FtPerformanceOperationPresentation({
                 </span>
               </div>
 
+              {availableWeather ? (
+                <p className={styles.sourceMeta}>
+                  Available · AviationWeather.gov · observed {formatObservationZulu(availableWeather.observedAt)}
+                </p>
+              ) : weatherFetchState === "unavailable" ? (
+                <p className={styles.sourceMeta}>METAR unavailable</p>
+              ) : null}
+
+              {appliedWeather.observation ? (
+                <p className={styles.sourceMeta}>
+                  Applied METAR · observed {formatObservationZulu(appliedWeather.observation.observedAt)}
+                </p>
+              ) : null}
+
               {newerWeatherAvailable && availableWeather ? (
                 <div className={styles.weatherUpdate} role="status">
-                  <strong>NEWER METAR</strong>
+                  <strong>NEWER WEATHER AVAILABLE</strong>
                   <button
                     className={styles.inlineAction}
                     disabled={busy || !canCalculate}
