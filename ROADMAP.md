@@ -706,7 +706,11 @@ The detailed future sequence is tracked in **Active implementation order** below
          - `CROSSFLOW VALVE FAILS TO OPEN` and `NORMAL FUEL TRANSFER SYSTEM FAILURE` use explicit generic `fuselage-valve-switch` configuration state; unknown installation state fails closed instead of selecting a source path by inference
          - visual review of A-19 through A-23 found no boxed memory items; nested fuel-balance, jettison, low-fuel and standby-pump conditions remain structured source branches
          - QRH.3M acceptance on head `fc1e603`: typecheck PASS · targeted QRH/applicability/P5/P6/W2 suite 159/159 PASS · full Node suite 1320 total / 1319 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright not required because no browser/presentation behavior changed
-         - **QRH.3N Hydraulic Abnormal source batch — NEXT:** continue with the two Hydraulic procedures on A-23/A-24, preserving `IF INSTALLED` applicability and landing/alternate-gear references
+         - **QRH.3N Hydraulic Abnormal source batch — COMPLETE · PR #253:** digitized the complete two-procedure Hydraulic family on A-23/A-24: LO HYD LIGHT (LOW HYDRAULIC PRESSURE) and HYDRAULIC SYSTEM FAILURE/ALTERNATE GEAR EXTENSION
+         - `LO HYD LIGHT` preserves the source `IF INSTALLED` qualifier through explicit generic `lo-hyd-light` configuration equipment; unknown/absent installation state fails closed while the all-aircraft alternate-gear procedure remains available
+         - preserve the A-23 pressure-result branch, A-24 alternate-gear extension sequence and source references to hydraulic-system-failure and gear-up landing procedures; visual review found no boxed memory items
+         - QRH.3N acceptance on head `dff2221`: typecheck PASS · targeted QRH/applicability/P5/P6/W2 suite 166/166 PASS · full Node suite 1327 total / 1326 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright not required because no browser/presentation behavior changed
+         - **QRH.3O Instruments Abnormal source batch — NEXT:** continue with PITOT-STATIC SYSTEM MALFUNCTION and V.G. MON LIGHT, preserving source effectivity and configuration-specific instrument-system paths
          - publish through the governed abnormal-domain lifecycle and verify operational-readiness gating
        - **QRH.4 cockpit acceptance — PLANNED**
          - verify fast-path category/procedure navigation, Emergency-vs-Abnormal distinction, memory-item emphasis, configuration filtering and source/authority disclosure on desktop/mobile/iPad
