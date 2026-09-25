@@ -56,14 +56,16 @@ The current production target profile `fc530-standard` explicitly declares:
 The digitized payload therefore:
 - selects Rosemount-specific normal-checklist wording for this profile;
 - includes FC-530-specific trim checks;
-- filters FC-200-only items out;
-- fails closed on TR-4000/Aeronca-specific and drag-chute items until the target simulator equipment is positively identified;
-- fails closed on optional installed-equipment items where the profile does not declare an installed state.
+- omits FC-200-only items from the current target payload;
+- omits TR-4000/Aeronca model-specific actions until the target simulator thrust-reverser model is positively identified;
+- uses the registered `thrust-reverser` / `drag-chute` configuration keys only where a generic installed/not-installed distinction is sufficient, so unknown state fails closed;
+- preserves source-visible “if installed” wording for optional equipment that is not yet represented by a registered applicability key, rather than inventing new configuration identifiers.
 
-The following source distinctions remain to be completed in the configuration vocabulary before all source items can be displayed:
+The following source distinctions remain to be completed in the configuration vocabulary before model-specific checklist items can be displayed:
 - TR-4000 thrust reversers;
-- Aeronca thrust reversers / position indication;
-- optional emergency lights, auxiliary heat, coffee/oven, electrically heated windshield, fuselage fuel valve and IN NORMAL/OUT DEFOG equipment where applicable.
+- Aeronca thrust reversers / position indication.
+
+Optional emergency lights, auxiliary heat, coffee/oven, electrically heated windshield, fuselage fuel valve and IN NORMAL/OUT DEFOG items retain their literal CL-102B “if installed” qualifier in the challenge text until dedicated configuration keys are registered.
 
 The CL-102B FL410 oxygen-mask check is serial-number/effectivity dependent. The current checklist applicability contract has no aircraft serial-number predicate, so that item is intentionally **not** included in operational output yet. Add explicit serial/effectivity support rather than representing it as common content.
 
