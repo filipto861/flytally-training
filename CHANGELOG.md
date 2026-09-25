@@ -15,6 +15,14 @@ This file is the authoritative version history for completed FlyTally Training w
 ## 2026-09-25
 
 ### Changed
+- **PR #237 — QRH.1 source inventory and contract-gap audit**
+  - inventoried the reviewed CL-102B Emergency and Abnormal sections, including index/category coverage and major page-effectivity families;
+  - recorded AFM precedence, page-level effectivity and boxed memory-item semantics as non-publishable source evidence;
+  - documented generic contract gaps blocking source-faithful QRH publication: Emergency-vs-Abnormal class, explicit memory semantics, conditional/substep structure, training-only required metadata and serial/AMK effectivity;
+  - added focused regression coverage and moved Operational QRH into active implementation;
+  - acceptance: typecheck PASS; QRH.1 focused suite 4/4 PASS; full Node suite 1224 total / 1223 PASS / 0 FAIL / 1 SKIP; production build PASS; no Playwright rerun required because runtime/UI behavior did not change.
+
+### Changed
 - **PR #236 — technical documentation consolidation**
   - consolidated the repository documentation surface to exactly four maintained Markdown files: `README.md`, `ROADMAP.md`, `CHANGELOG.md`, and `TECHNICAL_DOCUMENTATION.md`;
   - removed 68 superseded milestone, audit, specification, deployment and compliance Markdown files from the active tree while retaining their history in Git and pull requests;
