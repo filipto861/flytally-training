@@ -189,7 +189,7 @@ Stale or ambiguous operational content fails closed.
 
 AI may structure or draft from intentionally supplied source excerpts. AI is never source authority.
 
-Publishable technical content requires source provenance and human governed review/approval.
+Publishable technical content requires source provenance; **human governed review/approval is required** before publication.
 
 ---
 
@@ -318,7 +318,7 @@ The performance runtime is generic and aircraft-agnostic. Aircraft-specific sour
 
 An operational result may use an exact source row regardless of interpolation policy.
 
-A dataset declared with interpolation `none` must never be rewritten to `linear-explicit` merely to obtain a result. The runtime honors the governed source dataset interpolation authority exactly.
+Runtime/Flight Deck code **must never rewrite a dataset from `none` to `linear-explicit`** merely to obtain a result. The runtime honors the governed source dataset interpolation authority exactly.
 
 ### Takeoff and Landing
 
@@ -417,6 +417,81 @@ Historical UX6 design-system tokens included:
 The key semantic rule remains: **Application state is separate from source-safety semantics**. WARNING / CAUTION / NOTE styling is not repurposed for ordinary application selection/state. **Source age remains neutral metadata**.
 
 No fake authority cues are permitted; visual emphasis must not imply source validity, recency or safety state.
+
+### Historical UX acceptance contracts
+
+The current LEARN/EFB shell superseded the older mixed five-destination IA, but the historical acceptance evidence remains useful for regression context.
+
+Historical frozen destination strings:
+
+- `AIRCRAFT / PROCEDURES / PERFORMANCE / TRAINING / FLIGHT`
+- `CHECKLIST / QRH / PERF / REF`
+
+UX0 classified the pre-redesign shell as a **functional development scaffold** and **technical wireframe**. It explicitly audited:
+
+- Desktop Chromium
+- iPad landscape
+- iPad portrait
+- Narrow mobile
+- content frame/max-width
+- sidebar width
+- top bar
+- fast-path dominance
+
+The historical constraint was: **UX1 must not redesign P0–P7 page internals** while the shell composition was being established.
+
+**No fake authority cues** are permitted. Ordinary visual emphasis **must not imply source validity, recency or safety state**.
+
+UX6 Gate A recorded: **APPROVED — PRODUCT OWNER GATE A PASSED**. The approved concept used five top-level destinations at that time, with the rule that **Systems and Reference must appear through contextual/sub-navigation**, and narrow-screen fast-path interaction used a **bottom sheet** direction. These are historical design decisions, not a competing current IA.
+
+Historical UX6 surface system:
+
+### Light
+
+Peer light surfaces use the UX6 canvas/workspace/panel/elevated/selected/accent hierarchy.
+
+### Dark
+
+Peer dark surfaces use the same semantic hierarchy rather than a separate visual model.
+
+The historical token contract included:
+
+- `--ux6-canvas`
+- `--ux6-workspace`
+- `--ux6-panel`
+- `--ux6-elevated`
+- `--ux6-selected`
+- `--ux6-accent`
+
+**Application state is separate from source-safety semantics.** WARNING / CAUTION / NOTE remain source/safety language. **Source age remains neutral metadata**.
+
+Historical UX5 final review covered these production routes:
+
+- `/`
+- `/aircraft/learjet-35a`
+- `/aircraft/learjet-35a/procedures`
+- `/aircraft/learjet-35a/performance`
+- `/aircraft/learjet-35a/training`
+- `/aircraft/learjet-35a/reference`
+- `/aircraft/learjet-35a/flight`
+- `/aircraft/learjet-35a/systems`
+
+across Desktop Chromium, iPad landscape, iPad portrait and Narrow mobile, with **light and dark workspace themes**.
+
+Historical UX5 status language was **Status: IN PROGRESS** until the product owner explicitly approved it. **Do not mark UX5 complete from automated tests alone**; the product owner must **explicitly approve** the visual result.
+
+Historical UX6 final acceptance used **64 screenshots** across:
+
+- 1664 × 930
+- 1112 × 834
+- 834 × 1112
+- 390 × 844
+- light
+- dark
+
+The visual gate language remains preserved as historical acceptance evidence: **Filip explicitly approves** the result; automation **may not infer product-owner visual approval**. The old gate transitions were **C0 HOLD** and **C0 UNBLOCKED**.
+
+The historical desktop presentation debt identified `content > *` as contributing to an **under-filled desktop composition** in the earlier **development scaffold**.
 
 ### Reference-screen acceptance history
 
@@ -569,7 +644,9 @@ QES is a reviewed strategy decision, not a presumed requirement. Existing intern
 
 ### Commercial release state
 
-The canonical C6 commercial-release audit lives in FlyTally Logbook and Training does not introduce a second launch flag.
+The **canonical C6 commercial-release audit lives in FlyTally Logbook**. Training **does not introduce a second launch flag**.
+
+Technical production readiness and commercial clearance are deliberately separate.
 
 Training must not interpret a healthy `/api/readiness` response as commercial, legal, regulator, trademark or source-rights clearance.
 
