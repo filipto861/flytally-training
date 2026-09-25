@@ -26,6 +26,12 @@ This file is the authoritative version history for completed FlyTally Training w
   - the explicit publisher now loads `.env.local` when present using Node 24 `--env-file-if-exists`;
   - keeps the confirmation guard intact and avoids requiring production database credentials to be copied manually into PowerShell;
   - targeted acceptance: typecheck PASS, publisher/checklist suite 10/10 PASS, production build PASS.
+- **PR #233 — authenticated production-runtime Learjet checklist release flow**
+  - moved the one-shot governed checklist publication into an authenticated Training-admin server action so protected production database credentials never need to be pulled or exposed locally;
+  - CLI and admin publication now share one governed release helper for CL-102B validation, source identity/fingerprint checks, source registration, idempotence, approval and publication;
+  - added the explicit **Publish reviewed Learjet checklist** admin control with required confirmation;
+  - targeted acceptance: typecheck PASS, checklist/admin suite 11/11 PASS, production build PASS;
+  - production deployment is READY; the actual checklist content publication remains pending the explicit administrator release action.
 - **PR #227 — Partial Power EFB simplification**
   - simplified the Learjet 35A Partial Power workflow to pilot-facing essentials;
   - exposed one explicit **Partial Power · Aeronca** mode;
