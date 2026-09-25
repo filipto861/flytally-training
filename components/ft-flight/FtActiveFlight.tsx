@@ -151,8 +151,16 @@ export function FtActiveFlight({
 
       departure.value = ofp.departure.icao;
       destination.value = ofp.destination.icao;
-      weight.value = String(ofp.weight.value);
-      unit.value = ofp.weight.unit;
+
+      const importedFields: SimBriefImportedField[] = [
+        "departure",
+        "destination",
+      ];
+      if (ofp.weight) {
+        weight.value = String(ofp.weight.value);
+        unit.value = ofp.weight.unit;
+        importedFields.push("weight");
+      }
 
       setPrefillProvenance({
         provider: "simbrief",
@@ -160,7 +168,7 @@ export function FtActiveFlight({
         generatedAt: ofp.generatedAt,
         importedAt: new Date().toISOString(),
         aircraftIcaoCode: ofp.aircraftIcaoCode,
-        fields: ["departure", "destination", "weight"],
+        fields: importedFields,
       });
     } catch (caught) {
       setSimBriefError(simBriefErrorMessage(caught));
