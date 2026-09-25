@@ -438,7 +438,9 @@ The detailed future sequence is tracked in **Active implementation order** below
      - first full Playwright run was invalidated by local-server environment contamination: Playwright reused an already-running local server, so fixture and FT_NEW_SHELL webServer env were not applied; broad failures included missing Browser CI fixture, wrong flag-off behavior, and authenticated API behavior
      - Playwright config hardened: existing local servers are no longer reused by default; explicit reuse now requires `PW_REUSE_EXISTING_SERVER=1`
      - **no second full-suite rerun required for 14.1b**; acceptance may close with targeted unit/browser verification of the corrected contracts plus production readiness smoke
-     - acceptance pending: targeted B4 + PP/DD/P1.3 unit gate, targeted AUTO-METAR browser gate, production smoke
+     - targeted closeout unit gate after B4 correction: **28/28 PASS**
+     - targeted AUTO-METAR Playwright attempt did not start because port 3000 was already occupied; this is an environment/startup conflict, not a browser-test failure. Playwright correctly refused to reuse the existing server after the config hardening.
+     - acceptance pending: stop the existing local server, run the 2 targeted AUTO-METAR desktop-browser tests, then production smoke
    - **14.2 Independent 25% rated-thrust source closure — BLOCKED**
      - FlightSafety requires thrust reduction <=25% of rated takeoff thrust for the existing ambient condition
      - CL-102B P-6/P-6.1 provide configuration-specific reduced-N1 schedules and a 7.7 N1-point cap, but no verified N1-to-rated-thrust relationship has been found
