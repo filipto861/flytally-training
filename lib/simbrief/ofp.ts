@@ -86,6 +86,10 @@ export function parseSimBriefLatestOfp(value: unknown): SimBriefLatestOfp | null
   const destination = airport(root.destination);
   const estimatedTow = numeric(weights.est_tow);
   const unit = weightUnit(params.units);
+  const importedWeight =
+    estimatedTow !== null && estimatedTow > 0 && unit
+      ? { value: estimatedTow, unit }
+      : undefined;
   const aircraftIcaoCode = (
     text(aircraft.icao_code, 8)
     ?? text(aircraft.icaocode, 8)
@@ -103,9 +107,6 @@ export function parseSimBriefLatestOfp(value: unknown): SimBriefLatestOfp | null
   if (
     !departure
     || !destination
-    || !estimatedTow
-    || estimatedTow <= 0
-    || !unit
     || !aircraftIcaoCode
     || !requestId
   ) {
@@ -122,7 +123,7 @@ export function parseSimBriefLatestOfp(value: unknown): SimBriefLatestOfp | null
   return {
     departure,
     destination,
-    weight: { value: estimatedTow, unit },
+    ...(importedWeight ? { weight: importedWeight } : {}),
     aircraftIcaoCode,
     requestId,
     generatedAt,
@@ -151,6 +152,10 @@ export function parseNormalizedSimBriefOfp(
     : null;
   const weightValue = numeric(weightRow?.value);
   const unit = weightUnit(weightRow?.unit);
+  const normalizedWeight =
+    weightValue !== null && weightValue > 0 && unit
+      ? { value: weightValue, unit }
+      : undefined;
   const aircraftIcaoCode = text(row.aircraftIcaoCode, 8)?.toUpperCase();
   const requestId = text(row.requestId, 64);
   const generatedAt =
@@ -161,9 +166,6 @@ export function parseNormalizedSimBriefOfp(
   if (
     !departure
     || !destination
-    || !weightValue
-    || weightValue <= 0
-    || !unit
     || !aircraftIcaoCode
     || !requestId
     || (generatedAt !== null && (!generatedAt || Number.isNaN(Date.parse(generatedAt))))
@@ -174,7 +176,7 @@ export function parseNormalizedSimBriefOfp(
   return {
     departure,
     destination,
-    weight: { value: weightValue, unit },
+    ...(normalizedWeight ? { weight: normalizedWeight } : {}),
     aircraftIcaoCode,
     requestId,
     generatedAt: generatedAt ? new Date(generatedAt).toISOString() : null,
