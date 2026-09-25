@@ -694,7 +694,9 @@ The detailed future sequence is tracked in **Active implementation order** below
          - preserve nested source conditions in fuel-computer, overspeed and starter-engaged procedures; retain exact A-11/A-12/A-13 provenance and ALL-aircraft effectivity
          - visual source review confirms no boxed memory items on A-11 through A-13; A-11 vertical marks are Change 1 revision bars and must not be interpreted as memory boxes
          - QRH.3J acceptance on head `92691f1`: typecheck PASS · targeted QRH/applicability/P5/P6/W2 suite 138/138 PASS · full Node suite 1299 total / 1298 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright not required because no browser/presentation behavior changed
-         - **QRH.3K Environmental Abnormal source batch — NEXT:** continue with the complete Environmental abnormal family after A-13, preserving source page/effectivity variants, nested branches and visually verified memory semantics
+         - **QRH.3K Environmental Abnormal source batch — IN PROGRESS:** digitize the complete five-procedure Environmental family from A-14 through A-16.1, including exact A-15/A-15.1 and A-16/A-16.1 serial variants plus the A-14 AMK 90-3 emergency-airflow control split
+         - `INADVERTENT ACTIVATION OF EMERGENCY AIRFLOW (IF INSTALLED)` is gated by explicit generic configuration equipment `emergency-airflow`; prior-aircraft AMK 90-3 state remains fail-closed where the source requires it
+         - visual review of A-14 through A-16.1 found no boxed memory items; the legacy comparison glyph on A-16/A-16.1 is explicitly documented and normalized to `≤` in the staged transcription rather than silently emitting the PDF encoding artifact
          - publish through the governed abnormal-domain lifecycle and verify operational-readiness gating
        - **QRH.4 cockpit acceptance — PLANNED**
          - verify fast-path category/procedure navigation, Emergency-vs-Abnormal distinction, memory-item emphasis, configuration filtering and source/authority disclosure on desktop/mobile/iPad
