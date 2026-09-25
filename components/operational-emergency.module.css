@@ -4,3 +4,5 @@
 .informationStep>span{display:grid;place-items:center;min-height:24px;border:1px solid var(--line,#d5dee8);border-radius:7px;font-size:.72rem;font-weight:800}
 .informationStep p{margin:0;white-space:pre-line;line-height:1.45}
 .memoryInformation{background:linear-gradient(90deg,var(--danger-bg,#fff1f3),transparent 65%)}
+
+.memoryBranch{border-left:3px solid var(--danger-text,#b4233a);padding-left:8px}

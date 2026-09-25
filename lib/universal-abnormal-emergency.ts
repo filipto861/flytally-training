@@ -65,6 +65,8 @@ export type AircraftQrhConditionBranch = {
   readonly id: string;
   /** Exact source condition/branch wording. */
   readonly label: string;
+  /** Source boxed/memory presentation for this specific branch heading. */
+  readonly memoryItem?: boolean;
   readonly steps: readonly AircraftQrhStep[];
 };
 
@@ -273,7 +275,7 @@ function validateQrhSteps(
       }
       step.branches.forEach((branch, branchIndex) => {
         const branchPath = `${stepPath}.branches[${branchIndex}]`;
-        if (!text(branch.id) || !text(branch.label)) {
+        if (!text(branch.id) || !text(branch.label) || !optionalBoolean(branch.memoryItem)) {
           errors.push(`${branchPath} does not match the QRH branch contract`);
           return;
         }

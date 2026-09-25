@@ -659,7 +659,9 @@ The detailed future sequence is tracked in **Active implementation order** below
          - real CL-102B source review exposed informational/non-action procedure lines; the generic QRH step contract now carries an `information` step through validation, search, operational projection and presentation instead of falsely coercing those lines into crew actions
          - QRH.3A remains deliberately unbundled/unpublished until the complete applicable Learjet QRH package and effectivity mapping pass are ready; partial content must not become a production fallback
          - QRH.3A acceptance on head `9809c04`: typecheck PASS · targeted QRH/P5/P6/W2 suite 58/58 PASS · full Node suite 1239 total / 1238 PASS / 0 FAIL / 1 SKIP · production build PASS · targeted Playwright QRH acceptance 8/8 PASS across desktop Chromium, mobile Chromium, iPad landscape and iPad portrait
-         - **QRH.3B Emergency source batch 2 — NEXT:** continue CL-102B Emergency Procedures from the next reviewed page group; preserve effectivity and memory semantics before any publication
+         - **QRH.3B Engine emergency source batch — IN PROGRESS:** stage source-reviewed E-12 ENGINE FIRE — SHUTDOWN and E-19 OIL PRESSURE LIGHT(S); branch-level memory semantics are explicit so only the boxed E-12 branch is classified as memory
+         - E-13 AIRSTART ENVELOPE remains fail-closed: its graphical operating envelope is not flattened into text; generic source-figure support must be defined before it is digitized
+         - E-14–E-18 airstart procedures remain pending the next source batch after the E-13 representation boundary is resolved or explicitly separated
          - publish through the governed abnormal-domain lifecycle and verify operational-readiness gating
        - **QRH.4 cockpit acceptance — PLANNED**
          - verify fast-path category/procedure navigation, Emergency-vs-Abnormal distinction, memory-item emphasis, configuration filtering and source/authority disclosure on desktop/mobile/iPad
