@@ -10,6 +10,7 @@ import {
   type AircraftConfiguration,
 } from "../lib/aircraft-applicability.ts";
 import {
+  type AircraftQrhStage,
   type AircraftQrhStep,
   validateUniversalAbnormalEmergencyPayload,
 } from "../lib/universal-abnormal-emergency.ts";
@@ -121,8 +122,7 @@ test("QRH.3F visual source review marks only CABIN/COCKPIT FIRE steps 1 through 
   );
   assert.ok(fire);
 
-  const fireStages: readonly import("../lib/universal-abnormal-emergency.ts").AircraftQrhStage[] =
-    fire.stages;
+  const fireStages: readonly AircraftQrhStage[] = fire.stages;
 
   for (const stageId of ["fire-e22", "fire-e22-1"]) {
     const stage = fireStages.find((candidate) => candidate.id === stageId);
