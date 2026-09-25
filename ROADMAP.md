@@ -734,8 +734,9 @@ The detailed future sequence is tracked in **Active implementation order** below
          - represented both E-13 AIRSTART ENVELOPE and A-35.2 THRUST REVERSER RESTOW ENVELOPE with source axes, labelled regions/guides/annotations and exact source-page provenance; figure geometry remains explicitly non-computational and cannot be used for interpolation, lookup or automated envelope membership
          - attached E-13 to all four airstart procedures and A-35.2 to the TR-4000 inadvertent-deployment procedure, removing the final known graphical representation blockers without adding Learjet-specific runtime branches
          - QRH.3T acceptance: typecheck PASS · targeted QRH/applicability/P5/P6/W2 suite 98/98 PASS · full Node suite 1363 total / 1362 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright 392/392 PASS across desktop Chromium, mobile Chromium, iPad landscape and iPad portrait
-         - **QRH.3U governed package/publication closure — NEXT:** assemble the reviewed Emergency + Abnormal source batches into the governed Learjet QRH publication path, verify applicability/configuration selection, then complete cockpit QRH acceptance
-         - publish through the governed abnormal-domain lifecycle and verify operational-readiness gating
+         - **QRH.3U governed package/publication closure — IN PROGRESS:** assemble the reviewed Emergency + Abnormal source batches into one governed Learjet QRH publication path, verify applicability/configuration selection, and remove any remaining partial-package staging assumptions
+         - publication must reuse the existing abnormal-domain governance lifecycle, preserve exact source provenance/effectivity, fail closed on unresolved configuration identity, and expose no static-seed or learner-runtime bypass
+         - acceptance requires package-level contract/inventory coverage, governed publication/readiness verification, full Node/build gate and browser acceptance for the operational QRH surface
        - **QRH.4 cockpit acceptance — PLANNED**
          - verify fast-path category/procedure navigation, Emergency-vs-Abnormal distinction, memory-item emphasis, configuration filtering and source/authority disclosure on desktop/mobile/iPad
          - full Node/build/Playwright plus authenticated production publication/smoke before closure
