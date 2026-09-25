@@ -432,7 +432,8 @@ The detailed future sequence is tracked in **Active implementation order** below
        - captured departure ICAO remained typed as optional inside the async METAR refresh closure
        - three source-text regression assertions still expected removed UI/old controller markers
      - corrective commits remove the obsolete Flight Brief notice, capture a non-optional METAR station value, and align DD/P1.3 tests with the simplified contract
-     - acceptance pending: targeted gate re-run, full verify, Playwright, production smoke
+     - targeted re-run after fixes: typecheck PASS · PP/DD/P1.3 targeted suite **24/24 PASS** · production build PASS
+     - acceptance pending: full verify, Playwright, production smoke
    - **14.2 Independent 25% rated-thrust source closure — BLOCKED**
      - FlightSafety requires thrust reduction <=25% of rated takeoff thrust for the existing ambient condition
      - CL-102B P-6/P-6.1 provide configuration-specific reduced-N1 schedules and a 7.7 N1-point cap, but no verified N1-to-rated-thrust relationship has been found
