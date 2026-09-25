@@ -680,10 +680,9 @@ test("DD declared distances stay optional for full-rated Takeoff and reset with 
     .getByRole("region", { name: "Performance", exact: true });
 
   await performance.getByLabel("Takeoff runway").selectOption("24");
-  await expect(performance.getByText(
-    "Prefilled from the airport database runway surface length. This is not an authoritative declared TORA.",
-    { exact: true },
-  )).toBeVisible();
+  await expect(
+    performance.getByRole("button", { name: "Confirm TORA", exact: true }),
+  ).toBeVisible();
   await performance.getByLabel("Takeoff TORA").fill("12000");
   await performance.getByText("Declared-distance details", { exact: true }).click();
   await performance.getByLabel("Takeoff ASDA").fill("12500");
