@@ -309,7 +309,7 @@ test("W3 checklist state persists after closing and reopening the panel", async 
   await page.keyboard.press("Escape");
   await expect(panel).toHaveCount(0);
 
-  const indicator = page.getByRole("button", { name: "Open checklist progress 1 of 2" });
+  const indicator = page.getByRole("button", { name: "Open checklist progress 1 of 4" });
   await expect(indicator).toBeVisible();
   await indicator.click();
 
