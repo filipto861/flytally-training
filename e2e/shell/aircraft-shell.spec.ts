@@ -653,6 +653,88 @@ test("D0 Active Flight creation flow persists into the local mirror", async ({ p
   });
 });
 
+test("15.1 SimBrief import explicitly prefills Active Flight and preserves field provenance", async ({ page }) => {
+  let importCalls = 0;
+  await page.route("**/api/simbrief/latest", async (route) => {
+    importCalls += 1;
+    expect(route.request().method()).toBe("POST");
+    expect(route.request().postDataJSON()).toMatchObject({
+      aircraftId: "browser-ci-aircraft",
+      identity: { kind: "alias", value: "FilipTest" },
+    });
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        ofp: {
+          departure: { icao: "LKPR", name: "Prague" },
+          destination: { icao: "EGSS", name: "Stansted" },
+          weight: { value: 15000, unit: "kg" },
+          aircraftIcaoCode: "TEST",
+          requestId: "browser-ofp-1",
+          generatedAt: "2026-09-25T19:55:00.000Z",
+        },
+        aircraft: {
+          id: "browser-ci-aircraft",
+          displayName: "Browser CI Aircraft",
+        },
+      }),
+    });
+  });
+
+  const flight = await openP1Flight(page);
+  const active = flight.getByRole("region", { name: "Active Flight" });
+  await active.getByRole("button", { name: "Start new flight", exact: true }).click();
+
+  const dialog = page.getByRole("dialog", { name: "Start new flight" });
+  await expect(dialog.getByRole("region", { name: "SimBrief import" })).toBeVisible();
+  await dialog.getByLabel("Navigraph Alias").fill("FilipTest");
+  await dialog.getByRole("button", { name: "Import latest OFP", exact: true }).click();
+
+  await expect(dialog.getByLabel("Departure ICAO")).toHaveValue("LKPR");
+  await expect(dialog.getByLabel("Destination ICAO")).toHaveValue("EGSS");
+  await expect(dialog.getByLabel("Weight", { exact: true })).toHaveValue("15000");
+  await expect(dialog.getByLabel("Weight unit")).toHaveValue("kg");
+  await expect(dialog.getByText("SIMBRIEF TOW", { exact: true })).toBeVisible();
+  await expect(dialog.getByText(/Imported OFP browser-ofp-1/)).toBeVisible();
+
+  await dialog.getByLabel("Weight", { exact: true }).fill("14900");
+  await expect(dialog.getByText("SIMBRIEF TOW", { exact: true })).toHaveCount(0);
+
+  await dialog.getByRole("button", { name: "Activate flight", exact: true }).click();
+  await expect(dialog).toHaveCount(0);
+  await expect(active).toContainText("LKPR → EGSS");
+  await expect(active).toContainText("14900 kg");
+  await expect(active).toContainText("SIMBRIEF PREFILL");
+
+  const state = await page.evaluate(() => {
+    const flightRaw = localStorage.getItem(
+      "flytally-training:active-flight:v1:browser-ci-aircraft",
+    );
+    const identityRaw = localStorage.getItem(
+      "flytally-training:simbrief-identity:v1",
+    );
+    return {
+      flight: flightRaw ? JSON.parse(flightRaw) : null,
+      identity: identityRaw ? JSON.parse(identityRaw) : null,
+    };
+  });
+
+  expect(state.flight).toMatchObject({
+    departure: { icao: "LKPR" },
+    destination: { icao: "EGSS" },
+    weight: { value: 14900, unit: "kg" },
+    prefillProvenance: {
+      provider: "simbrief",
+      requestId: "browser-ofp-1",
+      aircraftIcaoCode: "TEST",
+      fields: ["departure", "destination"],
+    },
+  });
+  expect(state.identity).toEqual({ kind: "alias", value: "FilipTest" });
+  expect(importCalls).toBe(1);
+});
+
 test("P1.1 local Active Flight is reflected in the EFB top bar", async ({ page }) => {
   await createD0ActiveFlight(page);
 
