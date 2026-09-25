@@ -15,6 +15,14 @@ This file is the authoritative version history for completed FlyTally Training w
 ## 2026-09-25
 
 ### Changed
+- **PR #251 — QRH.3L Learjet Flight Controls Abnormal source batch**
+  - staged the complete five-procedure CL-102B Flight Controls Abnormal family from A-17 through A-19;
+  - preserved nested source branches, the source-defined single/dual yaw-damper split and exact A-17/A-18/A-19 provenance;
+  - kept MACH TRIM MALFUNCTION and PITCH TRIM LIGHT IN FLIGHT fail-closed behind explicit generic configured-equipment applicability instead of inferring applicability from aircraft identity;
+  - visual source review found no boxed memory items on A-17 through A-19;
+  - acceptance on head `d2dbf6f`: typecheck PASS; targeted QRH/applicability/P5/P6/W2 suite 152/152 PASS; full Node suite 1313 total / 1312 PASS / 0 FAIL / 1 SKIP; production build PASS; no Playwright rerun required because no browser/presentation behavior changed.
+
+### Changed
 - **PR #250 — QRH.3K Learjet Environmental Abnormal source batch**
   - staged the complete five-procedure CL-102B Environmental Abnormal family from A-14 through A-16.1;
   - preserved A-15/A-15.1 and A-16/A-16.1 serial-number source variants plus the A-14 AMK 90-3 emergency-airflow control split;
