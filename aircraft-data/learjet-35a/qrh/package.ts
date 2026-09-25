@@ -18,6 +18,7 @@ import { learjet35aQrhAbnormalBatch9 } from "./abnormal-batch-9.ts";
 import { learjet35aQrhAbnormalBatch10 } from "./abnormal-batch-10.ts";
 import { learjet35aQrhAbnormalBatch11 } from "./abnormal-batch-11.ts";
 import { learjet35aQrhAbnormalBatch12 } from "./abnormal-batch-12.ts";
+import { learjet35aQrhSourceInventory } from "./source-inventory.ts";
 
 export const learjet35aQrhSourceBatches: readonly AircraftAbnormalEmergencyV2Content[] = [
   learjet35aQrhEmergencyBatch1,
@@ -71,3 +72,94 @@ export const learjet35aQrhPackage = {
   figures,
   scenarios,
 } satisfies AircraftAbnormalEmergencyV2Content;
+
+
+function indexedEntryCount(procedureClass: "emergency" | "abnormal"): number {
+  const section = learjet35aQrhSourceInventory.sections.find(
+    (candidate) => candidate.kind === procedureClass,
+  );
+  if (!section) {
+    throw new Error(`Learjet QRH source inventory is missing the ${procedureClass} section.`);
+  }
+  return section.categories.reduce(
+    (count, category) => count + category.procedures.length,
+    0,
+  );
+}
+
+/**
+ * Package-specific completeness gate for the reviewed CL-102B QRH.
+ *
+ * The universal v2 validator proves schema integrity. This gate additionally
+ * proves that the Learjet aggregate still accounts for every indexed source
+ * entry and that source-review batches cannot be accidentally omitted or
+ * duplicated before governed publication.
+ */
+export function assertLearjet35aQrhPackageComplete(): void {
+  if (learjet35aQrhSourceBatches.length !== 19) {
+    throw new Error("Learjet QRH package must contain all 19 reviewed source batches.");
+  }
+
+  const scenarioIds = learjet35aQrhPackage.scenarios.map((scenario) => scenario.id);
+  if (new Set(scenarioIds).size !== scenarioIds.length) {
+    throw new Error("Learjet QRH package contains duplicate scenario ids.");
+  }
+
+  const figureList = learjet35aQrhPackage.figures ?? [];
+  const figureIds = figureList.map((figure) => figure.id);
+  if (new Set(figureIds).size !== figureIds.length) {
+    throw new Error("Learjet QRH package contains duplicate figure ids.");
+  }
+
+  const introductionClasses = (learjet35aQrhPackage.sectionIntroductions ?? [])
+    .map((introduction) => introduction.procedureClass);
+  if (
+    introductionClasses.length !== 2
+    || introductionClasses[0] !== "emergency"
+    || introductionClasses[1] !== "abnormal"
+  ) {
+    throw new Error(
+      "Learjet QRH package must contain exactly the reviewed Emergency and Abnormal section introductions.",
+    );
+  }
+
+  for (const procedureClass of ["emergency", "abnormal"] as const) {
+    const scenarioCount = learjet35aQrhPackage.scenarios.filter(
+      (scenario) => scenario.procedureClass === procedureClass,
+    ).length;
+    const chapter =
+      procedureClass === "emergency"
+        ? "Emergency Procedures"
+        : "Abnormal Procedures";
+    const figureCount = figureList.filter((figure) =>
+      figure.sources.some((source) => source.chapter === chapter),
+    ).length;
+    const indexedCount = indexedEntryCount(procedureClass);
+
+    if (scenarioCount + figureCount !== indexedCount) {
+      throw new Error(
+        `Learjet QRH ${procedureClass} package accounts for ${scenarioCount + figureCount} of ${indexedCount} indexed source entries.`,
+      );
+    }
+  }
+
+  if (
+    figureIds.length !== 2
+    || figureIds[0] !== "airstart-envelope"
+    || figureIds[1] !== "thrust-reverser-restow-envelope"
+  ) {
+    throw new Error(
+      "Learjet QRH package must contain exactly the reviewed E-13 and A-35.2 graphical envelopes.",
+    );
+  }
+
+  if (
+    figureList.some(
+      (figure) => figure.geometryPolicy !== "source-digitized-visual-reference",
+    )
+  ) {
+    throw new Error(
+      "Learjet QRH graphical envelopes must remain source-digitized visual references.",
+    );
+  }
+}
