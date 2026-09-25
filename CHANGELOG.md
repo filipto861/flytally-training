@@ -15,6 +15,13 @@ This file is the authoritative version history for completed FlyTally Training w
 ## 2026-09-25
 
 ### Changed
+- **PR #242 — QRH.3D Learjet ALL-aircraft mid-section Emergency batch**
+  - staged the reviewed ALL-aircraft CL-102B Emergency Procedures from E-21 and E-25 through E-33, covering emergency descent, flight-control emergencies, fuel pressure, ditching/evacuation, both-engines-inoperative landing, stall warning and aborted takeoff;
+  - preserved page-level provenance, nested source decision structure and visually reviewed boxed-memory boundaries without inferring memory status from labels or prose;
+  - kept serial/AMK-specific BLEED AIR LIGHT and CABIN/COCKPIT FIRE source families explicitly fail-closed because the current generic aircraft configuration contract cannot prove their source serial ranges;
+  - acceptance on head `2993d3e`: typecheck PASS; targeted QRH/P5/P6/W2 suite 76/76 PASS; full Node suite 1257 total / 1256 PASS / 0 FAIL / 1 SKIP; production build PASS; no Playwright rerun required because this PR changes staged source content, tests and roadmap only.
+
+### Changed
 - **PR #241 — QRH.3C Learjet airstart source batch**
   - staged the four CL-102B textual airstart procedures from E-14 through E-18 while preserving separate Fuel Computer ON/OFF starter-assist and windmilling paths, source sequencing, nested restart branches and page-level provenance;
   - preserved the source 20,000 ft Fuel Computer OFF restriction and reviewed E-14 through E-18 visually before leaving all memory-item flags unset;
