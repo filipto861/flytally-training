@@ -105,10 +105,12 @@ export function parseSimBriefLatestOfp(value: unknown): SimBriefLatestOfp | null
     return null;
   }
 
-  const generatedAt =
-    generatedUnix && generatedUnix > 0
-      ? new Date(generatedUnix * 1000).toISOString()
-      : null;
+  let generatedAt: string | null = null;
+  if (generatedUnix && generatedUnix > 0) {
+    const generatedDate = new Date(generatedUnix * 1000);
+    if (Number.isNaN(generatedDate.getTime())) return null;
+    generatedAt = generatedDate.toISOString();
+  }
 
   return {
     departure,
