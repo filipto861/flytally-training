@@ -269,18 +269,41 @@ test("P5 QRH fast path renders governed operational content without navigation",
   const qrh = panel.getByRole("region", { name: "QRH quick reference" });
 
   await expect(qrh).toBeVisible();
+  const emergencyProcedure = qrh.locator('[data-procedure-class="emergency"]');
+  await expect(emergencyProcedure).toBeVisible();
   await expect(
     qrh.getByRole("heading", { name: "Generic Condition A", exact: true }),
   ).toBeVisible();
   await expect(qrh.getByText("EMERGENCY", { exact: true })).toBeVisible();
-  await expect(qrh.getByText("Action A", { exact: true })).toBeVisible();
+  await expect(qrh.getByText("Emergency section guidance", { exact: true })).toBeVisible();
+
+  const memoryStage = qrh.locator('[data-memory-stage="true"]');
+  await expect(memoryStage).toBeVisible();
+  await expect(memoryStage.getByText("MEMORY", { exact: true })).toBeVisible();
+  const memoryAction = qrh.getByText("Action A", { exact: true }).locator("..").locator("..");
+  await expect(memoryAction).toHaveAttribute("data-memory-item", "true");
   await expect(qrh.getByText("Action B", { exact: true })).toBeVisible();
 
+  await expect(
+    qrh.getByRole("img", {
+      name: "GENERIC OPERATING ENVELOPE. Source-digitized graphical operating envelope.",
+    }),
+  ).toBeVisible();
+  await expect(
+    qrh.getByText(
+      "Source-digitized visual reference. The plotted geometry is not a computational lookup or interpolation surface.",
+      { exact: true },
+    ),
+  ).toBeVisible();
+
   await qrh.getByRole("button", { name: /^Alternate\b/ }).click();
+  const abnormalProcedure = qrh.locator('[data-procedure-class="abnormal"]');
+  await expect(abnormalProcedure).toBeVisible();
   await expect(
     qrh.getByRole("heading", { name: "Generic Condition B", exact: true }),
   ).toBeVisible();
   await expect(qrh.getByText("ABNORMAL", { exact: true })).toBeVisible();
+  await expect(qrh.getByText("Abnormal section guidance", { exact: true })).toBeVisible();
   await expect(
     qrh.getByRole("heading", { name: "If generic condition persists", exact: true }),
   ).toBeVisible();
@@ -297,6 +320,35 @@ test("P5 QRH fast path renders governed operational content without navigation",
   await expect(qrh.getByText("Training prompt A", { exact: true })).toHaveCount(0);
   await expect(qrh.getByText("Training explanation A", { exact: true })).toHaveCount(0);
   await expect(page).toHaveURL(`${shellOnBase}${aircraftPath}/efb`);
+});
+
+test("QRH.4 mobile quick access collapses inside the Fast Path scroll container", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const panel = await openFastPath(page, "QRH");
+  const qrh = panel.getByRole("region", { name: "QRH quick reference" });
+  const expand = qrh.getByRole("button", { name: "Expand QRH quick access" });
+  const viewportWidth = page.viewportSize()?.width ?? 0;
+
+  if (viewportWidth > 700) {
+    await expect(expand).not.toBeVisible();
+    return;
+  }
+
+  const scroller = panel.locator('[data-fast-path-scroll-container="true"]');
+  await scroller.evaluate((element) => {
+    element.scrollTop = 900;
+    element.dispatchEvent(new Event("scroll"));
+  });
+
+  await expect(expand).toBeVisible();
+  await expect(qrh.getByRole("group", { name: "QRH categories" })).not.toBeVisible();
+
+  await expand.click();
+
+  await expect(qrh.getByRole("group", { name: "QRH categories" })).toBeVisible();
+  await expect.poll(
+    () => scroller.evaluate((element) => element.scrollTop),
+  ).toBeLessThan(200);
 });
 
 test("W3 checklist state persists after closing and reopening the panel", async ({ page }) => {
