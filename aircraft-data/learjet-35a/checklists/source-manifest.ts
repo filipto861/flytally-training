@@ -19,6 +19,7 @@ export const learjet35aChecklistSourceManifest = {
     documentHostedByFlyTally: false,
     reviewedSourceOriginalName: "028478033.pdf",
     reviewedSourceSizeBytes: 1033806,
+    reviewedSourcePages: 244,
     pdfMetadataCreationDate: "2009-04-30T18:59:26Z",
     pdfMetadataModificationDate: "2009-06-15T21:05:56Z",
     baseIssueShownOnNormalProcedurePages: "April 2001",
