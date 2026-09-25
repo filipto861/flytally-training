@@ -19,7 +19,7 @@
 | Takeoff + Landing Performance | ✅ | Source-backed operational workflow live |
 | Partial Power / Reduced Thrust | ⚠️ | Source-backed training preview live; operational enablement remains source-blocked |
 | Operational CHECKLIST | ✅ | CL-102B package live; shared Active Flight session synchronized |
-| Operational QRH | ⏳ | Content rebuild is the next EFB content phase |
+| Operational QRH | 🚧 | QRH.1 source inventory + contract-gap audit complete; contract/content rebuild in progress |
 | REF / Limitations | ⏳ | Governed limitations content still to be populated |
 | Climb + Cruise Reference | ⏳ | Planned, source-gated |
 | SimBrief Active Flight import | ⏳ | Planned |
@@ -628,11 +628,33 @@ The detailed future sequence is tracked in **Active implementation order** below
          - merged to `main` in PR #234 · merge commit `7b1465f8ae4bef755e7ccb800a4b874a4716ff72`
          - production deployment `dpl_AMMSPGwSp84CDa5WQUUn9HcDS5Gq` reached **READY** and is aliased to `training.fly-tally.com`
          - product-owner production smoke PASS: main checklist ↔ fast-path synchronization, phase synchronization, reset controls and persistence behavior confirmed
-     - **15.3c QRH fast path — CONTENT GAP CONFIRMED**
+     - **15.3c QRH fast path — IN PROGRESS**
        - runtime/UI is implemented and deliberately fails closed unless the published abnormal module is fresh and all linked sources are CONTROLLING or OPERATING_REFERENCE
        - there is no Learjet bundled QRH/emergency fallback
-       - source inventory confirms CL-102B contains dedicated Emergency and Abnormal Procedures sections with aircraft/equipment effectivity splits
-       - next step: digitize the applicable emergency/abnormal procedures into the universal abnormal contract, preserve memory-item/effectivity semantics, link authoritative source references, publish, and verify operational-readiness gating
+       - **QRH.1 source inventory + contract-gap audit — COMPLETE**
+         - CL-102B Change 2 is the operating-reference source; the AFM remains controlling in a conflict
+         - Emergency section inventory: E-i/E-ii introduction, E-1/E-2 index, source procedures from E-4 onward; 11 index categories / 30 indexed procedure titles
+         - Abnormal section inventory: A-i/A-ii introduction, A-1/A-1.1/A-2/A-3 index, source procedures from A-4 onward; 13 index categories / 65 indexed procedure-title entries including configuration-specific thrust-reverser branches
+         - LOEP effectivity splits are captured explicitly for serial/AMK families, Rosemount pitot-static and no-reverser/Aeronca/TR-4000 configurations
+         - CL-102B defines memory items by boxed presentation and requires page-level effectivity review; neither semantic may be inferred from title text
+         - current universal abnormal contract is training-first: it requires difficulty/minutes/setup/objectives/debrief/prompt/explanation even though the source QRH does not supply those fields
+         - current operational QRH projection has no explicit Emergency-vs-Abnormal procedure class, hard-codes the visible EMERGENCY label, and infers immediate/memory presentation from stage-label text
+         - current flat `expectedResponse[]` can carry action text but cannot faithfully model source conditional branches/substeps such as E-4 without flattening semantics
+         - current applicability model can represent equipment/modification state but has no first-class aircraft serial-number range; serial/AMK source effectivity must therefore remain fail-closed until explicitly mapped
+         - structured source inventory is committed in `aircraft-data/learjet-35a/qrh/source-inventory.ts`; it is audit evidence only and is not publishable operational content
+       - **QRH.2 contract hardening — NEXT**
+         - evolve the generic abnormal/emergency contract without Learjet-specific runtime branches
+         - add explicit procedure class (Emergency / Abnormal), explicit memory-item semantics and source-faithful conditional/substep structure
+         - separate source-exact operational procedure data from optional Training scenario metadata so QRH publication does not require invented training prose
+         - preserve existing scenario-training compatibility through an explicit training projection/overlay rather than weakening source-governed QRH data
+         - define a fail-closed mapping strategy for serial/AMK effectivity before any variant-specific Learjet procedure is published
+       - **QRH.3 source digitization/publication — PLANNED**
+         - digitize applicable CL-102B Emergency and Abnormal procedure content only after QRH.2 contract semantics are accepted
+         - preserve exact page-level provenance, WARNING/CAUTION/NOTE, memory items, conditional branches and effectivity
+         - publish through the governed abnormal-domain lifecycle and verify operational-readiness gating
+       - **QRH.4 cockpit acceptance — PLANNED**
+         - verify fast-path category/procedure navigation, Emergency-vs-Abnormal distinction, memory-item emphasis, configuration filtering and source/authority disclosure on desktop/mobile/iPad
+         - full Node/build/Playwright plus authenticated production publication/smoke before closure
      - **15.3d PERF fast path — POPULATED / PARTIAL CONTENT COMPLETE**
        - current Learjet bundled performance package contains the implemented Takeoff/Landing datasets and calculator definitions, so PERF does not depend solely on a DB-published performance bundle
        - current package covers Takeoff N1, takeoff weight limits, V1/VR/V2, takeoff distance/wind support, VREF, approach/landing climb speeds and landing distance within their governed source envelopes
