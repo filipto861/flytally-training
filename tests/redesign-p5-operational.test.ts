@@ -38,10 +38,14 @@ test("P5.1 keeps operational QRH free of training-only fields", () => {
   const mapper = read("lib/operational-flight-data.ts");
   const emergency = read("components/operational-emergency.tsx");
 
-  assert.match(mapper, /expectedResponse: \[\.\.\.stage\.expectedResponse\]/);
-  assert.match(mapper, /sources: stage\.sources\.map/);
-  assert.match(emergency, /stage\.expectedResponse\.map/);
+  assert.match(mapper, /procedureClass: scenario\.procedureClass/);
+  assert.match(mapper, /steps: mapV2Steps\(stage\.steps, sources\)/);
+  assert.match(mapper, /memoryItem: stage\.memoryItem/);
+  assert.match(emergency, /scenario\.procedureClass\.toUpperCase\(\)/);
+  assert.match(emergency, /stage\.memoryItem/);
+  assert.match(emergency, /<Steps steps=\{stage\.steps\} \/>/);
   assert.match(emergency, /Source &amp; authority/);
+  assert.doesNotMatch(emergency, /\/immediate\|memory\/i/);
 
   for (const pattern of [
     /scenario\.setup/,
@@ -457,7 +461,11 @@ test("P5.6 deterministic browser fixture publishes governed abnormal content for
 
   assert.match(fixture, /browser-ci-abnormal-source/);
   assert.match(fixture, /Generic Condition A/);
-  assert.match(fixture, /expectedResponse:\["Action A","Action B"\]/);
+  assert.match(fixture, /schemaVersion:2/);
+  assert.match(fixture, /procedureClass:"emergency"/);
+  assert.match(fixture, /memoryItem:true/);
+  assert.match(fixture, /kind:"condition"/);
+  assert.match(fixture, /label:"If generic condition persists"/);
   assert.match(fixture, /domain:"abnormal",payload:abnormal/);
   assert.match(readiness, /return\{checklists:ready,performance:ready,abnormal:ready\}/);
   assert.doesNotMatch(

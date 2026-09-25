@@ -15,6 +15,14 @@ This file is the authoritative version history for completed FlyTally Training w
 ## 2026-09-25
 
 ### Changed
+- **PR #238 — QRH.2 source-faithful operational contract**
+  - introduced abnormal/emergency schema v2 with explicit Emergency/Abnormal procedure class, explicit memory-item semantics, source-faithful nested conditions/branches, section introductions and explicit effectivity;
+  - separated source-exact operational QRH data from optional Training overlays so operational publication no longer requires invented training setup, objectives, prompts or debrief prose;
+  - preserved backward compatibility for legacy abnormal payloads while preventing conditional v2 procedures from being silently flattened into Training expected-response sequences;
+  - updated operational projection, QRH presentation, structured authoring starter and aircraft search for the v2 contract; browser fixtures now exercise v2 semantics directly;
+  - acceptance on head `59bc099`: typecheck PASS; targeted QRH/P5/P6 suite 43/43 PASS; full Node suite 1232 total / 1231 PASS / 0 FAIL / 1 SKIP; production build PASS; targeted Playwright QRH acceptance 8/8 PASS across desktop Chromium, mobile Chromium, iPad landscape and iPad portrait.
+
+### Changed
 - **PR #237 — QRH.1 source inventory and contract-gap audit**
   - inventoried the reviewed CL-102B Emergency and Abnormal sections, including index/category coverage and major page-effectivity families;
   - recorded AFM precedence, page-level effectivity and boxed memory-item semantics as non-publishable source evidence;

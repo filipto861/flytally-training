@@ -411,6 +411,19 @@ export function filterAbnormalEmergencyForConfiguration(
   content: AircraftAbnormalEmergencyContent,
   configuration: AircraftConfiguration,
 ): AircraftAbnormalEmergencyContent {
+  if (content.schemaVersion === 2) {
+    return {
+      ...content,
+      scenarios: content.scenarios
+        .filter((scenario) => matchesAircraftApplicability(scenario.applicability, configuration))
+        .map((scenario) => ({
+          ...scenario,
+          stages: scenario.stages.filter((stage) => matchesAircraftApplicability(stage.applicability, configuration)),
+        }))
+        .filter((scenario) => scenario.stages.length > 0),
+    };
+  }
+
   return {
     ...content,
     scenarios: content.scenarios

@@ -260,20 +260,32 @@ test("W3 Ctrl+Shift+2 opens QRH directly", async ({ page }) => {
     "true",
   );
   await expect(
-    panel.getByRole("region", { name: "Emergency quick reference" }),
+    panel.getByRole("region", { name: "QRH quick reference" }),
   ).toBeVisible();
 });
 
 test("P5 QRH fast path renders governed operational content without navigation", async ({ page }) => {
   const panel = await openFastPath(page, "QRH");
-  const qrh = panel.getByRole("region", { name: "Emergency quick reference" });
+  const qrh = panel.getByRole("region", { name: "QRH quick reference" });
 
   await expect(qrh).toBeVisible();
   await expect(
     qrh.getByRole("heading", { name: "Generic Condition A", exact: true }),
   ).toBeVisible();
+  await expect(qrh.getByText("EMERGENCY", { exact: true })).toBeVisible();
   await expect(qrh.getByText("Action A", { exact: true })).toBeVisible();
   await expect(qrh.getByText("Action B", { exact: true })).toBeVisible();
+
+  await qrh.getByRole("button", { name: /^Alternate\b/ }).click();
+  await expect(
+    qrh.getByRole("heading", { name: "Generic Condition B", exact: true }),
+  ).toBeVisible();
+  await expect(qrh.getByText("ABNORMAL", { exact: true })).toBeVisible();
+  await expect(
+    qrh.getByRole("heading", { name: "If generic condition persists", exact: true }),
+  ).toBeVisible();
+  await expect(qrh.getByText("Action C", { exact: true })).toBeVisible();
+  await expect(qrh.getByText("Action D", { exact: true })).toBeVisible();
 
   const authority = qrh.locator("details").filter({ hasText: "Source & authority" });
   await expect(authority).not.toHaveAttribute("open", "");

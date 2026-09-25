@@ -9,7 +9,7 @@ const css=read("components/operational-emergency.module.css");
 test("M54 builds emergency categories from published operational data instead of aircraft-specific UI",()=>{
   assert.match(emergency,/new Set\(emergency\.scenarios\.map\(\(scenario\) => scenario\.category\)\)/);
   assert.match(emergency,/candidate\.category === category/);
-  assert.match(emergency,/Emergency categories/);
+  assert.match(emergency,/QRH categories/);
   assert.doesNotMatch(emergency,/\[\s*["']Engine["']|\[\s*["']Fire["']|\[\s*["']Landing["']/);
 });
 
@@ -19,7 +19,7 @@ test("M54 supports a two-level quick index while preserving the native procedure
   assert.match(emergency,/category !== ALL_CATEGORIES/);
   assert.match(emergency,/className=\{styles\.quickProcedures\}/);
   assert.match(emergency,/candidate\.phase/);
-  assert.match(emergency,/aria-label="Emergency procedure"/);
+  assert.match(emergency,/aria-label="QRH procedure"/);
 });
 
 test("changing category keeps the current scenario when valid and otherwise selects the first published match",()=>{
@@ -36,7 +36,8 @@ test("M54 emergency index is cockpit touch-first and sticky on mobile",()=>{
 });
 
 test("M54 keeps QRH content operational-only",()=>{
-  assert.match(emergency,/stage\.expectedResponse\.map/);
+  assert.match(emergency,/<Steps steps=\{stage\.steps\} \/>/);
+  assert.match(emergency,/step\.text/);
   assert.match(emergency,/Source &amp; authority/);
   assert.doesNotMatch(emergency,/scenario\.setup|scenario\.objectives|scenario\.debrief|stage\.prompt|stage\.explanation|scenario\.minutes|scenario\.difficulty/);
 });

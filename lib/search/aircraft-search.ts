@@ -10,7 +10,10 @@ import type {
   ProcedureNode,
   TrainingSourceReference,
 } from "../universal-aircraft-content";
-import type { AircraftAbnormalEmergencyContent } from "../universal-abnormal-emergency";
+import type {
+  AircraftAbnormalEmergencyContent,
+  AircraftQrhStep,
+} from "../universal-abnormal-emergency";
 
 export const aircraftSearchResultTypes = [
   "procedure",
@@ -314,11 +317,62 @@ function systemCandidates(
   return candidates;
 }
 
+function qrhStepSearchText(steps: readonly AircraftQrhStep[]): string {
+  const parts: string[] = [];
+  for (const step of steps) {
+    if (step.kind === "action") {
+      parts.push(step.label ?? "", step.text);
+      parts.push(...(step.notices?.map((notice) => notice.text) ?? []));
+      continue;
+    }
+
+    parts.push(...(step.notices?.map((notice) => notice.text) ?? []));
+    for (const branch of step.branches) {
+      parts.push(branch.label, qrhStepSearchText(branch.steps));
+    }
+  }
+  return parts.filter(Boolean).join(" ");
+}
+
 function abnormalCandidates(
   aircraftId: string,
   content: AircraftAbnormalEmergencyContent | undefined,
 ): SearchCandidate[] {
   if (!content) return [];
+
+  if (content.schemaVersion === 2) {
+    return content.scenarios.map((scenario) => {
+      const firstStageSource = scenario.stages.flatMap((stage) => stage.sources)[0];
+      const source =
+        sourceContext(scenario.sources) ||
+        (firstStageSource ? sourceContext([firstStageSource]) : "") ||
+        "abnormal";
+      const classLabel = scenario.procedureClass === "emergency" ? "Emergency" : "Abnormal";
+      const sourceSearchText = scenario.stages
+        .map((stage) =>
+          [
+            stage.label,
+            stage.notices?.map((notice) => notice.text).join(" "),
+            qrhStepSearchText(stage.steps),
+          ]
+            .filter(Boolean)
+            .join(" "),
+        )
+        .join(" ");
+
+      return result(
+        aircraftId,
+        "scenario",
+        scenario.id,
+        scenario.title,
+        [classLabel, scenario.category, scenario.phase].filter(Boolean).join(" · "),
+        `abnormal#${encodeURIComponent(scenario.id)}`,
+        source,
+        sourceSearchText,
+      );
+    });
+  }
+
   return content.scenarios.map((scenario) =>
     result(
       aircraftId,

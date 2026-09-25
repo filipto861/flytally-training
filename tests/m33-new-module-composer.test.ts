@@ -17,7 +17,7 @@ test("every structured domain gets an aircraft-scoped starter shape without airc
 });
 
 test("blank abnormal starter is validated as the universal abnormal contract",()=>{
-  const payload=createStructuredStarterPayload(aircraftId,"abnormal");const errors=validateContentPayload("abnormal",payload,aircraftId);assert.ok(errors.some(error=>error.includes("universal abnormal scenario contract")));assert.equal(errors.some(error=>error.includes("sourceNote and disclaimer")),false);assert.equal(errors.some(error=>error.includes("Recognize → Fly")),false);
+  const payload=createStructuredStarterPayload(aircraftId,"abnormal");const errors=validateContentPayload("abnormal",payload,aircraftId);assert.equal(payload.schemaVersion,2);assert.ok(errors.some(error=>error.includes("QRH v2 scenario contract")));assert.equal(errors.some(error=>error.includes("sourceNote and disclaimer")),false);assert.equal(errors.some(error=>error.includes("Recognize → Fly")),false);
 });
 
 test("new-module route uses the structured builder and governed human-draft action",async()=>{

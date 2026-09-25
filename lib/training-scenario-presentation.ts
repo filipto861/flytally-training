@@ -23,5 +23,6 @@ export function resolveTrainingScenarioContent(
   );
   if (!configured.scenarios.length) return undefined;
 
-  return normalizeUniversalAbnormalEmergency(configured);
+  const training = normalizeUniversalAbnormalEmergency(configured);
+  return training.scenarios.length ? training : undefined;
 }

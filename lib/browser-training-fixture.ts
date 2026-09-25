@@ -533,50 +533,87 @@ const abnormalSource={
 } satisfies TrainingSourceReference;
 
 const abnormal:AircraftAbnormalEmergencyContent={
+  schemaVersion:2,
   aircraftId:browserTrainingAircraftId,
   title:"Browser CI Abnormal & Emergency",
+  sectionIntroductions:[
+    {
+      procedureClass:"emergency",
+      paragraphs:["Emergency source guidance."],
+      sources:[abnormalSource],
+    },
+    {
+      procedureClass:"abnormal",
+      paragraphs:["Abnormal source guidance."],
+      sources:[abnormalSource],
+    },
+  ],
   scenarios:[
     {
       id:"generic-condition-a",
       title:"Generic Condition A",
+      procedureClass:"emergency",
       category:"Generic",
       phase:"In flight",
-      difficulty:"core",
-      minutes:2,
-      summary:"Test-only training summary for P5 acceptance.",
-      setup:"Test-only training setup for P5 acceptance.",
-      objectives:["Recognize the generic condition."],
-      debrief:["Review the generic response."],
       boundaryNote:"Test-only source authority boundary.",
+      effectivity:{kind:"all-aircraft",sourceText:"ALL"},
       stages:[
         {
           id:"memory-a",
           label:"Immediate action",
-          prompt:"Training prompt A",
-          expectedResponse:["Action A","Action B"],
-          explanation:"Training explanation A",
+          memoryItem:true,
+          steps:[
+            {id:"action-a",kind:"action",label:"1",text:"Action A",memoryItem:true},
+            {id:"action-b",kind:"action",label:"2",text:"Action B"},
+          ],
           sources:[abnormalSource],
         },
       ],
+      training:{
+        difficulty:"core",
+        minutes:2,
+        summary:"Test-only training summary for P5/P6 acceptance.",
+        setup:"Test-only training setup for P5/P6 acceptance.",
+        objectives:["Recognize the generic condition."],
+        debrief:["Review the generic response."],
+        stages:[
+          {
+            stageId:"memory-a",
+            prompt:"Training prompt A",
+            explanation:"Training explanation A",
+          },
+        ],
+      },
     },
     {
       id:"generic-condition-b",
       title:"Generic Condition B",
+      procedureClass:"abnormal",
       category:"Alternate",
       phase:"Ground",
-      difficulty:"core",
-      minutes:1,
-      summary:"Second test-only training summary.",
-      setup:"Second test-only training setup.",
-      objectives:["Recognize the alternate condition."],
-      debrief:["Review the alternate response."],
+      effectivity:{kind:"all-aircraft",sourceText:"ALL"},
       stages:[
         {
-          id:"action-b",
-          label:"Action",
-          prompt:"Training prompt B",
-          expectedResponse:["Action C"],
-          explanation:"Training explanation B",
+          id:"response-b",
+          label:"Response",
+          steps:[
+            {
+              id:"condition-b",
+              kind:"condition",
+              branches:[
+                {
+                  id:"persists",
+                  label:"If generic condition persists",
+                  steps:[{id:"action-c",kind:"action",label:"1",text:"Action C"}],
+                },
+                {
+                  id:"clears",
+                  label:"If generic condition clears",
+                  steps:[{id:"action-d",kind:"action",label:"1",text:"Action D"}],
+                },
+              ],
+            },
+          ],
           sources:[abnormalSource],
         },
       ],
