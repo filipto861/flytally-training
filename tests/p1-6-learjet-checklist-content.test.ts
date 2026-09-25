@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { learjet35aNormalChecklist } from "../aircraft-data/learjet-35a/checklists/normal-checklist.ts";
+import { learjet35aChecklistSourceManifest } from "../aircraft-data/learjet-35a/checklists/source-manifest.ts";
 import {
   filterChecklistForConfiguration,
   type AircraftConfiguration,
@@ -119,4 +120,38 @@ test("15.3b optional equipment remains hidden when the target profile has no dec
   assert.ok(!ids.has("tbto2-heated-windshield"));
   assert.ok(!ids.has("bse-fuselage-valve"));
   assert.ok(!ids.has("bse-in-normal-out-defog"));
+});
+
+
+test("15.3b governed CL-102B source manifest matches the reviewed file and operational authority boundary", () => {
+  assert.equal(learjet35aChecklistSourceManifest.manualId, "CL-102B");
+  assert.equal(learjet35aChecklistSourceManifest.revision, "Change 2");
+  assert.equal(learjet35aChecklistSourceManifest.issueDate, "2008-05");
+  assert.equal(
+    learjet35aChecklistSourceManifest.checksumSha256,
+    "6fbddb29b1166f4e2b3093f8fb14c924fd08d0e28cb113ed6de6dd27c98ac049",
+  );
+  assert.equal(
+    learjet35aChecklistSourceManifest.authorityRole,
+    "OPERATING_REFERENCE",
+  );
+  assert.match(
+    learjet35aChecklistSourceManifest.authorityNote,
+    /AFM takes precedence/i,
+  );
+});
+
+test("15.3b publication tooling is guarded by explicit operator confirmation", () => {
+  const fs = require("node:fs") as typeof import("node:fs");
+  const tool = fs.readFileSync(
+    new URL("../tooling/publish-learjet-checklist.ts", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(tool, /CONFIRM_LEARJET_CHECKLIST_PUBLISH !== "yes"/);
+  assert.match(tool, /validateUniversalTrainingContentPayload/);
+  assert.match(tool, /registerGovernedManualRevision/);
+  assert.match(tool, /createGovernedDraftVersion/);
+  assert.match(tool, /approveGovernedContentVersion/);
+  assert.match(tool, /publishGovernedContentVersion/);
 });
