@@ -6,7 +6,11 @@ import {
   learjet35aQrhEmergencyBatch2Deferred,
   learjet35aQrhEmergencyBatch2ReleaseStatus,
 } from "../aircraft-data/learjet-35a/qrh/emergency-batch-2.ts";
-import { validateUniversalAbnormalEmergencyPayload } from "../lib/universal-abnormal-emergency.ts";
+import {
+  type AircraftQrhConditionBranch,
+  type AircraftQrhStep,
+  validateUniversalAbnormalEmergencyPayload,
+} from "../lib/universal-abnormal-emergency.ts";
 import { toOperationalEmergency } from "../lib/operational-flight-data.ts";
 
 test("QRH.3B staged engine emergency batch satisfies the generic v2 contract", () => {
@@ -32,15 +36,16 @@ test("QRH.3B Engine Fire preserves the exact boxed-memory boundary without styli
   assert.equal(condition?.kind, "condition");
   if (!condition || condition.kind !== "condition") assert.fail("Engine Fire condition missing");
 
-  const longFire = condition.branches.find((branch) => branch.id === "engine-fire-more-than-15");
-  const shortFire = condition.branches.find((branch) => branch.id === "engine-fire-less-than-15");
+  const branches = condition.branches as readonly AircraftQrhConditionBranch[];
+  const longFire = branches.find((branch) => branch.id === "engine-fire-more-than-15");
+  const shortFire = branches.find((branch) => branch.id === "engine-fire-less-than-15");
   assert.ok(longFire);
   assert.ok(shortFire);
   assert.equal(longFire.memoryItem, true);
   assert.equal(shortFire.memoryItem, undefined);
 
   assert.deepEqual(
-    longFire.steps
+    (longFire.steps as readonly AircraftQrhStep[])
       .filter((step) => step.kind === "action" && step.memoryItem === true)
       .map((step) => step.id),
     ["engine-fire-2a", "engine-fire-2b", "engine-fire-2c"],
@@ -90,7 +95,9 @@ test("QRH.3B fails closed on the graphical E-13 Airstart Envelope instead of fla
     },
   ]);
   assert.equal(
-    learjet35aQrhEmergencyBatch2.scenarios.some((scenario) => scenario.id === "airstart-envelope"),
+    (learjet35aQrhEmergencyBatch2.scenarios as readonly { readonly id: string }[]).some(
+      (scenario) => scenario.id === "airstart-envelope",
+    ),
     false,
   );
 });
