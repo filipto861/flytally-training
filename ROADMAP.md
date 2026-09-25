@@ -529,8 +529,8 @@ The detailed future sequence is tracked in **Active implementation order** below
        - production deployment `dpl_C45SzjJxxoJKqRjqMNM1yZ75o1Ve` reached **READY** and is aliased to `training.fly-tally.com`
        - production FLY smoke: `/aircraft/learjet-35a/fly` HTTP 200 and renders the new-shell `data-ft-fly-page` workspace with Performance content
        - production readiness smoke: HTTP 200 · `status=ready` · operational profile true · source-governed release profile true
-     - **15.3b CHECKLIST fast path — IMPLEMENTED / VERIFYING**
-       - runtime/UI is implemented and functional; production population still depends on a governed published universal `checklists` payload
+     - ****15.3b CHECKLIST fast path — COMPLETE · LIVE IN PRODUCTION**
+       - runtime/UI is implemented and functional; the governed universal `checklists` payload is now published in production
        - CL-102B Normal Procedures N-2 through N-18 have been digitized into `aircraft-data/learjet-35a/checklists/normal-checklist.ts` using the universal checklist contract
        - N-15 Landing Speeds/Distances remains owned by Performance and is intentionally not duplicated into checklist content
        - source provenance is embedded at phase/item level using `CL-102B`; a reviewed source manifest records Change 2, the source fingerprint and the OPERATING_REFERENCE authority boundary
@@ -544,7 +544,7 @@ The detailed future sequence is tracked in **Active implementation order** below
        - through-flight ◆ markers and Normal Procedure bold-emphasis semantics are not inferred because the parsed source does not preserve a reliable item-level mapping and the current checklist contract has no explicit field for those semantics
        - focused acceptance gate PASS (2026-09-25): `npm run typecheck` PASS · targeted checklist/runtime/P5 suite **32/32 PASS** · production `npm run build` PASS
        - the only build warning is the pre-existing non-blocking Turbopack workspace-root/package-lock warning outside the repository
-       - PR #230 merged to `main` as `1d0adda4139149be1a2e8f99a87d7696dfce889f`; production code deployment is READY, but checklist data publication is not yet complete
+       - PR #230 merged to `main` as `1d0adda4139149be1a2e8f99a87d7696dfce889f`; reviewed CL-102B checklist content is now governed and live in production
        - first explicit publisher run failed **before any database action** because `tsx` transformed the script as CommonJS and rejected top-level `await`; this is a tooling/runtime defect, not a checklist-content validation failure
        - **15.3b.1 Checklist publisher CJS runtime hotfix — COMPLETE · PR #231 · MERGED**
          - publisher now runs through an explicit `async main()` entrypoint; no top-level `await` remains
@@ -576,7 +576,9 @@ The detailed future sequence is tracked in **Active implementation order** below
          - focused acceptance PASS (2026-09-25): typecheck PASS · checklist/admin suite **11/11 PASS** · production build PASS
          - merged to `main` as `4229882b17022879485f70aaff5742215c3e7e33`
          - production deployment `dpl_AswMNS8dfQegSArqTh3Qkjg3y1E4` reached **READY**
-         - remaining 15.3b closeout action: authenticated admin must explicitly publish the reviewed checklist, then run CHECKLIST + readiness smoke
+         - authenticated administrator publication completed successfully in production
+         - production FLY smoke for `fc530-standard`: CHECKLIST is populated; `Exterior Preflight`, `Cabin Preflight`, `Before Starting Engines`, `Starting Engines`, `Runway Lineup` and `Quick Turnaround` are present; `Checklist unavailable` is absent
+         - production readiness smoke: HTTP 200 · `status=ready` · operational true · source-governed release true
      - **15.3c QRH fast path — CONTENT GAP CONFIRMED**
        - runtime/UI is implemented and deliberately fails closed unless the published abnormal module is fresh and all linked sources are CONTROLLING or OPERATING_REFERENCE
        - there is no Learjet bundled QRH/emergency fallback
