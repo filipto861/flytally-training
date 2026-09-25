@@ -11,6 +11,8 @@ import {
   type AircraftConfiguration,
 } from "../lib/aircraft-applicability.ts";
 import {
+  type AircraftQrhScenario,
+  type AircraftQrhStage,
   type AircraftQrhStep,
   validateUniversalAbnormalEmergencyPayload,
 } from "../lib/universal-abnormal-emergency.ts";
@@ -116,13 +118,16 @@ test("QRH.3G unknown, absent or contradictory thrust-reverser identity fails clo
 });
 
 test("QRH.3G E-35 Aeronca boxed-memory boundaries are exact", () => {
-  const scenario = learjet35aQrhEmergencyBatch6.scenarios.find(
+  const scenarios: readonly AircraftQrhScenario[] =
+    learjet35aQrhEmergencyBatch6.scenarios;
+  const scenario = scenarios.find(
     (candidate) => candidate.id === "inadvertent-thrust-reverser-deployment-during-takeoff",
   );
   assert.ok(scenario);
 
-  const below = scenario.stages.find((stage) => stage.id === "aeronca-below-v1");
-  const above = scenario.stages.find((stage) => stage.id === "aeronca-above-v1");
+  const stages: readonly AircraftQrhStage[] = scenario.stages;
+  const below = stages.find((stage) => stage.id === "aeronca-below-v1");
+  const above = stages.find((stage) => stage.id === "aeronca-above-v1");
   assert.ok(below);
   assert.ok(above);
 
@@ -138,18 +143,21 @@ test("QRH.3G E-35 Aeronca boxed-memory boundaries are exact", () => {
       .map((step) => step.kind === "action" ? step.label : undefined),
     ["1", "2", "3", "4", "5", "6", "7"],
   );
-  assert.equal(
-    JSON.stringify(above).includes('"aeronca-above-8","kind":"action","label":"8","text":"Thrust Lever (affected engine) — CUTOFF","memoryItem":true'),
-    false,
+  const step8 = flatten(above.steps).find(
+    (step) => step.kind === "action" && step.id === "aeronca-above-8",
   );
+  assert.ok(step8 && step8.kind === "action");
+  assert.notEqual(step8.memoryItem, true);
 });
 
 test("QRH.3G E-35.1 TR-4000 boxed-memory boundary includes the step-8 condition and action", () => {
-  const scenario = learjet35aQrhEmergencyBatch6.scenarios.find(
+  const scenarios: readonly AircraftQrhScenario[] =
+    learjet35aQrhEmergencyBatch6.scenarios;
+  const scenario = scenarios.find(
     (candidate) => candidate.id === "indication-of-thrust-reverser-deployment-during-takeoff",
   );
   assert.ok(scenario);
-  const stage = scenario.stages[0];
+  const stage: AircraftQrhStage | undefined = scenario.stages[0];
   assert.ok(stage);
 
   const flattened = flatten(stage.steps as readonly AircraftQrhStep[]);
