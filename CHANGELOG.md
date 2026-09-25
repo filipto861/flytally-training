@@ -15,6 +15,14 @@ This file is the authoritative version history for completed FlyTally Training w
 ## 2026-09-25
 
 ### Changed
+- **PR #255 — QRH.3P Learjet Landing Gear Abnormal source batch**
+  - staged the complete three-procedure CL-102B Landing Gear abnormal family from A-26/A-27;
+  - preserved the electrical alternate gear-extension sequence, the conditional ANTI-SKID GEN continuation and the distinct normal-taxi versus takeoff NOSE WHEEL STEERING MALFUNCTION paths;
+  - all three source procedures retain ALL-aircraft effectivity and exact A-26/A-27 provenance;
+  - visual source review found no boxed memory items on A-26/A-27;
+  - acceptance on head `cd1a5d4`: typecheck PASS; targeted QRH/applicability/P5/P6/W2 suite 179/179 PASS; full Node suite 1340 total / 1339 PASS / 0 FAIL / 1 SKIP; production build PASS; no Playwright rerun required because no browser/presentation behavior changed.
+
+### Changed
 - **PR #254 — QRH.3O Learjet Instruments Abnormal source batch**
   - staged the complete two-procedure CL-102B Instruments Abnormal family from A-25/A-25.1 and A-26;
   - preserved distinct `With Rosemount Pitot-Static System` and `Without Rosemount Pitot-Static System` source procedures through explicit generic `rosemount-pitot-static-system` configuration state, with unknown installation remaining fail-closed;
