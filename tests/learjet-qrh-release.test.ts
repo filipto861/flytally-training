@@ -3,8 +3,13 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import test from "node:test";
 
+import { learjet35aQrhApplicabilityRegistry } from "../aircraft-data/learjet-35a/qrh/applicability-registry.ts";
 import { learjet35aQrhPackage } from "../aircraft-data/learjet-35a/qrh/package.ts";
 import { learjet35aQrhSourceManifest } from "../aircraft-data/learjet-35a/qrh/source-manifest.ts";
+import {
+  collectEmbeddedConfigurationEquipmentKeys,
+  collectEmbeddedModificationKeys,
+} from "../lib/content-applicability-binding.ts";
 import { collectEmbeddedManualIds } from "../lib/content-source-binding.ts";
 import { validateUniversalAbnormalEmergencyPayload } from "../lib/universal-abnormal-emergency.ts";
 
@@ -26,6 +31,17 @@ test("QRH.3U complete package is source-bound to the reviewed CL-102B revision",
       ["Emergency Procedures", "E-i–E-35.1"],
       ["Abnormal Procedures", "A-i–A-35.2"],
     ],
+  );
+});
+
+test("QRH.3U reviewed applicability registry exactly matches the package vocabulary", () => {
+  assert.deepEqual(
+    [...collectEmbeddedModificationKeys(learjet35aQrhPackage)].sort(),
+    [...learjet35aQrhApplicabilityRegistry.modificationKeys].sort(),
+  );
+  assert.deepEqual(
+    [...collectEmbeddedConfigurationEquipmentKeys(learjet35aQrhPackage)].sort(),
+    [...learjet35aQrhApplicabilityRegistry.configurationEquipmentKeys].sort(),
   );
 });
 
@@ -89,7 +105,13 @@ test("QRH.3U publication tooling reuses the governed abnormal-domain lifecycle",
   );
   assert.match(publication, /validateUniversalAbnormalEmergencyPayload/);
   assert.match(release, /registerGovernedManualRevision/);
+  assert.match(publication, /assertReviewedApplicabilityRegistryMatchesPackage\(\)/);
+  assert.match(publication, /upsertAircraftApplicabilityRegistry/);
   assert.match(publication, /assertEmbeddedApplicabilityMatchesAircraft/);
+  assert.ok(
+    publication.indexOf("upsertAircraftApplicabilityRegistry")
+      < publication.indexOf("assertEmbeddedApplicabilityMatchesAircraft"),
+  );
   assert.ok(
     publication.indexOf("assertEmbeddedApplicabilityMatchesAircraft")
       < publication.indexOf("createGovernedDraftVersion"),
@@ -130,5 +152,7 @@ test("QRH.3U production release remains admin-authenticated and explicitly confi
   assert.match(page, /Publish reviewed Learjet QRH/);
   assert.match(page, /confirmLearjetQrhRelease/);
   assert.match(page, /publishLearjetQrhReleaseAction/);
+  assert.match(page, /governed applicability vocabulary registration/);
+  assert.match(page, /does not claim that any modification or equipment is installed/);
   assert.match(page, /required/);
 });
