@@ -7,6 +7,7 @@ import type {
   OperationalEmergencyNotice,
   OperationalEmergencyScenario,
   OperationalEmergencySource,
+  OperationalEmergencyStep,
 } from "@/lib/operational-flight-data";
 import styles from "./operational-emergency.module.css";
 
@@ -31,18 +32,61 @@ function Notice({ notice }: Readonly<{ notice: OperationalEmergencyNotice }>) {
   </div>;
 }
 
+function stepSources(step: OperationalEmergencyStep): readonly OperationalEmergencySource[] {
+  if (step.kind === "action") return step.sources;
+  return [
+    ...step.sources,
+    ...step.branches.flatMap((branch) => branch.steps.flatMap(stepSources)),
+  ];
+}
+
+function Steps({ steps }: Readonly<{ steps: readonly OperationalEmergencyStep[] }>) {
+  return <ol className={styles.actions}>
+    {steps.map((step) => {
+      if (step.kind === "action") {
+        return <li className={step.memoryItem ? styles.memoryAction : undefined} key={step.id}>
+          <span>{step.label ?? "•"}</span>
+          <div className={styles.actionBody}>
+            <strong>{step.text}</strong>
+            {step.notices?.length ? <div className={styles.notices}>
+              {step.notices.map((notice, index) => <Notice key={`${step.id}-notice-${index}`} notice={notice} />)}
+            </div> : null}
+          </div>
+        </li>;
+      }
+
+      return <li className={styles.conditionStep} key={step.id}>
+        {step.notices?.length ? <div className={styles.notices}>
+          {step.notices.map((notice, index) => <Notice key={`${step.id}-notice-${index}`} notice={notice} />)}
+        </div> : null}
+        <div className={styles.conditionBranches}>
+          {step.branches.map((branch) => <section className={styles.conditionBranch} key={branch.id}>
+            <h3>{branch.label}</h3>
+            <Steps steps={branch.steps} />
+          </section>)}
+        </div>
+      </li>;
+    })}
+  </ol>;
+}
+
 function Scenario({ scenario }: Readonly<{ scenario: OperationalEmergencyScenario }>) {
-  const sources = [...new Set(scenario.stages.flatMap((stage) => stage.sources.map(sourceLabel)))];
+  const sources = [...new Set(
+    scenario.stages.flatMap((stage) => [
+      ...stage.sources.map(sourceLabel),
+      ...stage.steps.flatMap(stepSources).map(sourceLabel),
+    ]),
+  )];
 
   return <article className={styles.procedure}>
     <header className={styles.procedureHeader}>
       <div>
-        <span>EMERGENCY</span>
+        <span>{scenario.procedureClass.toUpperCase()}</span>
         <h1>{scenario.title}</h1>
       </div>
       <div className={styles.meta}>
         <span>{scenario.category}</span>
-        <span>{scenario.phase}</span>
+        {scenario.phase ? <span>{scenario.phase}</span> : null}
       </div>
       {scenario.configurationNote ? <p>{scenario.configurationNote}</p> : null}
     </header>
@@ -52,21 +96,13 @@ function Scenario({ scenario }: Readonly<{ scenario: OperationalEmergencyScenari
     </div> : null}
 
     <div className={styles.stages}>
-      {scenario.stages.map((stage) => {
-        const immediate = /immediate|memory/i.test(stage.label);
-        return <section className={`${styles.stage}${immediate ? ` ${styles.immediate}` : ""}`} key={stage.id}>
-          <h2>{stage.label}</h2>
-          {stage.notices?.length ? <div className={styles.notices}>
-            {stage.notices.map((notice, index) => <Notice key={`${stage.id}-notice-${index}`} notice={notice} />)}
-          </div> : null}
-          <ol className={styles.actions}>
-            {stage.expectedResponse.map((action, index) => <li key={`${stage.id}-action-${index}`}>
-              <span>{index + 1}</span>
-              <strong>{action}</strong>
-            </li>)}
-          </ol>
-        </section>;
-      })}
+      {scenario.stages.map((stage) => <section className={`${styles.stage}${stage.memoryItem ? ` ${styles.immediate}` : ""}`} key={stage.id}>
+        <h2>{stage.label}</h2>
+        {stage.notices?.length ? <div className={styles.notices}>
+          {stage.notices.map((notice, index) => <Notice key={`${stage.id}-notice-${index}`} notice={notice} />)}
+        </div> : null}
+        <Steps steps={stage.steps} />
+      </section>)}
     </div>
 
     <details className={styles.authority}>
@@ -91,6 +127,9 @@ export function OperationalEmergency({ emergency }: Readonly<{ emergency: Operat
     ? emergency.scenarios
     : emergency.scenarios.filter((candidate) => candidate.category === category);
   const scenario = filteredScenarios.find((candidate) => candidate.id === scenarioId) ?? filteredScenarios[0] ?? emergency.scenarios[0];
+  const sectionIntroduction = scenario
+    ? emergency.sectionIntroductions.find((section) => section.procedureClass === scenario.procedureClass)
+    : undefined;
 
   useEffect(() => {
     const updateCollapsedState = () => {
@@ -133,7 +172,7 @@ export function OperationalEmergency({ emergency }: Readonly<{ emergency: Operat
     window.scrollTo({ top: Math.max(0, originY - 118), behavior: reducedMotion ? "auto" : "smooth" });
   }
 
-  return <section className={styles.emergency} aria-label="Emergency quick reference">
+  return <section className={styles.emergency} aria-label="QRH quick reference">
     <span aria-hidden="true" className={styles.indexSentinel} ref={indexOriginRef} />
     <div className={`${styles.index}${indexCollapsed ? ` ${styles.indexCollapsed}` : ""}`}>
       <button
@@ -154,7 +193,7 @@ export function OperationalEmergency({ emergency }: Readonly<{ emergency: Operat
           <strong>Quick access</strong>
           <span>{emergency.scenarios.length} procedures</span>
         </div>
-        <div className={styles.categories} role="group" aria-label="Emergency categories">
+        <div className={styles.categories} role="group" aria-label="QRH categories">
           <button
             aria-pressed={category === ALL_CATEGORIES}
             className={category === ALL_CATEGORIES ? styles.activeCategory : undefined}
@@ -174,8 +213,8 @@ export function OperationalEmergency({ emergency }: Readonly<{ emergency: Operat
         </div>
 
         <label className={styles.selector}>
-          <span>Emergency procedure</span>
-          <select aria-label="Emergency procedure" value={scenario.id} onChange={(event) => setScenarioId(event.target.value)}>
+          <span>QRH procedure</span>
+          <select aria-label="QRH procedure" value={scenario.id} onChange={(event) => setScenarioId(event.target.value)}>
             {filteredScenarios.map((candidate) => <option key={candidate.id} value={candidate.id}>
               {category === ALL_CATEGORIES ? `${candidate.category} · ${candidate.title}` : candidate.title}
             </option>)}
@@ -191,11 +230,18 @@ export function OperationalEmergency({ emergency }: Readonly<{ emergency: Operat
             type="button"
           >
             <strong>{candidate.title}</strong>
-            <span>{candidate.phase}</span>
+            <span>{candidate.procedureClass}{candidate.phase ? ` · ${candidate.phase}` : ""}</span>
           </button>)}
         </div> : null}
       </div>
     </div>
+
+    {sectionIntroduction ? <details className={styles.sectionIntroduction}>
+      <summary>{sectionIntroduction.procedureClass === "emergency" ? "Emergency" : "Abnormal"} section guidance</summary>
+      {sectionIntroduction.notices?.map((notice, index) => <Notice key={`section-notice-${index}`} notice={notice} />)}
+      {sectionIntroduction.paragraphs.map((paragraph, index) => <p key={`section-paragraph-${index}`}>{paragraph}</p>)}
+    </details> : null}
+
     <Scenario scenario={scenario} />
   </section>;
 }
