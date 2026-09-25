@@ -90,7 +90,10 @@ test("D0 migration and bootstrap enforce one ACTIVE flight per account and aircr
   assert.match(bootstrap, /ensureTrainingActiveFlightSchema/);
   assert.match(bootstrap, /"training_active_flights"/);
   assert.match(readiness, /activeFlightPersistence/);
-  assert.match(readiness, /SELECT 1 FROM training_active_flights LIMIT 0/);
+  assert.match(
+    readiness,
+    /SELECT prefill_provenance FROM training_active_flights LIMIT 0/,
+  );
 });
 
 test("D0 mirror reconciliation is server-canonical and retains local state only when server is unavailable", () => {
