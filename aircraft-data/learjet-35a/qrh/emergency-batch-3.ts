@@ -8,27 +8,15 @@ const source = (pageLabel: string, section: string) => ({
   pageLabel,
 });
 
-const envelopeBoundary =
-  "Staged only: this procedure requires verification against the CL-102B E-13 AIRSTART ENVELOPE. E-13 remains fail-closed until the generic QRH can preserve its graphical operating envelope without loss.";
-
 export const learjet35aQrhEmergencyBatch3ReleaseStatus = "staged-source-review" as const;
-
-export const learjet35aQrhEmergencyBatch3BlockedDependencies = [
-  {
-    id: "airstart-envelope",
-    pageLabel: "E-13",
-    reason:
-      "Every staged airstart procedure begins by assuring the E-13 airstart envelope. The textual procedures may be reviewed independently, but this batch must not be published operationally until the graphical envelope has a source-faithful generic representation.",
-  },
-] as const;
 
 /**
  * QRH.3C textual airstart source batch.
  *
- * E-14 through E-18 can be represented faithfully as textual procedures, but
- * they all depend on the graphical E-13 AIRSTART ENVELOPE. For that reason the
- * entire batch remains staged/unpublished even though each procedure is fully
- * source-reviewed and uses ALL-aircraft effectivity.
+ * E-14 through E-18 depend on the graphical E-13 AIRSTART ENVELOPE. QRH.3T
+ * represents that source figure generically as source-digitized visual
+ * reference geometry without converting it into a computational lookup.
+ * The batch remains staged/unpublished pending governed publication work.
  */
 export const learjet35aQrhEmergencyBatch3 = {
   schemaVersion: 2,
@@ -36,16 +24,82 @@ export const learjet35aQrhEmergencyBatch3 = {
   title: "Learjet 35/36 Emergency Procedures — staged source batch 3",
   sourcePolicy: "available-sources",
   sourceNote:
-    "Partial QRH.3C source digitization from CL-102B Change 2 Emergency Procedures. Textual airstart procedures are staged but operational publication is blocked by the unresolved E-13 graphical Airstart Envelope dependency.",
+    "QRH.3C/3T source digitization from CL-102B Change 2 Emergency Procedures. Textual airstart procedures and the E-13 graphical Airstart Envelope are source-reviewed; the envelope is a visual reference only and is not a computational lookup surface.",
   disclaimer:
     "CL-102B states that its procedures do not supersede the current FAA Approved Airplane Flight Manual; the AFM takes precedence in a conflict.",
+  figures: [
+    {
+      id: "airstart-envelope",
+      kind: "operating-envelope",
+      title: "AIRSTART ENVELOPE",
+      geometryPolicy: "source-digitized-visual-reference",
+      xAxis: {
+        key: "n2",
+        label: "TURBINE SPEED (N2)",
+        unit: "%",
+        min: 0,
+        max: 25,
+        ticks: [0, 5, 10, 15, 20, 25],
+      },
+      yAxis: {
+        key: "altitude",
+        label: "ALTITUDE",
+        unit: "1000 FEET",
+        min: 0,
+        max: 30,
+        ticks: [0, 5, 10, 15, 20, 25, 30],
+      },
+      regions: [
+        {
+          id: "windmill-airstart",
+          label: "WINDMILL\nAIRSTART",
+          fill: "shaded",
+          points: [
+            { x: 15, y: 0 },
+            { x: 23, y: 0 },
+            { x: 23.2, y: 10 },
+            { x: 22, y: 22 },
+            { x: 17.2, y: 30 },
+            { x: 15, y: 30 },
+          ],
+          labelAt: { x: 19.5, y: 16 },
+        },
+      ],
+      guides: [
+        {
+          id: "fuel-computer-altitude-split",
+          style: "boundary",
+          points: [{ x: 0, y: 20 }, { x: 25, y: 20 }],
+        },
+      ],
+      annotations: [
+        {
+          id: "fuel-computer-on-only",
+          text: "FUEL COMPUTER\nON ONLY",
+          at: { x: 5.5, y: 23.5 },
+        },
+        {
+          id: "fuel-computer-on-or-off",
+          text: "FUEL COMPUTER\nON OR OFF",
+          at: { x: 5.5, y: 16.5 },
+        },
+      ],
+      notes: [
+        "Fuel computer ON starter assist airstarts may be made at any stabilized N2 up to 45%, and any altitude up to 30,000 feet.",
+        "Maintaining an airspeed which will maintain a minimum 15% N2 will enhance airstart capability.",
+        "Starter-assist airstarts must be used when N2 is below 15%.",
+        "Do not attempt Fuel Computer OFF airstarts above 20,000 feet.",
+      ],
+      sources: [source("E-13", "AIRSTART ENVELOPE")],
+    },
+  ],
   scenarios: [
     {
       id: "starter-assist-airstart-fuel-computer-on",
       title: "STARTER–ASSIST AIRSTART (FUEL COMPUTER ON)",
       procedureClass: "emergency",
       category: "Engine",
-      boundaryNote: envelopeBoundary,
+      figureIds: ["airstart-envelope"],
       effectivity: { kind: "all-aircraft", sourceText: "ALL" },
       sources: [source("E-14–E-15", "STARTER–ASSIST AIRSTART (FUEL COMPUTER ON)")],
       stages: [
@@ -141,7 +195,7 @@ export const learjet35aQrhEmergencyBatch3 = {
       title: "WINDMILLING AIRSTART (FUEL COMPUTER ON)",
       procedureClass: "emergency",
       category: "Engine",
-      boundaryNote: envelopeBoundary,
+      figureIds: ["airstart-envelope"],
       effectivity: { kind: "all-aircraft", sourceText: "ALL" },
       sources: [source("E-15–E-16", "WINDMILLING AIRSTART (FUEL COMPUTER ON)")],
       stages: [
@@ -225,7 +279,7 @@ export const learjet35aQrhEmergencyBatch3 = {
       title: "STARTER–ASSIST AIRSTART (FUEL COMPUTER OFF)",
       procedureClass: "emergency",
       category: "Engine",
-      boundaryNote: envelopeBoundary,
+      figureIds: ["airstart-envelope"],
       effectivity: { kind: "all-aircraft", sourceText: "ALL" },
       sources: [source("E-16–E-17", "STARTER–ASSIST AIRSTART (FUEL COMPUTER OFF)")],
       stages: [
@@ -309,7 +363,7 @@ export const learjet35aQrhEmergencyBatch3 = {
       title: "WINDMILLING AIRSTART (FUEL COMPUTER OFF)",
       procedureClass: "emergency",
       category: "Engine",
-      boundaryNote: envelopeBoundary,
+      figureIds: ["airstart-envelope"],
       effectivity: { kind: "all-aircraft", sourceText: "ALL" },
       sources: [source("E-18–E-19", "WINDMILLING AIRSTART (FUEL COMPUTER OFF)")],
       stages: [
