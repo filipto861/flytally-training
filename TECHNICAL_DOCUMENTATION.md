@@ -270,6 +270,10 @@ Uses the existing governed universal abnormal/emergency source of truth:
 
 Operational QRH may expose operational actions, notices and source references, but not training-only setup/objectives/debrief/prompts/explanations.
 
+The Learjet reference-aircraft QRH is assembled as one governed `abnormal/bundle` package from source-reviewed Emergency and Abnormal batches. Batch files remain traceable source-review units; they are not independent learner publications. Publication reuses the common draft → approval → publication lifecycle and must pass embedded source/applicability validation against the aircraft configuration before becoming operationally readable.
+
+QRH operating-envelope figures use `geometryPolicy: "source-digitized-visual-reference"`. Their digitized geometry is presentation-only: it must not be used as an interpolation surface, lookup table, or automated envelope-membership decision.
+
 ### PERF
 
 Uses the canonical Performance presentation/controller and governed aircraft performance package.

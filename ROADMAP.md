@@ -19,7 +19,7 @@
 | Takeoff + Landing Performance | ✅ | Source-backed operational workflow live |
 | Partial Power / Reduced Thrust | ⚠️ | Source-backed training preview live; operational enablement remains source-blocked |
 | Operational CHECKLIST | ✅ | CL-102B package live; shared Active Flight session synchronized |
-| Operational QRH | 🚧 | QRH.2 source-faithful contract complete; QRH.3 CL-102B digitization/publication is next |
+| Operational QRH | 🚧 | QRH.3T graphical support complete; QRH.3U complete-package governance/publication in progress |
 | REF / Limitations | ⏳ | Governed limitations content still to be populated |
 | Climb + Cruise Reference | ⏳ | Planned, source-gated |
 | SimBrief Active Flight import | ⏳ | Planned |
@@ -734,8 +734,14 @@ The detailed future sequence is tracked in **Active implementation order** below
          - represented both E-13 AIRSTART ENVELOPE and A-35.2 THRUST REVERSER RESTOW ENVELOPE with source axes, labelled regions/guides/annotations and exact source-page provenance; figure geometry remains explicitly non-computational and cannot be used for interpolation, lookup or automated envelope membership
          - attached E-13 to all four airstart procedures and A-35.2 to the TR-4000 inadvertent-deployment procedure, removing the final known graphical representation blockers without adding Learjet-specific runtime branches
          - QRH.3T acceptance: typecheck PASS · targeted QRH/applicability/P5/P6/W2 suite 98/98 PASS · full Node suite 1363 total / 1362 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright 392/392 PASS across desktop Chromium, mobile Chromium, iPad landscape and iPad portrait
-         - **QRH.3U governed package/publication closure — NEXT:** assemble the reviewed Emergency + Abnormal source batches into the governed Learjet QRH publication path, verify applicability/configuration selection, then complete cockpit QRH acceptance
-         - publish through the governed abnormal-domain lifecycle and verify operational-readiness gating
+         - **QRH.3U governed package/publication closure — IMPLEMENTATION ACCEPTED · PR #260 · PRODUCTION PUBLICATION PENDING:** assembled the reviewed Emergency + Abnormal source batches into one governed Learjet QRH publication path, verified applicability/configuration selection, and removed remaining partial-package staging assumptions
+         - package-level reconciliation against the authoritative E-1 Emergency index found a prior roadmap/content-accounting error: three Electrical procedures — BATTERY OVERHEAT LIGHT(S) (NICAD ONLY), CURRENT LIMITER FAILURE and ESSENTIAL BUS FAILURE — DC POWER LOSS — were absent from QRH.3A–3G; QRH.3U therefore adds an explicit source-reviewed reconciliation batch from E-6/E-6.1 and E-7/E-8/E-7.1 rather than silently treating the earlier Emergency digitization as complete
+         - after reconciliation the package target is 29 Emergency textual scenarios + E-13 AIRSTART ENVELOPE = all 30 indexed Emergency entries, and 64 Abnormal textual scenarios + A-35.2 RESTOW ENVELOPE = all 65 indexed Abnormal entries
+         - the E-6/E-6.1 family preserves the 35-509 / 36-054 and AMK 85-1 split; BATTERY OVERHEAT also retains the source's NICAD ONLY qualifier through explicit `nicad-batteries` configured-equipment state; the E-7/E-8/E-7.1 family preserves the 35-202/206 / 36-041 and AMK 78-13 split; unknown required modification/equipment state remains fail-closed
+         - publication must reuse the existing abnormal-domain governance lifecycle, preserve exact source provenance/effectivity, fail closed on unresolved configuration identity, and expose no static-seed or learner-runtime bypass
+         - governed release tooling must require explicit administrator confirmation, register/reuse the immutable CL-102B Change 2 source revision and Emergency/Abnormal source references, then draft → approve → publish the single `abnormal/bundle` package through the existing lifecycle
+         - local acceptance on head `5600934`: typecheck PASS · focused QRH.3U suite 18/18 PASS · full Node suite 1381 total / 1380 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright 392/392 PASS across the configured browser projects
+         - **closure remains pending:** merge/deploy the accepted implementation, perform the authenticated governed production publication of the complete `abnormal/bundle`, verify source/applicability/readiness state and operational QRH smoke in production, then synchronize CHANGELOG and mark QRH.3U COMPLETE
        - **QRH.4 cockpit acceptance — PLANNED**
          - verify fast-path category/procedure navigation, Emergency-vs-Abnormal distinction, memory-item emphasis, configuration filtering and source/authority disclosure on desktop/mobile/iPad
          - full Node/build/Playwright plus authenticated production publication/smoke before closure
