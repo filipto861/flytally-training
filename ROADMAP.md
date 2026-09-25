@@ -418,6 +418,15 @@ The detailed future sequence is tracked in **Active implementation order** below
      - merged to `main` in PR #227 · merge commit `49e0f7c5497397fd706f011cafe086762fdc233b`
      - production deployment `dpl_ZCCsG6c7QzQY7t73uW3HnAbkA5nv` reached **READY** and is aliased to `training.fly-tally.com`
      - production readiness smoke: HTTP 200 · `status=ready` · operational profile true · source-governed release profile true
+   - **14.1b Partial Power EFB hard simplification — IN PROGRESS**
+     - TORA remains always directly editable so intersection departures can be entered without a separate workflow
+     - remove the mandatory duplicate ASDA entry from the primary Partial Power flow; when no independent ASDA override is entered, use **ASDA = TORA** as the conservative takeoff-field assumption so `min(TORA, ASDA)` cannot exceed TORA
+     - keep an optional compact ASDA override affordance for independently known declared-distance data; do not force duplicate entry in the normal case
+     - remove Partial Power eligibility checkboxes from the pilot workflow; selecting **Partial Power · Aeronca** means the training preview is evaluated under the published Partial Power prerequisite assumptions, while Anti-ice remains a real explicit calculation/configuration input
+     - keep the result visibly training/source-limited until 14.2 closes the independent 25% rated-thrust requirement
+     - METAR becomes automatic by default: fetch/apply on airport selection, periodically refresh, and automatically update the calculation when a newer observation changes source-backed inputs; manual QNH/OAT edits remain sticky overrides
+     - remove remaining action/provenance helper copy that does not contribute to the calculation or a blocking state
+     - acceptance: targeted declared-distance/weather/PP tests, full verify, Playwright, production smoke
    - **14.2 Independent 25% rated-thrust source closure — BLOCKED**
      - FlightSafety requires thrust reduction <=25% of rated takeoff thrust for the existing ambient condition
      - CL-102B P-6/P-6.1 provide configuration-specific reduced-N1 schedules and a 7.7 N1-point cap, but no verified N1-to-rated-thrust relationship has been found
