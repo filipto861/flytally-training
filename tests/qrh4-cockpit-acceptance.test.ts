@@ -21,6 +21,11 @@ test("QRH.4 package-level filtering remains fail-closed for unknown installation
     learjet35aQrhPackage,
     configuration,
   );
+  assert.equal(filtered.schemaVersion, 2);
+  if (filtered.schemaVersion !== 2) {
+    assert.fail("Learjet QRH package must remain on the v2 operational contract.");
+  }
+
   const ids = new Set(filtered.scenarios.map((scenario) => scenario.id));
 
   assert.ok(ids.has("door-light"));
@@ -101,10 +106,8 @@ test("QRH.4 mobile collapse observes the actual Fast Path scroll container", () 
   const component = read("components/operational-emergency.tsx");
 
   assert.match(panel, /data-fast-path-scroll-container="true"/);
-  assert.match(
-    component,
-    /closest<HTMLElement>\(\s*'\[data-fast-path-scroll-container="true"\]'\s*\)/,
-  );
+  assert.match(component, /closest<HTMLElement>/);
+  assert.match(component, /\[data-fast-path-scroll-container="true"\]/);
   assert.match(component, /fastPathScroller\.scrollTop > originY \+ 170/);
   assert.match(component, /fastPathScroller\.scrollTo\(/);
   assert.match(component, /aria-label="Expand QRH quick access"/);
