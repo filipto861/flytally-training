@@ -112,6 +112,7 @@ function EnvelopeFigure({ figure }: Readonly<{ figure: OperationalEmergencyEnvel
 
         <rect
           className={styles.envelopeFrame}
+          fill="none"
           height={plot.height}
           width={plot.width}
           x={plot.left}
