@@ -412,7 +412,9 @@ The detailed future sequence is tracked in **Active implementation order** below
      - existing fail-closed runtime behavior and source constraints are unchanged
      - source-text regression tests updated to assert behavior rather than removed explanatory wording
      - targeted acceptance: typecheck PASS · PP.4/DD targeted suite **12/12 PASS** · production build PASS
-     - remaining acceptance: full verify, Playwright, manual desktop smoke
+     - full repository verify: **1197 total / 1196 PASS / 0 FAIL / 1 SKIP** · production build PASS
+     - full Playwright browser acceptance: **388/388 PASS**
+     - remaining acceptance: manual desktop smoke
    - **14.2 Independent 25% rated-thrust source closure — BLOCKED**
      - FlightSafety requires thrust reduction <=25% of rated takeoff thrust for the existing ambient condition
      - CL-102B P-6/P-6.1 provide configuration-specific reduced-N1 schedules and a 7.7 N1-point cap, but no verified N1-to-rated-thrust relationship has been found
