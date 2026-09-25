@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  learjet35aQrhElectricalConfigurationKeys,
   learjet35aQrhEmergencyBatch7,
   learjet35aQrhEmergencyBatch7ReleaseStatus,
 } from "../aircraft-data/learjet-35a/qrh/emergency-batch-7.ts";
@@ -23,6 +24,9 @@ function configuration(
     modifications: new Map([
       ["amk-85-1", amk851],
       ["amk-78-13", amk7813],
+    ]),
+    configurationEquipment: new Map([
+      [learjet35aQrhElectricalConfigurationKeys.nicadBatteries, "installed"],
     ]),
   };
 }
@@ -86,6 +90,9 @@ test("QRH.3U late serial families do not require inferred AMK state", () => {
       variant: "source-review",
       serialNumber: "35-600",
       equipment: new Set<string>(),
+      configurationEquipment: new Map([
+        [learjet35aQrhElectricalConfigurationKeys.nicadBatteries, "installed"],
+      ]),
     },
   );
   assert.deepEqual(
@@ -133,5 +140,24 @@ test("QRH.3U visual review found no boxed memory items on E-6/E-6.1/E-7/E-8/E-7.
   assert.equal(
     JSON.stringify(learjet35aQrhEmergencyBatch7).includes('"memoryItem":true'),
     false,
+  );
+});
+
+
+test("QRH.3U BATTERY OVERHEAT remains fail-closed without explicit NICAD configuration", () => {
+  const filtered = filterAbnormalEmergencyForConfiguration(
+    learjet35aQrhEmergencyBatch7,
+    {
+      variant: "source-review",
+      serialNumber: "35-600",
+      equipment: new Set<string>(),
+    },
+  );
+  assert.deepEqual(
+    filtered.scenarios.map((scenario) => scenario.id),
+    [
+      "current-limiter-failure",
+      "essential-bus-failure-dc-power-loss",
+    ],
   );
 });
