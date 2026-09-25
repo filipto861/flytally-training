@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { requireTrainingAdmin } from "@/lib/admin-auth";
 import { publishReviewedStaticAircraftRelease } from "@/lib/governed-static-release";
 import { publishLearjetChecklistRelease } from "@/lib/learjet-checklist-release";
+import { publishLearjetQrhRelease } from "@/lib/learjet-qrh-release";
 
 const text = (form: FormData, key: string) => String(form.get(key) ?? "").trim();
 
@@ -52,5 +53,32 @@ export async function publishLearjetChecklistReleaseAction(form: FormData) {
 
   redirect(
     `/admin/aircraft/learjet-35a?checklistRelease=${encodeURIComponent(result.status)}&checklistVersion=${encodeURIComponent(result.versionId)}`,
+  );
+}
+
+
+export async function publishLearjetQrhReleaseAction(form: FormData) {
+  const session = await requireTrainingAdmin();
+  if (text(form, "confirmLearjetQrhRelease") !== "yes") {
+    throw new Error(
+      "Explicit administrator confirmation is required before the reviewed Learjet QRH can be published.",
+    );
+  }
+
+  const result = await publishLearjetQrhRelease(session.subject);
+
+  revalidatePath("/");
+  revalidatePath("/aircraft/learjet-35a", "layout");
+  revalidatePath("/aircraft/learjet-35a/abnormal");
+  revalidatePath("/aircraft/learjet-35a/quick-reference");
+  revalidatePath("/aircraft/learjet-35a/fly");
+  revalidatePath("/aircraft/learjet-35a/flight");
+  revalidatePath("/admin");
+  revalidatePath("/admin/aircraft/learjet-35a");
+  revalidatePath("/admin/aircraft/learjet-35a/content");
+  revalidatePath("/admin/aircraft/learjet-35a/sources");
+
+  redirect(
+    `/admin/aircraft/learjet-35a?qrhRelease=${encodeURIComponent(result.status)}&qrhVersion=${encodeURIComponent(result.versionId)}`,
   );
 }
