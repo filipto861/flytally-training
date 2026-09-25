@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import test from "node:test";
 
 import { learjet35aNormalChecklist } from "../aircraft-data/learjet-35a/checklists/normal-checklist.ts";
@@ -142,7 +143,6 @@ test("15.3b governed CL-102B source manifest matches the reviewed file and opera
 });
 
 test("15.3b publication tooling is guarded by explicit operator confirmation", () => {
-  const fs = require("node:fs") as typeof import("node:fs");
   const tool = fs.readFileSync(
     new URL("../tooling/publish-learjet-checklist.ts", import.meta.url),
     "utf8",
