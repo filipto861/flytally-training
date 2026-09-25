@@ -590,7 +590,9 @@ The detailed future sequence is tracked in **Active implementation order** below
          - focused coverage added for Active Flight key isolation, one-time migration, shared Flight Deck/Fast Path ownership, reset controls and browser synchronization
          - first focused gate: session/runtime cases passed, but typecheck/build exposed one callback-narrowing error in Fast Path reset and P5.6 exposed one stale source-text assertion after the intended e2e test rename
          - both gate findings are fixed without changing runtime behavior: reset callback now captures the already-validated phase id, and P5.6 expects the new flight-scoped migration test title
-         - acceptance pending: rerun typecheck · targeted session/P5/15.3b.5 tests · production build; targeted browser smoke if local server is available
+         - focused acceptance PASS (2026-09-25): typecheck PASS · targeted session/P5/15.3b.5 suite **30/30 PASS** · production build PASS
+         - targeted Playwright 15.3b.5 smoke was not executed because local port 3000 was already occupied; this is an environment blocker from the two-server Playwright harness, not a test failure
+         - accepted for merge with production manual synchronization smoke required immediately after deployment
      - **15.3c QRH fast path — CONTENT GAP CONFIRMED**
        - runtime/UI is implemented and deliberately fails closed unless the published abnormal module is fresh and all linked sources are CONTROLLING or OPERATING_REFERENCE
        - there is no Learjet bundled QRH/emergency fallback
