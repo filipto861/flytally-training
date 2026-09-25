@@ -546,13 +546,17 @@ The detailed future sequence is tracked in **Active implementation order** below
        - the only build warning is the pre-existing non-blocking Turbopack workspace-root/package-lock warning outside the repository
        - PR #230 merged to `main` as `1d0adda4139149be1a2e8f99a87d7696dfce889f`; production code deployment is READY, but checklist data publication is not yet complete
        - first explicit publisher run failed **before any database action** because `tsx` transformed the script as CommonJS and rejected top-level `await`; this is a tooling/runtime defect, not a checklist-content validation failure
-       - **15.3b.1 Checklist publisher CJS runtime hotfix — COMPLETE · PR #231 · APPROVED FOR MERGE**
+       - **15.3b.1 Checklist publisher CJS runtime hotfix — COMPLETE · PR #231 · MERGED**
          - publisher now runs through an explicit `async main()` entrypoint; no top-level `await` remains
          - regression coverage invokes the exact Node/tsx runtime command with confirmation removed and requires the script to reach the confirmation guard with exit code 2
          - the regression explicitly rejects the prior `Top-level await is currently not supported` transform failure
          - focused acceptance PASS (2026-09-25): typecheck PASS · publisher/checklist suite **10/10 PASS** · production build PASS
-         - the only build warning is the pre-existing non-blocking Turbopack workspace-root/package-lock warning outside the repository
-         - after merge: rerun the explicit governed publication and production CHECKLIST fast-path smoke
+         - merged to `main` as `7fd163ee1e3ac6feddaaaf66101e07b1c9db3e70`
+       - **15.3b.2 Checklist publisher local environment loading — IN PROGRESS**
+         - the guarded publisher is a plain Node/tsx command, so unlike `next build` it does not automatically load `.env.local`
+         - make the npm publisher command load `.env.local` when present without requiring the user to copy the production database URL into the PowerShell session
+         - preserve the existing confirmation guard and ensure missing `.env.local` remains harmless in CI/tests
+         - after this focused fix, rerun the explicit governed publication and production CHECKLIST fast-path smoke
      - **15.3c QRH fast path — CONTENT GAP CONFIRMED**
        - runtime/UI is implemented and deliberately fails closed unless the published abnormal module is fresh and all linked sources are CONTROLLING or OPERATING_REFERENCE
        - there is no Learjet bundled QRH/emergency fallback
