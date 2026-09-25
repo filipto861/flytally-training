@@ -13,13 +13,15 @@ import {
 export type ChecklistSessionStorage = {
   getItem(key: string): string | null;
   setItem(key: string, value: string): void;
+  removeItem?(key: string): void;
 };
 
 function storageKey(
   checklist: RuntimeChecklist,
   selectedVariant?: string,
+  sessionScope?: string,
 ): string {
-  return checklistSessionStorageKey(checklist, selectedVariant);
+  return checklistSessionStorageKey(checklist, selectedVariant, sessionScope);
 }
 
 export function restoreFastPathChecklistSession(
@@ -27,6 +29,8 @@ export function restoreFastPathChecklistSession(
   storage: ChecklistSessionStorage,
   selectedVariant?: string,
   legacyStorage?: LegacyOperationalChecklistStorage,
+  sessionScope?: string,
+  previousCanonicalStorage?: ChecklistSessionStorage,
 ): ChecklistSessionSnapshot {
   if (legacyStorage) {
     return restoreChecklistSessionWithLegacyMigration(
@@ -34,12 +38,16 @@ export function restoreFastPathChecklistSession(
       storage,
       legacyStorage,
       selectedVariant,
+      sessionScope,
+      previousCanonicalStorage,
     );
   }
 
   let raw: unknown;
   try {
-    const stored = storage.getItem(storageKey(checklist, selectedVariant));
+    const stored = storage.getItem(
+      storageKey(checklist, selectedVariant, sessionScope),
+    );
     raw = stored ? JSON.parse(stored) : undefined;
   } catch {
     raw = undefined;
@@ -52,9 +60,10 @@ export function saveFastPathChecklistSession(
   snapshot: ChecklistSessionSnapshot,
   storage: ChecklistSessionStorage,
   selectedVariant?: string,
+  sessionScope?: string,
 ): void {
   storage.setItem(
-    storageKey(checklist, selectedVariant),
+    storageKey(checklist, selectedVariant, sessionScope),
     JSON.stringify(snapshot),
   );
 }
