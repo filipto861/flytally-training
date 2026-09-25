@@ -235,6 +235,7 @@ test("15.3b.1 publisher boots under the real CJS/tsx runtime and reaches the con
   const run = spawnSync(
     process.execPath,
     [
+      "--env-file-if-exists=.env.local",
       "--conditions=react-server",
       "--import",
       "tsx",
@@ -255,6 +256,10 @@ test("15.3b.1 publisher boots under the real CJS/tsx runtime and reaches the con
   assert.doesNotMatch(
     `${run.stdout}\n${run.stderr}`,
     /Top-level await is currently not supported/,
+  );
+  assert.doesNotMatch(
+    `${run.stdout}\n${run.stderr}`,
+    /bad option: --env-file-if-exists/,
   );
 });
 

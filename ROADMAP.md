@@ -552,11 +552,14 @@ The detailed future sequence is tracked in **Active implementation order** below
          - the regression explicitly rejects the prior `Top-level await is currently not supported` transform failure
          - focused acceptance PASS (2026-09-25): typecheck PASS · publisher/checklist suite **10/10 PASS** · production build PASS
          - merged to `main` as `7fd163ee1e3ac6feddaaaf66101e07b1c9db3e70`
-       - **15.3b.2 Checklist publisher local environment loading — IN PROGRESS**
+       - **15.3b.2 Checklist publisher local environment loading — COMPLETE · PR #232 · APPROVED FOR MERGE**
          - the guarded publisher is a plain Node/tsx command, so unlike `next build` it does not automatically load `.env.local`
-         - make the npm publisher command load `.env.local` when present without requiring the user to copy the production database URL into the PowerShell session
-         - preserve the existing confirmation guard and ensure missing `.env.local` remains harmless in CI/tests
-         - after this focused fix, rerun the explicit governed publication and production CHECKLIST fast-path smoke
+         - npm publisher command now uses Node 24 `--env-file-if-exists=.env.local`, preserving local production DB configuration without copying secrets into the shell
+         - missing `.env.local` remains harmless; the explicit publish confirmation guard still executes first
+         - the real-runtime regression now includes the env-file flag and rejects unsupported-option/runtime-transform regressions
+         - focused acceptance PASS (2026-09-25): typecheck PASS · publisher/checklist suite **10/10 PASS** · production build PASS
+         - the only build warning is the pre-existing non-blocking Turbopack workspace-root/package-lock warning
+         - after merge: rerun the explicit governed publication from `main`
      - **15.3c QRH fast path — CONTENT GAP CONFIRMED**
        - runtime/UI is implemented and deliberately fails closed unless the published abnormal module is fresh and all linked sources are CONTROLLING or OPERATING_REFERENCE
        - there is no Learjet bundled QRH/emergency fallback
