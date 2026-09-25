@@ -48,7 +48,7 @@ export type ActiveFlight = {
   readonly weather: ActiveFlightWeather | null;
   readonly performanceDependency: ActiveFlightPerformanceDependency;
   readonly brief: ActiveFlightBrief | null;
-  readonly prefillProvenance: SimBriefPrefillProvenance | null;
+  readonly prefillProvenance?: SimBriefPrefillProvenance | null;
   readonly createdAt: string;
   readonly updatedAt: string;
   readonly activatedAt: string;
