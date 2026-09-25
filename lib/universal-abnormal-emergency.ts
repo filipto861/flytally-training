@@ -32,7 +32,6 @@ export type AircraftAbnormalEmergencyLegacyScenario = {
   readonly debrief: readonly string[];
   readonly notices?: readonly TrainingNotice[];
   readonly boundaryNote?: string;
-  readonly figureIds?: readonly string[];
   readonly applicability?: AircraftApplicability;
   readonly sources?: readonly TrainingSourceReference[];
 };
@@ -184,6 +183,7 @@ export type AircraftQrhScenario = {
   readonly stages: readonly AircraftQrhStage[];
   readonly notices?: readonly TrainingNotice[];
   readonly boundaryNote?: string;
+  readonly figureIds?: readonly string[];
   readonly applicability?: AircraftApplicability;
   readonly effectivity: AircraftQrhEffectivity;
   readonly sources?: readonly TrainingSourceReference[];
