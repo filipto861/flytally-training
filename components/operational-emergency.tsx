@@ -173,7 +173,11 @@ function Steps({ steps }: Readonly<{ steps: readonly OperationalEmergencyStep[] 
   return <ol className={styles.actions}>
     {steps.map((step) => {
       if (step.kind === "action") {
-        return <li className={step.memoryItem ? styles.memoryAction : undefined} key={step.id}>
+        return <li
+          className={step.memoryItem ? styles.memoryAction : undefined}
+          data-memory-item={step.memoryItem ? "true" : undefined}
+          key={step.id}
+        >
           <span>{step.label ?? "•"}</span>
           <div className={styles.actionBody}>
             <strong>{step.text}</strong>
@@ -185,7 +189,11 @@ function Steps({ steps }: Readonly<{ steps: readonly OperationalEmergencyStep[] 
       }
 
       if (step.kind === "information") {
-        return <li className={`${styles.informationStep}${step.memoryItem ? ` ${styles.memoryInformation}` : ""}`} key={step.id}>
+        return <li
+          className={`${styles.informationStep}${step.memoryItem ? ` ${styles.memoryInformation}` : ""}`}
+          data-memory-item={step.memoryItem ? "true" : undefined}
+          key={step.id}
+        >
           <span>{step.label ?? "i"}</span>
           <div className={styles.actionBody}>
             <p>{step.text}</p>
@@ -201,7 +209,11 @@ function Steps({ steps }: Readonly<{ steps: readonly OperationalEmergencyStep[] 
           {step.notices.map((notice, index) => <Notice key={`${step.id}-notice-${index}`} notice={notice} />)}
         </div> : null}
         <div className={styles.conditionBranches}>
-          {step.branches.map((branch) => <section className={styles.conditionBranch} key={branch.id}>
+          {step.branches.map((branch) => <section
+            className={styles.conditionBranch}
+            data-memory-item={branch.memoryItem ? "true" : undefined}
+            key={branch.id}
+          >
             <h3 className={branch.memoryItem ? styles.memoryBranch : undefined}>{branch.label}</h3>
             <Steps steps={branch.steps} />
           </section>)}
@@ -222,10 +234,17 @@ function Scenario({ scenario }: Readonly<{ scenario: OperationalEmergencyScenari
     ],
   )];
 
-  return <article className={styles.procedure}>
+  const procedureClassName = scenario.procedureClass === "emergency"
+    ? styles.emergencyProcedure
+    : styles.abnormalProcedure;
+
+  return <article
+    className={`${styles.procedure} ${procedureClassName}`}
+    data-procedure-class={scenario.procedureClass}
+  >
     <header className={styles.procedureHeader}>
       <div>
-        <span>{scenario.procedureClass.toUpperCase()}</span>
+        <span className={styles.classification}>{scenario.procedureClass.toUpperCase()}</span>
         <h1>{scenario.title}</h1>
       </div>
       <div className={styles.meta}>
@@ -244,8 +263,15 @@ function Scenario({ scenario }: Readonly<{ scenario: OperationalEmergencyScenari
     </div> : null}
 
     <div className={styles.stages}>
-      {scenario.stages.map((stage) => <section className={`${styles.stage}${stage.memoryItem ? ` ${styles.immediate}` : ""}`} key={stage.id}>
-        <h2>{stage.label}</h2>
+      {scenario.stages.map((stage) => <section
+        className={`${styles.stage}${stage.memoryItem ? ` ${styles.immediate}` : ""}`}
+        data-memory-stage={stage.memoryItem ? "true" : undefined}
+        key={stage.id}
+      >
+        <div className={styles.stageHeading}>
+          <h2>{stage.label}</h2>
+          {stage.memoryItem ? <span className={styles.memoryBadge}>MEMORY</span> : null}
+        </div>
         {stage.notices?.length ? <div className={styles.notices}>
           {stage.notices.map((notice, index) => <Notice key={`${stage.id}-notice-${index}`} notice={notice} />)}
         </div> : null}
@@ -280,22 +306,39 @@ export function OperationalEmergency({ emergency }: Readonly<{ emergency: Operat
     : undefined;
 
   useEffect(() => {
+    const origin = indexOriginRef.current;
+    if (!origin) return;
+
+    const fastPathScroller = origin.closest<HTMLElement>(
+      '[data-fast-path-scroll-container="true"]',
+    );
+
     const updateCollapsedState = () => {
       if (!window.matchMedia("(max-width: 700px)").matches) {
         setIndexCollapsed(false);
         return;
       }
-      const origin = indexOriginRef.current;
-      if (!origin) return;
+
+      if (fastPathScroller) {
+        const containerTop = fastPathScroller.getBoundingClientRect().top;
+        const originY =
+          origin.getBoundingClientRect().top
+          - containerTop
+          + fastPathScroller.scrollTop;
+        setIndexCollapsed(fastPathScroller.scrollTop > originY + 170);
+        return;
+      }
+
       const originY = origin.getBoundingClientRect().top + window.scrollY;
       setIndexCollapsed(window.scrollY > originY + 170);
     };
 
     updateCollapsedState();
-    window.addEventListener("scroll", updateCollapsedState, { passive: true });
+    const scrollTarget: Window | HTMLElement = fastPathScroller ?? window;
+    scrollTarget.addEventListener("scroll", updateCollapsedState, { passive: true });
     window.addEventListener("resize", updateCollapsedState);
     return () => {
-      window.removeEventListener("scroll", updateCollapsedState);
+      scrollTarget.removeEventListener("scroll", updateCollapsedState);
       window.removeEventListener("resize", updateCollapsedState);
     };
   }, []);
@@ -315,9 +358,31 @@ export function OperationalEmergency({ emergency }: Readonly<{ emergency: Operat
     setIndexCollapsed(false);
     const origin = indexOriginRef.current;
     if (!origin) return;
-    const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+    const reducedMotion =
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+    const behavior = reducedMotion ? "auto" : "smooth";
+    const fastPathScroller = origin.closest<HTMLElement>(
+      '[data-fast-path-scroll-container="true"]',
+    );
+
+    if (fastPathScroller) {
+      const containerTop = fastPathScroller.getBoundingClientRect().top;
+      const originY =
+        origin.getBoundingClientRect().top
+        - containerTop
+        + fastPathScroller.scrollTop;
+      fastPathScroller.scrollTo({
+        top: Math.max(0, originY - 12),
+        behavior,
+      });
+      return;
+    }
+
     const originY = origin.getBoundingClientRect().top + window.scrollY;
-    window.scrollTo({ top: Math.max(0, originY - 118), behavior: reducedMotion ? "auto" : "smooth" });
+    window.scrollTo({
+      top: Math.max(0, originY - 118),
+      behavior,
+    });
   }
 
   return <section className={styles.emergency} aria-label="QRH quick reference">
@@ -325,6 +390,7 @@ export function OperationalEmergency({ emergency }: Readonly<{ emergency: Operat
     <div className={`${styles.index}${indexCollapsed ? ` ${styles.indexCollapsed}` : ""}`}>
       <button
         aria-expanded={!indexCollapsed}
+        aria-label="Expand QRH quick access"
         className={styles.compactIndex}
         onClick={expandQuickAccess}
         type="button"
