@@ -22,6 +22,10 @@ This file is the authoritative version history for completed FlyTally Training w
 - **PR #231 — Learjet checklist publisher CJS runtime fix**
   - replaced unsupported top-level await with an explicit async entrypoint;
   - added a real-runtime regression test proving the publisher reaches its confirmation guard under the project Node/tsx execution mode.
+- **PR #232 — Learjet checklist publisher local environment loading**
+  - the explicit publisher now loads `.env.local` when present using Node 24 `--env-file-if-exists`;
+  - keeps the confirmation guard intact and avoids requiring production database credentials to be copied manually into PowerShell;
+  - targeted acceptance: typecheck PASS, publisher/checklist suite 10/10 PASS, production build PASS.
 - **PR #227 — Partial Power EFB simplification**
   - simplified the Learjet 35A Partial Power workflow to pilot-facing essentials;
   - exposed one explicit **Partial Power · Aeronca** mode;
