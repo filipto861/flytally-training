@@ -15,6 +15,14 @@ This file is the authoritative version history for completed FlyTally Training w
 ## 2026-09-25
 
 ### Changed
+- **PR #243 — QRH.3E generic serial/effectivity architecture**
+  - extended the aircraft-agnostic configuration model with an exact manufacturer serial identifier and included it in the effective-configuration snapshot identity;
+  - extended generic content applicability with exact serials, bounded/open-ended serial-number ranges, and nested `anyOf` alternatives so source effectivity such as serial-range OR installed modification can be represented directly;
+  - preserved fail-closed behavior when serial, modification or equipment facts are missing/unknown, and extended publication validation/governance traversal to nested effectivity alternatives;
+  - exposed serial identity through the existing Studio structured configuration surface without introducing Learjet-specific runtime or UI branches;
+  - acceptance on head `975e4cb`: typecheck PASS; targeted configuration/applicability/governance/QRH suite 92/92 PASS; full Node suite 1265 total / 1264 PASS / 0 FAIL / 1 SKIP; production build PASS; no Playwright rerun required because cockpit/browser behavior did not change.
+
+### Changed
 - **PR #242 — QRH.3D Learjet ALL-aircraft mid-section Emergency batch**
   - staged the reviewed ALL-aircraft CL-102B Emergency Procedures from E-21 and E-25 through E-33, covering emergency descent, flight-control emergencies, fuel pressure, ditching/evacuation, both-engines-inoperative landing, stall warning and aborted takeoff;
   - preserved page-level provenance, nested source decision structure and visually reviewed boxed-memory boundaries without inferring memory status from labels or prose;
