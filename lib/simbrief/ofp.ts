@@ -92,6 +92,13 @@ export function parseSimBriefLatestOfp(value: unknown): SimBriefLatestOfp | null
   )?.toUpperCase() ?? null;
   const requestId = text(params.request_id, 64);
   const generatedUnix = numeric(params.time_generated);
+  if (
+    params.time_generated !== undefined
+    && params.time_generated !== null
+    && generatedUnix === null
+  ) {
+    return null;
+  }
 
   if (
     !departure
