@@ -529,7 +529,7 @@ The detailed future sequence is tracked in **Active implementation order** below
        - production deployment `dpl_C45SzjJxxoJKqRjqMNM1yZ75o1Ve` reached **READY** and is aliased to `training.fly-tally.com`
        - production FLY smoke: `/aircraft/learjet-35a/fly` HTTP 200 and renders the new-shell `data-ft-fly-page` workspace with Performance content
        - production readiness smoke: HTTP 200 · `status=ready` · operational profile true · source-governed release profile true
-     - ****15.3b CHECKLIST fast path — COMPLETE · LIVE IN PRODUCTION**
+     - **15.3b CHECKLIST fast path — COMPLETE · LIVE IN PRODUCTION**
        - runtime/UI is implemented and functional; the governed universal `checklists` payload is now published in production
        - CL-102B Normal Procedures N-2 through N-18 have been digitized into `aircraft-data/learjet-35a/checklists/normal-checklist.ts` using the universal checklist contract
        - N-15 Landing Speeds/Distances remains owned by Performance and is intentionally not duplicated into checklist content
@@ -559,7 +559,7 @@ The detailed future sequence is tracked in **Active implementation order** below
          - the real-runtime regression now includes the env-file flag and rejects unsupported-option/runtime-transform regressions
          - focused acceptance PASS (2026-09-25): typecheck PASS · publisher/checklist suite **10/10 PASS** · production build PASS
          - merged to `main` as `c6609df49d5ec9e2f7a7bda7715564f20ca564a6`
-         - next action: rerun the explicit governed publication from `main`, then verify CHECKLIST population in production
+         - historical local publish path was later superseded by 15.3b.4 because the production database credential is intentionally non-pullable
        - **15.3b.3 Production DB credential handoff for one-shot checklist publication — BLOCKED / SUPERSEDED BY 15.3b.4**
          - explicit publish now reaches the runtime guard correctly, but local `.env.local` does not contain `TRAINING_DATABASE_URL`
          - linking the repository and using Vercel `env run -e production` still cannot supply the database credential because the Production project marks it as a non-pullable Secret
