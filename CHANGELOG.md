@@ -15,6 +15,14 @@ This file is the authoritative version history for completed FlyTally Training w
 ## 2026-09-25
 
 ### Changed
+- **PR #253 — QRH.3N Learjet Hydraulic Abnormal source batch**
+  - staged the complete two-procedure CL-102B Hydraulic Abnormal family from A-23/A-24;
+  - preserved the LO HYD pressure-result branch, the complete alternate-gear extension sequence and the source references to hydraulic-system-failure and gear-up landing procedures;
+  - represented the source `IF INSTALLED` qualifier for LO HYD LIGHT through explicit generic `lo-hyd-light` configured-equipment applicability, with unknown/absent installation remaining fail-closed;
+  - visual source review found no boxed memory items on A-23/A-24;
+  - acceptance on head `dff2221`: typecheck PASS; targeted QRH/applicability/P5/P6/W2 suite 166/166 PASS; full Node suite 1327 total / 1326 PASS / 0 FAIL / 1 SKIP; production build PASS; no Playwright rerun required because no browser/presentation behavior changed.
+
+### Changed
 - **PR #252 — QRH.3M Learjet Fuel Abnormal source batch**
   - staged the complete ten-procedure CL-102B Fuel Abnormal family from A-19 through A-23;
   - preserved nested fuel-balance, jettison, low-fuel, standby-pump and tip-tank source branches plus exact A-19/A-20/A-21/A-22/A-23 provenance;
