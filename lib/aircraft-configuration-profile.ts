@@ -2,6 +2,13 @@ export const commonAircraftEquipmentProfileKey = "__common__";
 export const aircraftApplicabilityRegistryProfileKey =
   "__applicability_registry__";
 
+export function isSelectableAircraftVariantProfileKey(key: string): boolean {
+  return (
+    key !== commonAircraftEquipmentProfileKey
+    && key !== aircraftApplicabilityRegistryProfileKey
+  );
+}
+
 export function mergeAircraftEquipmentTags(
   common: readonly string[] | undefined,
   variant: readonly string[] | undefined,
