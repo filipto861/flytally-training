@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import test from "node:test";
 
@@ -223,6 +224,37 @@ test("15.3b governed CL-102B source manifest matches the reviewed file and opera
   assert.match(
     learjet35aChecklistSourceManifest.authorityNote,
     /AFM takes precedence/i,
+  );
+});
+
+test("15.3b.1 publisher boots under the real CJS/tsx runtime and reaches the confirmation guard", () => {
+  const env = { ...process.env };
+  delete env.CONFIRM_LEARJET_CHECKLIST_PUBLISH;
+  delete env.TRAINING_DATABASE_URL;
+
+  const run = spawnSync(
+    process.execPath,
+    [
+      "--conditions=react-server",
+      "--import",
+      "tsx",
+      "tooling/publish-learjet-checklist.ts",
+    ],
+    {
+      cwd: process.cwd(),
+      env,
+      encoding: "utf8",
+    },
+  );
+
+  assert.equal(run.status, 2);
+  assert.match(
+    run.stderr,
+    /Set CONFIRM_LEARJET_CHECKLIST_PUBLISH=yes/,
+  );
+  assert.doesNotMatch(
+    `${run.stdout}\n${run.stderr}`,
+    /Top-level await is currently not supported/,
   );
 });
 

@@ -546,10 +546,13 @@ The detailed future sequence is tracked in **Active implementation order** below
        - the only build warning is the pre-existing non-blocking Turbopack workspace-root/package-lock warning outside the repository
        - PR #230 merged to `main` as `1d0adda4139149be1a2e8f99a87d7696dfce889f`; production code deployment is READY, but checklist data publication is not yet complete
        - first explicit publisher run failed **before any database action** because `tsx` transformed the script as CommonJS and rejected top-level `await`; this is a tooling/runtime defect, not a checklist-content validation failure
-       - **15.3b.1 Checklist publisher CJS runtime hotfix — IN PROGRESS**
-         - wrap asynchronous publisher execution in an explicit `async main()` entrypoint; no top-level `await`
-         - add a regression test that invokes the real publisher command without confirmation and verifies the guard executes successfully under the project runtime
-         - after the hotfix gate passes, rerun the explicit governed publication and production CHECKLIST fast-path smoke
+       - **15.3b.1 Checklist publisher CJS runtime hotfix — COMPLETE · PR #231 · APPROVED FOR MERGE**
+         - publisher now runs through an explicit `async main()` entrypoint; no top-level `await` remains
+         - regression coverage invokes the exact Node/tsx runtime command with confirmation removed and requires the script to reach the confirmation guard with exit code 2
+         - the regression explicitly rejects the prior `Top-level await is currently not supported` transform failure
+         - focused acceptance PASS (2026-09-25): typecheck PASS · publisher/checklist suite **10/10 PASS** · production build PASS
+         - the only build warning is the pre-existing non-blocking Turbopack workspace-root/package-lock warning outside the repository
+         - after merge: rerun the explicit governed publication and production CHECKLIST fast-path smoke
      - **15.3c QRH fast path — CONTENT GAP CONFIRMED**
        - runtime/UI is implemented and deliberately fails closed unless the published abnormal module is fresh and all linked sources are CONTROLLING or OPERATING_REFERENCE
        - there is no Learjet bundled QRH/emergency fallback
