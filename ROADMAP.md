@@ -427,7 +427,12 @@ The detailed future sequence is tracked in **Active implementation order** below
      - METAR is automatic by default: fetch/apply on airport selection, poll every 5 minutes, and automatically update an existing calculation when a newer observation changes source-backed inputs; manual QNH/OAT edits remain sticky overrides with a compact **AUTO METAR** reset
      - remove remaining action/provenance helper copy that does not contribute to the calculation or a blocking state
      - implementation includes updated PP/DD/weather regression contracts and browser acceptance for automatic METAR behavior
-     - acceptance pending: targeted declared-distance/weather/PP tests, full verify, Playwright, production smoke
+     - first targeted local gate: typecheck **FAIL (2 errors)** · targeted suite **21/24 PASS / 3 FAIL** · build compiled but failed TypeScript
+       - obsolete Flight Brief reference to `newerWeatherAvailable` after AUTO-METAR contract change
+       - captured departure ICAO remained typed as optional inside the async METAR refresh closure
+       - three source-text regression assertions still expected removed UI/old controller markers
+     - corrective commits remove the obsolete Flight Brief notice, capture a non-optional METAR station value, and align DD/P1.3 tests with the simplified contract
+     - acceptance pending: targeted gate re-run, full verify, Playwright, production smoke
    - **14.2 Independent 25% rated-thrust source closure — BLOCKED**
      - FlightSafety requires thrust reduction <=25% of rated takeoff thrust for the existing ambient condition
      - CL-102B P-6/P-6.1 provide configuration-specific reduced-N1 schedules and a 7.7 N1-point cap, but no verified N1-to-rated-thrust relationship has been found
