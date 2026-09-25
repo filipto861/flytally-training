@@ -542,7 +542,9 @@ The detailed future sequence is tracked in **Active implementation order** below
        - guarded publisher `tooling/publish-learjet-checklist.ts` validates the payload, registers CL-102B/source reference if absent, then creates/approves/publishes the governed `checklists:bundle` only with explicit `CONFIRM_LEARJET_CHECKLIST_PUBLISH=yes`
        - focused regression coverage validates universal schema, unique IDs, source identity/fingerprint, target-profile filtering, registered applicability identifiers, source-critical Power/panel/start handoff items and the explicit publication guard
        - through-flight ◆ markers and Normal Procedure bold-emphasis semantics are not inferred because the parsed source does not preserve a reliable item-level mapping and the current checklist contract has no explicit field for those semantics
-       - acceptance pending: typecheck · targeted checklist/runtime/P5 tests · production build; after merge, explicit governed publication and production CHECKLIST fast-path smoke
+       - focused acceptance gate PASS (2026-09-25): `npm run typecheck` PASS · targeted checklist/runtime/P5 suite **32/32 PASS** · production `npm run build` PASS
+       - the only build warning is the pre-existing non-blocking Turbopack workspace-root/package-lock warning outside the repository
+       - ready for merge; after merge: explicit governed publication and production CHECKLIST fast-path smoke
      - ** — CONTENT GAP CONFIRMED**
        - runtime/UI is implemented and deliberately fails closed unless the published abnormal module is fresh and all linked sources are CONTROLLING or OPERATING_REFERENCE
        - there is no Learjet bundled QRH/emergency fallback
