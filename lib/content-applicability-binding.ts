@@ -10,6 +10,25 @@ function collectEmbeddedApplicabilityValues(
 ): readonly string[] {
   const values = new Set<string>();
 
+  function collectApplicability(applicability: JsonRecord): void {
+    for (const key of keys) {
+      const candidates = applicability[key];
+      if (!Array.isArray(candidates)) continue;
+      candidates.forEach((candidate) => {
+        if (typeof candidate === "string" && candidate.trim()) {
+          values.add(candidate.trim());
+        }
+      });
+    }
+
+    const anyOf = applicability.anyOf;
+    if (Array.isArray(anyOf)) {
+      anyOf.forEach((branch) => {
+        if (isRecord(branch)) collectApplicability(branch);
+      });
+    }
+  }
+
   function visit(value: unknown): void {
     if (Array.isArray(value)) {
       value.forEach(visit);
@@ -18,17 +37,7 @@ function collectEmbeddedApplicabilityValues(
     if (!isRecord(value)) return;
 
     const applicability = value.applicability;
-    if (isRecord(applicability)) {
-      for (const key of keys) {
-        const candidates = applicability[key];
-        if (!Array.isArray(candidates)) continue;
-        candidates.forEach((candidate) => {
-          if (typeof candidate === "string" && candidate.trim()) {
-            values.add(candidate.trim());
-          }
-        });
-      }
-    }
+    if (isRecord(applicability)) collectApplicability(applicability);
 
     Object.values(value).forEach(visit);
   }

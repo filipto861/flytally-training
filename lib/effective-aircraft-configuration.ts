@@ -30,6 +30,7 @@ export type EffectiveAircraftConfiguration = {
 
   readonly aircraftId: string;
   readonly variantKey: string;
+  readonly serialNumber?: string;
   readonly baseVariantKey: string;
 
   /**
@@ -83,6 +84,8 @@ export function resolveEffectiveAircraftConfiguration(
     configuration,
   } = input;
 
+  const serialNumber = configuration?.serialNumber;
+
   const equipmentTags = [
     ...mergeAircraftEquipmentTags(
       aircraft.equipmentTags,
@@ -116,6 +119,7 @@ export function resolveEffectiveAircraftConfiguration(
   const snapshotId = buildSnapshotId({
     aircraftId: aircraft.id,
     variantKey: variantProfile.key,
+    serialNumber,
     baseVariantKey,
     equipmentTags,
     capabilityTags,
@@ -127,6 +131,7 @@ export function resolveEffectiveAircraftConfiguration(
     snapshotId,
     aircraftId: aircraft.id,
     variantKey: variantProfile.key,
+    ...(serialNumber ? { serialNumber } : {}),
     baseVariantKey,
     equipmentTags,
     capabilityTags,
@@ -188,6 +193,7 @@ function buildDataHealth(args: {
 function buildSnapshotId(args: {
   readonly aircraftId: string;
   readonly variantKey: string;
+  readonly serialNumber?: string;
   readonly baseVariantKey: string;
   readonly equipmentTags: readonly string[];
   readonly capabilityTags: readonly string[];
@@ -199,6 +205,7 @@ function buildSnapshotId(args: {
   const canonical = {
     aircraftId: args.aircraftId,
     variantKey: args.variantKey,
+    serialNumber: args.serialNumber ?? null,
     baseVariantKey: args.baseVariantKey,
 
     equipmentTags:

@@ -85,3 +85,40 @@ test("universal sourcePolicy accepts the two governed values and rejects unknown
 
   assert.ok(errors.some((error) => error.includes("sourcePolicy")));
 });
+
+test("publication contract validates generic serial-range and OR applicability", () => {
+  const valid = {
+    aircraftId,
+    title: "Serial-scoped procedures",
+    procedures: [{
+      id: "serial-scoped",
+      title: "Serial scoped",
+      applicability: {
+        anyOf: [
+          { serialNumbers: ["35-107"] },
+          { serialNumberRanges: [{ prefix: "35-", from: 113 }] },
+          { modificationsAllOf: ["amk-example"] },
+        ],
+      },
+      steps: [{ id: "step", action: "Action" }],
+    }],
+  };
+  assert.deepEqual(validateContentPayload("procedures", valid, aircraftId), []);
+
+  const malformed = {
+    aircraftId,
+    title: "Malformed serial range",
+    procedures: [{
+      id: "bad-range",
+      title: "Bad range",
+      applicability: {
+        serialNumberRanges: [{ prefix: "35-", from: 120, to: 119 }],
+      },
+      steps: [{ id: "step", action: "Action" }],
+    }],
+  };
+  assert.match(
+    validateContentPayload("procedures", malformed, aircraftId).join("\n"),
+    /serialNumberRanges\[0\]\.to/,
+  );
+});

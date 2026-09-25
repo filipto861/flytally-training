@@ -21,6 +21,7 @@ import type {
 
 export type AircraftConfiguration = {
   readonly variant?: string;
+  readonly serialNumber?: string;
   readonly baseVariant?: string;
   readonly equipment: ReadonlySet<string>;
 
@@ -84,6 +85,7 @@ export function configurationForAircraftVariant(
 
   return {
     variant: effective.variantKey,
+    ...(effective.serialNumber ? { serialNumber: effective.serialNumber } : {}),
     baseVariant: effective.baseVariantKey,
     equipment: new Set(effective.equipmentTags),
 
@@ -229,6 +231,30 @@ function matchesStateApplicability<
   return true;
 }
 
+function matchesSerialApplicability(
+  serialNumber: string | undefined,
+  exact: readonly string[] | undefined,
+  ranges: AircraftApplicability["serialNumberRanges"],
+): boolean {
+  const hasRule = Boolean(exact?.length) || Boolean(ranges?.length);
+  if (!hasRule) return true;
+  if (!serialNumber) return false;
+
+  const normalized = serialNumber.trim();
+  if (exact?.some((candidate) => candidate.trim() === normalized)) {
+    return true;
+  }
+
+  return Boolean(ranges?.some((range) => {
+    const prefix = range.prefix ?? "";
+    if (!normalized.startsWith(prefix)) return false;
+    const sequenceText = normalized.slice(prefix.length);
+    if (!/^\d+$/.test(sequenceText)) return false;
+    const sequence = Number(sequenceText);
+    return sequence >= range.from && (range.to === undefined || sequence <= range.to);
+  }));
+}
+
 export function matchesAircraftApplicability(
   applicability: AircraftApplicability | undefined,
   configuration: AircraftConfiguration,
@@ -243,6 +269,16 @@ export function matchesAircraftApplicability(
   if (applicability.equipmentAllOf?.some((tag) => !equipment.has(tag))) return false;
   if (applicability.equipmentAnyOf?.length && !applicability.equipmentAnyOf.some((tag) => equipment.has(tag))) return false;
   if (applicability.equipmentNoneOf?.some((tag) => equipment.has(tag))) return false;
+
+  if (
+    !matchesSerialApplicability(
+      configuration.serialNumber,
+      applicability.serialNumbers,
+      applicability.serialNumberRanges,
+    )
+  ) {
+    return false;
+  }
 
   if (applicability.baseVariants?.length) {
     if (
@@ -281,6 +317,15 @@ export function matchesAircraftApplicability(
       applicability.configurationEquipmentAllOf,
       applicability.configurationEquipmentAnyOf,
       applicability.configurationEquipmentNoneOf,
+    )
+  ) {
+    return false;
+  }
+
+  if (
+    applicability.anyOf?.length &&
+    !applicability.anyOf.some((branch) =>
+      matchesAircraftApplicability(branch, configuration),
     )
   ) {
     return false;
