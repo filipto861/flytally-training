@@ -140,7 +140,7 @@ test("PP.4 controller defaults to Full Rated and never persists a Partial Power 
   assert.match(partialBranch, /return;/);
 });
 
-test("PP.4 pilot UI makes Partial Power explicit and visibly non-operational", () => {
+test("PP.4 pilot UI keeps Partial Power explicit, compact and visibly source-limited", () => {
   const source = fs.readFileSync(
     new URL("../components/ft-performance/FtPerformancePresentation.tsx", import.meta.url),
     "utf8",
@@ -148,8 +148,13 @@ test("PP.4 pilot UI makes Partial Power explicit and visibly non-operational", (
 
   assert.match(source, /Takeoff thrust mode/);
   assert.match(source, />Full Rated</);
-  assert.match(source, />Partial Power \/ Assumed Temperature</);
-  assert.match(source, /SOURCE-SUPPORTED TRAINING PREVIEW/);
-  assert.match(source, /not operationally accepted/i);
-  assert.match(source, /maximum 25% rated-takeoff-thrust reduction check/i);
+  assert.match(source, />Partial Power · Aeronca</);
+  assert.match(source, /setPartialPowerThrustReversers\("aeronca"\)/);
+  assert.doesNotMatch(source, /Partial Power thrust reverser configuration/);
+  assert.match(source, /TRAINING PREVIEW · 25% THRUST LIMIT UNVERIFIED/);
+  assert.match(source, />Dry hard-paved</);
+  assert.match(source, />Anti-skid operative</);
+  assert.match(source, /Full-rated &lt;30 days/);
+  assert.doesNotMatch(source, /These confirmations are required by the source procedure/);
+  assert.doesNotMatch(source, /Full Rated is the operational default/);
 });
