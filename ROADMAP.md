@@ -544,8 +544,13 @@ The detailed future sequence is tracked in **Active implementation order** below
        - through-flight ◆ markers and Normal Procedure bold-emphasis semantics are not inferred because the parsed source does not preserve a reliable item-level mapping and the current checklist contract has no explicit field for those semantics
        - focused acceptance gate PASS (2026-09-25): `npm run typecheck` PASS · targeted checklist/runtime/P5 suite **32/32 PASS** · production `npm run build` PASS
        - the only build warning is the pre-existing non-blocking Turbopack workspace-root/package-lock warning outside the repository
-       - ready for merge; after merge: explicit governed publication and production CHECKLIST fast-path smoke
-     - ** — CONTENT GAP CONFIRMED**
+       - PR #230 merged to `main` as `1d0adda4139149be1a2e8f99a87d7696dfce889f`; production code deployment is READY, but checklist data publication is not yet complete
+       - first explicit publisher run failed **before any database action** because `tsx` transformed the script as CommonJS and rejected top-level `await`; this is a tooling/runtime defect, not a checklist-content validation failure
+       - **15.3b.1 Checklist publisher CJS runtime hotfix — IN PROGRESS**
+         - wrap asynchronous publisher execution in an explicit `async main()` entrypoint; no top-level `await`
+         - add a regression test that invokes the real publisher command without confirmation and verifies the guard executes successfully under the project runtime
+         - after the hotfix gate passes, rerun the explicit governed publication and production CHECKLIST fast-path smoke
+     - **15.3c QRH fast path — CONTENT GAP CONFIRMED**
        - runtime/UI is implemented and deliberately fails closed unless the published abnormal module is fresh and all linked sources are CONTROLLING or OPERATING_REFERENCE
        - there is no Learjet bundled QRH/emergency fallback
        - source inventory confirms CL-102B contains dedicated Emergency and Abnormal Procedures sections with aircraft/equipment effectivity splits
