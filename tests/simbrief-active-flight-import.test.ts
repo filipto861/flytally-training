@@ -14,6 +14,7 @@ import {
   simBriefAircraftCompatible,
   simBriefLatestOfpUrl,
 } from "../lib/simbrief/ofp.ts";
+import { fetchLatestSimBriefOfp } from "../lib/simbrief/provider.ts";
 import {
   clearSimBriefIdentity,
   readSimBriefIdentity,
@@ -222,17 +223,73 @@ test("15.1 Active Flight accepts field-level SimBrief provenance without changin
   );
 });
 
-test("15.1 provider proxy is explicit-action, no-store and never background-polls SimBrief", () => {
+test("15.1 provider fetch uses JSON v2, no-store and a bounded request", async () => {
+  let observedUrl: URL | null = null;
+  let observedInit: RequestInit | undefined;
+
+  const result = await fetchLatestSimBriefOfp(
+    { kind: "alias", value: "Filip Test" },
+    async (input, init) => {
+      observedUrl = new URL(String(input));
+      observedInit = init;
+      return new Response(JSON.stringify(rawOfp), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    },
+  );
+
+  assert.equal(result.status, "ready");
+  assert.equal(observedUrl?.origin, "https://www.simbrief.com");
+  assert.equal(observedUrl?.searchParams.get("username"), "Filip Test");
+  assert.equal(observedUrl?.searchParams.get("json"), "v2");
+  assert.equal(observedInit?.method, "GET");
+  assert.equal(observedInit?.cache, "no-store");
+  assert.ok(observedInit?.signal instanceof AbortSignal);
+});
+
+test("15.1 provider maps no-flight, malformed and unavailable responses fail-closed", async () => {
+  assert.deepEqual(
+    await fetchLatestSimBriefOfp(
+      { kind: "pilot-id", value: "1234567" },
+      async () => new Response("not found", { status: 400 }),
+    ),
+    { status: "not-found" },
+  );
+
+  assert.deepEqual(
+    await fetchLatestSimBriefOfp(
+      { kind: "pilot-id", value: "1234567" },
+      async () => new Response("{broken", { status: 200 }),
+    ),
+    { status: "invalid-response" },
+  );
+
+  assert.deepEqual(
+    await fetchLatestSimBriefOfp(
+      { kind: "pilot-id", value: "1234567" },
+      async () => new Response("upstream", { status: 500 }),
+    ),
+    { status: "unavailable" },
+  );
+});
+
+test("15.1 proxy is authenticated, explicit-action only and never background-polls SimBrief", () => {
   const route = read("app/api/simbrief/latest/route.ts");
+  const provider = read("lib/simbrief/provider.ts");
   const activeFlight = read("components/ft-flight/FtActiveFlight.tsx");
 
   assert.match(route, /export async function POST/);
   assert.match(route, /isTrustedMutationRequest/);
-  assert.match(route, /cache: "no-store"/);
-  assert.match(route, /AbortSignal\.timeout\(10_000\)/);
-  assert.match(route, /simBriefLatestOfpUrl/);
+  assert.match(route, /getTrainingSession/);
+  assert.match(route, /unauthorized/);
+  assert.match(route, /fetchLatestSimBriefOfp/);
   assert.match(route, /simBriefAircraftCompatible/);
-  assert.doesNotMatch(route, /setInterval|setTimeout\(|cron|poll/i);
+
+  assert.match(provider, /cache: "no-store"/);
+  assert.match(provider, /AbortSignal\.timeout\(10_000\)/);
+  assert.match(provider, /simBriefLatestOfpUrl/);
+  assert.doesNotMatch(provider, /setInterval|setTimeout\(|cron|poll/i);
 
   assert.match(activeFlight, /onClick=\{importSimBrief\}/);
   assert.match(activeFlight, /Import latest OFP/);
@@ -251,4 +308,36 @@ test("15.1 provenance persistence is schema-owned, exported and DML-only at runt
   assert.match(store, /prefill_provenance/);
   assert.doesNotMatch(store, /CREATE\s+(TABLE|INDEX)|ALTER\s+TABLE/i);
   assert.match(privacy, /prefill_provenance/);
+});
+
+
+test("15.1 generic runtime contains no Learjet aircraft identity", () => {
+  for (const path of [
+    "lib/simbrief/types.ts",
+    "lib/simbrief/ofp.ts",
+    "lib/simbrief/provider.ts",
+    "lib/simbrief/client.ts",
+    "lib/simbrief/preferences.ts",
+    "app/api/simbrief/latest/route.ts",
+    "components/ft-flight/FtActiveFlight.tsx",
+  ]) {
+    const source = read(path);
+    assert.doesNotMatch(source, /learjet-35a|LJ35/i, path);
+  }
+  const aircraftOwned = read("aircraft-data/learjet-35a/simbrief-profile.ts");
+  assert.match(aircraftOwned, /aircraftId: "learjet-35a"/);
+  assert.match(aircraftOwned, /acceptedIcaoCodes: \["LJ35"\]/);
+});
+
+test("15.1 invalid provider generation timestamps fail closed", () => {
+  assert.equal(
+    parseSimBriefLatestOfp({
+      ...rawOfp,
+      params: {
+        ...rawOfp.params,
+        time_generated: "1e309",
+      },
+    }),
+    null,
+  );
 });
