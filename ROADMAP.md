@@ -5,8 +5,8 @@
 **Last updated:** 2026-09-25
 
 > This file is the single authoritative product/implementation roadmap for FlyTally Training.
-> Historical milestone/specification documents may remain in the repository as implementation evidence,
-> but they are not roadmaps and must not override this file or current executable contracts.
+> Historical milestone/specification documents are retained through Git history and pull requests rather than the active tree.
+> They are not roadmaps and must not override this file or current executable contracts.
 
 ## Progress overview
 
@@ -23,7 +23,7 @@
 | REF / Limitations | ⏳ | Governed limitations content still to be populated |
 | Climb + Cruise Reference | ⏳ | Planned, source-gated |
 | SimBrief Active Flight import | ⏳ | Planned |
-| Documentation consolidation | 🚧 | Implemented — verification pending |
+| Documentation consolidation | ✅ | Complete — four-file documentation surface verified |
 
 **Legend:** ✅ complete/live · 🚧 in progress · ⏳ planned · ⚠️ blocked/limited
 
@@ -42,7 +42,7 @@ Roadmap discipline is mandatory for this project:
 - chat history, PR descriptions and commit history are supporting evidence only; they do not replace roadmap or changelog maintenance;
 - when roadmap direction changes, preserve the prior decision/history rather than silently rewriting it away, so future development can reconstruct why the project moved in a given direction.
 
-## Documentation consolidation — IMPLEMENTED / VERIFYING
+## Documentation consolidation — COMPLETE · PR #236
 
 Goal: keep repository documentation easy to navigate and continuously maintainable.
 
@@ -52,9 +52,9 @@ Goal: keep repository documentation easy to navigate and continuously maintainab
 - `CHANGELOG.md` remains the authoritative accepted/released history;
 - `TECHNICAL_DOCUMENTATION.md` now consolidates current technical/product architecture, content/source governance, identity, persistence/privacy, Active Flight, operational checklist/fast path, performance, W&B, UX/PWA, admin, deployment, security/compliance and Learjet reference-aircraft contracts;
 - superseded milestone/specification Markdown files were removed from the active tree after their still-current contracts were incorporated; exact historical wording remains available through Git history and PRs;
-- documentation-contract tests are being redirected from retired milestone files to the consolidated technical reference or to the executable runtime contract itself;
+- documentation-contract tests were redirected from retired milestone files to the consolidated technical reference or to the executable runtime contract itself;
 - the progress/status table near the top of this roadmap is now the concise project overview requested by the product owner;
-- acceptance pending: full Node test suite plus production build to catch any remaining stale Markdown-file dependencies before merge.
+- acceptance complete: typecheck PASS; full Node suite 1220 total / 1219 PASS / 0 FAIL / 1 SKIP; production build PASS; Playwright not required because the PR changes documentation and documentation-contract tests only, with no runtime/UI behavior change.
 
 ## Product direction
 

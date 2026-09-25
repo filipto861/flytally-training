@@ -51,7 +51,7 @@ test("roadmap exposes the concise project progress overview", () => {
   assert.match(roadmap, /## Progress overview/);
   assert.match(roadmap, /Operational CHECKLIST \| ✅/);
   assert.match(roadmap, /Operational QRH \| ⏳/);
-  assert.match(roadmap, /Documentation consolidation \| 🚧/);
+  assert.match(roadmap, /Documentation consolidation \| ✅/);
 });
 
 test("technical documentation owns current architecture instead of milestone files", () => {
