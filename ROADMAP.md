@@ -579,7 +579,7 @@ The detailed future sequence is tracked in **Active implementation order** below
          - authenticated administrator publication completed successfully in production
          - production FLY smoke for `fc530-standard`: CHECKLIST is populated; `Exterior Preflight`, `Cabin Preflight`, `Before Starting Engines`, `Starting Engines`, `Runway Lineup` and `Quick Turnaround` are present; `Checklist unavailable` is absent
          - production readiness smoke: HTTP 200 · `status=ready` · operational true · source-governed release true
-       - **15.3b.5 EFB checklist session unification — IMPLEMENTED / VERIFYING**
+       - **15.3b.5 EFB checklist session unification — LIVE IN PRODUCTION · MANUAL SMOKE PENDING**
          - production acceptance bug addressed by making the new-shell EFB use the Fast Path provider as the single checklist state owner for the main Flight Deck, top progress indicator and fast-path drawer; legacy flag-off local checklist persistence remains isolated
          - completed items and selected phase now synchronize bidirectionally between the main Flight Deck and CHECKLIST drawer
          - CHECKLIST drawer now exposes reset-phase and two-step reset-all controls, phase completion markers and a next-phase affordance
@@ -592,7 +592,9 @@ The detailed future sequence is tracked in **Active implementation order** below
          - both gate findings are fixed without changing runtime behavior: reset callback now captures the already-validated phase id, and P5.6 expects the new flight-scoped migration test title
          - focused acceptance PASS (2026-09-25): typecheck PASS · targeted session/P5/15.3b.5 suite **30/30 PASS** · production build PASS
          - targeted Playwright 15.3b.5 smoke was not executed because local port 3000 was already occupied; this is an environment blocker from the two-server Playwright harness, not a test failure
-         - accepted for merge with production manual synchronization smoke required immediately after deployment
+         - merged to `main` in PR #234 · merge commit `7b1465f8ae4bef755e7ccb800a4b874a4716ff72`
+         - production deployment `dpl_AMMSPGwSp84CDa5WQUUn9HcDS5Gq` reached **READY** and is aliased to `training.fly-tally.com`
+         - remaining acceptance: manual production synchronization smoke for main checklist ↔ fast-path drawer, reset controls and same-flight persistence/new-flight isolation
      - **15.3c QRH fast path — CONTENT GAP CONFIRMED**
        - runtime/UI is implemented and deliberately fails closed unless the published abnormal module is fresh and all linked sources are CONTROLLING or OPERATING_REFERENCE
        - there is no Learjet bundled QRH/emergency fallback
