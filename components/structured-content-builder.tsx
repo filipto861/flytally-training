@@ -43,14 +43,14 @@ const multilineKeys = new Set([
   "summary","description","explanation","rationale","sourceNote","disclaimer","condition","verification",
   "expectedResult","setup","why","note","mentalModel","configuration",
 ]);
-const preserveOnBlank = new Set(["kind","interpolation","difficulty"]);
+const preserveOnBlank = new Set(["kind","interpolation","difficulty","procedureClass"]);
 const applicabilityArrayKeys = new Set(["variants","equipmentAllOf","equipmentAnyOf","equipmentNoneOf"]);
 const axisBindingKeys = new Set(["altitudeAxis","isaDeviationAxis","surfaceAxis","axisKey","lookupAxis"]);
 const outputBindingKeys = new Set(["sourceTemperatureOutput","groundRunOutput","obstacleDistanceOutput","factorOutput","factorOutputKey"]);
 const stringArrayKeys = new Set([
   "components","controls","indications","normalOperation","limitations","abnormalCues","remember","prerequisites",
   "completionCriteria","notes","choices","objectives","debrief","expectedResponse","procedures","variants",
-  "equipmentAllOf","equipmentAnyOf","equipmentNoneOf","checklistItemIds","outputKeys","selectorValues",
+  "equipmentAllOf","equipmentAnyOf","equipmentNoneOf","checklistItemIds","outputKeys","selectorValues","paragraphs",
 ]);
 
 function asJson(value: unknown): JsonValue {
@@ -162,11 +162,14 @@ function emptyArrayPrototype(key:string,path:readonly PathPart[],root:JsonValue)
   if(key==="items")return path.some(part=>part==="groups")?{id:"",label:"",value:""}:{id:"",challenge:""};
   if(key==="systems")return {id:"",title:"",summary:""};
   if(key==="flows")return {id:"",title:"",steps:[]};
+  if(key==="steps"&&path.some(part=>part==="scenarios"))return {id:"",kind:"action",text:""};
   if(key==="steps")return {id:"",action:""};
   if(key==="topics")return {id:"",title:"",summary:""};
   if(key==="questions")return {id:"",area:"",prompt:"",choices:["",""],correctIndex:0,explanation:""};
-  if(key==="scenarios")return {id:"",title:"",category:"",phase:"",difficulty:"core",minutes:0,summary:"",setup:"",objectives:[],debrief:[],stages:[]};
-  if(key==="stages")return {id:"",label:"",prompt:"",expectedResponse:[],explanation:"",sources:[]};
+  if(key==="scenarios")return {id:"",title:"",procedureClass:"emergency",category:"",effectivity:{kind:"all-aircraft",sourceText:""},stages:[]};
+  if(key==="stages"&&path.some(part=>part==="training"))return {stageId:"",prompt:"",explanation:""};
+  if(key==="stages"&&path.some(part=>part==="scenarios"))return {id:"",label:"",memoryItem:false,steps:[],sources:[]};
+  if(key==="branches")return {id:"",label:"",steps:[]};
   if(key==="constraints")return {when:{selectorValues:[]},input:{key:"",label:"",unit:""},operator:"lte",value:0,message:""};
   if(key==="options")return {value:"",label:"",factorOutputKey:""};
   return "";
@@ -296,6 +299,8 @@ export function StructuredContentBuilder({domain,aircraftId,initialPayload,manua
     if(key==="kind"&&typeof value==="string"&&["lookup-table","reference-table"].includes(value))return <label className={styles.field}><span>{humanize(key)}</span><select value={value} onChange={event=>setValue(path,event.target.value)}><option value="lookup-table">lookup table</option><option value="reference-table">reference table</option></select></label>;
     if(key==="kind"&&typeof value==="string"&&["note","caution","warning"].includes(value))return <label className={styles.field}><span>{humanize(key)}</span><select value={value} onChange={event=>setValue(path,event.target.value)}><option value="note">note</option><option value="caution">caution</option><option value="warning">warning</option></select></label>;
     if(key==="difficulty"&&typeof value==="string"&&["core","advanced"].includes(value))return <label className={styles.field}><span>{humanize(key)}</span><select value={value} onChange={event=>setValue(path,event.target.value)}><option value="core">core</option><option value="advanced">advanced</option></select></label>;
+    if(key==="procedureClass"&&typeof value==="string")return <label className={styles.field}><span>Procedure class</span><select value={value} onChange={event=>setValue(path,event.target.value)}><option value="emergency">Emergency</option><option value="abnormal">Abnormal</option></select></label>;
+    if(key==="kind"&&typeof value==="string"&&["all-aircraft","mapped"].includes(value))return <label className={styles.field}><span>Effectivity mapping</span><select value={value} onChange={event=>setValue(path,event.target.value)}><option value="all-aircraft">All aircraft</option><option value="mapped">Mapped configuration</option></select></label>;
     if(typeof value==="boolean")return <label className={styles.field}><span>{humanize(key)}</span><select value={String(value)} onChange={event=>setValue(path,event.target.value==="true")}><option value="true">true</option><option value="false">false</option></select></label>;
     if(typeof value==="number")return <label className={styles.field}><span>{humanize(key)}</span><input type="number" step="any" value={Number.isFinite(value)?value:0} onChange={event=>setValue(path,event.target.value===""?0:Number(event.target.value))}/></label>;
     if(value===null)return <label className={styles.field}><span>{humanize(key)}</span><input value="" placeholder="null" onChange={event=>setValue(path,event.target.value)}/></label>;

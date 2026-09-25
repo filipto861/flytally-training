@@ -95,29 +95,24 @@ export function createStructuredStarterPayload(aircraftId: string, domain: Struc
       };
     case "abnormal":
       return {
+        schemaVersion: 2,
         aircraftId,
         title: "",
         scenarios: [{
           id: "",
           title: "",
+          procedureClass: "emergency",
           category: "",
-          phase: "",
-          difficulty: "core",
-          minutes: 0,
-          summary: "",
-          setup: "",
-          objectives: [""],
           applicability: applicabilityStarter(),
+          effectivity: { kind: "all-aircraft", sourceText: "" },
           stages: [{
             id: "",
             label: "",
-            prompt: "",
-            expectedResponse: [""],
-            explanation: "",
+            memoryItem: false,
             applicability: applicabilityStarter(),
+            steps: [{ id: "", kind: "action", text: "" }],
             sources: [{ manualId: "", pageLabel: "" }],
           }],
-          debrief: [""],
         }],
       };
   }
