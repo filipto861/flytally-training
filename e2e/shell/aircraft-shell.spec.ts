@@ -351,7 +351,10 @@ test("15.3b.5 Flight Deck and fast path checklist stay synchronized", async ({ p
   await expect(panel.getByRole("checkbox", { name: /Battery/ })).not.toBeChecked();
 
   await page.keyboard.press("Escape");
-  await expect(mainChecklist.getByText("0/2", { exact: true })).toBeVisible();
+  await expect(panel).toHaveCount(0);
+  await expect(
+    mainChecklist.getByRole("button", { name: /Battery.*ON/ }),
+  ).toHaveAttribute("aria-pressed", "false");
 });
 
 test("P5 legacy checklist progress migrates into the flight-scoped new-shell session", async ({ page }) => {
