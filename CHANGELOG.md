@@ -15,6 +15,13 @@ This file is the authoritative version history for completed FlyTally Training w
 ## 2026-09-25
 
 ### Changed
+- **PR #245 — QRH.3F Learjet serial/AMK Emergency source batch**
+  - staged source-faithful BLEED AIR LIGHT procedures from E-20/E-20.1/E-20.2 with exact serial discontinuities and AMK 76-7 handling;
+  - staged CABIN/COCKPIT FIRE, SMOKE, OR FUMES from E-22/E-22.1/E-23/E-23.1/E-24 while preserving the independent first-page and electrical-continuation effectivity families instead of collapsing them into invented variants;
+  - kept prior-aircraft AMK 76-7 / AMK 78-13 states fail-closed when unknown, preserved page-level source provenance and source-specific electrical bus lists, and marked only the visually boxed E-22/E-22.1 steps 1–3 as memory;
+  - acceptance on head `37c01ca`: typecheck PASS; targeted QRH/applicability/P5/P6/W2 suite 111/111 PASS; full Node suite 1272 total / 1271 PASS / 0 FAIL / 1 SKIP; production build PASS; no Playwright rerun required because no browser/presentation behavior changed.
+
+### Changed
 - **PR #244 — QRH.3E.1 mapped QRH validator parity**
   - aligned the QRH v2 mapped-effectivity precondition with the generic applicability contract added in QRH.3E;
   - mapped QRH procedures can now use exact serials, serial-number ranges and nested `anyOf` applicability alternatives without being rejected by the QRH-specific guard;
