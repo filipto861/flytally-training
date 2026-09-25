@@ -3,7 +3,12 @@ import fs from "node:fs";
 import test from "node:test";
 
 import { configurationForAircraftVariant, matchesAircraftApplicability } from "../lib/aircraft-applicability.ts";
-import { commonAircraftEquipmentProfileKey, mergeAircraftEquipmentTags } from "../lib/aircraft-configuration-profile.ts";
+import {
+  aircraftApplicabilityRegistryProfileKey,
+  commonAircraftEquipmentProfileKey,
+  isSelectableAircraftVariantProfileKey,
+  mergeAircraftEquipmentTags,
+} from "../lib/aircraft-configuration-profile.ts";
 
 const read=(path:string)=>fs.readFileSync(new URL(`../${path}`,import.meta.url),"utf8");
 
@@ -33,15 +38,33 @@ test("v3.1 M3A selected variant adds equipment to common aircraft equipment",()=
   assert.deepEqual(mergeAircraftEquipmentTags(["engine-common"],["glass-panel","engine-common"]),["engine-common","glass-panel"]);
 });
 
-test("v3.1 M3A reserved common profile never becomes a registered learner variant",()=>{
+test("v3.1 M3A reserved metadata profiles never become registered learner variants",()=>{
   assert.equal(commonAircraftEquipmentProfileKey,"__common__");
+  assert.equal(
+    aircraftApplicabilityRegistryProfileKey,
+    "__applicability_registry__",
+  );
+  assert.equal(
+    isSelectableAircraftVariantProfileKey(commonAircraftEquipmentProfileKey),
+    false,
+  );
+  assert.equal(
+    isSelectableAircraftVariantProfileKey(aircraftApplicabilityRegistryProfileKey),
+    false,
+  );
+  assert.equal(isSelectableAircraftVariantProfileKey("fc530-standard"),true);
+
   const admin=read("lib/content-admin-repository.ts");
   const learner=read("lib/postgres-content-repository.ts");
   const governance=read("lib/content-governance.ts");
+
   assert.match(admin,/variant_key<>\$\{commonAircraftEquipmentProfileKey\}/);
-  assert.match(admin,/filter\(row=>row\.variant_key!==commonAircraftEquipmentProfileKey\)/);
-  assert.match(learner,/filter\(profile=>profile\.key!==commonAircraftEquipmentProfileKey\)/);
-  assert.match(governance,/filter\(\(row\) => row\.variant_key !== commonAircraftEquipmentProfileKey\)/);
+  assert.match(admin,/variant_key<>\$\{aircraftApplicabilityRegistryProfileKey\}/);
+  assert.match(admin,/row\.variant_key!==commonAircraftEquipmentProfileKey/);
+  assert.match(admin,/row\.variant_key!==aircraftApplicabilityRegistryProfileKey/);
+  assert.match(learner,/isSelectableAircraftVariantProfileKey\(profile\.key\)/);
+  assert.match(governance,/row\.variant_key !== commonAircraftEquipmentProfileKey/);
+  assert.match(governance,/row\.variant_key !== aircraftApplicabilityRegistryProfileKey/);
 });
 
 test("v3.1 M3A Studio manages common and variant-only equipment as configuration data",()=>{

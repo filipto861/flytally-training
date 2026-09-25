@@ -12,6 +12,7 @@ import {
   type TrainingContentDomain,
 } from "./content-admin-types";
 import {
+  aircraftApplicabilityRegistryProfileKey,
   commonAircraftEquipmentProfileKey,
   parseAircraftConfigurationMetadata,
   type AircraftConfigurationMetadata,
@@ -257,6 +258,61 @@ export async function upsertAircraftVariant(aircraftId:string,input:UpsertAircra
   if(!rows[0])throw new Error("Variant configuration can only be changed while the aircraft catalogue entry is in draft.");
 }
 
+export type AircraftApplicabilityRegistryInput = {
+  readonly modificationKeys: readonly string[];
+  readonly configurationEquipmentKeys: readonly string[];
+};
+
+export async function upsertAircraftApplicabilityRegistry(
+  aircraftId: string,
+  input: AircraftApplicabilityRegistryInput,
+  subject: string,
+): Promise<void> {
+  const id = validId(aircraftId, "aircraft id");
+  const modificationKeys = [
+    ...new Set(
+      input.modificationKeys.map((key) =>
+        validId(key, "applicability modification key"),
+      ),
+    ),
+  ].sort();
+  const configurationEquipmentKeys = [
+    ...new Set(
+      input.configurationEquipmentKeys.map((key) =>
+        validId(key, "applicability equipment key"),
+      ),
+    ),
+  ].sort();
+
+  const metadata = JSON.stringify({
+    applicabilityRegistry: {
+      modificationKeys,
+      configurationEquipmentKeys,
+    },
+    registeredBy: requiredText(subject, "registry subject", 500),
+  });
+
+  const rows = await sql`INSERT INTO training_aircraft_variants(
+      aircraft_id,
+      variant_key,
+      display_name,
+      metadata
+    )
+    SELECT
+      a.aircraft_id,
+      ${aircraftApplicabilityRegistryProfileKey},
+      'Applicability registry',
+      ${metadata}::jsonb
+    FROM training_aircraft_types a
+    WHERE a.aircraft_id=${id}
+    ON CONFLICT(aircraft_id,variant_key) DO UPDATE SET
+      display_name=EXCLUDED.display_name,
+      metadata=EXCLUDED.metadata
+    RETURNING variant_key` as Array<{ variant_key: string }>;
+
+  if (!rows[0]) throw new Error("Aircraft not found.");
+}
+
 export async function createSourceReference(input:{revisionId:string;chapter?:string;section?:string;pageLabel:string;note?:string},subject:string):Promise<string>{
   const id=randomUUID();
   await sql`INSERT INTO training_source_references(reference_id,revision_id,chapter,section,page_label,note,created_by) VALUES(${id},${input.revisionId},${input.chapter?.trim()||null},${input.section?.trim()||null},${input.pageLabel.trim()},${input.note?.trim()||null},${subject})`;
@@ -269,7 +325,7 @@ export async function resolveStaleFlag(staleId:number,subject:string,note?:strin
 
 async function adminSummaries():Promise<AdminAircraftSummary[]>{
   const rows=await sql`SELECT a.aircraft_id,a.manufacturer,a.model,a.display_name,a.status,
-    COALESCE((SELECT json_agg(v.variant_key ORDER BY v.variant_key) FROM training_aircraft_variants v WHERE v.aircraft_id=a.aircraft_id AND v.variant_key<>${commonAircraftEquipmentProfileKey}),'[]'::json) variants,
+    COALESCE((SELECT json_agg(v.variant_key ORDER BY v.variant_key) FROM training_aircraft_variants v WHERE v.aircraft_id=a.aircraft_id AND v.variant_key<>${commonAircraftEquipmentProfileKey} AND v.variant_key<>${aircraftApplicabilityRegistryProfileKey}),'[]'::json) variants,
     (SELECT COUNT(*) FROM training_manual_revisions r JOIN training_manuals m ON m.manual_id=r.manual_id WHERE m.aircraft_id=a.aircraft_id)::int manual_count,
     (SELECT COUNT(*) FROM training_content_items i WHERE i.aircraft_id=a.aircraft_id)::int item_count,
     (SELECT COUNT(*) FROM training_content_stale_flags sf JOIN training_content_versions cv ON cv.version_id=sf.version_id JOIN training_content_items ci ON ci.item_id=cv.item_id WHERE ci.aircraft_id=a.aircraft_id AND sf.resolved_at IS NULL)::int stale_count
@@ -287,7 +343,11 @@ export async function getAdminAircraft(aircraftId:string):Promise<AdminAircraftD
   const versions=await sql`SELECT v.version_id,i.domain,i.content_key,v.version_no,v.state,v.origin,v.created_by,v.created_at,a.reviewed_by,p.published_at FROM training_content_items i JOIN training_content_versions v ON v.item_id=i.item_id LEFT JOIN LATERAL(SELECT reviewed_by FROM training_content_approvals aa WHERE aa.version_id=v.version_id AND aa.decision='approved' ORDER BY reviewed_at DESC LIMIT 1)a ON TRUE LEFT JOIN training_content_publications p ON p.version_id=v.version_id WHERE i.aircraft_id=${aircraftId} ORDER BY v.created_at DESC` as Array<{version_id:string;domain:TrainingContentDomain;content_key:string;version_no:number|string;state:AdminContentVersion["state"];origin:AdminContentVersion["origin"];created_by:string;created_at:string|Date;reviewed_by:string|null;published_at:string|Date|null}>;
   const commonEquipmentRow=variantRows.find(row=>row.variant_key===commonAircraftEquipmentProfileKey);
   const commonEquipment=commonEquipmentRow?metadataStringArray(metadataObject(commonEquipmentRow.metadata).equipmentTags):[];
-  const variantProfiles=variantRows.filter(row=>row.variant_key!==commonAircraftEquipmentProfileKey).map((row):AdminAircraftVariantProfile=>{
+  const variantProfiles=variantRows.filter(
+    row=>
+      row.variant_key!==commonAircraftEquipmentProfileKey
+      && row.variant_key!==aircraftApplicabilityRegistryProfileKey,
+  ).map((row):AdminAircraftVariantProfile=>{
     const metadata=metadataObject(row.metadata);
     const note=typeof metadata.note==="string"&&metadata.note.trim()?metadata.note.trim():undefined;
     const configuration=parseAircraftConfigurationMetadata(metadata.configuration);

@@ -2,6 +2,9 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  aircraftApplicabilityRegistryProfileKey,
+  commonAircraftEquipmentProfileKey,
+  isSelectableAircraftVariantProfileKey,
   parseAircraftConfigurationMetadata,
 } from "../lib/aircraft-configuration-profile.ts";
 
@@ -84,4 +87,17 @@ test("configuration metadata parser accepts an exact manufacturer serial identif
     parseAircraftConfigurationMetadata({ serialNumber: " SN A-001/REV2 " }),
     { serialNumber: "SN A-001/REV2" },
   );
+});
+
+
+test("reserved configuration profiles never become learner-selectable variants", () => {
+  assert.equal(
+    isSelectableAircraftVariantProfileKey(commonAircraftEquipmentProfileKey),
+    false,
+  );
+  assert.equal(
+    isSelectableAircraftVariantProfileKey(aircraftApplicabilityRegistryProfileKey),
+    false,
+  );
+  assert.equal(isSelectableAircraftVariantProfileKey("fc530-standard"), true);
 });
