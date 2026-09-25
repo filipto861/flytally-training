@@ -514,7 +514,7 @@ The detailed future sequence is tracked in **Active implementation order** below
    - **15.3 EFB / FLY content-completeness audit — AUDIT COMPLETE · IMPLEMENTATION PLANNED**
      - audit scope: EFB side-nav **FLY**, fast-path **CHECKLIST / QRH / PERF / REF**, and the corresponding Learjet 35A governed data dependencies
      - historical cause confirmed: the M39 Learjet clean reset intentionally retired the previous Learjet checklist/procedure/system/performance/limitation/abnormal payloads; the current rebuild has since restored bundled Takeoff/Landing performance, but the operational fast-path still depends on separately published governed modules for CHECKLIST, QRH and REF
-     - **15.3a FLY route dead-end — COMPLETE · PR #229 · APPROVED FOR PRODUCTION**
+     - **15.3a FLY route dead-end — COMPLETE · PR #229 · LIVE IN PRODUCTION**
        - new-shell EFB navigation currently sends **FLY** to `/aircraft/:id/fly`
        - that route still uses the older strict Flight Deck composition and calls `notFound()` when no operationally-ready published checklist/performance/abnormal module survives readiness gating
        - unlike the current EFB Flight Brief/PERF path, the legacy FLY route does not merge the Learjet bundled performance package, so the aircraft can have working Takeoff/Landing performance and still have a dead FLY destination
@@ -525,7 +525,10 @@ The detailed future sequence is tracked in **Active implementation order** below
        - Flight Deck now renders an explicit fail-closed empty state if an aircraft genuinely has no operational modules
        - targeted regression coverage added in `tests/p1-5-fly-route.test.ts`; M53 operational-boundary expectation updated for the bundled-performance merge
        - local acceptance: typecheck PASS · targeted 15.3a/M53/UX6 suite **15/15 PASS** · production build PASS
-       - approved for production after the focused gate; remaining acceptance is production FLY + readiness smoke
+       - merged to `main` in PR #229 · merge commit `22e5e4a23f1eda93429486585e78fb6c9743f84b`
+       - production deployment `dpl_C45SzjJxxoJKqRjqMNM1yZ75o1Ve` reached **READY** and is aliased to `training.fly-tally.com`
+       - production FLY smoke: `/aircraft/learjet-35a/fly` HTTP 200 and renders the new-shell `data-ft-fly-page` workspace with Performance content
+       - production readiness smoke: HTTP 200 · `status=ready` · operational profile true · source-governed release profile true
      - **15.3b CHECKLIST fast path — CONTENT GAP CONFIRMED**
        - runtime/UI is implemented and functional
        - Learjet fast-path checklist requires a governed published universal `checklists` payload (or legacy normal-flight fallback); there is no Learjet bundled checklist fallback in the current rebuild
