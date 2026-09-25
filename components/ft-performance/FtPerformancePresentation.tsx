@@ -73,7 +73,6 @@ export function FtPerformanceOperationPresentation({
     canCalculate,
     airportDataState,
     runwayOptions,
-    runwayContext,
     runwayIdentifier,
     toraFt,
     toraInputSource,
