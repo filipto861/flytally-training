@@ -3,9 +3,7 @@
 import Link from "next/link";
 
 import type { ActiveFlight } from "@/lib/active-flight/types";
-import type { SelectedRunwayContext } from "@/lib/aviation/airport-types";
 import type { PilotTakeoffCalculatorDefinition } from "@/lib/pilot-takeoff-calculator";
-import type { OperationWeatherSource } from "@/lib/performance/operation-weather";
 import type { PerformanceDataset } from "@/lib/universal-aircraft-content";
 import { formatObservationZulu } from "@/lib/weather/metar-snapshot-helpers";
 
