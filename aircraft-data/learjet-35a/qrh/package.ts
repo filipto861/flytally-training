@@ -19,7 +19,7 @@ import { learjet35aQrhAbnormalBatch10 } from "./abnormal-batch-10.ts";
 import { learjet35aQrhAbnormalBatch11 } from "./abnormal-batch-11.ts";
 import { learjet35aQrhAbnormalBatch12 } from "./abnormal-batch-12.ts";
 
-export const learjet35aQrhSourceBatches = [
+export const learjet35aQrhSourceBatches: readonly AircraftAbnormalEmergencyV2Content[] = [
   learjet35aQrhEmergencyBatch1,
   learjet35aQrhEmergencyBatch2,
   learjet35aQrhEmergencyBatch3,
@@ -39,7 +39,7 @@ export const learjet35aQrhSourceBatches = [
   learjet35aQrhAbnormalBatch10,
   learjet35aQrhAbnormalBatch11,
   learjet35aQrhAbnormalBatch12,
-] as const satisfies readonly AircraftAbnormalEmergencyV2Content[];
+];
 
 const sectionIntroductions = learjet35aQrhSourceBatches.flatMap(
   (batch) => batch.sectionIntroductions ?? [],
