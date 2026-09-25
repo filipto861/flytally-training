@@ -15,6 +15,14 @@ This file is the authoritative version history for completed FlyTally Training w
 ## 2026-09-25
 
 ### Changed
+- **PR #247 — QRH.3H Learjet Anti-Icing Abnormal source batch**
+  - began CL-102B Abnormal Procedures digitization with the complete 12-procedure Anti-Icing family from A-4 through A-9/A-9.1 plus the A-i section introduction;
+  - preserved exact early/late serial page effectivity, nested source conditions, and source-significant differences between paired pages rather than normalizing them;
+  - gated `WSHLD DEFOG LIGHT (IF INSTALLED)` through explicit generic configuration equipment and kept unknown/absent equipment state fail-closed;
+  - visual source review found no boxed memory items on the reviewed A-4 through A-9.1 pages, so no inferred memory flags or Training overlay were introduced;
+  - acceptance on head `b06d4f5`: typecheck PASS; targeted QRH/applicability/P5/P6/W2 suite 126/126 PASS; full Node suite 1287 total / 1286 PASS / 0 FAIL / 1 SKIP; production build PASS; no Playwright rerun required because no browser/presentation behavior changed.
+
+### Changed
 - **PR #246 — QRH.3G Learjet thrust-reverser Emergency source batch**
   - staged the remaining configuration-specific CL-102B Emergency takeoff thrust-reverser procedures from E-35/E-35.1;
   - preserved Aeronca and TR-4000 as distinct source configurations through generic configuration-equipment applicability, with unknown, absent or contradictory installation identity failing closed;
