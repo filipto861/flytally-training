@@ -683,7 +683,9 @@ The detailed future sequence is tracked in **Active implementation order** below
          - visual source review fixes memory boundaries at E-35 Below-V1 steps 1–3, E-35 Above-V1 steps 1–7, E-35.1 Below-V1 steps 1–3, and E-35.1 Above-V1 through the boxed step-8 DEPLOY-light branch
          - production publication remains fail-closed until the selected Learjet configuration explicitly registers/resolves exactly one of the two thrust-reverser equipment identities
          - QRH.3G acceptance on head `f9f7d48`: typecheck PASS · targeted QRH/applicability/P5/P6/W2 suite 118/118 PASS · full Node suite 1279 total / 1278 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright not required because no browser/presentation behavior changed
-         - **QRH.3H Abnormal source digitization — NEXT:** begin CL-102B Abnormal Procedures with source-faithful page-level provenance, explicit effectivity, conditional branches and visually verified memory semantics; keep operational source content separate from optional Training overlays
+         - **QRH.3H Anti-Icing Abnormal source batch — IN PROGRESS:** digitize the complete 12-procedure Anti-Icing index family from A-4 through A-9/A-9.1 plus the A-i Abnormal section introduction; preserve the A-6/A-6.1 through A-9/A-9.1 serial split and nested source conditions
+         - `WSHLD DEFOG LIGHT (IF INSTALLED)` is additionally gated by explicit generic configuration equipment `windshield-defog`; unknown/absent installation state fails closed
+         - visual review of A-4 through A-9.1 found no boxed memory items, so this batch introduces no inferred memory flags; no Training overlay is invented
          - publish through the governed abnormal-domain lifecycle and verify operational-readiness gating
        - **QRH.4 cockpit acceptance — PLANNED**
          - verify fast-path category/procedure navigation, Emergency-vs-Abnormal distinction, memory-item emphasis, configuration filtering and source/authority disclosure on desktop/mobile/iPad
