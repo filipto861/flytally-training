@@ -47,17 +47,8 @@ const fc530: AircraftApplicability = {
   equipmentAllOf: ["fc-530"],
 };
 
-const fc200: AircraftApplicability = {
-  equipmentAllOf: ["fc-200"],
-};
 
-const tr4000: AircraftApplicability = {
-  equipmentAllOf: ["tr-4000-thrust-reverser"],
-};
 
-const aeronca: AircraftApplicability = {
-  equipmentAllOf: ["aeronca-thrust-reverser"],
-};
 
 const thrustReverserInstalled: AircraftApplicability = {
   configurationEquipmentAllOf: ["thrust-reverser"],
@@ -67,29 +58,11 @@ const dragChuteInstalled: AircraftApplicability = {
   configurationEquipmentAllOf: ["drag-chute"],
 };
 
-const emergencyLightsInstalled: AircraftApplicability = {
-  configurationEquipmentAllOf: ["emergency-lights"],
-};
 
-const auxHeatInstalled: AircraftApplicability = {
-  configurationEquipmentAllOf: ["aux-heat"],
-};
 
-const coffeeOvenInstalled: AircraftApplicability = {
-  configurationEquipmentAllOf: ["coffee-oven"],
-};
 
-const heatedWindshieldInstalled: AircraftApplicability = {
-  configurationEquipmentAllOf: ["electrically-heated-windshield"],
-};
 
-const fuselageFuelValveInstalled: AircraftApplicability = {
-  configurationEquipmentAllOf: ["fuselage-fuel-valve"],
-};
 
-const inNormalOutDefogInstalled: AircraftApplicability = {
-  configurationEquipmentAllOf: ["in-normal-out-defog"],
-};
 
 export const learjet35aNormalChecklist: AircraftChecklistContent = {
   aircraftId: "learjet-35a",
@@ -134,8 +107,6 @@ export const learjet35aNormalChecklist: AircraftChecklistContent = {
         item("exterior-right-aileron-spoiler-flap", "Right Aileron, Spoiler & Flap", "CHECK", "N-3", "Exterior Preflight"),
         item("exterior-right-ble-vg", "Right Boundary Layer Energizers or Vortex Generators", "CHECK", "N-3", "Exterior Preflight"),
         item("exterior-right-engine", "Right Engine", "CHECK", "N-3", "Exterior Preflight"),
-        item("exterior-right-tr-aeronca", "Right Thrust Reverser", "CHECK & STOWED", "N-3", "Exterior Preflight", aeronca),
-        item("exterior-right-tr-tr4000", "Right Thrust Reverser", "CHECK & PINS REMOVED", "N-3", "Exterior Preflight", tr4000),
         item("exterior-fuel-vent", "Fuel Vent", "DRAIN COMPLETELY", "N-3", "Exterior Preflight"),
         item("exterior-fuselage-fuel-drains-aft", "Fuselage Fuel Drains", "DRAIN", "N-3", "Exterior Preflight"),
         item("exterior-tailcone", "Tailcone Interior", "CHECK", "N-3", "Exterior Preflight"),
@@ -149,8 +120,6 @@ export const learjet35aNormalChecklist: AircraftChecklistContent = {
         item("exterior-left-fuel-computer-drain", "Left Fuel Computer Drain", "DRAIN", "N-3", "Exterior Preflight"),
         item("exterior-fire-discs", "Fire Extinguisher Discs", "CHECK", "N-3", "Exterior Preflight"),
         item("exterior-left-engine", "Left Engine", "CHECK", "N-3", "Exterior Preflight"),
-        item("exterior-left-tr-aeronca", "Left Thrust Reverser", "CHECK & STOWED", "N-3", "Exterior Preflight", aeronca),
-        item("exterior-left-tr-tr4000", "Left Thrust Reverser", "CHECK & PINS REMOVED", "N-3", "Exterior Preflight", tr4000),
         item("exterior-left-spoiler-flap-aileron", "Left Spoiler, Flap & Aileron", "CHECK", "N-4", "Exterior Preflight"),
         item("exterior-left-ble-vg", "Left Boundary Layer Energizers or Vortex Generators", "CHECK", "N-4", "Exterior Preflight"),
         item("exterior-left-nav-static", "Left Nav Light & Static Wicks (2)", "CHECK", "N-4", "Exterior Preflight"),
@@ -205,7 +174,7 @@ export const learjet35aNormalChecklist: AircraftChecklistContent = {
         item("bse-batteries", "Batteries", "CHECK & ON", "N-5", "Before Starting Engines"),
         item("bse-gpu", "GPU (if desired)", "CONNECT & ON", "N-5", "Before Starting Engines"),
         item("bse-inverters", "Inverters", "CHECK & ON", "N-5", "Before Starting Engines"),
-        item("bse-emergency-lights", "Emergency Lights", "TEST & ARMED", "N-5", "Before Starting Engines", emergencyLightsInstalled),
+        item("bse-emergency-lights", "Emergency Lights (if installed)", "TEST & ARMED", "N-5", "Before Starting Engines"),
         item("bse-hyd-pressure", "Hydraulic Pressure", "CHECK", "N-6", "Before Starting Engines"),
         item("bse-emergency-air", "Emergency Air Pressure", "CHECK", "N-6", "Before Starting Engines"),
         item("bse-parking-brake", "Parking Brake", "SET", "N-6", "Before Starting Engines"),
@@ -225,7 +194,7 @@ export const learjet35aNormalChecklist: AircraftChecklistContent = {
         item("bse-auto-man", "Auto-Man Switch", "AS DESIRED", "N-6", "Before Starting Engines"),
         item("bse-cabin-controller", "Cabin Controller", "CRUISE ALTITUDE", "N-6", "Before Starting Engines"),
         item("bse-rate-selector", "Rate Selector", "AS DESIRED", "N-6", "Before Starting Engines"),
-        item("bse-in-normal-out-defog", "IN NORMAL/OUT DEFOG Knob", "PUSH IN", "N-6", "Before Starting Engines", inNormalOutDefogInstalled),
+        item("bse-in-normal-out-defog", "IN NORMAL/OUT DEFOG Knob (if installed)", "PUSH IN", "N-6", "Before Starting Engines"),
         item("bse-cabin-temp", "Cabin Temp Controls", "AS DESIRED", "N-6", "Before Starting Engines"),
         item("bse-secondary-pitch", "Secondary Pitch & Cutout", "CHECK", "N-7", "Before Starting Engines"),
         item("bse-primary-pitch", "Primary Pitch & Cutout", "CHECK", "N-7", "Before Starting Engines"),
@@ -241,7 +210,7 @@ export const learjet35aNormalChecklist: AircraftChecklistContent = {
         item("bse-crossflow", "Crossflow Valve", "CLOSE", "N-7", "Before Starting Engines"),
         item("bse-transfer-fill", "Transfer — Fill", "OFF", "N-7", "Before Starting Engines"),
         item("bse-standby-pumps", "Standby Pumps", "CHECK & OFF", "N-7", "Before Starting Engines"),
-        item("bse-fuselage-valve", "Fuselage Valve", "CLOSE", "N-7", "Before Starting Engines", fuselageFuelValveInstalled),
+        item("bse-fuselage-valve", "Fuselage Valve (if installed)", "CLOSE", "N-7", "Before Starting Engines"),
         item("bse-fuel-jettison", "Fuel Jettison", "OFF", "N-7", "Before Starting Engines"),
         item("bse-cvr", "CVR", "TEST", "N-7", "Before Starting Engines"),
         item("bse-drag-chute", "Drag Chute Handle", "STOWED", "N-7", "Before Starting Engines", dragChuteInstalled),
@@ -257,7 +226,7 @@ export const learjet35aNormalChecklist: AircraftChecklistContent = {
         item("start-cabin-door", "Cabin Door", "SECURED & LIGHT OUT", "N-8", "Starting Engines"),
         item("start-fuel-computers", "Fuel Computers", "ON", "N-8", "Starting Engines"),
         item("start-air-conditioner", "Air Conditioner", "OFF", "N-8", "Starting Engines"),
-        item("start-aux-heat", "Aux Heat", "OFF", "N-8", "Starting Engines", auxHeatInstalled),
+        item("start-aux-heat", "Aux Heat (if installed)", "OFF", "N-8", "Starting Engines"),
         item("start-batteries", "Batteries", "ON", "N-8", "Starting Engines"),
         item("start-inverters", "Inverters", "ON", "N-8", "Starting Engines"),
         item("start-parking-brake", "Parking Brake (hydraulic pressure req’d)", "SET", "N-8", "Starting Engines"),
@@ -288,7 +257,7 @@ export const learjet35aNormalChecklist: AircraftChecklistContent = {
         item("bt2-avionics", "Avionics", "SET", "N-9", "Before Taxi — Two Engine"),
         item("bt2-radar", "Radar", "STBY", "N-9", "Before Taxi — Two Engine"),
         item("bt2-breakers", "Circuit Breakers", "IN", "N-9", "Before Taxi — Two Engine"),
-        item("bt2-coffee", "Coffee/Oven", "AS DESIRED", "N-9", "Before Taxi — Two Engine", coffeeOvenInstalled),
+        item("bt2-coffee", "Coffee/Oven (if installed)", "AS DESIRED", "N-9", "Before Taxi — Two Engine"),
         item("bt2-fuel-control-governor", "Fuel Control Governor", "CHECK", "N-9", "Before Taxi — Two Engine"),
         item("bt2-windshield-heat", "Windshield Heat", "PURGE AS REQ’D", "N-9", "Before Taxi — Two Engine"),
         item("bt2-lights", "Lights", "ON, AS REQ’D", "N-9", "Before Taxi — Two Engine"),
@@ -321,7 +290,7 @@ export const learjet35aNormalChecklist: AircraftChecklistContent = {
         item("tbto2-cabin-air", "Cabin Air", "ON", "N-10", "Taxi and Before Takeoff — Two Engine"),
         item("tbto2-cabin-temp", "Cabin Temp Controls", "SET", "N-10", "Taxi and Before Takeoff — Two Engine"),
         item("tbto2-antiice", "Anti-Ice Systems", "CHECK & AS REQ’D", "N-10", "Taxi and Before Takeoff — Two Engine"),
-        item("tbto2-heated-windshield", "Electrically-Heated Windshield", "ON", "N-10", "Taxi and Before Takeoff — Two Engine", heatedWindshieldInstalled),
+        item("tbto2-heated-windshield", "Electrically-Heated Windshield (if installed)", "ON", "N-10", "Taxi and Before Takeoff — Two Engine"),
         item("tbto2-briefing", "Crew Takeoff Briefing", "COMPLETE", "N-10", "Taxi and Before Takeoff — Two Engine"),
       ],
     },
@@ -337,7 +306,7 @@ export const learjet35aNormalChecklist: AircraftChecklistContent = {
         item("bt1-avionics", "Avionics", "SET", "N-10", "Before Taxi — One Engine"),
         item("bt1-radar", "Radar", "STBY", "N-10", "Before Taxi — One Engine"),
         item("bt1-breakers", "Circuit Breakers", "IN", "N-10", "Before Taxi — One Engine"),
-        item("bt1-coffee", "Coffee/Oven", "AS DESIRED", "N-10", "Before Taxi — One Engine", coffeeOvenInstalled),
+        item("bt1-coffee", "Coffee/Oven (if installed)", "AS DESIRED", "N-10", "Before Taxi — One Engine"),
         item("bt1-lights", "Lights", "ON, AS REQ’D", "N-10", "Before Taxi — One Engine"),
         item("bt1-antiskid", "Anti-Skid", "ON, LIGHTS OUT", "N-10", "Before Taxi — One Engine"),
         item("bt1-pax", "Pax Briefing/Cabin Secured", "COMPLETE", "N-10", "Before Taxi — One Engine"),
@@ -362,7 +331,7 @@ export const learjet35aNormalChecklist: AircraftChecklistContent = {
         item("tbto1-trims", "Trims (3)", "SET/PRI/LIGHT OUT", "N-11", "Taxi and Before Takeoff — One Engine"),
         item("tbto1-pressurization", "Pressurization", "SET", "N-11", "Taxi and Before Takeoff — One Engine"),
         item("tbto1-air-conditioner", "Air Conditioner", "OFF", "N-12", "Taxi and Before Takeoff — One Engine"),
-        item("tbto1-aux-heat", "Aux Heat", "OFF", "N-12", "Taxi and Before Takeoff — One Engine", auxHeatInstalled),
+        item("tbto1-aux-heat", "Aux Heat (if installed)", "OFF", "N-12", "Taxi and Before Takeoff — One Engine"),
         item("tbto1-thrust-lever", "Thrust Lever", "CUTOFF", "N-12", "Taxi and Before Takeoff — One Engine"),
         item("tbto1-second-engine", "Engine", "START", "N-12", "Taxi and Before Takeoff — One Engine"),
         item("tbto1-startgen", "Start-Gen Switch", "GEN @ IDLE", "N-12", "Taxi and Before Takeoff — One Engine"),
@@ -371,7 +340,7 @@ export const learjet35aNormalChecklist: AircraftChecklistContent = {
         item("tbto1-voltmeters", "Voltmeter & Ammeters", "CHECK", "N-12", "Taxi and Before Takeoff — One Engine"),
         item("tbto1-cabin-temp", "Cabin Temp Controls", "SET", "N-12", "Taxi and Before Takeoff — One Engine"),
         item("tbto1-antiice", "Anti-Ice Systems", "CHECK & AS REQ’D", "N-12", "Taxi and Before Takeoff — One Engine"),
-        item("tbto1-heated-windshield", "Electrically-Heated Windshield", "ON", "N-12", "Taxi and Before Takeoff — One Engine", heatedWindshieldInstalled),
+        item("tbto1-heated-windshield", "Electrically-Heated Windshield (if installed)", "ON", "N-12", "Taxi and Before Takeoff — One Engine"),
         item("tbto1-engine-instruments", "Engine Instruments", "CHECK", "N-12", "Taxi and Before Takeoff — One Engine"),
         item("tbto1-thrust-reversers", "Thrust Reversers", "CHECK & STOWED", "N-12", "Taxi and Before Takeoff — One Engine", thrustReverserInstalled),
         item("tbto1-fuel-control-governor", "Fuel Control Governor", "CHECK", "N-12", "Taxi and Before Takeoff — One Engine"),
@@ -389,7 +358,6 @@ export const learjet35aNormalChecklist: AircraftChecklistContent = {
       items: [
         item("lineup-parking-brake", "Parking Brake", "RELEASED", "N-12", "Runway Lineup"),
         item("lineup-transponder", "Transponder", "ON", "N-12", "Runway Lineup"),
-        item("lineup-tr4000", "Thrust Reversers (TR-4000)", "ARM", "N-12", "Runway Lineup", tr4000),
         item("lineup-pitot-heat", "Pitot Heat", "ON", "N-12", "Runway Lineup"),
         item("lineup-lights", "Lights (Strobe, Recognition & Landing)", "ON", "N-12", "Runway Lineup"),
         item("lineup-stall-warning", "Stall Warning", "ON", "N-12", "Runway Lineup"),
@@ -405,12 +373,10 @@ export const learjet35aNormalChecklist: AircraftChecklistContent = {
       items: [
         item("afterto-gear", "Landing Gear (positive rate)", "UP", "N-13", "After Takeoff"),
         item("afterto-yaw-damper", "Yaw Damper", "ENGAGED", "N-13", "After Takeoff"),
-        item("afterto-tr4000", "Thrust Reversers (TR-4000)", "DISARM", "N-13", "After Takeoff", tr4000),
         item("afterto-flaps", "Flaps", "UP", "N-13", "After Takeoff"),
         item("afterto-ignition", "Ignition", "OFF", "N-13", "After Takeoff"),
         item("afterto-pressurization", "Pressurization", "CHECK", "N-13", "After Takeoff"),
         item("afterto-lights", "Landing/Taxi Lights", "OFF", "N-13", "After Takeoff"),
-        item("afterto-fc200-appr", "Autopilot APPR Light", "OUT", "N-13", "After Takeoff", fc200),
         item("afterto-hyd-pressure", "Hydraulic Pressure", "CHECK", "N-13", "After Takeoff"),
         item("afterto-aoa", "Angle-of-Attack Indicators", "CROSS CHECK", "N-13", "After Takeoff"),
       ],
@@ -472,8 +438,6 @@ export const learjet35aNormalChecklist: AircraftChecklistContent = {
         item("approach-landing-data", "Landing Data (N1, VREF, VAPP, Distance)", "COMPUTED & SET", "N-14", "Approach"),
         item("approach-fuel", "Fuel", "BALANCED", "N-14", "Approach"),
         item("approach-briefing", "Approach Setup & Briefing", "COMPLETE", "N-14", "Approach"),
-        item("approach-aeronca-position", "Position Indicator Lights (Aeronca)", "OUT", "N-14", "Approach", aeronca),
-        item("approach-aeronca-bleed", "Bleed Valve", "TEST", "N-14", "Approach", aeronca),
       ],
     },
     {
@@ -488,12 +452,10 @@ export const learjet35aNormalChecklist: AircraftChecklistContent = {
         item("beforeldg-lights", "Landing/Taxi Lights", "AS REQ’D", "N-16", "Before Landing"),
         item("beforeldg-antiskid", "Anti-Skid", "ON, LIGHTS OUT", "N-16", "Before Landing"),
         item("beforeldg-engine-sync", "Engine Sync", "OFF", "N-16", "Before Landing"),
-        item("beforeldg-tr4000", "Thrust Reversers (TR-4000)", "ARM", "N-16", "Before Landing", tr4000),
         item("beforeldg-flaps-final", "Flaps", "DOWN & INDICATED", "N-16", "Before Landing"),
         item("beforeldg-hyd", "Hydraulic Pressure", "CHECK", "N-16", "Before Landing"),
         item("beforeldg-ignition", "Ignition", "ON", "N-16", "Before Landing"),
         item("beforeldg-autopilot", "Autopilot", "DISENGAGE", "N-16", "Before Landing"),
-        item("beforeldg-yaw-fc200", "Yaw Damper", "OFF DURING FLARE", "N-16", "Before Landing", fc200),
       ],
     },
     {
@@ -519,7 +481,6 @@ export const learjet35aNormalChecklist: AircraftChecklistContent = {
       items: [
         item("afterldg-stall-warning", "Stall Warning", "OFF", "N-17", "After Landing / Clearing Runway"),
         item("afterldg-ignition", "Ignition", "OFF", "N-17", "After Landing / Clearing Runway"),
-        item("afterldg-tr4000", "Thrust Reverser (TR-4000)", "DISARM", "N-17", "After Landing / Clearing Runway", tr4000),
         item("afterldg-cabin-air", "Cabin Air", "OFF", "N-17", "After Landing / Clearing Runway"),
         item("afterldg-pitot-alcohol", "Pitot Heat & Alcohol", "OFF", "N-17", "After Landing / Clearing Runway"),
         item("afterldg-heat", "Defog, Windshield, Nacelle, Stab & Wing Heat", "AS REQ’D", "N-17", "After Landing / Clearing Runway"),
@@ -540,11 +501,11 @@ export const learjet35aNormalChecklist: AircraftChecklistContent = {
       items: [
         item("shutdown-brake-chocks", "Parking Brake/Chocks", "SET", "N-17", "Shutdown"),
         item("shutdown-antiice", "Anti-Ice Systems", "OFF", "N-17", "Shutdown"),
-        item("shutdown-emergency-lights", "Emergency Lights", "DISARM", "N-17", "Shutdown", emergencyLightsInstalled),
+        item("shutdown-emergency-lights", "Emergency Lights (if installed)", "DISARM", "N-17", "Shutdown"),
         item("shutdown-avionics", "Avionics", "OFF", "N-17", "Shutdown"),
         item("shutdown-standby-gyro", "Standby Attitude Gyro", "CAGE", "N-17", "Shutdown"),
         item("shutdown-emergency-battery", "Emergency Battery(ies)", "OFF", "N-17", "Shutdown"),
-        item("shutdown-coffee", "Coffee/Oven", "OFF", "N-17", "Shutdown", coffeeOvenInstalled),
+        item("shutdown-coffee", "Coffee/Oven (if installed)", "OFF", "N-17", "Shutdown"),
         item("shutdown-thrust-levers", "Thrust Levers", "CUTOFF", "N-18", "Shutdown"),
         item("shutdown-startgen", "Start-Gen Switches", "OFF", "N-18", "Shutdown"),
         item("shutdown-inverters", "Inverters", "OFF", "N-18", "Shutdown"),
@@ -563,7 +524,7 @@ export const learjet35aNormalChecklist: AircraftChecklistContent = {
       items: [
         item("quick-cabin-door", "Cabin Door", "SECURED", "N-18", "Quick Turnaround"),
         item("quick-air-conditioner", "Air Conditioner", "OFF", "N-18", "Quick Turnaround"),
-        item("quick-aux-heat", "Aux Heat", "OFF", "N-18", "Quick Turnaround", auxHeatInstalled),
+        item("quick-aux-heat", "Aux Heat (if installed)", "OFF", "N-18", "Quick Turnaround"),
         item("quick-engine", "Engine", "START (ENSURE N1 ROTATION) (2 RUNNING)", "N-18", "Quick Turnaround"),
         item("quick-startgen", "Start-Gen Switches", "GEN", "N-18", "Quick Turnaround"),
         item("quick-voltmeters", "Voltmeter & Ammeters", "CHECK", "N-18", "Quick Turnaround"),
@@ -571,7 +532,7 @@ export const learjet35aNormalChecklist: AircraftChecklistContent = {
         item("quick-starter", "Starter Disengagement (if required)", "CHECK", "N-18", "Quick Turnaround"),
         item("quick-breakers", "Circuit Breakers", "IN", "N-18", "Quick Turnaround"),
         item("quick-avionics", "Avionics", "SET", "N-18", "Quick Turnaround"),
-        item("quick-coffee", "Coffee/Oven", "AS DESIRED", "N-18", "Quick Turnaround", coffeeOvenInstalled),
+        item("quick-coffee", "Coffee/Oven (if installed)", "AS DESIRED", "N-18", "Quick Turnaround"),
         item("quick-antiice", "Anti-Ice Systems", "AS REQ’D", "N-18", "Quick Turnaround"),
         item("quick-pax", "Pax Briefing/Cabin Secured", "COMPLETE", "N-18", "Quick Turnaround"),
         item("quick-sign", "No Smoking Fasten Seat Belt Sign", "ON", "N-18", "Quick Turnaround"),
