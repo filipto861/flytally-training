@@ -1,4 +1,6 @@
 export const commonAircraftEquipmentProfileKey = "__common__";
+export const aircraftApplicabilityRegistryProfileKey =
+  "__applicability_registry__";
 
 export function mergeAircraftEquipmentTags(
   common: readonly string[] | undefined,
