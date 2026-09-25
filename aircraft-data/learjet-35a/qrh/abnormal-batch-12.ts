@@ -528,7 +528,7 @@ export const learjet35aQrhAbnormalBatch12 = {
         kind: "mapped",
         sourceText: "With TR-4000 Thrust Reversers",
         mappingNote:
-          "A-34.2 is selected only from explicit TR-4000 thrust-reverser configuration identity. Operational publication remains blocked by the A-35.2 Restow Envelope.",
+          "A-34.2 is selected only from explicit TR-4000 thrust-reverser configuration identity. QRH.3T attaches the reviewed A-35.2 Restow Envelope as a source-digitized visual reference.",
       },
       applicability: tr4000,
       sources: [
