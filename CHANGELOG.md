@@ -22,7 +22,8 @@ This file is the authoritative version history for completed FlyTally Training w
   - fast-path CURRENT STEP now follows the selected phase;
   - EFB checklist persistence is scoped to the current Active Flight ID and stored locally on the device, with one-time migration from prior unscoped/legacy checklist state;
   - Learn checklist-training persistence remains separate;
-  - focused acceptance: typecheck PASS, targeted suite 30/30 PASS, production build PASS; targeted Playwright smoke was not run because local port 3000 was occupied and production manual synchronization smoke is required after deployment.
+  - focused acceptance: typecheck PASS, targeted suite 30/30 PASS, production build PASS; targeted Playwright smoke was not run because local port 3000 was occupied;
+  - merged and deployed to production; manual synchronization smoke remains the final acceptance step.
 
 ### Changed
 - **PR #230 — Learjet operational checklist rebuild**
