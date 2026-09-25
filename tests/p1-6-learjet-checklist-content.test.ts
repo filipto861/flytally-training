@@ -81,6 +81,34 @@ test("15.3b normal checklist phase order covers CL-102B N-2 through N-18 without
   assert.ok(!itemIds().some((id) => id.includes("landing-distance")));
 });
 
+test("15.3b preserves source-critical state transitions, panel settings and start handoffs", () => {
+  const byId = new Map(
+    learjet35aNormalChecklist.phases.flatMap((phase) =>
+      phase.items.map((item) => [item.id, item] as const),
+    ),
+  );
+
+  assert.equal(byId.get("exterior-power-off")?.response, "OFF");
+  assert.equal(byId.get("exterior-power-on")?.response, "ON");
+  assert.equal(byId.get("bse-fuel-computer")?.response, "ON");
+  assert.equal(byId.get("bse-pitch-trim")?.response, "PRI");
+  assert.equal(byId.get("bse-antiskid")?.response, "ON");
+  assert.equal(byId.get("bse-jet-pumps")?.response, "ON");
+  assert.equal(byId.get("bse-emergency-press")?.response, "NORM");
+  assert.equal(byId.get("bse-bleed-air-panel")?.response, "ON");
+  assert.match(byId.get("bse-emergency-brake")?.challenge ?? "", /do not push handle downward/i);
+  assert.match(byId.get("start-batteries")?.challenge ?? "", /24 vdc minimum/i);
+  assert.match(byId.get("start-batteries")?.challenge ?? "", /23 vdc minimum/i);
+  assert.equal(
+    byId.get("start-return-before-start")?.response,
+    "RETURN TO AND COMPLETE",
+  );
+  assert.match(
+    byId.get("start-one-engine-reference")?.response ?? "",
+    /BEFORE TAXI \(ONE ENGINE\)/,
+  );
+});
+
 test("15.3b source item ids are globally unique for canonical checklist-session persistence", () => {
   const ids = itemIds();
   assert.equal(new Set(ids).size, ids.length);
