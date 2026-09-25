@@ -74,7 +74,7 @@ test("QRH.4 presentation explicitly distinguishes Emergency and Abnormal procedu
   const component = read("components/operational-emergency.tsx");
   const css = read("components/operational-emergency.module.css");
 
-  assert.match(component, /data-procedure-class={scenario\.procedureClass}/);
+  assert.match(component, /data-procedure-class=\{scenario\.procedureClass\}/);
   assert.match(component, /styles\.emergencyProcedure/);
   assert.match(component, /styles\.abnormalProcedure/);
   assert.match(component, /scenario\.procedureClass\.toUpperCase\(\)/);
@@ -88,8 +88,8 @@ test("QRH.4 memory-item emphasis is both visible and machine-identifiable", () =
   const component = read("components/operational-emergency.tsx");
   const css = read("components/operational-emergency.module.css");
 
-  assert.match(component, /data-memory-item={step\.memoryItem \? "true" : undefined}/);
-  assert.match(component, /data-memory-stage={stage\.memoryItem \? "true" : undefined}/);
+  assert.match(component, /data-memory-item=\{step\.memoryItem \? "true" : undefined\}/);
+  assert.match(component, /data-memory-stage=\{stage\.memoryItem \? "true" : undefined\}/);
   assert.match(component, />MEMORY<\/span>/);
   assert.match(css, /\.memoryAction\{background:linear-gradient/);
   assert.match(css, /\.memoryBadge\{/);
