@@ -6,7 +6,7 @@ const read = (path: string) =>
   readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("UX6.2 defines explicit peer light and dark surface systems", () => {
-  const doc = read("UX6_2_DESIGN_SYSTEM.md");
+  const doc = read("TECHNICAL_DOCUMENTATION.md");
 
   for (const token of [
     "--ux6-canvas",
@@ -24,7 +24,7 @@ test("UX6.2 defines explicit peer light and dark surface systems", () => {
 });
 
 test("UX6.2 keeps source safety semantics separate from application state", () => {
-  const doc = read("UX6_2_DESIGN_SYSTEM.md");
+  const doc = read("TECHNICAL_DOCUMENTATION.md");
 
   assert.match(doc, /Application state is separate from source-safety semantics/i);
   assert.match(doc, /WARNING \/ CAUTION \/ NOTE/i);
