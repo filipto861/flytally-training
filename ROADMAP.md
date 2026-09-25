@@ -725,7 +725,12 @@ The detailed future sequence is tracked in **Active implementation order** below
          - preserve the identical six-step source procedure while selecting exactly one source page through explicit generic thrust-reverser configuration; unknown/absent/contradictory identity must fail closed
          - visual review found no boxed memory items on A-33/A-33.1/A-33.2
          - QRH.3R acceptance on head `7646138`: typecheck PASS · targeted QRH/applicability/P5/P6/W2 suite 192/192 PASS · full Node suite 1353 total / 1352 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright not required because no browser/presentation behavior changed
-         - **QRH.3S Thrust Reversers Abnormal source batch — NEXT:** continue with A-34.1/A-35.1 Aeronca and A-34.2/A-35.2 TR-4000 abnormal families, preserving configuration-specific procedure differences and keeping the graphical TR-4000 RESTOW ENVELOPE fail-closed until represented faithfully
+         - **QRH.3S Thrust Reversers Abnormal source batch — COMPLETE · PR #258:** digitized all six textual Thrust Reversers abnormal procedures from A-34.1/A-35.1 Aeronca and A-34.2 TR-4000 while accounting explicitly for the seventh indexed entry, the graphical A-35.2 THRUST REVERSER RESTOW ENVELOPE
+         - Aeronca and TR-4000 procedures use the existing generic thrust-reverser configuration identities and fail closed for unknown/absent/partial/contradictory identity; preserve all source-specific UNLOCK/DEPLOY/BLEED VALVE branches and landing references
+         - A-35.2 remains an explicit blocking graphical dependency for TR-4000 inadvertent deployment; do not flatten the indicated-airspeed/altitude restow envelope into textual thresholds
+         - visual review found no boxed memory items on A-34.1/A-34.2/A-35.1; annunciator depictions are indications, not memory boxes
+         - QRH.3S acceptance on head `c6c64f2`: typecheck PASS · targeted QRH/applicability/P5/P6/W2 suite 201/201 PASS · full Node suite 1362 total / 1361 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright not required because no browser/presentation behavior changed
+         - **QRH.3T graphical-envelope support — NEXT:** define one generic source-faithful envelope/figure contract that can represent both E-13 AIRSTART ENVELOPE and A-35.2 THRUST REVERSER RESTOW ENVELOPE, then remove those two final graphical publication blockers
          - publish through the governed abnormal-domain lifecycle and verify operational-readiness gating
        - **QRH.4 cockpit acceptance — PLANNED**
          - verify fast-path category/procedure navigation, Emergency-vs-Abnormal distinction, memory-item emphasis, configuration filtering and source/authority disclosure on desktop/mobile/iPad

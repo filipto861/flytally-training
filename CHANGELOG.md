@@ -15,6 +15,14 @@ This file is the authoritative version history for completed FlyTally Training w
 ## 2026-09-25
 
 ### Changed
+- **PR #258 — QRH.3S Learjet Thrust Reversers Abnormal source batch**
+  - staged all six textual CL-102B Thrust Reversers abnormal procedures from A-34.1/A-35.1 Aeronca and A-34.2 TR-4000;
+  - explicitly accounted for the seventh indexed item, the graphical A-35.2 THRUST REVERSER RESTOW ENVELOPE, without flattening its source geometry into textual thresholds;
+  - reused the generic thrust-reverser configuration identities so Aeronca/TR-4000 selection remains explicit and unknown, absent, partial or contradictory identity fails closed;
+  - preserved source-specific UNLOCK/DEPLOY/BLEED VALVE branches and landing references; visual review found no boxed memory items on A-34.1/A-34.2/A-35.1;
+  - acceptance on head `c6c64f2`: typecheck PASS; targeted QRH/applicability/P5/P6/W2 suite 201/201 PASS; full Node suite 1362 total / 1361 PASS / 0 FAIL / 1 SKIP; production build PASS; no Playwright rerun required because no browser/presentation behavior changed.
+
+### Changed
 - **PR #257 — QRH.3R Learjet Turbulence Abnormal source batch**
   - staged CL-102B TURBULENT AIR PENETRATION across A-33 Without Thrust Reversers, A-33.1 Aeronca and A-33.2 TR-4000 source-effectivity pages;
   - preserved identical six-step source text while keeping exact page provenance/effectivity and selecting exactly one source family through explicit generic thrust-reverser configuration;
