@@ -1,46 +1,47 @@
 # FlyTally Training
 
-FlyTally Training is the training and learning product in the FlyTally ecosystem. It is intentionally separated from FlyTally Logbook so training content and learning workflows can evolve without turning the pilot logbook into a monolith.
+FlyTally Training is the aircraft learning, training and operational-reference product in the FlyTally ecosystem. It is intentionally separate from FlyTally Logbook so training content, aircraft packages and EFB workflows can evolve without coupling to the regulatory logbook runtime.
 
-## Product direction
+## Documentation
 
-The first product slice is an aircraft-type training workspace built from authoritative source material:
+The repository intentionally keeps a small documentation surface:
 
-- aircraft types and immutable source records,
-- revision-controlled provenance without source-document hosting,
-- lessons and study modules,
-- interactive procedures and checklists,
-- question banks and quizzes,
-- learner progress and attempts,
-- exact source citations and human approval for technical content.
+- **`ROADMAP.md`** — authoritative implementation direction, status and next work.
+- **`CHANGELOG.md`** — accepted/released history.
+- **`TECHNICAL_DOCUMENTATION.md`** — living technical/product architecture, governance, safety, data, UX and deployment reference.
+- **`README.md`** — this short entry point.
 
-FlyTally Training is not a document library. Source PDFs remain outside the product. Administrators may register source metadata, revision, authority, page references and an optional SHA-256 fingerprint computed locally in the browser.
+Historical milestone/specification Markdown files were consolidated into the living technical documentation. Exact historical wording remains available through Git history and pull requests.
 
-AI may assist with structuring and drafting from intentionally supplied excerpts. It is never the source of truth. Publishable technical content must remain traceable to a specific source revision and be explicitly approved.
+## Core product rules
 
-## Repository boundaries
-
-- `flytally-logbook` — operational pilot logbook and regulatory evidence.
-- `flytally-training` — learning content, procedures, checklists, quizzes and progress.
-- a future school/organization product is not part of this repository unless the real product boundary later proves otherwise.
-
-The products may share a FlyTally account, but they do not share source trees or directly depend on each other's internal database schemas. Identity handoff uses an explicit signed contract.
+- Aircraft-specific technical content is governed data; reusable runtime behavior remains aircraft-agnostic.
+- Operational content is source-governed and fails closed when provenance, authority, applicability or source envelope is insufficient.
+- AI may assist drafting but is never source authority and never bypasses human approval.
+- Training and Logbook share identity through an explicit contract, not database/session internals.
+- LEARN and EFB are separate product modes; Active Flight defines flight context while Performance owns calculations.
 
 ## Development
 
-FlyTally Training targets Node.js 24. Install the committed dependency graph exactly:
+FlyTally Training targets Node.js 24.
 
 ```bash
 npm ci
 npm run dev
 ```
 
-Verification:
+Primary verification:
+
+```bash
+npm run typecheck
+npm test
+npm run build
+```
+
+or:
 
 ```bash
 npm run verify
 ```
 
-Before using a new PostgreSQL database, initialize the Training-owned schema with `npm run db:init`. Production deployment order and environment contracts are documented in `DEPLOYMENT.md`.
-
-See `ARCHITECTURE.md`, `CONTENT_ARCHITECTURE.md`, `DEVELOPMENT.md`, `V1_RELEASE.md` and `NO_CODE_ACCEPTANCE.md` for supporting constraints. **`ROADMAP.md` is the single authoritative active product/implementation roadmap.** Historical milestone/specification documents are evidence only, not competing roadmaps.
+A new Training PostgreSQL database must be explicitly initialized with `npm run db:init` before normal runtime use. Production deployment and environment rules are maintained in `TECHNICAL_DOCUMENTATION.md`.
