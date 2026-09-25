@@ -2,6 +2,16 @@
 
 All notable changes to FlyTally Training are recorded here.
 
+## Changelog governance
+
+This file is the authoritative version history for completed FlyTally Training work.
+
+- record material product, architecture, data/source, testing/governance and production changes here when they are accepted;
+- reference the relevant PR/merge/deployment where practical;
+- do not use chat history as the only record of a completed change;
+- keep historical entries intact; correct factual mistakes explicitly rather than silently erasing project history;
+- **ROADMAP.md defines where the project is going; CHANGELOG.md records what actually changed. Both must remain synchronized before a material work item is considered closed.**
+
 ## 2026-09-25
 
 ### Changed
