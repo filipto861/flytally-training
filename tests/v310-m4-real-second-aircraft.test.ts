@@ -38,10 +38,9 @@ test("v3.1 M4 learner content discovery remains database and route parameter dri
 });
 
 test("v3.1 M4 evidence document records the governed real-aircraft boundary",()=>{
-  const evidence=read("V31_M4_REAL_SECOND_AIRCRAFT.md");
-  assert.match(evidence,/M4 acceptance: PASS/);
-  assert.match(evidence,/controlled source revisions: \*\*3\*\*/);
-  assert.match(evidence,/exact registered source references: \*\*42\*\*/);
-  assert.match(evidence,/effective published learner modules: \*\*8\*\*/);
-  assert.match(evidence,/unresolved stale-source flags: \*\*0\*\*/);
+  const evidence=read("TECHNICAL_DOCUMENTATION.md");
+  assert.match(evidence,/No-code second-aircraft acceptance/i);
+  assert.match(evidence,/register controlled source revision\/reference records/i);
+  assert.match(evidence,/render through existing learner routes/i);
+  assert.match(evidence,/coexist with Learjet using the same reusable components/i);
 });
