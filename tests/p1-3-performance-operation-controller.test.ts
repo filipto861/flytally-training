@@ -187,47 +187,31 @@ test("P1.3 wind presentation is derived from APPLIED observation and never direc
   assert.doesNotMatch(windBlock, /availableWeather/);
 });
 
-test("B6 apply-latest keeps APPLIED weather and result atomic until recalculation can run", () => {
+test("B6 automatic METAR refresh recalculates an existing displayed result", () => {
   const controller = read("components/ft-performance/use-performance-operation.ts");
-  const applyBlock = controller.slice(
-    controller.indexOf("function applyLatestMetar"),
-    controller.indexOf("const invalidationMessage"),
-  );
-  const presentation = read("components/ft-performance/FtPerformancePresentation.tsx");
 
+  assert.match(controller, /const METAR_REFRESH_MS = 5 \* 60 \* 1000/);
+  assert.match(controller, /window\.setInterval\([\s\S]*refreshMetar\(\)[\s\S]*METAR_REFRESH_MS/);
   assert.match(
     controller,
-    /const hasDisplayedCalculation = thrustMode === "partial-power"[\s\S]*Boolean\(partialPowerPreview\)[\s\S]*Boolean\(result\)/,
+    /setAppliedWeather\(\(previous\) => autoApplyAvailableWeather\(previous, payload\)\)/,
   );
   assert.match(
-    applyBlock,
-    /if \(hasDisplayedCalculation\) \{[\s\S]*calculateWithWeather\(nextWeather\);[\s\S]*return;/,
-  );
-  assert.doesNotMatch(
-    applyBlock.slice(
-      applyBlock.indexOf("if (hasDisplayedCalculation)"),
-      applyBlock.indexOf(
-        "return;",
-        applyBlock.indexOf("if (hasDisplayedCalculation)"),
-      ) + "return;".length,
-    ),
-    /setAppliedWeather\(nextWeather\)/,
-  );
-  assert.match(
-    presentation,
-    /disabled=\{busy \|\| !canCalculate\}[\s\S]*Apply & recalculate/,
+    controller,
+    /key === lastAutoCalculatedWeatherKey\.current[\s\S]*hasDisplayedCalculation[\s\S]*canCalculate[\s\S]*calculateWithWeather\(appliedWeather\)/,
   );
 });
 
-test("P1.3 UI exposes one operation-level latest-METAR action and the explicit newer-weather contract", () => {
+test("P1.3 UI is AUTO-METAR by default and exposes reset only after manual override", () => {
   const presentation = read("components/ft-performance/FtPerformancePresentation.tsx");
+  const controller = read("components/ft-performance/use-performance-operation.ts");
 
-  assert.match(presentation, /NEWER WEATHER AVAILABLE/);
-  assert.match(presentation, /Apply & recalculate/);
-  assert.match(presentation, /Use latest METAR/);
-  assert.doesNotMatch(presentation, />Use METAR</);
-  assert.match(presentation, /Available · AviationWeather\.gov/);
-  assert.match(presentation, /Applied METAR|Applied weather/);
+  assert.doesNotMatch(presentation, /NEWER WEATHER AVAILABLE/);
+  assert.doesNotMatch(presentation, /Apply & recalculate|Use latest METAR/);
+  assert.match(presentation, /manualWeatherOverride && availableWeather/);
+  assert.match(presentation, />AUTO METAR</);
+  assert.match(controller, /explicitlyApplyAvailableWeather/);
+  assert.match(controller, /manualWeatherOverride/);
 });
 
 test("P1.3 newer AVAILABLE weather does not participate in result stale validity", () => {
