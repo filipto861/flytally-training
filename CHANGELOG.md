@@ -15,6 +15,14 @@ This file is the authoritative version history for completed FlyTally Training w
 ## 2026-09-25
 
 ### Changed
+- **PR #249 — QRH.3J Learjet Engine Abnormal source batch**
+  - staged the complete six-procedure CL-102B Engine Abnormal family from A-11 through A-13;
+  - preserved source decision branches for abnormal engine operation, fuel-computer failure, engine overspeed and starter-engaged-light troubleshooting instead of flattening them into linear actions;
+  - retained exact A-11/A-12/A-13 provenance and ALL-aircraft effectivity for the six indexed procedures;
+  - visual source review found no boxed memory items on A-11 through A-13; A-11 vertical marks are Change 1 revision bars rather than memory-item boxes;
+  - acceptance on head `92691f1`: typecheck PASS; targeted QRH/applicability/P5/P6/W2 suite 138/138 PASS; full Node suite 1299 total / 1298 PASS / 0 FAIL / 1 SKIP; production build PASS; no Playwright rerun required because no browser/presentation behavior changed.
+
+### Changed
 - **PR #248 — QRH.3I Learjet Electrical Abnormal source batch**
   - staged the complete CL-102B Electrical Abnormal family from A-9/A-9.1 and A-10;
   - preserved the exact early/late generator page provenance even where the operating response is repeated, while unknown serial identity continues to fail closed;
