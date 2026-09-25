@@ -86,7 +86,11 @@ test("B4 UX6 Performance consumes real runway data, governed config and airport-
   assert.match(presentation,/takeoffCalculator\?\.flapOptions/);
   assert.match(presentation,/aria-label="Takeoff runway"/);
   assert.match(presentation,/aria-label="Takeoff flaps"/);
-  assert.match(presentation,/Use latest METAR|Apply & recalculate/);
+  assert.doesNotMatch(presentation,/Use latest METAR|Apply & recalculate/);
+  assert.match(presentation,/AUTO METAR/);
+  assert.match(controller,/METAR_REFRESH_MS/);
+  assert.match(controller,/autoApplyAvailableWeather/);
+  assert.match(controller,/calculateWithWeather\(appliedWeather\)/);
   assert.match(presentation,/Calculate Takeoff/);
 });
 
