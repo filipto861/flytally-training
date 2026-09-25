@@ -2,7 +2,7 @@
 
 **Status:** Active  
 **Owner:** Filip Točík  
-**Last updated:** 2026-09-24
+**Last updated:** 2026-09-25
 
 > This file is the single authoritative product/implementation roadmap for FlyTally Training.
 > Historical milestone/specification documents may remain in the repository as implementation evidence,
@@ -17,7 +17,11 @@ Roadmap discipline is mandatory for this project:
 - active work must use an explicit status such as **PLANNED**, **IN PROGRESS**, **BLOCKED**, or **COMPLETE**;
 - when work is completed, this roadmap must be updated to **COMPLETE** and record the relevant PR/merge and acceptance gate where applicable;
 - a feature is not considered fully closed until its roadmap status is updated;
-- if implementation reveals additional work, that follow-up must be added as a separate roadmap item rather than left only in chat, code comments or PR discussion.
+- if implementation reveals additional work, that follow-up must be added as a separate roadmap item rather than left only in chat, code comments or PR discussion;
+- **ROADMAP.md and CHANGELOG.md are mandatory project controls**: the roadmap records intended direction/status, while the changelog records what actually changed and reached an accepted/production state;
+- before starting material work, confirm it is represented in the roadmap; before closing/merging/deploying material work, update the roadmap status and append the corresponding changelog entry;
+- chat history, PR descriptions and commit history are supporting evidence only; they do not replace roadmap or changelog maintenance;
+- when roadmap direction changes, preserve the prior decision/history rather than silently rewriting it away, so future development can reconstruct why the project moved in a given direction.
 
 ## Product direction
 
