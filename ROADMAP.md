@@ -407,7 +407,7 @@ The detailed future sequence is tracked in **Active implementation order** below
      - the single currently supported source path is now one explicit mode option: **Partial Power · Aeronca**; selecting that mode binds the Aeronca source schedule and the separate thrust-reverser selector is removed
      - compact eligibility controls retained: **Dry hard-paved**, **Anti-skid operative**, **Full-rated <30 days**
      - Partial Power keeps TORA + ASDA directly visible; verbose declared-distance explanation is removed
-     - result keeps only a concise **TRAINING PREVIEW · 25% THRUST LIMIT UNVERIFIED** safety/source status instead of paragraph copy
+     - result keeps only a concise **TRAINING · 25% LIMIT UNVERIFIED** header badge instead of a separate warning panel or paragraph copy
      - weather source provenance is retained as concise metadata; explanatory prose is removed
      - existing fail-closed runtime behavior and source constraints are unchanged
      - source-text regression tests updated to assert behavior rather than removed explanatory wording
