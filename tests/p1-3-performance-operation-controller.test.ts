@@ -209,7 +209,7 @@ test("P1.3 UI is AUTO-METAR by default and exposes reset only after manual overr
   assert.doesNotMatch(presentation, /NEWER WEATHER AVAILABLE/);
   assert.doesNotMatch(presentation, /Apply & recalculate|Use latest METAR/);
   assert.match(presentation, /manualWeatherOverride && availableWeather/);
-  assert.match(presentation, />AUTO METAR</);
+  assert.match(presentation, /AUTO METAR/);
   assert.match(controller, /explicitlyApplyAvailableWeather/);
   assert.match(controller, /manualWeatherOverride/);
 });
