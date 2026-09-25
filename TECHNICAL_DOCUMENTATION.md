@@ -221,6 +221,21 @@ Rules:
 - a new Active Flight receives an isolated checklist session;
 - Learn checklist practice remains a separate persistence mode.
 
+### 7.1 SimBrief Active Flight prefill
+
+SimBrief is an explicit pilot-initiated prefill source, not an Active Flight authority or a background synchronization channel.
+
+- the pilot supplies either a Navigraph Alias or SimBrief Pilot ID; that identifier may be remembered only in device-local browser storage and is not persisted as Training account data;
+- Training requests the latest SimBrief OFP only after an explicit Import/Refresh action through a same-origin, no-store, timeout-bounded server proxy using SimBrief JSON v2;
+- the proxy normalizes only departure ICAO, destination ICAO, Estimated TOW, weight unit, aircraft ICAO identity, OFP request id and generation time; the raw OFP is not retained;
+- SimBrief aircraft compatibility is aircraft-owned data. The Learjet 35/36 Training package accepts `LJ35`; mismatched or missing aircraft identity fails closed;
+- imported departure, destination and weight remain pilot-editable. Editing a field removes SimBrief provenance for that field rather than silently re-applying the OFP;
+- Active Flight persists only field-level prefill provenance (`provider/requestId/generatedAt/importedAt/aircraftIcaoCode/fields`), which does not participate in the Performance dependency hash;
+- a further SimBrief refresh is always another explicit pilot action. No periodic OFP polling is allowed;
+- METAR/weather ownership remains the existing AviationWeather.gov workflow and is not imported from SimBrief.
+
+Active Flight persistence includes nullable `prefill_provenance`. Deployment bootstrap owns this schema evolution, and readiness verifies the column so a deployment cannot report healthy Active Flight persistence against an older schema.
+
 ---
 
 ## 8. Operational checklist architecture
