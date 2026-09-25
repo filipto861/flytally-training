@@ -690,7 +690,9 @@ The detailed future sequence is tracked in **Active implementation order** below
          - **QRH.3I Electrical Abnormal source batch — COMPLETE · PR #248:** digitized the complete two-procedure Electrical family from A-9/A-9.1 and A-10; preserved exact generator serial-page provenance plus nested reset/failure branches
          - visual source review confirms A-9/A-9.1 and A-10 contain no boxed memory items; optional auxiliary-inverter qualifiers remain source text rather than becoming unregistered runtime assumptions
          - QRH.3I acceptance on head `06f36d0`: typecheck PASS · targeted QRH/applicability/P5/P6/W2 suite 132/132 PASS · full Node suite 1293 total / 1292 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright not required because no browser/presentation behavior changed
-         - **QRH.3J Engine Abnormal source batch — NEXT:** digitize the six Engine procedures from A-11 through A-13; preserve Change 1 revision-bar semantics, nested failure branches and source references without mistaking change bars for memory boxes
+         - **QRH.3J Engine Abnormal source batch — IN PROGRESS:** digitize the complete six-procedure Engine family from A-11 through A-13, including ABNORMAL ENGINE OPERATION, FUEL CMPTR LIGHT, ENG CHIP LIGHT, ENGINE OVERSPEED, ENGINE SHUTDOWN IN FLIGHT and STARTER ENGAGED LIGHT REMAINS ILLUMINATED
+         - preserve nested source conditions in fuel-computer, overspeed and starter-engaged procedures; retain exact A-11/A-12/A-13 provenance and ALL-aircraft effectivity
+         - visual source review confirms no boxed memory items on A-11 through A-13; A-11 vertical marks are Change 1 revision bars and must not be interpreted as memory boxes
          - publish through the governed abnormal-domain lifecycle and verify operational-readiness gating
        - **QRH.4 cockpit acceptance — PLANNED**
          - verify fast-path category/procedure navigation, Emergency-vs-Abnormal distinction, memory-item emphasis, configuration filtering and source/authority disclosure on desktop/mobile/iPad
