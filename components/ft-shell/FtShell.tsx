@@ -134,6 +134,7 @@ export async function FtShell({
       aircraftId={aircraftId}
       checklist={checklist}
       selectedVariant={selectedVariant}
+      activeFlight={activeFlight}
     >
       <section className={styles.shell} data-ft-shell="true" aria-label="Aircraft workspace shell">
         <FtSideNav aircraftId={aircraftId} />
