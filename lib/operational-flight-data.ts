@@ -131,6 +131,7 @@ export type OperationalEmergencyInformationStep = {
 export type OperationalEmergencyConditionBranch = {
   readonly id: string;
   readonly label: string;
+  readonly memoryItem?: boolean;
   readonly steps: readonly OperationalEmergencyStep[];
 };
 
@@ -237,6 +238,7 @@ function mapV2Steps(
       branches: step.branches.map((branch) => ({
         id: branch.id,
         label: branch.label,
+        memoryItem: branch.memoryItem,
         steps: mapV2Steps(branch.steps, sources),
       })),
     };

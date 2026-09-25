@@ -15,6 +15,14 @@ This file is the authoritative version history for completed FlyTally Training w
 ## 2026-09-25
 
 ### Changed
+- **PR #240 — QRH.3B Learjet engine-fire and oil-pressure source batch**
+  - staged source-backed CL-102B E-12 ENGINE FIRE — SHUTDOWN and E-19 OIL PRESSURE LIGHT(S) on the generic QRH v2 contract;
+  - preserved explicit ALL-aircraft effectivity, nested source decision branches, and the exact boxed-memory boundary for the applicable E-12 branch without marking its alternate branch as memory;
+  - extended the generic QRH condition-branch contract with optional explicit `memoryItem` semantics through validation, operational projection and presentation; no Learjet-specific runtime path was introduced;
+  - kept the graphical E-13 AIRSTART ENVELOPE explicitly deferred/fail-closed rather than flattening chart geometry into text, and kept the partial batch outside production publication/fallback paths;
+  - acceptance on head `ba2447a`: typecheck PASS; targeted QRH/P5/P6/W2 suite 64/64 PASS; full Node suite 1245 total / 1244 PASS / 0 FAIL / 1 SKIP; production build PASS; targeted Playwright QRH acceptance 8/8 PASS across desktop Chromium, mobile Chromium, iPad landscape and iPad portrait.
+
+### Changed
 - **PR #239 — QRH.3A first Learjet Emergency source batch**
   - staged the first source-backed CL-102B Emergency Procedures content in the generic QRH v2 contract: section guidance, DOOR LIGHT, AC INVERTER FAILURE — TOTAL, GENERATOR FAILURE (DUAL), and ENGINE FAILURE;
   - preserved page-level provenance, explicit ALL-aircraft effectivity, source conditional branches, and boxed ENGINE FAILURE memory items without introducing Learjet-specific runtime code;

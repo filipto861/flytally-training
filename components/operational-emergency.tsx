@@ -73,7 +73,7 @@ function Steps({ steps }: Readonly<{ steps: readonly OperationalEmergencyStep[] 
         </div> : null}
         <div className={styles.conditionBranches}>
           {step.branches.map((branch) => <section className={styles.conditionBranch} key={branch.id}>
-            <h3>{branch.label}</h3>
+            <h3 className={branch.memoryItem ? styles.memoryBranch : undefined}>{branch.label}</h3>
             <Steps steps={branch.steps} />
           </section>)}
         </div>

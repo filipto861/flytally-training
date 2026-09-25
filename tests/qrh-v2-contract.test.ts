@@ -218,3 +218,40 @@ test("QRH.3 generic information step preserves non-action source text through op
   assert.equal(step.label, "2");
   assert.equal(step.text, "Source informational text.");
 });
+
+test("QRH.3 generic condition branch can carry explicit source memory semantics", () => {
+  const payload = {
+    schemaVersion: 2,
+    aircraftId: "generic-aircraft",
+    title: "Generic QRH",
+    scenarios: [{
+      id: "branch-memory",
+      title: "Branch memory",
+      procedureClass: "emergency",
+      category: "Generic",
+      effectivity: { kind: "all-aircraft", sourceText: "ALL" },
+      stages: [{
+        id: "stage",
+        label: "Response",
+        sources: [source],
+        steps: [{
+          id: "condition",
+          kind: "condition",
+          branches: [{
+            id: "boxed-branch",
+            label: "If condition exists",
+            memoryItem: true,
+            steps: [{ id: "action", kind: "action", text: "Action" }],
+          }],
+        }],
+      }],
+    }],
+  } as const;
+
+  assert.deepEqual(validateUniversalAbnormalEmergencyPayload(payload), []);
+  const operational = toOperationalEmergency(payload);
+  const condition = operational.scenarios[0]?.stages[0]?.steps[0];
+  assert.equal(condition?.kind, "condition");
+  if (!condition || condition.kind !== "condition") assert.fail("condition missing");
+  assert.equal(condition.branches[0]?.memoryItem, true);
+});
