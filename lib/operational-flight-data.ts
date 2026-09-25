@@ -6,7 +6,10 @@ import type {
   PerformanceRow,
   TrainingNotice,
 } from "./universal-aircraft-content.ts";
-import type { AircraftAbnormalEmergencyContent } from "./universal-abnormal-emergency.ts";
+import type {
+  AircraftAbnormalEmergencyContent,
+  AircraftQrhEnvelopeFigure,
+} from "./universal-abnormal-emergency.ts";
 
 export type OperationalChecklistNotice = {
   readonly kind: "warning" | "caution";
@@ -108,6 +111,47 @@ export type OperationalEmergencySource = {
   readonly pageLabel: string;
 };
 
+export type OperationalEmergencyEnvelopePoint = {
+  readonly x: number;
+  readonly y: number;
+};
+
+export type OperationalEmergencyEnvelopeAxis = {
+  readonly key: string;
+  readonly label: string;
+  readonly unit: string;
+  readonly min: number;
+  readonly max: number;
+  readonly ticks: readonly number[];
+};
+
+export type OperationalEmergencyEnvelopeFigure = {
+  readonly id: string;
+  readonly title: string;
+  readonly geometryPolicy: "source-digitized-visual-reference";
+  readonly xAxis: OperationalEmergencyEnvelopeAxis;
+  readonly yAxis: OperationalEmergencyEnvelopeAxis;
+  readonly regions: readonly {
+    readonly id: string;
+    readonly label: string;
+    readonly fill: "shaded" | "hatched" | "none";
+    readonly points: readonly OperationalEmergencyEnvelopePoint[];
+    readonly labelAt?: OperationalEmergencyEnvelopePoint;
+  }[];
+  readonly guides?: readonly {
+    readonly id: string;
+    readonly style: "boundary" | "guide";
+    readonly points: readonly OperationalEmergencyEnvelopePoint[];
+  }[];
+  readonly annotations?: readonly {
+    readonly id: string;
+    readonly text: string;
+    readonly at: OperationalEmergencyEnvelopePoint;
+  }[];
+  readonly notes?: readonly string[];
+  readonly sources: readonly OperationalEmergencySource[];
+};
+
 export type OperationalEmergencyActionStep = {
   readonly id: string;
   readonly kind: "action";
@@ -166,6 +210,7 @@ export type OperationalEmergencyScenario = {
   readonly notices?: readonly OperationalEmergencyNotice[];
   readonly configurationNote?: string;
   readonly boundaryNote?: string;
+  readonly figures?: readonly OperationalEmergencyEnvelopeFigure[];
   readonly stages: readonly OperationalEmergencyStage[];
 };
 
@@ -200,6 +245,48 @@ function emergencySource(source: {
     section: source.section,
     pageLabel: source.pageLabel,
   };
+}
+
+function emergencyFigure(figure: AircraftQrhEnvelopeFigure): OperationalEmergencyEnvelopeFigure {
+  return {
+    id: figure.id,
+    title: figure.title,
+    geometryPolicy: figure.geometryPolicy,
+    xAxis: { ...figure.xAxis, ticks: [...figure.xAxis.ticks] },
+    yAxis: { ...figure.yAxis, ticks: [...figure.yAxis.ticks] },
+    regions: figure.regions.map((region) => ({
+      id: region.id,
+      label: region.label,
+      fill: region.fill,
+      points: region.points.map((point) => ({ ...point })),
+      labelAt: region.labelAt ? { ...region.labelAt } : undefined,
+    })),
+    guides: figure.guides?.map((guide) => ({
+      id: guide.id,
+      style: guide.style,
+      points: guide.points.map((point) => ({ ...point })),
+    })),
+    annotations: figure.annotations?.map((annotation) => ({
+      id: annotation.id,
+      text: annotation.text,
+      at: { ...annotation.at },
+    })),
+    notes: figure.notes ? [...figure.notes] : undefined,
+    sources: figure.sources.map(emergencySource),
+  };
+}
+
+function scenarioFigures(
+  figures: readonly AircraftQrhEnvelopeFigure[] | undefined,
+  figureIds: readonly string[] | undefined,
+): readonly OperationalEmergencyEnvelopeFigure[] | undefined {
+  if (!figures?.length || !figureIds?.length) return undefined;
+  const byId = new Map(figures.map((figure) => [figure.id, figure] as const));
+  const selected = figureIds
+    .map((id) => byId.get(id))
+    .filter((figure): figure is AircraftQrhEnvelopeFigure => Boolean(figure))
+    .map(emergencyFigure);
+  return selected.length ? selected : undefined;
 }
 
 function mapV2Steps(
@@ -265,6 +352,7 @@ export function toOperationalEmergency(content: AircraftAbnormalEmergencyContent
         notices: emergencyNotices(scenario.notices),
         configurationNote: scenario.applicability?.note,
         boundaryNote: scenario.boundaryNote,
+        figures: scenarioFigures(content.figures, scenario.figureIds),
         stages: scenario.stages.map((stage) => {
           const sources = stage.sources.map(emergencySource);
           return {

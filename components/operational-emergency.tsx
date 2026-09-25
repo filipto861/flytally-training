@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import type {
   OperationalEmergencyContent,
+  OperationalEmergencyEnvelopeFigure,
   OperationalEmergencyNotice,
   OperationalEmergencyScenario,
   OperationalEmergencySource,
@@ -38,6 +39,133 @@ function stepSources(step: OperationalEmergencyStep): readonly OperationalEmerge
     ...step.sources,
     ...step.branches.flatMap((branch) => branch.steps.flatMap(stepSources)),
   ];
+}
+
+function EnvelopeText({
+  text,
+  x,
+  y,
+}: Readonly<{ text: string; x: number; y: number }>) {
+  const lines = text.split("\n");
+  return <text className={styles.envelopeLabel} textAnchor="middle" x={x} y={y}>
+    {lines.map((line, index) => <tspan dy={index === 0 ? 0 : 15} key={`${line}-${index}`} x={x}>{line}</tspan>)}
+  </text>;
+}
+
+function EnvelopeFigure({ figure }: Readonly<{ figure: OperationalEmergencyEnvelopeFigure }>) {
+  const width = 640;
+  const height = 430;
+  const plot = { left: 76, top: 24, width: 520, height: 330 };
+  const x = (value: number) =>
+    plot.left + ((value - figure.xAxis.min) / (figure.xAxis.max - figure.xAxis.min)) * plot.width;
+  const y = (value: number) =>
+    plot.top + plot.height - ((value - figure.yAxis.min) / (figure.yAxis.max - figure.yAxis.min)) * plot.height;
+  const points = (values: readonly { readonly x: number; readonly y: number }[]) =>
+    values.map((point) => `${x(point.x)},${y(point.y)}`).join(" ");
+  const patternId = `qrh-hatch-${figure.id.replace(/[^a-z0-9_-]/gi, "-")}`;
+
+  return <figure className={styles.envelopeFigure}>
+    <figcaption>{figure.title}</figcaption>
+    <div className={styles.envelopeScroller}>
+      <svg
+        aria-label={`${figure.title}. Source-digitized graphical operating envelope.`}
+        className={styles.envelopeChart}
+        role="img"
+        viewBox={`0 0 ${width} ${height}`}
+      >
+        <defs>
+          <pattern height="10" id={patternId} patternUnits="userSpaceOnUse" width="10">
+            <path className={styles.envelopeHatch} d="M-2 10 L10 -2 M3 13 L13 3" />
+          </pattern>
+        </defs>
+
+        {figure.xAxis.ticks.map((tick) => <line
+          className={styles.envelopeGrid}
+          key={`x-grid-${tick}`}
+          x1={x(tick)}
+          x2={x(tick)}
+          y1={plot.top}
+          y2={plot.top + plot.height}
+        />)}
+        {figure.yAxis.ticks.map((tick) => <line
+          className={styles.envelopeGrid}
+          key={`y-grid-${tick}`}
+          x1={plot.left}
+          x2={plot.left + plot.width}
+          y1={y(tick)}
+          y2={y(tick)}
+        />)}
+
+        {figure.regions.map((region) => <polygon
+          className={styles.envelopeRegion}
+          fill={region.fill === "hatched" ? `url(#${patternId})` : region.fill === "shaded" ? "var(--surface-muted,#f1f5f9)" : "none"}
+          key={region.id}
+          points={points(region.points)}
+        />)}
+
+        {figure.guides?.map((guide) => <polyline
+          className={guide.style === "boundary" ? styles.envelopeBoundary : styles.envelopeGuide}
+          fill="none"
+          key={guide.id}
+          points={points(guide.points)}
+        />)}
+
+        <rect
+          className={styles.envelopeFrame}
+          height={plot.height}
+          width={plot.width}
+          x={plot.left}
+          y={plot.top}
+        />
+
+        {figure.regions.map((region) => region.labelAt ? <EnvelopeText
+          key={`region-label-${region.id}`}
+          text={region.label}
+          x={x(region.labelAt.x)}
+          y={y(region.labelAt.y)}
+        /> : null)}
+        {figure.annotations?.map((annotation) => <EnvelopeText
+          key={annotation.id}
+          text={annotation.text}
+          x={x(annotation.at.x)}
+          y={y(annotation.at.y)}
+        />)}
+
+        {figure.xAxis.ticks.map((tick) => <text
+          className={styles.envelopeTick}
+          key={`x-tick-${tick}`}
+          textAnchor="middle"
+          x={x(tick)}
+          y={plot.top + plot.height + 22}
+        >{tick}</text>)}
+        {figure.yAxis.ticks.map((tick) => <text
+          className={styles.envelopeTick}
+          key={`y-tick-${tick}`}
+          textAnchor="end"
+          x={plot.left - 10}
+          y={y(tick) + 4}
+        >{tick}</text>)}
+
+        <text
+          className={styles.envelopeAxisLabel}
+          textAnchor="middle"
+          x={plot.left + plot.width / 2}
+          y={height - 18}
+        >{figure.xAxis.label} — {figure.xAxis.unit}</text>
+        <text
+          className={styles.envelopeAxisLabel}
+          textAnchor="middle"
+          transform={`rotate(-90 20 ${plot.top + plot.height / 2})`}
+          x={20}
+          y={plot.top + plot.height / 2}
+        >{figure.yAxis.label} — {figure.yAxis.unit}</text>
+      </svg>
+    </div>
+    {figure.notes?.length ? <div className={styles.envelopeNotes}>
+      {figure.notes.map((note, index) => <p key={`${figure.id}-note-${index}`}>{note}</p>)}
+    </div> : null}
+    <p className={styles.envelopePolicy}>Source-digitized visual reference. The plotted geometry is not a computational lookup or interpolation surface.</p>
+  </figure>;
 }
 
 function Steps({ steps }: Readonly<{ steps: readonly OperationalEmergencyStep[] }>) {
@@ -84,10 +212,13 @@ function Steps({ steps }: Readonly<{ steps: readonly OperationalEmergencyStep[] 
 
 function Scenario({ scenario }: Readonly<{ scenario: OperationalEmergencyScenario }>) {
   const sources = [...new Set(
-    scenario.stages.flatMap((stage) => [
-      ...stage.sources.map(sourceLabel),
-      ...stage.steps.flatMap(stepSources).map(sourceLabel),
-    ]),
+    [
+      ...(scenario.figures ?? []).flatMap((figure) => figure.sources.map(sourceLabel)),
+      ...scenario.stages.flatMap((stage) => [
+        ...stage.sources.map(sourceLabel),
+        ...stage.steps.flatMap(stepSources).map(sourceLabel),
+      ]),
+    ],
   )];
 
   return <article className={styles.procedure}>
@@ -105,6 +236,10 @@ function Scenario({ scenario }: Readonly<{ scenario: OperationalEmergencyScenari
 
     {scenario.notices?.length ? <div className={styles.notices}>
       {scenario.notices.map((notice, index) => <Notice key={`${scenario.id}-notice-${index}`} notice={notice} />)}
+    </div> : null}
+
+    {scenario.figures?.length ? <div className={styles.envelopeFigures}>
+      {scenario.figures.map((figure) => <EnvelopeFigure figure={figure} key={figure.id} />)}
     </div> : null}
 
     <div className={styles.stages}>
