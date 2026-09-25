@@ -557,6 +557,53 @@ const abnormal:AircraftAbnormalEmergencyContent={
       sources:[abnormalSource],
     },
   ],
+  figures:[
+    {
+      id:"generic-operating-envelope",
+      kind:"operating-envelope",
+      title:"GENERIC OPERATING ENVELOPE",
+      geometryPolicy:"source-digitized-visual-reference",
+      xAxis:{
+        key:"speed",
+        label:"SPEED",
+        unit:"KT",
+        min:0,
+        max:100,
+        ticks:[0,50,100],
+      },
+      yAxis:{
+        key:"altitude",
+        label:"ALTITUDE",
+        unit:"1000 FT",
+        min:0,
+        max:20,
+        ticks:[0,10,20],
+      },
+      regions:[
+        {
+          id:"generic-region",
+          label:"SOURCE REGION",
+          fill:"shaded",
+          points:[
+            {x:20,y:0},
+            {x:90,y:0},
+            {x:70,y:20},
+            {x:20,y:20},
+          ],
+          labelAt:{x:52,y:10},
+        },
+      ],
+      guides:[
+        {
+          id:"generic-boundary",
+          style:"boundary",
+          points:[{x:20,y:0},{x:20,y:20}],
+        },
+      ],
+      notes:["Test-only source-digitized visual reference."],
+      sources:[abnormalSource],
+    },
+  ],
   scenarios:[
     {
       id:"generic-condition-a",
@@ -565,6 +612,7 @@ const abnormal:AircraftAbnormalEmergencyContent={
       category:"Generic",
       phase:"In flight",
       boundaryNote:"Test-only source authority boundary.",
+      figureIds:["generic-operating-envelope"],
       effectivity:{kind:"all-aircraft",sourceText:"ALL"},
       stages:[
         {
