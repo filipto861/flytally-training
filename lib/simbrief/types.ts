@@ -30,7 +30,7 @@ export type SimBriefLatestOfp = {
     readonly icao: string;
     readonly name?: string;
   };
-  readonly weight: {
+  readonly weight?: {
     readonly value: number;
     readonly unit: "kg" | "lb";
   };
