@@ -121,12 +121,17 @@ test("QRH.3F visual source review marks only CABIN/COCKPIT FIRE steps 1 through 
   );
   assert.ok(fire);
 
+  const fireStages: readonly import("../lib/universal-abnormal-emergency.ts").AircraftQrhStage[] =
+    fire.stages;
+
   for (const stageId of ["fire-e22", "fire-e22-1"]) {
-    const stage = fire.stages.find((candidate) => candidate.id === stageId);
+    const stage = fireStages.find((candidate) => candidate.id === stageId);
     assert.ok(stage);
-    const memory = flatten(stage.steps as readonly AircraftQrhStep[])
-      .filter((step) => step.kind === "action" && step.memoryItem === true)
-      .map((step) => step.label);
+    const memory: readonly string[] = flatten(stage.steps).flatMap((step) =>
+      step.kind === "action" && step.memoryItem === true && step.label
+        ? [step.label]
+        : [],
+    );
     assert.deepEqual(memory, ["1", "2", "3"]);
   }
 
