@@ -23,12 +23,15 @@ export async function ensureTrainingActiveFlightSchema(): Promise<void> {
         weather JSONB NULL,
         performance_dependency JSONB NOT NULL,
         brief JSONB NULL,
+        prefill_provenance JSONB NULL,
         created_at TIMESTAMPTZ NOT NULL,
         updated_at TIMESTAMPTZ NOT NULL,
         activated_at TIMESTAMPTZ NOT NULL,
         deactivated_at TIMESTAMPTZ NULL,
         archived_at TIMESTAMPTZ NULL
       )`;
+      await sql`ALTER TABLE training_active_flights
+        ADD COLUMN IF NOT EXISTS prefill_provenance JSONB NULL`;
       await sql`CREATE INDEX IF NOT EXISTS idx_training_active_flights_subject_aircraft_lifecycle
         ON training_active_flights(account_subject, aircraft_id, lifecycle, updated_at DESC)`;
       await sql`CREATE UNIQUE INDEX IF NOT EXISTS ux_training_active_flights_one_active
