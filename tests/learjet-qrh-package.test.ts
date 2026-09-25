@@ -2,14 +2,20 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  assertLearjet35aQrhPackageComplete,
   learjet35aQrhPackage,
   learjet35aQrhSourceBatches,
 } from "../aircraft-data/learjet-35a/qrh/package.ts";
 import { learjet35aQrhSourceInventory } from "../aircraft-data/learjet-35a/qrh/source-inventory.ts";
+import {
+  collectEmbeddedConfigurationEquipmentKeys,
+  collectEmbeddedModificationKeys,
+} from "../lib/content-applicability-binding.ts";
 import { collectEmbeddedManualIds } from "../lib/content-source-binding.ts";
 import { validateUniversalAbnormalEmergencyPayload } from "../lib/universal-abnormal-emergency.ts";
 
 test("QRH.3U aggregate is one valid publishable v2 package", () => {
+  assert.doesNotThrow(() => assertLearjet35aQrhPackageComplete());
   assert.equal(learjet35aQrhSourceBatches.length, 19);
   assert.deepEqual(validateUniversalAbnormalEmergencyPayload(learjet35aQrhPackage), []);
   assert.equal(learjet35aQrhPackage.aircraftId, "learjet-35a");
@@ -100,4 +106,26 @@ test("QRH.3U both graphical index entries remain visual-reference-only", () => {
     ["E-13", "A-35.2"],
   );
   assert.doesNotMatch(JSON.stringify(figures), /interpolation|lookupTable/);
+});
+
+
+test("QRH.3U exposes the exact configuration facts governance must register", () => {
+  assert.deepEqual(
+    [...collectEmbeddedModificationKeys(learjet35aQrhPackage)].sort(),
+    ["amk-76-7", "amk-78-13", "amk-85-1", "amk-90-3"],
+  );
+  assert.deepEqual(
+    [...collectEmbeddedConfigurationEquipmentKeys(learjet35aQrhPackage)].sort(),
+    [
+      "emergency-airflow",
+      "fuselage-valve-switch",
+      "lo-hyd-light",
+      "mach-trim",
+      "pitch-trim-light",
+      "rosemount-pitot-static-system",
+      "thrust-reverser-aeronca",
+      "thrust-reverser-tr4000",
+      "windshield-defog",
+    ],
+  );
 });
