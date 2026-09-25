@@ -402,7 +402,7 @@ export function FtActiveFlight({
                       }
                       value={simBriefIdentity.value}
                       inputMode={simBriefIdentity.kind === "pilot-id" ? "numeric" : "text"}
-                      maxLength={64}
+                      maxLength={simBriefIdentity.kind === "pilot-id" ? 7 : 64}
                       onChange={(event) =>
                         setSimBriefIdentity((currentIdentity) => ({
                           ...currentIdentity,
@@ -450,7 +450,7 @@ export function FtActiveFlight({
                 <span className={styles.fieldLabel}>
                   Departure ICAO
                   {prefillProvenance?.fields.includes("departure") ? (
-                    <span className={styles.provenanceBadge}>SIMBRIEF</span>
+                    <span className={styles.provenanceBadge} aria-hidden="true">SIMBRIEF</span>
                   ) : null}
                 </span>
                 <input
@@ -467,7 +467,7 @@ export function FtActiveFlight({
                 <span className={styles.fieldLabel}>
                   Destination ICAO
                   {prefillProvenance?.fields.includes("destination") ? (
-                    <span className={styles.provenanceBadge}>SIMBRIEF</span>
+                    <span className={styles.provenanceBadge} aria-hidden="true">SIMBRIEF</span>
                   ) : null}
                 </span>
                 <input
@@ -485,7 +485,7 @@ export function FtActiveFlight({
                   <span className={styles.fieldLabel}>
                     Weight
                     {prefillProvenance?.fields.includes("weight") ? (
-                      <span className={styles.provenanceBadge}>SIMBRIEF TOW</span>
+                      <span className={styles.provenanceBadge} aria-hidden="true">SIMBRIEF TOW</span>
                     ) : null}
                   </span>
                 </label>
