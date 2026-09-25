@@ -529,15 +529,20 @@ The detailed future sequence is tracked in **Active implementation order** below
        - production deployment `dpl_C45SzjJxxoJKqRjqMNM1yZ75o1Ve` reached **READY** and is aliased to `training.fly-tally.com`
        - production FLY smoke: `/aircraft/learjet-35a/fly` HTTP 200 and renders the new-shell `data-ft-fly-page` workspace with Performance content
        - production readiness smoke: HTTP 200 · `status=ready` · operational profile true · source-governed release profile true
-     - **15.3b CHECKLIST fast path — IN PROGRESS · SOURCE DIGITIZATION**
-       - runtime/UI is implemented and functional
-       - Learjet fast-path checklist requires a governed published universal `checklists` payload (or legacy normal-flight fallback); there is no Learjet bundled checklist fallback in the current rebuild
-       - source inventory confirms CL-102B contains the Normal Procedures checklist sequence, including Exterior Preflight, Cabin Preflight, Before Starting Engines, Starting Engines, Before Taxi, Taxi/Before Takeoff, Runway Lineup, After Takeoff, Climb, Cruise, Descent, Approach, Before Landing, After Landing and shutdown/secure phases
-       - source inventory created at `aircraft-data/learjet-35a/checklists/SOURCE_INVENTORY.md`; normal-procedure phases N-2 through N-18 are mapped and N-15 performance data is explicitly excluded from checklist ownership
-       - item-level extraction must preserve Rosemount, TR-4000, Aeronca, FC-200 and other source-defined applicability distinctions
-       - publication is currently blocked on confirming the canonical registered CL-102B manual/revision/source-reference IDs and mapping those source distinctions to the existing FlyTally aircraft-configuration tags
-       - next step: digitize the configuration-common CL-102B Normal Procedures into the universal checklist contract, then add configuration-scoped items after tag mapping; link authoritative source references, publish, and verify fast-path population
-     - **15.3c QRH fast path — CONTENT GAP CONFIRMED**
+     - **15.3b CHECKLIST fast path — IMPLEMENTED / VERIFYING**
+       - runtime/UI is implemented and functional; production population still depends on a governed published universal `checklists` payload
+       - CL-102B Normal Procedures N-2 through N-18 have been digitized into `aircraft-data/learjet-35a/checklists/normal-checklist.ts` using the universal checklist contract
+       - N-15 Landing Speeds/Distances remains owned by Performance and is intentionally not duplicated into checklist content
+       - source provenance is embedded at phase/item level using `CL-102B`; a reviewed source manifest records Change 2, the source fingerprint and the OPERATING_REFERENCE authority boundary
+       - current `fc530-standard` applicability is source/configuration driven: Rosemount wording and FC-530 trim checks are selected; non-Rosemount alternatives are filtered out
+       - generic thrust-reverser and drag-chute checks fail closed while those equipment states remain `unknown`
+       - TR-4000/Aeronca model-specific actions are intentionally omitted until the simulator thrust-reverser model is positively identified; FC-200-only items are omitted for the current FC-530 target
+       - the serial-number-specific FL410 oxygen-mask item is deferred until checklist applicability can represent aircraft serial/effectivity explicitly
+       - source-visible optional-equipment qualifiers remain literal `if installed` wording where no registered configuration key exists; no new applicability identifiers are invented
+       - guarded publisher `tooling/publish-learjet-checklist.ts` validates the payload, registers CL-102B/source reference if absent, then creates/approves/publishes the governed `checklists:bundle` only with explicit `CONFIRM_LEARJET_CHECKLIST_PUBLISH=yes`
+       - focused regression coverage validates universal schema, unique IDs, source identity, target-profile filtering, registered applicability identifiers and the explicit publication guard
+       - acceptance pending: typecheck · targeted checklist/runtime/P5 tests · production build; after merge, explicit governed publication and production CHECKLIST fast-path smoke
+     - ** — CONTENT GAP CONFIRMED**
        - runtime/UI is implemented and deliberately fails closed unless the published abnormal module is fresh and all linked sources are CONTROLLING or OPERATING_REFERENCE
        - there is no Learjet bundled QRH/emergency fallback
        - source inventory confirms CL-102B contains dedicated Emergency and Abnormal Procedures sections with aircraft/equipment effectivity splits
