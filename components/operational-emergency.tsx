@@ -33,7 +33,7 @@ function Notice({ notice }: Readonly<{ notice: OperationalEmergencyNotice }>) {
 }
 
 function stepSources(step: OperationalEmergencyStep): readonly OperationalEmergencySource[] {
-  if (step.kind === "action") return step.sources;
+  if (step.kind === "action" || step.kind === "information") return step.sources;
   return [
     ...step.sources,
     ...step.branches.flatMap((branch) => branch.steps.flatMap(stepSources)),

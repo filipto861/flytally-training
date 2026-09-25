@@ -6,7 +6,10 @@ import {
   learjet35aQrhEmergencyBatch1ReleaseStatus,
 } from "../aircraft-data/learjet-35a/qrh/emergency-batch-1.ts";
 import { learjet35aChecklistSourceManifest } from "../aircraft-data/learjet-35a/checklists/source-manifest.ts";
-import { validateUniversalAbnormalEmergencyPayload } from "../lib/universal-abnormal-emergency.ts";
+import {
+  type AircraftQrhStep,
+  validateUniversalAbnormalEmergencyPayload,
+} from "../lib/universal-abnormal-emergency.ts";
 
 test("QRH.3A staged Learjet Emergency batch satisfies the generic v2 contract", () => {
   assert.equal(learjet35aQrhEmergencyBatch1ReleaseStatus, "staged-source-review");
@@ -41,7 +44,7 @@ test("QRH.3A Door Light preserves both source branches without inferred aircraft
   assert.equal(door.procedureClass, "emergency");
   assert.equal(door.category, "Doors");
   assert.deepEqual(door.effectivity, { kind: "all-aircraft", sourceText: "ALL" });
-  assert.equal(door.applicability, undefined);
+  assert.equal("applicability" in door, false);
 
   const step = door.stages[0]?.steps[0];
   assert.equal(step?.kind, "condition");
@@ -66,11 +69,13 @@ test("QRH.3A Engine Failure memory flags match the boxed source presentation", (
   assert.ok(engine);
   assert.deepEqual(engine.effectivity, { kind: "all-aircraft", sourceText: "ALL" });
 
-  const byId = new Map(engine.stages.map((stage) => [stage.id, stage] as const));
-  const memoryIds = (stageId: string) =>
-    (byId.get(stageId)?.steps ?? [])
-      .filter((step) => step.kind === "action" && step.memoryItem)
+  const memoryIds = (stageId: string) => {
+    const stage = engine.stages.find((candidate) => candidate.id === stageId);
+    const steps = (stage?.steps ?? []) as readonly AircraftQrhStep[];
+    return steps
+      .filter((step) => step.kind === "action" && step.memoryItem === true)
       .map((step) => step.id);
+  };
 
   assert.deepEqual(memoryIds("engine-failure-takeoff-below-v1"), [
     "engine-failure-below-v1-1",
@@ -92,11 +97,20 @@ test("QRH.3A Engine Failure memory flags match the boxed source presentation", (
     "engine-failure-approach-4",
   ]);
 
-  const below = byId.get("engine-failure-takeoff-below-v1")?.steps;
-  const above = byId.get("engine-failure-takeoff-above-v1")?.steps;
-  assert.equal(below?.[3]?.kind === "action" ? below[3].memoryItem : undefined, undefined);
-  assert.equal(above?.[5]?.kind === "action" ? above[5].memoryItem : undefined, undefined);
-  assert.equal(above?.[6]?.kind === "action" ? above[6].memoryItem : undefined, undefined);
+  const below = engine.stages.find(
+    (stage) => stage.id === "engine-failure-takeoff-below-v1",
+  )?.steps as readonly AircraftQrhStep[] | undefined;
+  const above = engine.stages.find(
+    (stage) => stage.id === "engine-failure-takeoff-above-v1",
+  )?.steps as readonly AircraftQrhStep[] | undefined;
+  const memoryFlag = (step: AircraftQrhStep | undefined) =>
+    step && (step.kind === "action" || step.kind === "information")
+      ? step.memoryItem
+      : undefined;
+
+  assert.equal(memoryFlag(below?.[3]), undefined);
+  assert.equal(memoryFlag(above?.[5]), undefined);
+  assert.equal(memoryFlag(above?.[6]), undefined);
 });
 
 test("QRH.3A section guidance is source-backed and the partial batch is not mislabeled complete", () => {
