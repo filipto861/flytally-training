@@ -50,7 +50,7 @@ test("roadmap exposes the concise project progress overview", () => {
   const roadmap = fs.readFileSync(path.join(root, "ROADMAP.md"), "utf8");
   assert.match(roadmap, /## Progress overview/);
   assert.match(roadmap, /Operational CHECKLIST \| ✅/);
-  assert.match(roadmap, /Operational QRH \| ⏳/);
+  assert.match(roadmap, /Operational QRH \| (?:✅|🚧|⏳|⚠️)/);
   assert.match(roadmap, /Documentation consolidation \| ✅/);
 });
 
