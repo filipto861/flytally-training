@@ -402,6 +402,13 @@ The detailed future sequence is tracked in **Active implementation order** below
      - production readiness smoke: HTTP 200 · `status=ready` · operational profile true · source-governed release profile true
      - **follow-up:** manual-weather Partial Power currently has no manual runway-wind input. Add either explicit manual wind entry or an explicit source-safe zero-wind confirmation path before treating manual weather as complete for Partial Power
      - **follow-up:** Partial Power UI should aggregate and display **all current blockers at once** (configuration, eligibility, wind/flap/source limitations) instead of stopping on the first failure; this must remain explanatory only and must not weaken fail-closed behavior
+   - **14.1a EFB simplification pass — IN PROGRESS**
+     - reduce Partial Power setup to pilot-facing essentials only; remove explanatory helper copy and training-style prose from the main workflow
+     - collapse the single currently supported source path into one explicit mode option: **Partial Power · Aeronca**, removing the separate thrust-reverser selector without silently changing source configuration
+     - keep only compact eligibility controls: dry hard-paved runway, anti-skid operative, full-rated takeoff <30 days, TORA and ASDA
+     - retain the non-operational/source limitation as a concise status treatment rather than paragraph copy
+     - preserve all existing fail-closed runtime behavior and source constraints
+     - acceptance: typecheck, targeted PP.4 tests, full verify, Playwright, manual desktop smoke
    - **14.2 Independent 25% rated-thrust source closure — BLOCKED**
      - FlightSafety requires thrust reduction <=25% of rated takeoff thrust for the existing ambient condition
      - CL-102B P-6/P-6.1 provide configuration-specific reduced-N1 schedules and a 7.7 N1-point cap, but no verified N1-to-rated-thrust relationship has been found
