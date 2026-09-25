@@ -118,6 +118,16 @@ export type OperationalEmergencyActionStep = {
   readonly sources: readonly OperationalEmergencySource[];
 };
 
+export type OperationalEmergencyInformationStep = {
+  readonly id: string;
+  readonly kind: "information";
+  readonly text: string;
+  readonly label?: string;
+  readonly memoryItem?: boolean;
+  readonly notices?: readonly OperationalEmergencyNotice[];
+  readonly sources: readonly OperationalEmergencySource[];
+};
+
 export type OperationalEmergencyConditionBranch = {
   readonly id: string;
   readonly label: string;
@@ -134,6 +144,7 @@ export type OperationalEmergencyConditionStep = {
 
 export type OperationalEmergencyStep =
   | OperationalEmergencyActionStep
+  | OperationalEmergencyInformationStep
   | OperationalEmergencyConditionStep;
 
 export type OperationalEmergencyStage = {
@@ -200,6 +211,17 @@ function mapV2Steps(
       return {
         id: step.id,
         kind: "action" as const,
+        text: step.text,
+        label: step.label,
+        memoryItem: step.memoryItem,
+        notices: emergencyNotices(step.notices),
+        sources,
+      };
+    }
+    if (step.kind === "information") {
+      return {
+        id: step.id,
+        kind: "information" as const,
         text: step.text,
         label: step.label,
         memoryItem: step.memoryItem,

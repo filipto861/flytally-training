@@ -33,7 +33,7 @@ function Notice({ notice }: Readonly<{ notice: OperationalEmergencyNotice }>) {
 }
 
 function stepSources(step: OperationalEmergencyStep): readonly OperationalEmergencySource[] {
-  if (step.kind === "action") return step.sources;
+  if (step.kind === "action" || step.kind === "information") return step.sources;
   return [
     ...step.sources,
     ...step.branches.flatMap((branch) => branch.steps.flatMap(stepSources)),
@@ -48,6 +48,18 @@ function Steps({ steps }: Readonly<{ steps: readonly OperationalEmergencyStep[] 
           <span>{step.label ?? "•"}</span>
           <div className={styles.actionBody}>
             <strong>{step.text}</strong>
+            {step.notices?.length ? <div className={styles.notices}>
+              {step.notices.map((notice, index) => <Notice key={`${step.id}-notice-${index}`} notice={notice} />)}
+            </div> : null}
+          </div>
+        </li>;
+      }
+
+      if (step.kind === "information") {
+        return <li className={`${styles.informationStep}${step.memoryItem ? ` ${styles.memoryInformation}` : ""}`} key={step.id}>
+          <span>{step.label ?? "i"}</span>
+          <div className={styles.actionBody}>
+            <p>{step.text}</p>
             {step.notices?.length ? <div className={styles.notices}>
               {step.notices.map((notice, index) => <Notice key={`${step.id}-notice-${index}`} notice={notice} />)}
             </div> : null}

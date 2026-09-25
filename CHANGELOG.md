@@ -15,6 +15,14 @@ This file is the authoritative version history for completed FlyTally Training w
 ## 2026-09-25
 
 ### Changed
+- **PR #239 — QRH.3A first Learjet Emergency source batch**
+  - staged the first source-backed CL-102B Emergency Procedures content in the generic QRH v2 contract: section guidance, DOOR LIGHT, AC INVERTER FAILURE — TOTAL, GENERATOR FAILURE (DUAL), and ENGINE FAILURE;
+  - preserved page-level provenance, explicit ALL-aircraft effectivity, source conditional branches, and boxed ENGINE FAILURE memory items without introducing Learjet-specific runtime code;
+  - extended the generic QRH step model with a first-class `information` step after real source content exposed numbered informational lines that are not crew actions; validation, search, operational projection, presentation and browser acceptance all carry the new step type;
+  - kept the partial Learjet QRH batch staged and deliberately outside production publication/fallback paths;
+  - acceptance on head `9809c04`: typecheck PASS; targeted QRH/P5/P6/W2 suite 58/58 PASS; full Node suite 1239 total / 1238 PASS / 0 FAIL / 1 SKIP; production build PASS; targeted Playwright QRH acceptance 8/8 PASS across desktop Chromium, mobile Chromium, iPad landscape and iPad portrait.
+
+### Changed
 - **PR #238 — QRH.2 source-faithful operational contract**
   - introduced abnormal/emergency schema v2 with explicit Emergency/Abnormal procedure class, explicit memory-item semantics, source-faithful nested conditions/branches, section introductions and explicit effectivity;
   - separated source-exact operational QRH data from optional Training overlays so operational publication no longer requires invented training setup, objectives, prompts or debrief prose;

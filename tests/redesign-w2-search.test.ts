@@ -118,7 +118,10 @@ test("W2 search indexes QRH v2 source structure without requiring training metad
           branches: [{
             id: "persists",
             label: "If smoke persists",
-            steps: [{ id: "action", kind: "action", text: "Action Alpha" }],
+            steps: [
+              { id: "action", kind: "action", text: "Action Alpha" },
+              { id: "information", kind: "information", text: "Reference note Alpha" },
+            ],
           }],
         }],
       }],
@@ -148,6 +151,9 @@ test("W2 search indexes QRH v2 source structure without requiring training metad
   const actionResults = await searchAircraft(repository, "alpha", "Action Alpha");
   assert.equal(actionResults[0]?.title, "Smoke condition");
   assert.match(actionResults[0]?.source ?? "", /qrh-r1/);
+
+  const informationResults = await searchAircraft(repository, "alpha", "Reference note Alpha");
+  assert.equal(informationResults[0]?.title, "Smoke condition");
 });
 
 test("W2 recent searches round-trip through local storage contract", () => {

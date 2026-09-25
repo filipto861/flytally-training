@@ -50,6 +50,17 @@ export type AircraftQrhActionStep = {
   readonly sources?: readonly TrainingSourceReference[];
 };
 
+export type AircraftQrhInformationStep = {
+  readonly id: string;
+  readonly kind: "information";
+  /** Source informational text that is not itself a crew action. */
+  readonly text: string;
+  readonly label?: string;
+  readonly memoryItem?: boolean;
+  readonly notices?: readonly TrainingNotice[];
+  readonly sources?: readonly TrainingSourceReference[];
+};
+
 export type AircraftQrhConditionBranch = {
   readonly id: string;
   /** Exact source condition/branch wording. */
@@ -67,6 +78,7 @@ export type AircraftQrhConditionStep = {
 
 export type AircraftQrhStep =
   | AircraftQrhActionStep
+  | AircraftQrhInformationStep
   | AircraftQrhConditionStep;
 
 export type AircraftQrhEffectivity =
@@ -243,6 +255,17 @@ function validateQrhSteps(
       return;
     }
 
+    if (step.kind === "information") {
+      if (
+        !text(step.text) ||
+        (step.label !== undefined && !text(step.label)) ||
+        !optionalBoolean(step.memoryItem)
+      ) {
+        errors.push(`${stepPath} does not match the QRH information contract`);
+      }
+      return;
+    }
+
     if (step.kind === "condition") {
       if (!objects(step.branches) || step.branches.length === 0) {
         errors.push(`${stepPath}.branches must contain at least one source branch`);
@@ -259,7 +282,7 @@ function validateQrhSteps(
       return;
     }
 
-    errors.push(`${stepPath}.kind must be action or condition`);
+    errors.push(`${stepPath}.kind must be action, information or condition`);
   });
 }
 

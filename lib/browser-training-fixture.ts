@@ -604,7 +604,10 @@ const abnormal:AircraftAbnormalEmergencyContent={
                 {
                   id:"persists",
                   label:"If generic condition persists",
-                  steps:[{id:"action-c",kind:"action",label:"1",text:"Action C"}],
+                  steps:[
+                    {id:"action-c",kind:"action",label:"1",text:"Action C"},
+                    {id:"info-c",kind:"information",text:"Source information C"},
+                  ],
                 },
                 {
                   id:"clears",
