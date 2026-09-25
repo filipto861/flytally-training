@@ -4,16 +4,22 @@ import {
   assertLearjet35aQrhPackageComplete,
   learjet35aQrhPackage,
 } from "../aircraft-data/learjet-35a/qrh/package.ts";
+import { learjet35aQrhApplicabilityRegistry } from "../aircraft-data/learjet-35a/qrh/applicability-registry.ts";
 import { learjet35aQrhSourceManifest } from "../aircraft-data/learjet-35a/qrh/source-manifest.ts";
 import {
   createSourceReference,
   getAdminAircraft,
+  upsertAircraftApplicabilityRegistry,
 } from "./content-admin-repository.ts";
 import {
   approveGovernedContentVersion,
   createGovernedDraftVersion,
   publishGovernedContentVersion,
 } from "./content-governed-lifecycle.ts";
+import {
+  collectEmbeddedConfigurationEquipmentKeys,
+  collectEmbeddedModificationKeys,
+} from "./content-applicability-binding.ts";
 import { assertEmbeddedApplicabilityMatchesAircraft } from "./content-governance.ts";
 import { registerGovernedManualRevision } from "./governed-manual-registration.ts";
 import { sql } from "./db.ts";
@@ -157,6 +163,34 @@ async function ensureSourceReferences(subject: string): Promise<readonly string[
   return ids;
 }
 
+function sortedUnique(values: readonly string[]): readonly string[] {
+  return [...new Set(values)].sort();
+}
+
+function assertReviewedApplicabilityRegistryMatchesPackage(): void {
+  const embeddedModifications = sortedUnique(
+    collectEmbeddedModificationKeys(learjet35aQrhPackage),
+  );
+  const embeddedEquipment = sortedUnique(
+    collectEmbeddedConfigurationEquipmentKeys(learjet35aQrhPackage),
+  );
+  const reviewedModifications = sortedUnique(
+    learjet35aQrhApplicabilityRegistry.modificationKeys,
+  );
+  const reviewedEquipment = sortedUnique(
+    learjet35aQrhApplicabilityRegistry.configurationEquipmentKeys,
+  );
+
+  if (
+    JSON.stringify(embeddedModifications) !== JSON.stringify(reviewedModifications)
+    || JSON.stringify(embeddedEquipment) !== JSON.stringify(reviewedEquipment)
+  ) {
+    throw new Error(
+      "Learjet QRH applicability vocabulary changed without an explicit reviewed registry update.",
+    );
+  }
+}
+
 export async function publishLearjetQrhRelease(
   subject: string,
 ): Promise<LearjetQrhReleaseResult> {
@@ -170,12 +204,21 @@ export async function publishLearjetQrhRelease(
     );
   }
 
+  assertReviewedApplicabilityRegistryMatchesPackage();
+
   await ensureReviewedRevision(subject);
   const sourceReferenceIds = await ensureSourceReferences(subject);
 
   const source = learjet35aQrhSourceManifest;
-  // Fail before creating a draft when the current aircraft profile cannot
-  // prove every serial/modification/equipment selector embedded in the QRH.
+  await upsertAircraftApplicabilityRegistry(
+    source.aircraftId,
+    learjet35aQrhApplicabilityRegistry,
+    subject,
+  );
+
+  // Fail before creating a draft when the current aircraft profile plus its
+  // non-runtime reviewed vocabulary cannot prove every applicability selector
+  // embedded in the QRH. Registry membership never asserts installed state.
   // Approval/publication still re-run the same canonical governance check.
   await assertEmbeddedApplicabilityMatchesAircraft(
     source.aircraftId,
