@@ -98,7 +98,7 @@ The static aircraft catalogue remains empty in production architecture; aircraft
 
 v3.1 acceptance established that a real second aircraft and a sparse third-aircraft package can use the same generic runtime.
 
-Historical M1 finding, retained for context: **P0 — performance semantics are still encoded in application code**. That audit drove the later declarative performance work. The governing rule remains: **No performance operation may depend on magic axis/output names** and existing aircraft behavior must be reproducible by data declarations rather than model-name branches.
+Historical M1 finding, retained for context: **P0 — performance semantics are still encoded in application code**. That audit drove the later declarative performance work. The governing rule remains: **No performance operation may depend on magic axis/output names**. **Existing Learjet behaviour must be reproduced by data declarations** rather than model-name branches; the same rule applies to every later aircraft.
 
 Historical real second-aircraft acceptance evidence recorded:
 
@@ -478,7 +478,7 @@ Historical UX5 final review covered these production routes:
 
 across Desktop Chromium, iPad landscape, iPad portrait and Narrow mobile, with **light and dark workspace themes**.
 
-Historical UX5 status language was **Status: IN PROGRESS** until the product owner explicitly approved it. **Do not mark UX5 complete from automated tests alone**; the product owner must **explicitly approve** the visual result.
+Historical UX5 status language was `Status: **IN PROGRESS**` until the product owner explicitly approved it. **Do not mark UX5 complete from automated tests alone**; the product owner must **explicitly approve** the visual result.
 
 Historical UX6 final acceptance used **64 screenshots** across:
 
