@@ -13,11 +13,11 @@ test("P7.1 keeps REF as the fourth frozen W3 slot", () => {
 });
 
 test("P7.1 records universal limitations as the new-shell REF source of truth", () => {
-  const inventory = read("P7_REFERENCE_FAST_PATH.md");
+  const inventory = read("TECHNICAL_DOCUMENTATION.md");
 
-  assert.match(inventory, /governed universal[\s\S]*limitations/i);
+  assert.match(inventory, /governed universal limitations\/reference data/i);
   assert.match(inventory, /PERF already owns operational performance lookup/i);
-  assert.match(inventory, /reference-knowledge[\s\S]*not.*promoted/i);
+  assert.match(inventory, /must not.*promote legacy.*reference-knowledge.*content/i);
 });
 
 test("P7.2 projection preserves governed limitation facts and provenance", () => {

@@ -5,53 +5,30 @@ import test from "node:test";
 const read = (path: string) =>
   readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("UX0 inventory preserves the frozen five-destination IA", () => {
-  const inventory = read("UX0_VISUAL_INVENTORY.md");
+const docs = read("TECHNICAL_DOCUMENTATION.md");
 
-  assert.match(
-    inventory,
-    /AIRCRAFT \/ PROCEDURES \/ PERFORMANCE \/ TRAINING \/ FLIGHT/,
-  );
-  assert.match(
-    inventory,
-    /CHECKLIST \/ QRH \/ PERF \/ REF/,
-  );
+test("current UX documentation freezes explicit LEARN and EFB product modes", () => {
+  assert.match(docs, /LEARN.*aircraft knowledge, systems, procedures/i);
+  assert.match(docs, /EFB.*operational flight tools/i);
 });
 
-test("UX0 explicitly classifies the current shell as a development scaffold", () => {
-  const inventory = read("UX0_VISUAL_INVENTORY.md");
-
-  assert.match(inventory, /functional\s+development scaffold/i);
-  assert.match(inventory, /technical wireframe/i);
-  assert.doesNotMatch(inventory, /current UI is final/i);
+test("current UX documentation preserves the four fast-path destinations", () => {
+  assert.match(docs, /CHECKLIST → QRH → PERF → REF/);
+  assert.match(docs, /Ctrl\+Shift\+1 through Ctrl\+Shift\+4/i);
 });
 
-test("UX0 audits all four browser acceptance classes", () => {
-  const inventory = read("UX0_VISUAL_INVENTORY.md");
-
-  for (const viewport of [
-    "Desktop Chromium",
-    "iPad landscape",
-    "iPad portrait",
-    "Narrow mobile",
-  ]) {
-    assert.match(inventory, new RegExp(viewport, "i"));
-  }
+test("current UX documentation requires desktop, mobile and iPad acceptance", () => {
+  assert.match(docs, /cockpit\/tablet use first/i);
+  assert.match(docs, /desktop and mobile/i);
+  assert.match(docs, /desktop, mobile and iPad/i);
 });
 
-test("UX0 identifies shell-level composition before page polish", () => {
-  const inventory = read("UX0_VISUAL_INVENTORY.md");
-
-  assert.match(inventory, /content frame\/max-width/i);
-  assert.match(inventory, /sidebar width/i);
-  assert.match(inventory, /top bar/i);
-  assert.match(inventory, /fast-path dominance/i);
-  assert.match(inventory, /UX1 must not redesign P0–P7 page internals/i);
+test("current UX documentation keeps source safety separate from interaction emphasis", () => {
+  assert.match(docs, /source\/safety semantic states remain visually distinct from interaction accent/i);
+  assert.match(docs, /missing governed content is shown as unavailable\/fail-closed/i);
 });
 
-test("UX0 keeps operational semantics separate from visual emphasis", () => {
-  const inventory = read("UX0_VISUAL_INVENTORY.md");
-
-  assert.match(inventory, /No fake authority cues/i);
-  assert.match(inventory, /must not imply source validity, recency or safety state/i);
+test("documentation sprawl is replaced by one maintained technical reference", () => {
+  assert.match(docs, /single maintained technical\/product documentation reference/i);
+  assert.match(docs, /Historical milestone documents were consolidated here/i);
 });

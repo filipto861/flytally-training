@@ -33,7 +33,7 @@ test("C5 Training public product surfaces avoid unsupported high-risk claims",()
 
 test("C5 Training keeps source-backed wording scoped rather than authority/manufacturer approved",()=>{
   const layout=read("app/layout.tsx");
-  const docs=read("docs/compliance/V2_9_COMMERCIAL_VALIDATION.md");
+  const docs=read("TECHNICAL_DOCUMENTATION.md");
   assert.match(layout,/Source-backed aircraft training/);
   assert.match(docs,/do not mean manufacturer, operator or aviation-authority approval/i);
   assert.match(docs,/must not market a technically published aircraft package as manufacturer-approved/i);

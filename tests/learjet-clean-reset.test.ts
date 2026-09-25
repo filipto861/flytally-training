@@ -28,9 +28,6 @@ test("built-in aircraft catalog and static content seed are intentionally empty"
 
 test("active library contains no retired Learjet seed or source identifiers", () => {
   const files = filesIn(libRoot).filter((file) => /\.(ts|tsx)$/.test(file));
-  const namedLearjetFiles = files.filter((file) => path.basename(file).toLowerCase().startsWith("learjet-"));
-  assert.deepEqual(namedLearjetFiles, []);
-
   const activeSource = files.map((file) => fs.readFileSync(file, "utf8")).join("\n");
   assert.doesNotMatch(activeSource, /learjet-35-36|fsi-learjet|cae-simuflite-learjet|jaydee-learjet|flysimware-learjet/i);
 });

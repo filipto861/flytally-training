@@ -5,7 +5,7 @@ import test from "node:test";
 const repository=fs.readFileSync(new URL("../lib/content-review-repository.ts",import.meta.url),"utf8");
 const actions=fs.readFileSync(new URL("../app/admin/actions.ts",import.meta.url),"utf8");
 const page=fs.readFileSync(new URL("../app/admin/aircraft/[aircraftId]/content/[versionId]/page.tsx",import.meta.url),"utf8");
-const deployment=fs.readFileSync(new URL("../DEPLOYMENT.md",import.meta.url),"utf8");
+const deployment=fs.readFileSync(new URL("../TECHNICAL_DOCUMENTATION.md",import.meta.url),"utf8");
 
 test("re-source accepts only fingerprint-backed source records",()=>{
   assert.match(repository,/r\.checksum_sha256 IS NOT NULL/);
@@ -37,8 +37,8 @@ test("review UI makes fingerprint provenance replacement explicit without auto-p
 });
 
 test("deployment runbook preserves exact-payload re-source without document hosting",()=>{
-  assert.match(deployment,/Re-source this payload without rewriting it/);
-  assert.match(deployment,/exact existing payload/);
-  assert.match(deployment,/does not auto-approve or auto-publish/);
-  assert.match(deployment,/does not host source documents/i);
+  assert.match(deployment,/Re-sourcing an existing governed payload/i);
+  assert.match(deployment,/preserves the exact existing payload/i);
+  assert.match(deployment,/does not auto-approve or auto-publish/i);
+  assert.match(deployment,/does not host or serve source documents/i);
 });

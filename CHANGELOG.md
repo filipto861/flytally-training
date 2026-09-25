@@ -14,6 +14,15 @@ This file is the authoritative version history for completed FlyTally Training w
 
 ## 2026-09-25
 
+### Changed
+- **PR #236 — technical documentation consolidation**
+  - consolidated the repository documentation surface to exactly four maintained Markdown files: `README.md`, `ROADMAP.md`, `CHANGELOG.md`, and `TECHNICAL_DOCUMENTATION.md`;
+  - removed 68 superseded milestone, audit, specification, deployment and compliance Markdown files from the active tree while retaining their history in Git and pull requests;
+  - moved current architecture, source governance, identity/SSO, persistence/privacy, Active Flight, checklist/fast-path, Performance/Partial Power, declared distances, W&B, UX/PWA, administration, deployment, security/compliance and Learjet reference-aircraft contracts into the living technical reference;
+  - redirected documentation-dependent tests to the consolidated technical reference or executable contracts and added a regression guard preventing documentation sprawl from returning;
+  - acceptance: typecheck PASS; full Node suite 1220 total / 1219 PASS / 0 FAIL / 1 SKIP; production build PASS; no Playwright rerun required because runtime/UI behavior did not change.
+
+
 ### Fixed
 - **PR #234 — EFB checklist session synchronization**
   - main Flight Deck checklist, top checklist progress and CHECKLIST fast-path drawer now share one canonical EFB checklist session;

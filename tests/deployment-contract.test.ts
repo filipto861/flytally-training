@@ -7,7 +7,7 @@ const verify = fs.readFileSync(new URL("../.github/workflows/verify.yml", import
 const acceptance = fs.readFileSync(new URL("../.github/workflows/no-code-aircraft-acceptance.yml", import.meta.url), "utf8");
 const envExample = fs.readFileSync(new URL("../.env.example", import.meta.url), "utf8");
 const readme = fs.readFileSync(new URL("../README.md", import.meta.url), "utf8");
-const deployment = fs.readFileSync(new URL("../DEPLOYMENT.md", import.meta.url), "utf8");
+const deployment = fs.readFileSync(new URL("../TECHNICAL_DOCUMENTATION.md", import.meta.url), "utf8");
 
 test("development, verification and deployment share the Node 24 runtime contract", () => {
   assert.equal(packageJson.engines?.node, "24.x");
