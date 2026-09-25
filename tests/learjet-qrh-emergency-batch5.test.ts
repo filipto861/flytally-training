@@ -62,6 +62,8 @@ test("QRH.3F BLEED AIR LIGHT selects the exact E-20 source family without AMK in
   assert.deepEqual(scenarioStages("35-082", "unknown", "unknown", "bleed-air-light"), ["bleed-air-e20-1"]);
   assert.deepEqual(scenarioStages("35-100", "unknown", "unknown", "bleed-air-light"), ["bleed-air-e20-1"]);
   assert.deepEqual(scenarioStages("35-107", "unknown", "unknown", "bleed-air-light"), ["bleed-air-e20-2"]);
+  assert.deepEqual(scenarioStages("35-108", "unknown", "unknown", "bleed-air-light"), ["bleed-air-e20-1"]);
+  assert.deepEqual(scenarioStages("35-113", "unknown", "unknown", "bleed-air-light"), ["bleed-air-e20-2"]);
   assert.deepEqual(scenarioStages("36-032", "unknown", "unknown", "bleed-air-light"), ["bleed-air-e20-2"]);
 });
 
@@ -84,6 +86,14 @@ test("QRH.3F fire procedure preserves independent E-22 and E-23 effectivity fami
   );
   assert.deepEqual(
     scenarioStages("35-203", "unknown", "unknown", "cabin-cockpit-fire-smoke-fumes"),
+    ["fire-e22-1", "fire-e23-1", "fire-e24"],
+  );
+  assert.deepEqual(
+    scenarioStages("35-205", "unknown", "not-installed", "cabin-cockpit-fire-smoke-fumes"),
+    ["fire-e22-1", "fire-e23", "fire-e24"],
+  );
+  assert.deepEqual(
+    scenarioStages("35-205", "unknown", "installed", "cabin-cockpit-fire-smoke-fumes"),
     ["fire-e22-1", "fire-e23-1", "fire-e24"],
   );
 });
