@@ -402,7 +402,7 @@ The detailed future sequence is tracked in **Active implementation order** below
      - production readiness smoke: HTTP 200 · `status=ready` · operational profile true · source-governed release profile true
      - **follow-up:** manual-weather Partial Power currently has no manual runway-wind input. Add either explicit manual wind entry or an explicit source-safe zero-wind confirmation path before treating manual weather as complete for Partial Power
      - **follow-up:** Partial Power UI should aggregate and display **all current blockers at once** (configuration, eligibility, wind/flap/source limitations) instead of stopping on the first failure; this must remain explanatory only and must not weaken fail-closed behavior
-   - **14.1a EFB simplification pass — COMPLETE · PR #227 · APPROVED FOR PRODUCTION**
+   - **14.1a EFB simplification pass — COMPLETE · PR #227 · LIVE IN PRODUCTION**
      - Partial Power setup reduced to pilot-facing essentials; explanatory helper copy and training-style prose removed from the primary workflow
      - the single currently supported source path is now one explicit mode option: **Partial Power · Aeronca**; selecting that mode binds the Aeronca source schedule and the separate thrust-reverser selector is removed
      - compact eligibility controls retained: **Dry hard-paved**, **Anti-skid operative**, **Full-rated <30 days**
@@ -415,6 +415,9 @@ The detailed future sequence is tracked in **Active implementation order** below
      - full repository verify: **1197 total / 1196 PASS / 0 FAIL / 1 SKIP** · production build PASS
      - full Playwright browser acceptance: **388/388 PASS**
      - product owner explicitly approved production merge on 2026-09-25 without a separate local manual desktop smoke
+     - merged to `main` in PR #227 · merge commit `49e0f7c5497397fd706f011cafe086762fdc233b`
+     - production deployment `dpl_ZCCsG6c7QzQY7t73uW3HnAbkA5nv` reached **READY** and is aliased to `training.fly-tally.com`
+     - production readiness smoke: HTTP 200 · `status=ready` · operational profile true · source-governed release profile true
    - **14.2 Independent 25% rated-thrust source closure — BLOCKED**
      - FlightSafety requires thrust reduction <=25% of rated takeoff thrust for the existing ambient condition
      - CL-102B P-6/P-6.1 provide configuration-specific reduced-N1 schedules and a 7.7 N1-point cap, but no verified N1-to-rated-thrust relationship has been found
