@@ -47,9 +47,6 @@ const fc530: AircraftApplicability = {
   equipmentAllOf: ["fc-530"],
 };
 
-
-
-
 const thrustReverserInstalled: AircraftApplicability = {
   configurationEquipmentAllOf: ["thrust-reverser"],
 };
@@ -57,12 +54,6 @@ const thrustReverserInstalled: AircraftApplicability = {
 const dragChuteInstalled: AircraftApplicability = {
   configurationEquipmentAllOf: ["drag-chute"],
 };
-
-
-
-
-
-
 
 export const learjet35aNormalChecklist: AircraftChecklistContent = {
   aircraftId: "learjet-35a",
