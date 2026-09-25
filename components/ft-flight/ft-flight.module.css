@@ -379,6 +379,95 @@
   inline-size: var(--ft-touch-target-min);
 }
 
+.fieldLabel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ft-space-2);
+}
+
+.provenanceBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: calc(var(--ft-space-5) - var(--ft-space-1));
+  margin-inline-start: var(--ft-space-2);
+  padding-inline: var(--ft-space-2);
+  border: var(--ft-rule-default);
+  border-radius: var(--ft-radius-pill);
+  background: var(--ft-accent-soft);
+  color: var(--ft-accent);
+  font-family: var(--ft-font-data);
+  font-size: 0.58rem;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  vertical-align: middle;
+}
+
+.simBriefImport {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: var(--ft-space-3);
+  padding: var(--ft-space-3);
+  border: var(--ft-rule-default);
+  border-radius: var(--ft-radius-4);
+  background: var(--ft-bg-inset);
+}
+
+.simBriefImportHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ft-space-3);
+}
+
+.simBriefImportHeader > div {
+  display: grid;
+  gap: var(--ft-space-1);
+}
+
+.simBriefImportHeader strong {
+  color: var(--ft-text-primary);
+  font-family: var(--ft-font-ui);
+}
+
+.simBriefAircraft,
+.simBriefStatus {
+  color: var(--ft-text-metadata);
+  font-family: var(--ft-font-data);
+  font-size: 0.7rem;
+}
+
+.simBriefAircraft {
+  flex: 0 0 auto;
+  padding: var(--ft-space-1) var(--ft-space-2);
+  border: var(--ft-rule-default);
+  border-radius: var(--ft-radius-pill);
+  background: var(--ft-bg-panel);
+}
+
+.simBriefIdentity {
+  display: grid;
+  grid-template-columns: minmax(9rem, auto) minmax(0, 1fr) auto;
+  gap: var(--ft-space-2);
+}
+
+.rememberSimBrief {
+  grid-template-columns: auto minmax(0, 1fr) !important;
+  align-items: center;
+  font-size: 0.76rem;
+  font-weight: 500 !important;
+}
+
+.rememberSimBrief input {
+  inline-size: var(--ft-touch-target-min);
+  width: var(--ft-touch-target-min);
+  margin: 0;
+}
+
+.simBriefStatus {
+  margin: 0;
+}
+
 .dialogActions {
   grid-column: 1 / -1;
   justify-content: flex-end;
@@ -670,6 +759,18 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .simBriefImport {
+    grid-column: auto;
+  }
+
+  .simBriefIdentity {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .simBriefImportHeader {
+    align-items: flex-start;
+  }
+
   .dialogActions {
     grid-column: auto;
   }
@@ -727,7 +828,8 @@
   .secondaryAction,
   .performanceEditorClose,
   .statusBadge,
-  .statusBadgeStale {
+  .statusBadgeStale,
+  .provenanceBadge {
     outline: var(--ft-focus-width) solid Highlight;
     outline-offset: calc(var(--ft-focus-offset) * -1);
   }
