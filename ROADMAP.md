@@ -631,7 +631,7 @@ The detailed future sequence is tracked in **Active implementation order** below
      - **15.3c QRH fast path — IN PROGRESS**
        - runtime/UI is implemented and deliberately fails closed unless the published abnormal module is fresh and all linked sources are CONTROLLING or OPERATING_REFERENCE
        - there is no Learjet bundled QRH/emergency fallback
-       - **QRH.1 source inventory + contract-gap audit — COMPLETE**
+       - **QRH.1 source inventory + contract-gap audit — COMPLETE · PR #237**
          - CL-102B Change 2 is the operating-reference source; the AFM remains controlling in a conflict
          - Emergency section inventory: E-i/E-ii introduction, E-1/E-2 index, source procedures from E-4 onward; 11 index categories / 30 indexed procedure titles
          - Abnormal section inventory: A-i/A-ii introduction, A-1/A-1.1/A-2/A-3 index, source procedures from A-4 onward; 13 index categories / 65 indexed procedure-title entries including configuration-specific thrust-reverser branches
@@ -642,6 +642,7 @@ The detailed future sequence is tracked in **Active implementation order** below
          - current flat `expectedResponse[]` can carry action text but cannot faithfully model source conditional branches/substeps such as E-4 without flattening semantics
          - current applicability model can represent equipment/modification state but has no first-class aircraft serial-number range; serial/AMK source effectivity must therefore remain fail-closed until explicitly mapped
          - structured source inventory is committed in `aircraft-data/learjet-35a/qrh/source-inventory.ts`; it is audit evidence only and is not publishable operational content
+         - acceptance: typecheck PASS · focused QRH.1 suite 4/4 PASS · full Node suite 1224 total / 1223 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright not required because QRH.1 changes source inventory, tests and roadmap only
        - **QRH.2 contract hardening — NEXT**
          - evolve the generic abnormal/emergency contract without Learjet-specific runtime branches
          - add explicit procedure class (Emergency / Abnormal), explicit memory-item semantics and source-faithful conditional/substep structure
