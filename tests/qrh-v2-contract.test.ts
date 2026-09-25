@@ -165,6 +165,32 @@ test("QRH.2 mapped source effectivity fails closed without an explicit applicabi
   assert.deepEqual(validateUniversalAbnormalEmergencyPayload(invalid), []);
 });
 
+test("QRH.3E mapped source effectivity accepts serial ranges and nested OR selectors", () => {
+  const payload = structuredClone(sourceOnlyV2) as any;
+  payload.scenarios[0].effectivity = {
+    kind: "mapped",
+    sourceText: "35-202 thru 35-204, 35-206 & on; and prior aircraft incorporating AMK 78-13",
+  };
+  payload.scenarios[0].applicability = {
+    anyOf: [
+      {
+        serialNumberRanges: [
+          { prefix: "35-", from: 202, to: 204 },
+          { prefix: "35-", from: 206 },
+        ],
+      },
+      { modificationsAllOf: ["amk-78-13"] },
+    ],
+  };
+
+  assert.deepEqual(validateUniversalAbnormalEmergencyPayload(payload), []);
+
+  payload.scenarios[0].applicability = {
+    serialNumberRanges: [{ prefix: "36-", from: 41 }],
+  };
+  assert.deepEqual(validateUniversalAbnormalEmergencyPayload(payload), []);
+});
+
 test("QRH.2 authoring starter is operational-first and does not require training prose", () => {
   const starter = createStructuredStarterPayload("generic-aircraft", "abnormal") as any;
   assert.equal(starter.schemaVersion, 2);

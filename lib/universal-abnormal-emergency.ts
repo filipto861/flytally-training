@@ -195,8 +195,8 @@ function notices(value: unknown): boolean {
   );
 }
 
-function applicabilityHasSelector(value: unknown): boolean {
-  if (!object(value)) return false;
+function applicabilityHasSelector(value: unknown, depth = 0): boolean {
+  if (!object(value) || depth > 8) return false;
   const keys = [
     "variants",
     "equipmentAllOf",
@@ -212,8 +212,16 @@ function applicabilityHasSelector(value: unknown): boolean {
     "configurationEquipmentAllOf",
     "configurationEquipmentAnyOf",
     "configurationEquipmentNoneOf",
+    "serialNumbers",
+    "serialNumberRanges",
   ];
-  return keys.some((key) => Array.isArray(value[key]) && (value[key] as unknown[]).length > 0);
+  if (keys.some((key) => Array.isArray(value[key]) && (value[key] as unknown[]).length > 0)) {
+    return true;
+  }
+  const anyOf = value.anyOf;
+  return Array.isArray(anyOf) && anyOf.some((branch) =>
+    applicabilityHasSelector(branch, depth + 1),
+  );
 }
 
 function qrhEffectivity(value: unknown, applicability: unknown): boolean {
