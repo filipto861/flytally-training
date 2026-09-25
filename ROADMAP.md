@@ -540,7 +540,8 @@ The detailed future sequence is tracked in **Active implementation order** below
        - the serial-number-specific FL410 oxygen-mask item is deferred until checklist applicability can represent aircraft serial/effectivity explicitly
        - source-visible optional-equipment qualifiers remain literal `if installed` wording where no registered configuration key exists; no new applicability identifiers are invented
        - guarded publisher `tooling/publish-learjet-checklist.ts` validates the payload, registers CL-102B/source reference if absent, then creates/approves/publishes the governed `checklists:bundle` only with explicit `CONFIRM_LEARJET_CHECKLIST_PUBLISH=yes`
-       - focused regression coverage validates universal schema, unique IDs, source identity, target-profile filtering, registered applicability identifiers and the explicit publication guard
+       - focused regression coverage validates universal schema, unique IDs, source identity/fingerprint, target-profile filtering, registered applicability identifiers, source-critical Power/panel/start handoff items and the explicit publication guard
+       - through-flight ◆ markers and Normal Procedure bold-emphasis semantics are not inferred because the parsed source does not preserve a reliable item-level mapping and the current checklist contract has no explicit field for those semantics
        - acceptance pending: typecheck · targeted checklist/runtime/P5 tests · production build; after merge, explicit governed publication and production CHECKLIST fast-path smoke
      - ** — CONTENT GAP CONFIRMED**
        - runtime/UI is implemented and deliberately fails closed unless the published abnormal module is fresh and all linked sources are CONTROLLING or OPERATING_REFERENCE
