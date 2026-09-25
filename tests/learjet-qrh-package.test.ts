@@ -121,6 +121,7 @@ test("QRH.3U exposes the exact configuration facts governance must register", ()
       "fuselage-valve-switch",
       "lo-hyd-light",
       "mach-trim",
+      "nicad-batteries",
       "pitch-trim-light",
       "rosemount-pitot-static-system",
       "thrust-reverser-aeronca",
