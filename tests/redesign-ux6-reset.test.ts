@@ -37,19 +37,16 @@ test("P1.1 ROADMAP is the single authoritative active implementation roadmap", (
   assert.match(roadmap, /P1\.4 — Flight Brief becomes EFB home/i);
 });
 
-test("UX6 inventory identifies the current desktop width constraint as presentation debt", () => {
-  const inventory = read("UX6_0_INVENTORY.md");
-
-  assert.match(inventory, /content > \*/i);
-  assert.match(inventory, /under-filled desktop composition/i);
-  assert.match(inventory, /development scaffold/i);
+test("current technical documentation keeps the shell responsive across cockpit form factors", () => {
+  const docs = read("TECHNICAL_DOCUMENTATION.md");
+  assert.match(docs, /cockpit\/tablet use first/i);
+  assert.match(docs, /desktop and mobile/i);
+  assert.match(docs, /touch targets and safe-area handling support iPad\/mobile use/i);
 });
 
-test("UX6.1 records owner Gate A approval before production design work", () => {
-  const concept = read("UX6_1_SHELL_IA.md");
-
-  assert.match(concept, /APPROVED — PRODUCT OWNER GATE A PASSED/i);
-  assert.match(concept, /five top-level destinations/i);
-  assert.match(concept, /Systems and Reference must appear through contextual\/sub-navigation/i);
-  assert.match(concept, /bottom sheet/i);
+test("current technical documentation records the live LEARN/EFB information architecture", () => {
+  const docs = read("TECHNICAL_DOCUMENTATION.md");
+  assert.match(docs, /LEARN and EFB are explicit product modes/i);
+  assert.match(docs, /fast-path CHECKLIST\/QRH\/PERF\/REF remains persistent/i);
+  assert.match(docs, /shared across production routes/i);
 });
