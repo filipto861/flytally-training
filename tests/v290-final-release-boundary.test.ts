@@ -9,7 +9,7 @@ const read=(file:string)=>fs.readFileSync(path.join(root,file),"utf8");
 test("C6 Training consumes canonical release status without duplicate launch state",()=>{
   const links=read("components/legal-links.tsx");
   const env=read(".env.example");
-  const docs=read("docs/compliance/V2_9_COMMERCIAL_VALIDATION.md");
+  const docs=read("TECHNICAL_DOCUMENTATION.md");
 
   assert.match(links,/\["Release status", "release-status"\]/);
   assert.doesNotMatch(env,/FLYTALLY_LAUNCH_STAGE/);
@@ -19,7 +19,7 @@ test("C6 Training consumes canonical release status without duplicate launch sta
 });
 
 test("C6 Training keeps operational readiness separate from commercial clearance",()=>{
-  const docs=read("docs/compliance/V2_9_COMMERCIAL_VALIDATION.md");
+  const docs=read("TECHNICAL_DOCUMENTATION.md");
   const readiness=read("app/api/readiness/route.ts");
 
   assert.match(docs,/must not interpret a healthy .*readiness.* response as commercial, legal, regulator, trademark or source-rights clearance/i);
