@@ -86,12 +86,15 @@ export const learjet35aQrhAbnormalBatch10 = {
         source("A-28", "GEAR UP LANDING"),
       ],
       stages: [
-        allStage(
-          "gear-up-landing-a27-a28",
-          "GEAR UP LANDING",
-          "A-27/A-28",
-          "GEAR UP LANDING",
-          [
+        {
+          id: "gear-up-landing-a27-a28",
+          label: "GEAR UP LANDING",
+          effectivity: { kind: "all-aircraft", sourceText: "ALL" },
+          sources: [
+            source("A-27", "GEAR UP LANDING"),
+            source("A-28", "GEAR UP LANDING"),
+          ],
+          steps: [
             { id: "gear-up-1", kind: "action", label: "1", text: "Notify ATC." },
             { id: "gear-up-2", kind: "action", label: "2", text: "Passengers — BRIEF" },
             {
@@ -166,7 +169,7 @@ export const learjet35aQrhAbnormalBatch10 = {
                     },
                     {
                       id: "gear-up-nose-c",
-                      kind: "information",
+                      kind: "action",
                       label: "c",
                       text: "Hold the nose off the runway as long as elevator control is available. If hydraulic pressure is available, normal braking may be available. Use rudder and/or brakes for directional control. Be prepared to use EMER BRAKE. Refer to EMERGENCY BRAKING procedure, Tab 14, Emergency Checklist.",
                     },
@@ -178,7 +181,7 @@ export const learjet35aQrhAbnormalBatch10 = {
                   steps: [
                     {
                       id: "gear-up-main-intro",
-                      kind: "information",
+                      kind: "action",
                       text: "Land on same side of the runway as the extended gear.",
                     },
                     {
@@ -195,7 +198,7 @@ export const learjet35aQrhAbnormalBatch10 = {
                     },
                     {
                       id: "gear-up-main-c",
-                      kind: "information",
+                      kind: "action",
                       label: "c",
                       text: "Hold the applicable wing up as long as possible. Maintain directional control with rudder and nose wheel steering. If hydraulic pressure is available, braking may be available. Refer to ANTI-SKID GEN LIGHT — ANTI-SKID OFF OPERATION procedure, Tab 12, this section. Be prepared to use EMER BRAKE. Refer to EMERGENCY BRAKING procedure, Tab 14, Emergency Checklist.",
                     },
@@ -246,7 +249,7 @@ export const learjet35aQrhAbnormalBatch10 = {
               text: "Emergency Exit Window — OPEN & EXIT",
             },
           ],
-        ),
+        },
       ],
     },
     {
@@ -722,32 +725,39 @@ export const learjet35aQrhAbnormalBatch10 = {
           [
             {
               id: "stabilizer-heat-condition",
-              kind: "information",
-              text: "If buffet is encountered with full flaps:",
-            },
-            {
-              id: "stabilizer-heat-1",
-              kind: "action",
-              label: "1",
-              text: "Configuration — GEAR DN, FLAPS 20°",
-            },
-            {
-              id: "stabilizer-heat-2",
-              kind: "action",
-              label: "2",
-              text: "Final Approach Speed — VREF + 10",
-            },
-            {
-              id: "stabilizer-heat-3",
-              kind: "action",
-              label: "3",
-              text: "Yaw Damper — OFF (prior to landing)",
-            },
-            {
-              id: "stabilizer-heat-4",
-              kind: "action",
-              label: "4",
-              text: "Landing Distance — MULTIPLY by 1.1",
+              kind: "condition",
+              branches: [
+                {
+                  id: "stabilizer-heat-buffet",
+                  label: "If buffet is encountered with full flaps",
+                  steps: [
+                    {
+                      id: "stabilizer-heat-1",
+                      kind: "action",
+                      label: "1",
+                      text: "Configuration — GEAR DN, FLAPS 20°",
+                    },
+                    {
+                      id: "stabilizer-heat-2",
+                      kind: "action",
+                      label: "2",
+                      text: "Final Approach Speed — VREF + 10",
+                    },
+                    {
+                      id: "stabilizer-heat-3",
+                      kind: "action",
+                      label: "3",
+                      text: "Yaw Damper — OFF (prior to landing)",
+                    },
+                    {
+                      id: "stabilizer-heat-4",
+                      kind: "action",
+                      label: "4",
+                      text: "Landing Distance — MULTIPLY by 1.1",
+                    },
+                  ],
+                },
+              ],
             },
           ],
         ),
