@@ -196,7 +196,7 @@ export function isActiveFlight(value: unknown): value is ActiveFlight {
   if (!dependency || typeof dependency.snapshotId !== "string" || !dependency.snapshotId) return false;
   if (row.weather !== null) return false;
   if (row.brief !== null && !object(row.brief)) return false;
-  if (row.prefillProvenance !== null) {
+  if (row.prefillProvenance !== undefined && row.prefillProvenance !== null) {
     const parsed = prefillProvenance(row.prefillProvenance);
     if (!parsed) return false;
   }
