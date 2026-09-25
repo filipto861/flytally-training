@@ -4,15 +4,14 @@ import test from "node:test";
 
 const read=(path:string)=>readFileSync(new URL(`../${path}`,import.meta.url),"utf8");
 
-test("UX6.3 exposes the approved reference screen set",()=>{
-  const doc=read("UX6_3_REFERENCE_SCREENS.md");
-  for(const route of [
-    "/ux6-preview",
-    "/ux6-preview/performance",
-    "/ux6-preview/flight",
-    "/ux6-preview/library",
-    "/ux6-preview/systems",
-  ]) assert.match(doc,new RegExp(route.replaceAll("/","\\/")));
+test("UX6 preview reference screen set remains present",()=>{
+  for(const file of [
+    "app/ux6-preview/page.tsx",
+    "app/ux6-preview/performance/page.tsx",
+    "app/ux6-preview/flight/page.tsx",
+    "app/ux6-preview/library/page.tsx",
+    "app/ux6-preview/systems/page.tsx",
+  ]) assert.ok(read(file).length>0);
 });
 
 test("UX6.3 Performance gives result output higher visual priority",()=>{
