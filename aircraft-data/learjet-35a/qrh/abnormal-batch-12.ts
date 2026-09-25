@@ -48,30 +48,16 @@ const mappedStage = (
   steps,
 });
 
-const restowEnvelopeBoundary =
-  "Staged only: the TR-4000 inadvertent-deployment procedure requires the CL-102B A-35.2 THRUST REVERSER RESTOW ENVELOPE. A-35.2 remains fail-closed until the generic QRH can preserve the graphical airspeed/altitude envelope without loss.";
-
 export const learjet35aQrhAbnormalBatch12ReleaseStatus =
   "staged-source-review" as const;
-
-export const learjet35aQrhAbnormalBatch12DeferredFigures = [
-  {
-    id: "thrust-reverser-restow-envelope",
-    title: "THRUST REVERSER RESTOW ENVELOPE",
-    pageLabel: "A-35.2",
-    effectivity: "With TR-4000 Thrust Reversers",
-    reason:
-      "The source is a graphical indicated-airspeed/altitude operating envelope with distinct ENGINE SHUTDOWN and ENGINE SHUTDOWN OR FLIGHT IDLE restow regions. Do not flatten its geometry into textual thresholds; keep fail-closed until generic source-figure/envelope support is defined.",
-  },
-] as const;
 
 /**
  * QRH.3S Thrust Reversers Abnormal source batch.
  *
  * The CL-102B abnormal index contains four Aeronca textual procedures and two
  * TR-4000 textual procedures plus the graphical TR-4000 RESTOW ENVELOPE.
- * Textual procedures are staged source-faithfully here. The A-35.2 figure is
- * deliberately deferred/fail-closed rather than approximated.
+ * QRH.3T represents A-35.2 generically as source-digitized visual reference
+ * geometry without converting its curved boundaries into a computational lookup.
  *
  * Visual review of A-34.1, A-34.2 and A-35.1 found no boxed memory items.
  * Annunciator depictions are source indications, not memory boxes.
@@ -82,9 +68,75 @@ export const learjet35aQrhAbnormalBatch12 = {
   title: "Learjet 35/36 Abnormal Procedures — staged source batch 12",
   sourcePolicy: "available-sources",
   sourceNote:
-    "QRH.3S digitizes the complete textual Thrust Reversers abnormal family from CL-102B A-34.1/A-34.2/A-35.1. The indexed A-35.2 TR-4000 Restow Envelope remains an explicit graphical blocking dependency and is not approximated.",
+    "QRH.3S/3T digitizes the complete Thrust Reversers abnormal family from CL-102B A-34.1/A-34.2/A-35.1/A-35.2. The A-35.2 Restow Envelope is preserved as a source-digitized visual reference and is not a computational lookup surface.",
   disclaimer:
     "CL-102B states that its procedures do not supersede the current FAA Approved Airplane Flight Manual; the AFM takes precedence in a conflict.",
+  figures: [
+    {
+      id: "thrust-reverser-restow-envelope",
+      kind: "operating-envelope",
+      title: "THRUST REVERSER RESTOW ENVELOPE",
+      geometryPolicy: "source-digitized-visual-reference",
+      xAxis: {
+        key: "indicated-airspeed",
+        label: "INDICATED AIRSPEED",
+        unit: "KNOTS",
+        min: 100,
+        max: 210,
+        ticks: [100, 125, 150, 175, 200],
+      },
+      yAxis: {
+        key: "altitude",
+        label: "ALTITUDE",
+        unit: "1000 FEET",
+        min: 0,
+        max: 25,
+        ticks: [0, 5, 10, 15, 20],
+      },
+      regions: [
+        {
+          id: "engine-shutdown-or-flight-idle",
+          label: "ENGINE SHUTDOWN\nOR FLIGHT IDLE\nRESTOW ENVELOPE",
+          fill: "shaded",
+          points: [
+            { x: 100, y: 0 },
+            { x: 180, y: 0 },
+            { x: 180, y: 9 },
+            { x: 175, y: 10.2 },
+            { x: 170, y: 11 },
+            { x: 165, y: 11.6 },
+            { x: 160, y: 12 },
+            { x: 150, y: 12.2 },
+            { x: 125, y: 12.2 },
+            { x: 125, y: 10 },
+            { x: 100, y: 10 },
+          ],
+          labelAt: { x: 143, y: 7 },
+        },
+        {
+          id: "engine-shutdown",
+          label: "ENGINE SHUTDOWN\nRESTOW ENVELOPE",
+          fill: "hatched",
+          points: [
+            { x: 125, y: 12.2 },
+            { x: 125, y: 21 },
+            { x: 130, y: 20 },
+            { x: 140, y: 18 },
+            { x: 150, y: 16 },
+            { x: 180, y: 15 },
+            { x: 180, y: 9 },
+            { x: 175, y: 10.2 },
+            { x: 170, y: 11 },
+            { x: 165, y: 11.6 },
+            { x: 160, y: 12 },
+            { x: 150, y: 12.2 },
+          ],
+          labelAt: { x: 151, y: 14 },
+        },
+      ],
+      sources: [source("A-35.2", "THRUST REVERSER RESTOW ENVELOPE")],
+    },
+  ],
   scenarios: [
     {
       id: "aeronca-inadvertent-thrust-reverser-deployment-during-flight",
@@ -471,7 +523,7 @@ export const learjet35aQrhAbnormalBatch12 = {
       title: "INADVERTENT THRUST REVERSER DEPLOYMENT DURING FLIGHT",
       procedureClass: "abnormal",
       category: "Thrust Reversers",
-      boundaryNote: restowEnvelopeBoundary,
+      figureIds: ["thrust-reverser-restow-envelope"],
       effectivity: {
         kind: "mapped",
         sourceText: "With TR-4000 Thrust Reversers",

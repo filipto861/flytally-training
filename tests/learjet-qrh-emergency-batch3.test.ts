@@ -3,7 +3,6 @@ import test from "node:test";
 
 import {
   learjet35aQrhEmergencyBatch3,
-  learjet35aQrhEmergencyBatch3BlockedDependencies,
   learjet35aQrhEmergencyBatch3ReleaseStatus,
 } from "../aircraft-data/learjet-35a/qrh/emergency-batch-3.ts";
 import { validateUniversalAbnormalEmergencyPayload } from "../lib/universal-abnormal-emergency.ts";
@@ -27,18 +26,22 @@ test("QRH.3C staged airstart batch satisfies the generic v2 contract", () => {
   );
 });
 
-test("QRH.3C preserves the E-13 figure as an explicit blocking dependency rather than flattening it", () => {
-  assert.deepEqual(learjet35aQrhEmergencyBatch3BlockedDependencies, [
-    {
-      id: "airstart-envelope",
-      pageLabel: "E-13",
-      reason:
-        "Every staged airstart procedure begins by assuring the E-13 airstart envelope. The textual procedures may be reviewed independently, but this batch must not be published operationally until the graphical envelope has a source-faithful generic representation.",
-    },
-  ]);
+test("QRH.3T represents the E-13 Airstart Envelope as generic visual-reference geometry", () => {
+  const figure = learjet35aQrhEmergencyBatch3.figures?.[0];
+  assert.ok(figure);
+  assert.equal(figure.id, "airstart-envelope");
+  assert.equal(figure.kind, "operating-envelope");
+  assert.equal(figure.geometryPolicy, "source-digitized-visual-reference");
+  assert.deepEqual(figure.sources.map((item) => item.pageLabel), ["E-13"]);
+  assert.deepEqual(figure.xAxis.ticks, [0, 5, 10, 15, 20, 25]);
+  assert.deepEqual(figure.yAxis.ticks, [0, 5, 10, 15, 20, 25, 30]);
+  assert.equal(figure.regions[0]?.label, "WINDMILL\nAIRSTART");
+  assert.match(JSON.stringify(figure.notes), /Fuel computer ON starter assist airstarts/);
+  assert.match(JSON.stringify(figure.notes), /Do not attempt Fuel Computer OFF airstarts above 20,000 feet/);
+
   for (const scenario of learjet35aQrhEmergencyBatch3.scenarios) {
-    assert.match(scenario.boundaryNote ?? "", /E-13 AIRSTART ENVELOPE/);
-    assert.match(scenario.boundaryNote ?? "", /fail-closed/);
+    assert.deepEqual(scenario.figureIds, ["airstart-envelope"]);
+    assert.equal("boundaryNote" in scenario, false);
   }
 });
 
@@ -66,11 +69,12 @@ test("QRH.3C Fuel Computer OFF procedures preserve the 20,000-foot source restri
   assert.match(JSON.stringify(windmill), /15% N2, 10% N1/);
 });
 
-test("QRH.3C source provenance spans E-14 through E-19 without inventing E-13 text", () => {
+test("QRH.3T source provenance spans E-13 through E-19 without turning the figure into computed data", () => {
   const serialized = JSON.stringify(learjet35aQrhEmergencyBatch3);
-  for (const page of ["E-14–E-15", "E-15–E-16", "E-16–E-17", "E-18–E-19"]) {
+  for (const page of ["E-13", "E-14–E-15", "E-15–E-16", "E-16–E-17", "E-18–E-19"]) {
     assert.match(serialized, new RegExp(page));
   }
-  assert.doesNotMatch(serialized, /TURBINE SPEED \(N2\) — %/);
-  assert.doesNotMatch(serialized, /ALTITUDE — 1000 FEET/);
+  assert.match(serialized, /source-digitized-visual-reference/);
+  assert.doesNotMatch(serialized, /interpolation/);
+  assert.doesNotMatch(serialized, /lookupTable/);
 });

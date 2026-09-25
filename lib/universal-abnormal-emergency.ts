@@ -94,6 +94,59 @@ export type AircraftQrhEffectivity =
       readonly mappingNote?: string;
     };
 
+export type AircraftQrhEnvelopePoint = {
+  readonly x: number;
+  readonly y: number;
+};
+
+export type AircraftQrhEnvelopeAxis = {
+  readonly key: string;
+  readonly label: string;
+  readonly unit: string;
+  readonly min: number;
+  readonly max: number;
+  readonly ticks: readonly number[];
+};
+
+export type AircraftQrhEnvelopeRegion = {
+  readonly id: string;
+  readonly label: string;
+  readonly fill: "shaded" | "hatched" | "none";
+  /**
+   * Source-digitized vertices in source axis units. These points are for
+   * faithful visual reconstruction only and must never be treated as a
+   * computational lookup/interpolation surface.
+   */
+  readonly points: readonly AircraftQrhEnvelopePoint[];
+  readonly labelAt?: AircraftQrhEnvelopePoint;
+};
+
+export type AircraftQrhEnvelopeGuide = {
+  readonly id: string;
+  readonly style: "boundary" | "guide";
+  readonly points: readonly AircraftQrhEnvelopePoint[];
+};
+
+export type AircraftQrhEnvelopeAnnotation = {
+  readonly id: string;
+  readonly text: string;
+  readonly at: AircraftQrhEnvelopePoint;
+};
+
+export type AircraftQrhEnvelopeFigure = {
+  readonly id: string;
+  readonly kind: "operating-envelope";
+  readonly title: string;
+  readonly geometryPolicy: "source-digitized-visual-reference";
+  readonly xAxis: AircraftQrhEnvelopeAxis;
+  readonly yAxis: AircraftQrhEnvelopeAxis;
+  readonly regions: readonly AircraftQrhEnvelopeRegion[];
+  readonly guides?: readonly AircraftQrhEnvelopeGuide[];
+  readonly annotations?: readonly AircraftQrhEnvelopeAnnotation[];
+  readonly notes?: readonly string[];
+  readonly sources: readonly TrainingSourceReference[];
+};
+
 export type AircraftQrhTrainingStageOverlay = {
   readonly stageId: string;
   readonly prompt: string;
@@ -130,6 +183,7 @@ export type AircraftQrhScenario = {
   readonly stages: readonly AircraftQrhStage[];
   readonly notices?: readonly TrainingNotice[];
   readonly boundaryNote?: string;
+  readonly figureIds?: readonly string[];
   readonly applicability?: AircraftApplicability;
   readonly effectivity: AircraftQrhEffectivity;
   readonly sources?: readonly TrainingSourceReference[];
@@ -159,6 +213,7 @@ export type AircraftAbnormalEmergencyV2Content = UniversalModuleMetadata & {
   readonly aircraftId: string;
   readonly title: string;
   readonly sectionIntroductions?: readonly AircraftQrhSectionIntroduction[];
+  readonly figures?: readonly AircraftQrhEnvelopeFigure[];
   readonly scenarios: readonly AircraftQrhScenario[];
 };
 
@@ -172,6 +227,7 @@ const objects = (value: unknown): value is RecordValue[] => Array.isArray(value)
 const text = (value: unknown): value is string => typeof value === "string" && value.trim().length > 0;
 const strings = (value: unknown): value is string[] => Array.isArray(value) && value.length > 0 && value.every(text);
 const positiveNumber = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value) && value > 0;
+const finiteNumber = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value);
 const optionalBoolean = (value: unknown): boolean => value === undefined || typeof value === "boolean";
 
 function sources(value: unknown): boolean {
@@ -230,6 +286,144 @@ function qrhEffectivity(value: unknown, applicability: unknown): boolean {
   if (value.kind !== "mapped") return false;
   if (value.mappingNote !== undefined && !text(value.mappingNote)) return false;
   return applicabilityHasSelector(applicability);
+}
+
+function envelopePoint(
+  value: unknown,
+  xAxis: RecordValue,
+  yAxis: RecordValue,
+): boolean {
+  if (!object(value) || !finiteNumber(value.x) || !finiteNumber(value.y)) return false;
+  if (
+    !finiteNumber(xAxis.min) ||
+    !finiteNumber(xAxis.max) ||
+    !finiteNumber(yAxis.min) ||
+    !finiteNumber(yAxis.max)
+  ) return false;
+  return (
+    value.x >= xAxis.min &&
+    value.x <= xAxis.max &&
+    value.y >= yAxis.min &&
+    value.y <= yAxis.max
+  );
+}
+
+function envelopeAxis(value: unknown): value is RecordValue {
+  return (
+    object(value) &&
+    text(value.key) &&
+    text(value.label) &&
+    text(value.unit) &&
+    finiteNumber(value.min) &&
+    finiteNumber(value.max) &&
+    value.max > value.min &&
+    Array.isArray(value.ticks) &&
+    value.ticks.length > 0 &&
+    value.ticks.every((tick) =>
+      finiteNumber(tick) && tick >= (value.min as number) && tick <= (value.max as number)
+    )
+  );
+}
+
+function validateQrhFigures(value: unknown, errors: string[]): Set<string> {
+  const ids = new Set<string>();
+  if (value === undefined) return ids;
+  if (!objects(value) || value.length === 0) {
+    errors.push("figures must contain at least one QRH source figure when supplied");
+    return ids;
+  }
+
+  value.forEach((figure, index) => {
+    const path = `figures[${index}]`;
+    if (
+      !text(figure.id) ||
+      figure.kind !== "operating-envelope" ||
+      !text(figure.title) ||
+      figure.geometryPolicy !== "source-digitized-visual-reference" ||
+      !envelopeAxis(figure.xAxis) ||
+      !envelopeAxis(figure.yAxis) ||
+      !sources(figure.sources)
+    ) {
+      errors.push(`${path} does not match the QRH operating-envelope contract`);
+      return;
+    }
+    if (ids.has(figure.id as string)) {
+      errors.push("figures must use unique ids");
+      return;
+    }
+    ids.add(figure.id as string);
+
+    const xAxis = figure.xAxis as RecordValue;
+    const yAxis = figure.yAxis as RecordValue;
+
+    if (!objects(figure.regions) || figure.regions.length === 0) {
+      errors.push(`${path}.regions must contain at least one source region`);
+    } else {
+      const regionIds = new Set<string>();
+      figure.regions.forEach((region, regionIndex) => {
+        const regionPath = `${path}.regions[${regionIndex}]`;
+        if (
+          !text(region.id) ||
+          !text(region.label) ||
+          (region.fill !== "shaded" && region.fill !== "hatched" && region.fill !== "none") ||
+          !objects(region.points) ||
+          region.points.length < 3 ||
+          !region.points.every((point) => envelopePoint(point, xAxis, yAxis)) ||
+          (region.labelAt !== undefined && !envelopePoint(region.labelAt, xAxis, yAxis))
+        ) {
+          errors.push(`${regionPath} does not match the QRH envelope-region contract`);
+          return;
+        }
+        if (regionIds.has(region.id as string)) {
+          errors.push(`${path}.regions must use unique ids`);
+        }
+        regionIds.add(region.id as string);
+      });
+    }
+
+    if (figure.guides !== undefined) {
+      if (!objects(figure.guides)) {
+        errors.push(`${path}.guides must be an array when supplied`);
+      } else {
+        figure.guides.forEach((guide, guideIndex) => {
+          if (
+            !text(guide.id) ||
+            (guide.style !== "boundary" && guide.style !== "guide") ||
+            !objects(guide.points) ||
+            guide.points.length < 2 ||
+            !guide.points.every((point) => envelopePoint(point, xAxis, yAxis))
+          ) {
+            errors.push(`${path}.guides[${guideIndex}] does not match the QRH envelope-guide contract`);
+          }
+        });
+      }
+    }
+
+    if (figure.annotations !== undefined) {
+      if (!objects(figure.annotations)) {
+        errors.push(`${path}.annotations must be an array when supplied`);
+      } else {
+        figure.annotations.forEach((annotation, annotationIndex) => {
+          if (
+            !text(annotation.id) ||
+            !text(annotation.text) ||
+            !envelopePoint(annotation.at, xAxis, yAxis)
+          ) {
+            errors.push(`${path}.annotations[${annotationIndex}] does not match the QRH envelope-annotation contract`);
+          }
+        });
+      }
+    }
+
+    if (
+      figure.notes !== undefined &&
+      (!Array.isArray(figure.notes) || !figure.notes.every(text))
+    ) {
+      errors.push(`${path}.notes must contain only non-empty source text`);
+    }
+  });
+
+  return ids;
 }
 
 function validateQrhSteps(
@@ -378,7 +572,12 @@ function validateLegacyScenario(scenario: RecordValue, scenarioIndex: number, er
   });
 }
 
-function validateV2Scenario(scenario: RecordValue, scenarioIndex: number, errors: string[]): void {
+function validateV2Scenario(
+  scenario: RecordValue,
+  scenarioIndex: number,
+  errors: string[],
+  figureIds: ReadonlySet<string>,
+): void {
   const path = `scenarios[${scenarioIndex}]`;
   if (
     !text(scenario.id) ||
@@ -393,6 +592,18 @@ function validateV2Scenario(scenario: RecordValue, scenarioIndex: number, errors
   ) {
     errors.push(`${path} does not match the QRH v2 scenario contract`);
     return;
+  }
+
+  if (scenario.figureIds !== undefined) {
+    if (
+      !Array.isArray(scenario.figureIds) ||
+      scenario.figureIds.length === 0 ||
+      !scenario.figureIds.every(text) ||
+      new Set(scenario.figureIds).size !== scenario.figureIds.length ||
+      scenario.figureIds.some((id) => !figureIds.has(id as string))
+    ) {
+      errors.push(`${path}.figureIds must reference unique declared QRH figures`);
+    }
   }
 
   if (!objects(scenario.stages) || scenario.stages.length === 0) {
@@ -460,7 +671,8 @@ export function validateUniversalAbnormalEmergencyPayload(payload: unknown): str
 
   if (payload.schemaVersion === 2) {
     validateSectionIntroductions(payload.sectionIntroductions, errors);
-    payload.scenarios.forEach((scenario, index) => validateV2Scenario(scenario, index, errors));
+    const figureIds = validateQrhFigures(payload.figures, errors);
+    payload.scenarios.forEach((scenario, index) => validateV2Scenario(scenario, index, errors, figureIds));
     return errors;
   }
 

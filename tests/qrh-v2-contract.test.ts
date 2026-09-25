@@ -191,6 +191,61 @@ test("QRH.3E mapped source effectivity accepts serial ranges and nested OR selec
   assert.deepEqual(validateUniversalAbnormalEmergencyPayload(payload), []);
 });
 
+test("QRH.3T generic operating-envelope figures validate and survive operational projection", () => {
+  const payload = structuredClone(sourceOnlyV2) as any;
+  payload.figures = [{
+    id: "generic-envelope",
+    kind: "operating-envelope",
+    title: "GENERIC ENVELOPE",
+    geometryPolicy: "source-digitized-visual-reference",
+    xAxis: { key: "speed", label: "SPEED", unit: "KT", min: 0, max: 200, ticks: [0, 100, 200] },
+    yAxis: { key: "altitude", label: "ALTITUDE", unit: "1000 FT", min: 0, max: 20, ticks: [0, 10, 20] },
+    regions: [{
+      id: "region",
+      label: "SOURCE REGION",
+      fill: "hatched",
+      points: [{ x: 50, y: 0 }, { x: 150, y: 0 }, { x: 100, y: 15 }],
+      labelAt: { x: 100, y: 5 },
+    }],
+    guides: [{
+      id: "guide",
+      style: "boundary",
+      points: [{ x: 0, y: 10 }, { x: 200, y: 10 }],
+    }],
+    annotations: [{
+      id: "annotation",
+      text: "SOURCE NOTE",
+      at: { x: 25, y: 15 },
+    }],
+    notes: ["Source-visible figure note."],
+    sources: [source],
+  }];
+  payload.scenarios[0].figureIds = ["generic-envelope"];
+
+  assert.deepEqual(validateUniversalAbnormalEmergencyPayload(payload), []);
+  const operational = toOperationalEmergency(payload);
+  const figure = operational.scenarios[0]?.figures?.[0];
+  assert.ok(figure);
+  assert.equal(figure.id, "generic-envelope");
+  assert.equal(figure.geometryPolicy, "source-digitized-visual-reference");
+  assert.equal(figure.regions[0]?.fill, "hatched");
+  assert.equal(figure.notes?.[0], "Source-visible figure note.");
+
+  const unknownRef = structuredClone(payload);
+  unknownRef.scenarios[0].figureIds = ["missing-envelope"];
+  assert.match(
+    validateUniversalAbnormalEmergencyPayload(unknownRef).join("\n"),
+    /figureIds must reference unique declared QRH figures/,
+  );
+
+  const outsideAxis = structuredClone(payload);
+  outsideAxis.figures[0].regions[0].points[0].x = 250;
+  assert.match(
+    validateUniversalAbnormalEmergencyPayload(outsideAxis).join("\n"),
+    /envelope-region contract/,
+  );
+});
+
 test("QRH.2 authoring starter is operational-first and does not require training prose", () => {
   const starter = createStructuredStarterPayload("generic-aircraft", "abnormal") as any;
   assert.equal(starter.schemaVersion, 2);
@@ -207,6 +262,8 @@ test("QRH.2 operational UI uses explicit semantics rather than label inference",
   assert.match(ui, /stage\.memoryItem/);
   assert.match(ui, /step\.memoryItem/);
   assert.match(ui, /step\.kind === "action"/);
+  assert.match(ui, /EnvelopeFigure/);
+  assert.match(ui, /not a computational lookup or interpolation surface/);
   assert.doesNotMatch(ui, /\/immediate\|memory\/i/);
   assert.doesNotMatch(ui, /<span>EMERGENCY<\/span>/);
 });

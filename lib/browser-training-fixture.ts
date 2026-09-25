@@ -27,6 +27,15 @@ const checklist:AircraftChecklistContent={
         {id:"brakes",challenge:"Parking brake",response:"SET"},
       ],
     },
+    {
+      id:"taxi",
+      title:"Taxi",
+      sequence:2,
+      items:[
+        {id:"flight-controls",challenge:"Flight controls",response:"CHECK"},
+        {id:"taxi-brakes",challenge:"Brakes",response:"CHECK"},
+      ],
+    },
   ],
 };
 
