@@ -560,12 +560,18 @@ The detailed future sequence is tracked in **Active implementation order** below
          - focused acceptance PASS (2026-09-25): typecheck PASS · publisher/checklist suite **10/10 PASS** · production build PASS
          - merged to `main` as `c6609df49d5ec9e2f7a7bda7715564f20ca564a6`
          - next action: rerun the explicit governed publication from `main`, then verify CHECKLIST population in production
-       - **15.3b.3 Production DB credential handoff for one-shot checklist publication — BLOCKED / ENVIRONMENT**
+       - **15.3b.3 Production DB credential handoff for one-shot checklist publication — BLOCKED / SUPERSEDED BY 15.3b.4**
          - explicit publish now reaches the runtime guard correctly, but local `.env.local` does not contain `TRAINING_DATABASE_URL`
-         - production itself is healthy and database-backed; the missing value is local release-environment access, not a production database outage or checklist-content failure
-         - preferred release path: use Vercel CLI `env run -e production -- ...` so the one-shot publisher executes with the linked project's Production environment without writing production credentials into repository files or chat
-         - retain the explicit `CONFIRM_LEARJET_CHECKLIST_PUBLISH=yes` guard; if the local clone is not linked to the Vercel project, link it first
-         - after successful publication: production CHECKLIST smoke, readiness smoke, close 15.3b and record the release in CHANGELOG
+         - linking the repository and using Vercel `env run -e production` still cannot supply the database credential because the Production project marks it as a non-pullable Secret
+         - production itself remains healthy and database-backed; this is a release-path limitation, not a database outage or checklist-content failure
+         - do not copy or expose the Production DB secret merely to complete this release
+       - **15.3b.4 Authenticated production-runtime checklist release — IN PROGRESS**
+         - move the one-shot checklist release into an authenticated Training-admin server action that executes inside the production runtime, where the project already has `TRAINING_DATABASE_URL`
+         - reuse the same reviewed CL-102B manifest, payload validation, source-registration checks and governed draft/approve/publish lifecycle; do not create a second publication path with weaker rules
+         - require explicit administrator confirmation in the UI before publication
+         - return/revalidate the Learjet admin/runtime surfaces after the release and keep the action idempotent for an identical already-published payload
+         - add focused tests for admin gating, explicit confirmation, shared governed release helper and no secret exposure
+         - after the focused gate: merge/deploy, perform the explicit admin release in production, then CHECKLIST + readiness smoke and close 15.3b
      - **15.3c QRH fast path — CONTENT GAP CONFIRMED**
        - runtime/UI is implemented and deliberately fails closed unless the published abnormal module is fresh and all linked sources are CONTROLLING or OPERATING_REFERENCE
        - there is no Learjet bundled QRH/emergency fallback
