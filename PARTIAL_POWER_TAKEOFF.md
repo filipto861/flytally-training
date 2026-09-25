@@ -263,10 +263,12 @@ The staged contract is:
 - the current source-supported preview path is Aeronca only; the pilot-facing mode is therefore explicitly labeled **Partial Power · Aeronca** and selecting that mode binds the Aeronca source schedule.
 - no other thrust-reverser configuration is inferred from simulator variant, serial number or aircraft name.
 - the existing PP.2/PP.3 solver supplies Assumed Temperature, reduced N1, V1 and corrected Takeoff Distance; normal weight-based VR/V2 remain visible for context.
-- TORA and ASDA are mandatory for the preview.
-- dry hard-paved runway, anti-skid operative, anti-ice OFF and a full-rated-thrust takeoff within the preceding 30 days are surfaced as explicit eligibility confirmations.
-- source-supported runway wind is required; manual wind entry remains a tracked follow-up.
-- the result must be visibly marked **SOURCE-SUPPORTED TRAINING PREVIEW** and must state that the independent 25% rated-thrust check is not yet source-closed.
+- TORA remains explicit and editable, including for intersection departures.
+- the primary workflow no longer requires duplicate ASDA entry. When no independent ASDA override is supplied, the preview uses **ASDA = TORA**. This is conservative for the usable-field calculation because `min(TORA, ASDA)` cannot exceed TORA. A compact ASDA override remains available.
+- dry hard-paved runway, anti-skid operative and a full-rated-thrust takeoff within the preceding 30 days are treated as prerequisite assumptions attached to the explicit **Partial Power · Aeronca** training-preview selection rather than checklist-style UI confirmations. Anti-ice remains an actual explicit calculation/configuration input.
+- source-supported runway wind is taken from the applied METAR observation.
+- METAR is automatic by default. The Takeoff controller fetches on airport selection, refreshes periodically, auto-applies new observations to METAR-backed fields and automatically recalculates an existing displayed result. Manual QNH/OAT edits remain sticky until the pilot selects **AUTO METAR**.
+- the result remains visibly marked **TRAINING · 25% LIMIT UNVERIFIED**.
 - the preview is ephemeral and is **not** persisted into Takeoff Snapshot V2.
 
 The source-supported Aeronca training preview was merged in PR #226 and deployed to production on 2026-09-24. It remains visibly non-operational and ephemeral.

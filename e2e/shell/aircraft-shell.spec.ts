@@ -684,9 +684,7 @@ test("DD declared distances stay optional for full-rated Takeoff and reset with 
     performance.getByRole("button", { name: "Confirm TORA", exact: true }),
   ).toBeVisible();
   await performance.getByLabel("Takeoff TORA").fill("12000");
-  await performance.getByText("Declared-distance details", { exact: true }).click();
-  await performance.getByLabel("Takeoff ASDA").fill("12500");
-  await expect(performance.getByText("12,000 ft · TORA", { exact: true })).toBeVisible();
+  await expect(performance.getByLabel("Takeoff ASDA")).toHaveCount(0);
 
   await performance.getByLabel("QNH").fill("1013.25");
   await performance.getByLabel("OAT").fill("15");
@@ -708,11 +706,13 @@ test("DD declared distances stay optional for full-rated Takeoff and reset with 
 
   await performance.getByLabel("Takeoff runway").selectOption("06");
   await expect(performance.getByLabel("Takeoff TORA")).not.toHaveValue("");
-  await expect(performance.getByLabel("Takeoff ASDA")).toHaveValue("");
-  await expect(performance.getByText("TORA prefill needs verification", { exact: true })).toBeVisible();
+  await expect(performance.getByLabel("Takeoff ASDA")).toHaveCount(0);
+  await expect(
+    performance.getByRole("button", { name: "Confirm TORA", exact: true }),
+  ).toBeVisible();
 });
 
-test("B6 Takeoff wind correction uses APPLIED weather and explicit newer-METAR recalculation", async ({ page }) => {
+test("B6 Takeoff wind correction auto-applies newer METAR and recalculates", async ({ page }) => {
   let windSpeedKt = 15;
   let observedAt = "2026-09-24T10:00:00.000Z";
 
@@ -783,17 +783,7 @@ test("B6 Takeoff wind correction uses APPLIED weather and explicit newer-METAR r
     .getByRole("main", { name: "Performance workspace" })
     .getByRole("region", { name: "Performance", exact: true });
 
-  await expect(restored.getByText("NEWER WEATHER AVAILABLE", { exact: true })).toBeVisible();
-  await expect(restored.locator('[data-metric="v1"]')).toContainText("112 KIAS");
-  await expect(restored.locator('[data-metric="takeoffDistance"]')).toContainText("2,800 ft");
-
-  const applyAndRecalculate = restored.getByRole(
-    "button",
-    { name: "Apply & recalculate", exact: true },
-  );
-  await expect(applyAndRecalculate).toBeEnabled();
-  await applyAndRecalculate.click();
-
+  await expect(restored.getByText("NEWER WEATHER AVAILABLE", { exact: true })).toHaveCount(0);
   await expect(restored.getByText("+20.0 kt", { exact: true })).toBeVisible();
   await expect(restored.locator('[data-metric="v1"]')).toContainText("113 KIAS");
   await expect(restored.locator('[data-metric="takeoffDistance"]')).toContainText("2,700 ft");
@@ -1040,7 +1030,7 @@ test("B4 Recalculate replaces stale values with the new operation-owned weight",
   await expect(performance.locator('[data-metric="takeoffDistance"]')).toContainText("3,500 ft");
 });
 
-test("P1.3 newer METAR remains AVAILABLE until explicit Apply & recalculate", async ({ page }) => {
+test("P1.3 newer METAR auto-applies and refreshes the current result", async ({ page }) => {
   let metar = {
     station: "LKPR",
     observedAt: "2026-09-24T06:30:00.000Z",
@@ -1107,18 +1097,6 @@ test("P1.3 newer METAR remains AVAILABLE until explicit Apply & recalculate", as
   const restored = page
     .getByRole("main", { name: "Performance workspace" })
     .getByRole("region", { name: "Performance", exact: true });
-
-  await expect(restored.getByLabel("QNH")).toHaveValue("1013.25");
-  await expect(restored.getByLabel("OAT")).toHaveValue("15");
-  await expect(restored).toContainText("Available · AviationWeather.gov · observed 07:00Z");
-  await expect(restored.getByText("NEWER WEATHER AVAILABLE", { exact: true })).toBeVisible();
-  await expect(restored.locator('[data-ft-performance-strip="true"]')).toHaveAttribute(
-    "data-stale",
-    "false",
-  );
-  await expect(restored.getByText("+8.0 kt", { exact: true })).toBeVisible();
-
-  await restored.getByRole("button", { name: "Apply & recalculate", exact: true }).click();
 
   await expect(restored.getByLabel("QNH")).toHaveValue("1011");
   await expect(restored.getByLabel("OAT")).toHaveValue("17");

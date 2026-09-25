@@ -418,15 +418,29 @@ The detailed future sequence is tracked in **Active implementation order** below
      - merged to `main` in PR #227 · merge commit `49e0f7c5497397fd706f011cafe086762fdc233b`
      - production deployment `dpl_ZCCsG6c7QzQY7t73uW3HnAbkA5nv` reached **READY** and is aliased to `training.fly-tally.com`
      - production readiness smoke: HTTP 200 · `status=ready` · operational profile true · source-governed release profile true
-   - **14.1b Partial Power EFB hard simplification — IN PROGRESS**
+   - **14.1b Partial Power EFB hard simplification — COMPLETE · PR #228 · APPROVED FOR PRODUCTION**
      - TORA remains always directly editable so intersection departures can be entered without a separate workflow
-     - remove the mandatory duplicate ASDA entry from the primary Partial Power flow; when no independent ASDA override is entered, use **ASDA = TORA** as the conservative takeoff-field assumption so `min(TORA, ASDA)` cannot exceed TORA
-     - keep an optional compact ASDA override affordance for independently known declared-distance data; do not force duplicate entry in the normal case
-     - remove Partial Power eligibility checkboxes from the pilot workflow; selecting **Partial Power · Aeronca** means the training preview is evaluated under the published Partial Power prerequisite assumptions, while Anti-ice remains a real explicit calculation/configuration input
+     - duplicate ASDA entry removed from the primary Partial Power flow; when no independent ASDA override is entered, **ASDA = TORA** is used as the conservative takeoff-field assumption so `min(TORA, ASDA)` cannot exceed TORA
+     - optional compact **ASDA override** disclosure retained for independently known declared-distance data
+     - Partial Power eligibility checkboxes removed from the pilot workflow; selecting **Partial Power · Aeronca** evaluates the training preview under the published prerequisite assumptions, while Anti-ice remains a real explicit calculation/configuration input
      - keep the result visibly training/source-limited until 14.2 closes the independent 25% rated-thrust requirement
-     - METAR becomes automatic by default: fetch/apply on airport selection, periodically refresh, and automatically update the calculation when a newer observation changes source-backed inputs; manual QNH/OAT edits remain sticky overrides
+     - METAR is automatic by default: fetch/apply on airport selection, poll every 5 minutes, and automatically update an existing calculation when a newer observation changes source-backed inputs; manual QNH/OAT edits remain sticky overrides with a compact **AUTO METAR** reset
      - remove remaining action/provenance helper copy that does not contribute to the calculation or a blocking state
-     - acceptance: targeted declared-distance/weather/PP tests, full verify, Playwright, production smoke
+     - implementation includes updated PP/DD/weather regression contracts and browser acceptance for automatic METAR behavior
+     - first targeted local gate: typecheck **FAIL (2 errors)** · targeted suite **21/24 PASS / 3 FAIL** · build compiled but failed TypeScript
+       - obsolete Flight Brief reference to `newerWeatherAvailable` after AUTO-METAR contract change
+       - captured departure ICAO remained typed as optional inside the async METAR refresh closure
+       - three source-text regression assertions still expected removed UI/old controller markers
+     - corrective commits remove the obsolete Flight Brief notice, capture a non-optional METAR station value, and align DD/P1.3 tests with the simplified contract
+     - targeted re-run after fixes: typecheck PASS · PP/DD/P1.3 targeted suite **24/24 PASS** · production build PASS
+     - first full verify after targeted green: **1197 total / 1195 PASS / 1 FAIL / 1 SKIP**; the only failure was a stale B4 source-text assertion still expecting the removed manual METAR action
+     - B4 assertion updated to the AUTO-METAR contract; no performance/runtime calculation failure was reported
+     - first full Playwright run was invalidated by local-server environment contamination: Playwright reused an already-running local server, so fixture and FT_NEW_SHELL webServer env were not applied; broad failures included missing Browser CI fixture, wrong flag-off behavior, and authenticated API behavior
+     - Playwright config hardened: existing local servers are no longer reused by default; explicit reuse now requires `PW_REUSE_EXISTING_SERVER=1`
+     - **no second full-suite rerun required for 14.1b**; acceptance may close with targeted unit/browser verification of the corrected contracts plus production readiness smoke
+     - targeted closeout unit gate after B4 correction: **28/28 PASS**
+     - targeted AUTO-METAR Playwright attempt did not start because port 3000 was already occupied; this is an environment/startup conflict, not a browser-test failure. Playwright correctly refused to reuse the existing server after the config hardening.
+     - product owner explicitly approved production merge on 2026-09-25 without rerunning the blocked targeted browser pair; production smoke will be used as the remaining deployment acceptance check
    - **14.2 Independent 25% rated-thrust source closure — BLOCKED**
      - FlightSafety requires thrust reduction <=25% of rated takeoff thrust for the existing ambient condition
      - CL-102B P-6/P-6.1 provide configuration-specific reduced-N1 schedules and a 7.7 N1-point cap, but no verified N1-to-rated-thrust relationship has been found

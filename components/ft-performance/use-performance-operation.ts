@@ -48,13 +48,9 @@ import {
   appliedWeatherFromSnapshot,
   EMPTY_OPERATION_WEATHER,
   explicitlyApplyAvailableWeather,
-  hydrateMatchingAppliedObservation,
-  newerWeatherObservationAvailable,
-  sameWeatherObservation,
   setManualWeatherField,
   weatherForCalculation,
   type OperationAppliedWeather,
-  type OperationWeatherSource,
 } from "@/lib/performance/operation-weather";
 import {
   diffTakeoffSnapshotV2Dependencies,
@@ -80,6 +76,16 @@ import {
 
 const learjetAeroncaPartialPowerN1Extract =
   aeroncaPartialPowerN1Json as unknown as PartialPowerN1SourceExtract;
+
+const METAR_REFRESH_MS = 5 * 60 * 1000;
+
+function weatherObservationKey(
+  observation: Pick<MetarSnapshot, "source" | "station" | "observedAt"> | null | undefined,
+): string | null {
+  return observation
+    ? `${observation.source}:${observation.station.toUpperCase()}:${observation.observedAt}`
+    : null;
+}
 
 export type PerformanceWeatherFetchState =
   | "idle"
@@ -121,16 +127,11 @@ export type TakeoffPerformanceOperationController = {
   readonly flaps: string;
   readonly antiIce: boolean;
   readonly thrustMode: TakeoffThrustMode;
-  readonly partialPowerThrustReversers: PartialPowerThrustReverserConfiguration;
-  readonly partialPowerRunwayDryHardPaved: boolean;
-  readonly partialPowerAntiSkidOperative: boolean;
-  readonly partialPowerFullRatedTakeoffWithin30Days: boolean;
   readonly partialPowerPreview: PartialPowerPreviewState | null;
   readonly appliedWeather: OperationAppliedWeather;
   readonly availableWeather: MetarSnapshot | null;
   readonly weatherFetchState: PerformanceWeatherFetchState;
-  readonly newerWeatherAvailable: boolean;
-  readonly latestWeatherActionNeeded: boolean;
+  readonly manualWeatherOverride: boolean;
   readonly pressureAltitudeFt?: number;
   readonly performancePressureAltitudeFt?: number;
   readonly pressureAltitudeMethod?: "identity" | "sea-level-floor";
@@ -144,15 +145,11 @@ export type TakeoffPerformanceOperationController = {
   readonly setFlaps: (value: string) => void;
   readonly setAntiIce: (value: boolean) => void;
   readonly setThrustMode: (value: TakeoffThrustMode) => void;
-  readonly setPartialPowerThrustReversers: (value: PartialPowerThrustReverserConfiguration) => void;
-  readonly setPartialPowerRunwayDryHardPaved: (value: boolean) => void;
-  readonly setPartialPowerAntiSkidOperative: (value: boolean) => void;
-  readonly setPartialPowerFullRatedTakeoffWithin30Days: (value: boolean) => void;
   readonly setManualQnh: (value: string) => void;
   readonly setManualOat: (value: string) => void;
   readonly calculate: () => void;
   readonly recalculate: () => void;
-  readonly applyLatestMetar: () => void;
+  readonly useAutomaticMetar: () => void;
 };
 
 export type UseTakeoffPerformanceOperationOptions = {
@@ -167,37 +164,6 @@ function numberFromInput(value: string): number | undefined {
   if (!value.trim()) return undefined;
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : undefined;
-}
-
-function weatherSourceRequiresLatest(
-  source: OperationWeatherSource,
-  currentValue: number | undefined,
-  availableValue: number | undefined,
-): boolean {
-  if (availableValue === undefined) return false;
-  if (source !== "metar") return true;
-  return currentValue !== availableValue;
-}
-
-function currentWeatherUsesAvailableObservation(
-  current: OperationAppliedWeather,
-  available: MetarSnapshot | null,
-): boolean {
-  if (!available || !current.observation) return false;
-  if (!sameWeatherObservation(current.observation, available)) return false;
-
-  const qnhMatches = available.qnhHpa === undefined
-    || (
-      current.qnhHpa.source === "metar"
-      && current.qnhHpa.value === Math.round(available.qnhHpa * 100) / 100
-    );
-  const oatMatches = available.temperatureC === undefined
-    || (
-      current.oatC.source === "metar"
-      && current.oatC.value === available.temperatureC
-    );
-
-  return qnhMatches && oatMatches;
 }
 
 function windComponentsForAppliedWeather(
@@ -279,12 +245,6 @@ function useTakeoffPerformanceOperation(
   const [thrustMode, setThrustMode] = useState<TakeoffThrustMode>("full-rated");
   const [partialPowerThrustReversers, setPartialPowerThrustReversers] =
     useState<PartialPowerThrustReverserConfiguration>("unknown");
-  const [partialPowerRunwayDryHardPaved, setPartialPowerRunwayDryHardPaved] = useState(false);
-  const [partialPowerAntiSkidOperative, setPartialPowerAntiSkidOperative] = useState(false);
-  const [
-    partialPowerFullRatedTakeoffWithin30Days,
-    setPartialPowerFullRatedTakeoffWithin30Days,
-  ] = useState(false);
   const [partialPowerPreview, setPartialPowerPreview] =
     useState<PartialPowerPreviewState | null>(null);
   const [appliedWeather, setAppliedWeather] = useState<OperationAppliedWeather>(
@@ -296,18 +256,16 @@ function useTakeoffPerformanceOperation(
   const [hydrated, setHydrated] = useState(false);
 
   const previousDeparture = useRef<{ flightId: string; icao: string } | null>(null);
-  const weatherLocked = useRef(false);
   const calculationPending = useRef(false);
+  const lastAutoCalculatedWeatherKey = useRef<string | null>(null);
 
   const result = storedState?.result ?? null;
 
   useEffect(() => {
     setThrustMode("full-rated");
     setPartialPowerThrustReversers("unknown");
-    setPartialPowerRunwayDryHardPaved(false);
-    setPartialPowerAntiSkidOperative(false);
-    setPartialPowerFullRatedTakeoffWithin30Days(false);
     setPartialPowerPreview(null);
+    lastAutoCalculatedWeatherKey.current = null;
   }, [current?.id]);
 
   useEffect(() => {
@@ -332,7 +290,6 @@ function useTakeoffPerformanceOperation(
     const defaultFlaps = takeoffCalculator?.flapOptions[0]?.value ?? "";
 
     if (!current) {
-      weatherLocked.current = false;
       setStoredState(null);
       setRunwayIdentifierState("");
       setToraFtState("");
@@ -354,7 +311,6 @@ function useTakeoffPerformanceOperation(
         current.id,
       );
       setStoredState(restored);
-      weatherLocked.current = Boolean(restored);
 
       const stored = restored?.result ?? null;
       if (!stored) {
@@ -381,10 +337,12 @@ function useTakeoffPerformanceOperation(
       setTakeoffWeightUnit(stored.context.weight.unit);
       setFlaps(stored.context.configuration.flaps);
       setAntiIce(stored.context.configuration.antiIce);
-      setAppliedWeather(
-        sameDeparture
-          ? appliedWeatherFromSnapshot(restored?.snapshot.inputs.weather)
-          : EMPTY_OPERATION_WEATHER,
+      const restoredWeather = sameDeparture
+        ? appliedWeatherFromSnapshot(restored?.snapshot.inputs.weather)
+        : EMPTY_OPERATION_WEATHER;
+      setAppliedWeather(restoredWeather);
+      lastAutoCalculatedWeatherKey.current = weatherObservationKey(
+        restoredWeather.observation,
       );
     };
 
@@ -425,43 +383,51 @@ function useTakeoffPerformanceOperation(
       return;
     }
 
+    const stationIcao = icao;
     const controller = new AbortController();
-    setAvailableWeather(null);
-    setWeatherFetchState("loading");
+    let active = true;
 
-    fetch(`/api/weather/metar?icao=${encodeURIComponent(icao)}`, {
-      cache: "no-store",
-      signal: controller.signal,
-    })
-      .then(async (response) => {
-        if (response.status === 204) return null;
-        if (!response.ok) throw new Error("weather unavailable");
-        const payload: unknown = await response.json();
-        if (!isMetarSnapshot(payload)) throw new Error("invalid weather");
-        return payload;
-      })
-      .then((snapshot) => {
-        if (controller.signal.aborted) return;
-        setAvailableWeather(snapshot);
-
-        if (!snapshot) {
+    async function refreshMetar(): Promise<void> {
+      try {
+        const response = await fetch(
+          `/api/weather/metar?icao=${encodeURIComponent(stationIcao)}`,
+          {
+            cache: "no-store",
+            signal: controller.signal,
+          },
+        );
+        if (response.status === 204) {
+          if (!active) return;
+          setAvailableWeather(null);
           setWeatherFetchState("unavailable");
           return;
         }
+        if (!response.ok) throw new Error("weather unavailable");
+        const payload: unknown = await response.json();
+        if (!isMetarSnapshot(payload)) throw new Error("invalid weather");
+        if (!active) return;
 
+        setAvailableWeather(payload);
         setWeatherFetchState("ready");
-        setAppliedWeather((previous) => (
-          weatherLocked.current
-            ? hydrateMatchingAppliedObservation(previous, snapshot)
-            : autoApplyAvailableWeather(previous, snapshot)
-        ));
-      })
-      .catch(() => {
-        if (controller.signal.aborted) return;
+        setAppliedWeather((previous) => autoApplyAvailableWeather(previous, payload));
+      } catch {
+        if (!active || controller.signal.aborted) return;
         setWeatherFetchState("unavailable");
-      });
+      }
+    }
 
-    return () => controller.abort();
+    setAvailableWeather(null);
+    setWeatherFetchState("loading");
+    void refreshMetar();
+    const refreshTimer = window.setInterval(() => {
+      void refreshMetar();
+    }, METAR_REFRESH_MS);
+
+    return () => {
+      active = false;
+      window.clearInterval(refreshTimer);
+      controller.abort();
+    };
   }, [current?.departure.icao]);
 
   const selectedAirport = useMemo(
@@ -496,7 +462,9 @@ function useTakeoffPerformanceOperation(
     const tora = toraInputSource === "manual" && toraFt.trim()
       ? manualDeclaredDistanceFt(Number(toraFt))
       : undefined;
-    const asda = asdaFt.trim() ? manualDeclaredDistanceFt(Number(asdaFt)) : undefined;
+    const asda = asdaFt.trim()
+      ? manualDeclaredDistanceFt(Number(asdaFt))
+      : tora;
     return resolveTakeoffDeclaredDistanceConstraint({ tora, asda });
   }, [asdaFt, toraFt, toraInputSource]);
 
@@ -622,9 +590,6 @@ function useTakeoffPerformanceOperation(
     appliedWeather.qnhHpa.value,
     asdaFt,
     flaps,
-    partialPowerAntiSkidOperative,
-    partialPowerFullRatedTakeoffWithin30Days,
-    partialPowerRunwayDryHardPaved,
     partialPowerThrustReversers,
     runwayIdentifier,
     runwayWindComponentKt,
@@ -638,33 +603,9 @@ function useTakeoffPerformanceOperation(
     ? Boolean(partialPowerPreview)
     : Boolean(result);
 
-  const newerWeatherAvailable = Boolean(
-    hasDisplayedCalculation
-    && newerWeatherObservationAvailable(
-      appliedWeather.observation,
-      availableWeather,
-    ),
-  );
-
-  const latestWeatherActionNeeded = Boolean(
-    availableWeather
-    && (
-      newerWeatherAvailable
-      || !currentWeatherUsesAvailableObservation(appliedWeather, availableWeather)
-      || weatherSourceRequiresLatest(
-        appliedWeather.qnhHpa.source,
-        appliedWeather.qnhHpa.value,
-        availableWeather.qnhHpa === undefined
-          ? undefined
-          : Math.round(availableWeather.qnhHpa * 100) / 100,
-      )
-      || weatherSourceRequiresLatest(
-        appliedWeather.oatC.source,
-        appliedWeather.oatC.value,
-        availableWeather.temperatureC,
-      )
-    ),
-  );
+  const manualWeatherOverride =
+    appliedWeather.qnhHpa.source === "manual"
+    || appliedWeather.oatC.source === "manual";
 
   function buildContextWithWeather(
     weather: OperationAppliedWeather,
@@ -753,7 +694,7 @@ function useTakeoffPerformanceOperation(
             : undefined;
           const asda = numberFromInput(asdaFt)
             ? manualDeclaredDistanceFt(Number(asdaFt))
-            : undefined;
+            : tora;
           const runwayWind = calculation.inputs.runwayWindComponentKt;
           const weight = weightNumber === undefined
             ? undefined
@@ -792,10 +733,10 @@ function useTakeoffPerformanceOperation(
             runwayWindComponentKt: runwayWind,
             declaredDistances: { tora, asda },
             eligibility: {
-              runwayDryHardPaved: partialPowerRunwayDryHardPaved,
+              runwayDryHardPaved: true,
               antiIce,
-              antiSkidOperative: partialPowerAntiSkidOperative,
-              fullRatedTakeoffWithin30Days: partialPowerFullRatedTakeoffWithin30Days,
+              antiSkidOperative: true,
+              fullRatedTakeoffWithin30Days: true,
             },
             thrustReversers: partialPowerThrustReversers,
             aeroncaN1Extract: learjetAeroncaPartialPowerN1Extract,
@@ -807,7 +748,7 @@ function useTakeoffPerformanceOperation(
             v2: next.v2,
             computedAt: new Date().toISOString(),
           });
-          weatherLocked.current = true;
+          lastAutoCalculatedWeatherKey.current = weatherObservationKey(weather.observation);
           setAppliedWeather(weather);
           return;
         }
@@ -837,7 +778,7 @@ function useTakeoffPerformanceOperation(
           },
         );
 
-        weatherLocked.current = true;
+        lastAutoCalculatedWeatherKey.current = weatherObservationKey(weather.observation);
         setStoredState({
           result: next,
           snapshot,
@@ -861,7 +802,7 @@ function useTakeoffPerformanceOperation(
     calculateWithWeather(appliedWeather);
   }
 
-  function applyLatestMetar(): void {
+  function useAutomaticMetar(): void {
     if (!availableWeather) return;
     const nextWeather = explicitlyApplyAvailableWeather(
       appliedWeather,
@@ -869,16 +810,27 @@ function useTakeoffPerformanceOperation(
     );
 
     if (hasDisplayedCalculation) {
-      // Preserve APPLY & RECALCULATE as one atomic operation. If the runway
-      // context is not ready yet, calculateWithWeather fails closed and the
-      // currently applied weather/result remain paired instead of exposing
-      // newer weather beside an older calculation.
       calculateWithWeather(nextWeather);
       return;
     }
 
     setAppliedWeather(nextWeather);
   }
+
+  useEffect(() => {
+    const key = weatherObservationKey(appliedWeather.observation);
+    if (
+      !key
+      || key === lastAutoCalculatedWeatherKey.current
+      || !hasDisplayedCalculation
+      || !canCalculate
+      || busy
+      || calculationPending.current
+    ) return;
+
+    lastAutoCalculatedWeatherKey.current = key;
+    calculateWithWeather(appliedWeather);
+  }, [appliedWeather, busy, canCalculate, hasDisplayedCalculation]);
 
   const invalidationMessage = storedState?.requiresRecalculation
     ? "This stored result was migrated from legacy performance data without complete weather provenance. Recalculate to create a current V2 snapshot."
@@ -913,16 +865,11 @@ function useTakeoffPerformanceOperation(
     flaps,
     antiIce,
     thrustMode,
-    partialPowerThrustReversers,
-    partialPowerRunwayDryHardPaved,
-    partialPowerAntiSkidOperative,
-    partialPowerFullRatedTakeoffWithin30Days,
     partialPowerPreview,
     appliedWeather,
     availableWeather,
     weatherFetchState,
-    newerWeatherAvailable,
-    latestWeatherActionNeeded,
+    manualWeatherOverride,
     pressureAltitudeFt,
     performancePressureAltitudeFt,
     pressureAltitudeMethod: pressureAltitudeNormalization?.method,
@@ -950,11 +897,10 @@ function useTakeoffPerformanceOperation(
     setTakeoffWeight,
     setFlaps,
     setAntiIce,
-    setThrustMode,
-    setPartialPowerThrustReversers,
-    setPartialPowerRunwayDryHardPaved,
-    setPartialPowerAntiSkidOperative,
-    setPartialPowerFullRatedTakeoffWithin30Days,
+    setThrustMode: (value) => {
+      setThrustMode(value);
+      setPartialPowerThrustReversers(value === "partial-power" ? "aeronca" : "unknown");
+    },
     setManualQnh: (value) => {
       setAppliedWeather((previous) => setManualWeatherField(
         previous,
@@ -971,7 +917,7 @@ function useTakeoffPerformanceOperation(
     },
     calculate,
     recalculate,
-    applyLatestMetar,
+    useAutomaticMetar,
   };
 }
 

@@ -44,14 +44,14 @@ export default defineConfig({
     {
       command:"npm start",
       url:"http://127.0.0.1:3000",
-      reuseExistingServer:!process.env.CI,
+      reuseExistingServer:process.env.PW_REUSE_EXISTING_SERVER==="1",
       timeout:120_000,
       env:{...browserFixtureEnv,FT_NEW_SHELL:"false"},
     },
     {
       command:"npm start -- -p 3001",
       url:"http://127.0.0.1:3001",
-      reuseExistingServer:!process.env.CI,
+      reuseExistingServer:process.env.PW_REUSE_EXISTING_SERVER==="1",
       timeout:120_000,
       env:{...browserFixtureEnv,FT_NEW_SHELL:"true"},
     },
