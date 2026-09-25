@@ -76,19 +76,25 @@ test("QRH.3U publication tooling reuses the governed abnormal-domain lifecycle",
   assert.match(tool, /publishLearjetQrhRelease/);
   assert.doesNotMatch(tool, /createGovernedDraftVersion/);
 
-  assert.match(release, /assertLearjet35aQrhPackageComplete\(\)/);
-  assert.ok(
-    release.indexOf("assertLearjet35aQrhPackageComplete()")
-      < release.indexOf("validateUniversalAbnormalEmergencyPayload"),
+  const publishStart = release.indexOf(
+    "export async function publishLearjetQrhRelease",
   );
-  assert.match(release, /validateUniversalAbnormalEmergencyPayload/);
+  assert.notEqual(publishStart, -1);
+  const publication = release.slice(publishStart);
+
+  assert.match(publication, /assertLearjet35aQrhPackageComplete\(\)/);
+  assert.ok(
+    publication.indexOf("assertLearjet35aQrhPackageComplete()")
+      < publication.indexOf("validateUniversalAbnormalEmergencyPayload"),
+  );
+  assert.match(publication, /validateUniversalAbnormalEmergencyPayload/);
   assert.match(release, /registerGovernedManualRevision/);
-  assert.match(release, /assertEmbeddedApplicabilityMatchesAircraft/);
+  assert.match(publication, /assertEmbeddedApplicabilityMatchesAircraft/);
   assert.ok(
-    release.indexOf("assertEmbeddedApplicabilityMatchesAircraft")
-      < release.indexOf("createGovernedDraftVersion"),
+    publication.indexOf("assertEmbeddedApplicabilityMatchesAircraft")
+      < publication.indexOf("createGovernedDraftVersion"),
   );
-  assert.match(release, /createGovernedDraftVersion/);
+  assert.match(publication, /createGovernedDraftVersion/);
   assert.match(release, /domain: "abnormal"/);
   assert.match(release, /approveGovernedContentVersion/);
   assert.match(release, /publishGovernedContentVersion/);
