@@ -15,6 +15,18 @@ This file is the authoritative version history for completed FlyTally Training w
 ## 2026-09-25
 
 ### Changed
+- **PR #260 + PR #261 — QRH.3U complete governed Learjet QRH publication**
+  - assembled all reviewed CL-102B Change 2 Emergency + Abnormal source batches into one governed `abnormal/bundle`;
+  - reconciled three previously omitted Electrical emergency procedures: BATTERY OVERHEAT LIGHT(S) (NICAD ONLY), CURRENT LIMITER FAILURE and ESSENTIAL BUS FAILURE — DC POWER LOSS;
+  - final package accounts for all indexed entries: 29 Emergency textual scenarios + E-13 AIRSTART ENVELOPE, and 64 Abnormal textual scenarios + A-35.2 THRUST REVERSER RESTOW ENVELOPE;
+  - preserved exact serial/AMK/equipment applicability and fail-closed behavior, including NICAD-only battery content and source-specific thrust-reverser configuration;
+  - PR #261 added a reserved non-runtime applicability vocabulary registry after the initial production publication attempt correctly failed closed on unregistered AMK identifiers; registry membership does not assert installed state and is excluded from learner-selectable variants;
+  - local acceptance: typecheck PASS; focused QRH.3U suite 18/18 PASS; full Node suite 1381 total / 1380 PASS / 0 FAIL / 1 SKIP; production build PASS; Playwright 392/392 PASS;
+  - hotfix acceptance: targeted 29/29 PASS; full Node suite 1384 total / 1383 PASS / 0 FAIL / 1 SKIP; prior build and Playwright remained valid because the final adjustment was test-only;
+  - governed production publication succeeded as version `8b2b0468-10b5-4711-b1c7-3787f375aa84`;
+  - post-publication production readiness remained 200/ready with `sourceGovernedRelease` and `sourceProvenanceCoverage` true, no runtime errors were observed, and operational smoke confirmed source-authoritative QRH content for `fc530-standard` while non-applicable/unknown configuration content remained filtered.
+
+### Changed
 - **PR #259 — QRH.3T generic graphical operating-envelope support**
   - added an aircraft-agnostic QRH operating-envelope figure contract, operational projection and responsive SVG presentation for source-digitized visual-reference geometry;
   - represented both CL-102B E-13 AIRSTART ENVELOPE and A-35.2 THRUST REVERSER RESTOW ENVELOPE with source axes, labelled regions/guides/annotations and exact source-page provenance;
