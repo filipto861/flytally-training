@@ -687,8 +687,9 @@ The detailed future sequence is tracked in **Active implementation order** below
          - `WSHLD DEFOG LIGHT (IF INSTALLED)` is additionally gated by explicit generic configuration equipment `windshield-defog`; unknown/absent installation state fails closed
          - visual review of A-4 through A-9.1 found no boxed memory items, so this batch introduces no inferred memory flags; no Training overlay is invented
          - QRH.3H acceptance on head `b06d4f5`: typecheck PASS · targeted QRH/applicability/P5/P6/W2 suite 126/126 PASS · full Node suite 1287 total / 1286 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright not required because no browser/presentation behavior changed
-         - **QRH.3I Electrical Abnormal source batch — IN PROGRESS:** digitize the complete two-procedure Electrical family from A-9/A-9.1 and A-10; preserve exact generator serial-page provenance plus nested reset/failure branches
+         - **QRH.3I Electrical Abnormal source batch — COMPLETE · PR #248:** digitized the complete two-procedure Electrical family from A-9/A-9.1 and A-10; preserved exact generator serial-page provenance plus nested reset/failure branches
          - visual source review confirms A-9/A-9.1 and A-10 contain no boxed memory items; optional auxiliary-inverter qualifiers remain source text rather than becoming unregistered runtime assumptions
+         - QRH.3I acceptance on head `06f36d0`: typecheck PASS · targeted QRH/applicability/P5/P6/W2 suite 132/132 PASS · full Node suite 1293 total / 1292 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright not required because no browser/presentation behavior changed
          - **QRH.3J Engine Abnormal source batch — NEXT:** digitize the six Engine procedures from A-11 through A-13; preserve Change 1 revision-bar semantics, nested failure branches and source references without mistaking change bars for memory boxes
          - publish through the governed abnormal-domain lifecycle and verify operational-readiness gating
        - **QRH.4 cockpit acceptance — PLANNED**
