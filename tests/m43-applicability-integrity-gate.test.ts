@@ -171,3 +171,20 @@ test("M1-D3 registration traversal includes identifiers nested inside applicabil
     /unregistered configuration equipment identifier/i,
   );
 });
+
+
+test("M1-D4 governed applicability can use a reserved vocabulary without exposing a learner variant", () => {
+  const governance = fs.readFileSync(
+    new URL("../lib/content-governance.ts", import.meta.url),
+    "utf8",
+  );
+  const repository = fs.readFileSync(
+    new URL("../lib/postgres-content-repository.ts", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(governance, /aircraftApplicabilityRegistryProfileKey/);
+  assert.match(governance, /registry\.modificationKeys/);
+  assert.match(governance, /registry\.configurationEquipmentKeys/);
+  assert.match(repository, /isSelectableAircraftVariantProfileKey/);
+});
