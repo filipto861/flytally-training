@@ -123,7 +123,7 @@ test("15.1 parses only the normalized OFP fields Active Flight consumes", () => 
   assert.deepEqual(parseNormalizedSimBriefOfp(parsed), parsed);
 });
 
-test("15.1 preserves lb OFP weight units and fails closed on unsupported units", () => {
+test("15.1 preserves lb OFP weight units and omits unsupported TOW without losing the route", () => {
   const pounds = parseSimBriefLatestOfp({
     ...rawOfp,
     params: { ...rawOfp.params, units: "lbs" },
@@ -131,13 +131,24 @@ test("15.1 preserves lb OFP weight units and fails closed on unsupported units",
   });
   assert.deepEqual(pounds?.weight, { value: 33000, unit: "lb" });
 
-  assert.equal(
-    parseSimBriefLatestOfp({
-      ...rawOfp,
-      params: { ...rawOfp.params, units: "stones" },
-    }),
-    null,
-  );
+  const unsupportedWeight = parseSimBriefLatestOfp({
+    ...rawOfp,
+    params: { ...rawOfp.params, units: "stones" },
+  });
+  assert.ok(unsupportedWeight);
+  assert.equal(unsupportedWeight.weight, undefined);
+  assert.equal(unsupportedWeight.departure.icao, "LKPR");
+  assert.equal(unsupportedWeight.destination.icao, "EGSS");
+});
+
+test("15.1 route import remains valid when Estimated TOW is absent", () => {
+  const withoutTow = parseSimBriefLatestOfp({
+    ...rawOfp,
+    weights: {},
+  });
+  assert.ok(withoutTow);
+  assert.equal(withoutTow.weight, undefined);
+  assert.equal(withoutTow.aircraftIcaoCode, "LJ35");
 });
 
 test("15.1 Learjet compatibility is aircraft-owned and requires SimBrief ICAO LJ35", () => {
