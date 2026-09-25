@@ -160,10 +160,6 @@ export function FtFlightBrief({
           </div>
         )}
 
-        {operation.newerWeatherAvailable ? (
-          <p className={styles.takeoffWeatherNotice}>NEWER WEATHER AVAILABLE</p>
-        ) : null}
-
         <div className={styles.takeoffBriefActions}>
           {hasActiveFlight ? (
             <button
