@@ -83,6 +83,11 @@ test("QRH.3U publication tooling reuses the governed abnormal-domain lifecycle",
   );
   assert.match(release, /validateUniversalAbnormalEmergencyPayload/);
   assert.match(release, /registerGovernedManualRevision/);
+  assert.match(release, /assertEmbeddedApplicabilityMatchesAircraft/);
+  assert.ok(
+    release.indexOf("assertEmbeddedApplicabilityMatchesAircraft")
+      < release.indexOf("createGovernedDraftVersion"),
+  );
   assert.match(release, /createGovernedDraftVersion/);
   assert.match(release, /domain: "abnormal"/);
   assert.match(release, /approveGovernedContentVersion/);
