@@ -94,6 +94,62 @@ test("W2 search ignores queries shorter than two characters", async () => {
   assert.deepEqual(await searchAircraft(repository, "alpha", " "), []);
 });
 
+test("W2 search indexes QRH v2 source structure without requiring training metadata", async () => {
+  const qrhAircraft = aircraft("alpha");
+  const qrhPayload = {
+    schemaVersion: 2,
+    aircraftId: "alpha",
+    title: "Generic QRH",
+    scenarios: [{
+      id: "smoke-condition",
+      title: "Smoke condition",
+      procedureClass: "abnormal",
+      category: "Smoke",
+      phase: "In flight",
+      effectivity: { kind: "all-aircraft", sourceText: "ALL" },
+      stages: [{
+        id: "response",
+        label: "Response",
+        memoryItem: true,
+        sources: [{ manualId: "qrh-r1", pageLabel: "A-1" }],
+        steps: [{
+          id: "condition",
+          kind: "condition",
+          branches: [{
+            id: "persists",
+            label: "If smoke persists",
+            steps: [{ id: "action", kind: "action", text: "Action Alpha" }],
+          }],
+        }],
+      }],
+    }],
+  } as const;
+
+  const repository: TrainingContentRepository = {
+    async listAircraft() { return [qrhAircraft]; },
+    async getAircraft(aircraftId) { return aircraftId === "alpha" ? qrhAircraft : undefined; },
+    async getLearningContent() { return undefined; },
+    async getNormalFlight() { return undefined; },
+    async getCockpitOrientation() { return undefined; },
+    async getAbnormalTraining() { return undefined; },
+    async getReferenceKnowledge() { return undefined; },
+    async listPublishedModuleDomains(aircraftId) {
+      return aircraftId === "alpha" ? (["abnormal"] as const) : [];
+    },
+    async getPublishedModule<T>(aircraftId: string, domain: TrainingContentDomain) {
+      return (aircraftId === "alpha" && domain === "abnormal" ? qrhPayload : undefined) as T | undefined;
+    },
+  };
+
+  const branchResults = await searchAircraft(repository, "alpha", "smoke persists");
+  assert.equal(branchResults[0]?.title, "Smoke condition");
+  assert.match(branchResults[0]?.context ?? "", /Abnormal · Smoke · In flight/);
+
+  const actionResults = await searchAircraft(repository, "alpha", "Action Alpha");
+  assert.equal(actionResults[0]?.title, "Smoke condition");
+  assert.match(actionResults[0]?.source ?? "", /qrh-r1/);
+});
+
 test("W2 recent searches round-trip through local storage contract", () => {
   const storage = new MemoryStorage();
   addRecentSearch("alpha", "generator", storage);

@@ -46,7 +46,7 @@ test("operational performance is a client-side calculator without reference draw
 });
 
 test("emergency quick reference renders source-backed response actions without training mechanics",()=>{
-  assert.match(emergency,/stage\.expectedResponse/);
+  assert.match(emergency,/<Steps steps=\{stage\.steps\} \/>/);\n  assert.match(emergency,/step\.text/);
   assert.match(emergency,/stage\.notices/);
   assert.match(emergency,/Source &amp; authority/);
   assert.doesNotMatch(emergency,/scenario\.setup|scenario\.objectives|scenario\.debrief|stage\.prompt|stage\.explanation|scenario\.minutes|scenario\.difficulty/);
