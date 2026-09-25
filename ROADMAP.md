@@ -702,9 +702,10 @@ The detailed future sequence is tracked in **Active implementation order** below
          - preserve nested source branches, the source-defined single/dual yaw-damper split and exact A-17/A-18/A-19 provenance; `MACH TRIM MALFUNCTION` and `PITCH TRIM LIGHT IN FLIGHT` retain explicit `IF APPLICABLE` fail-closed equipment applicability rather than aircraft-name inference
          - visual review of A-17 through A-19 found no boxed memory items
          - QRH.3L acceptance on head `d2dbf6f`: typecheck PASS · targeted QRH/applicability/P5/P6/W2 suite 152/152 PASS · full Node suite 1313 total / 1312 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright not required because no browser/presentation behavior changed
-         - **QRH.3M Fuel Abnormal source batch — IN PROGRESS:** digitize the complete ten-procedure Fuel family from A-19 through A-23, preserving source branches, exact page provenance and equipment-qualified FUS VALVE paths
+         - **QRH.3M Fuel Abnormal source batch — COMPLETE · PR #252:** digitized the complete ten-procedure Fuel family from A-19 through A-23, preserving source branches, exact page provenance and equipment-qualified FUS VALVE paths
          - `CROSSFLOW VALVE FAILS TO OPEN` and `NORMAL FUEL TRANSFER SYSTEM FAILURE` use explicit generic `fuselage-valve-switch` configuration state; unknown installation state fails closed instead of selecting a source path by inference
          - visual review of A-19 through A-23 found no boxed memory items; nested fuel-balance, jettison, low-fuel and standby-pump conditions remain structured source branches
+         - QRH.3M acceptance on head `fc1e603`: typecheck PASS · targeted QRH/applicability/P5/P6/W2 suite 159/159 PASS · full Node suite 1320 total / 1319 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright not required because no browser/presentation behavior changed
          - **QRH.3N Hydraulic Abnormal source batch — NEXT:** continue with the two Hydraulic procedures on A-23/A-24, preserving `IF INSTALLED` applicability and landing/alternate-gear references
          - publish through the governed abnormal-domain lifecycle and verify operational-readiness gating
        - **QRH.4 cockpit acceptance — PLANNED**

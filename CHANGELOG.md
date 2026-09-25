@@ -15,6 +15,14 @@ This file is the authoritative version history for completed FlyTally Training w
 ## 2026-09-25
 
 ### Changed
+- **PR #252 — QRH.3M Learjet Fuel Abnormal source batch**
+  - staged the complete ten-procedure CL-102B Fuel Abnormal family from A-19 through A-23;
+  - preserved nested fuel-balance, jettison, low-fuel, standby-pump and tip-tank source branches plus exact A-19/A-20/A-21/A-22/A-23 provenance;
+  - represented FUS VALVE Switch source splits through explicit generic `fuselage-valve-switch` configuration state, with unknown installation state remaining fail-closed rather than selecting a source path by inference;
+  - visual source review found no boxed memory items on A-19 through A-23;
+  - acceptance on head `fc1e603`: typecheck PASS; targeted QRH/applicability/P5/P6/W2 suite 159/159 PASS; full Node suite 1320 total / 1319 PASS / 0 FAIL / 1 SKIP; production build PASS; no Playwright rerun required because no browser/presentation behavior changed.
+
+### Changed
 - **PR #251 — QRH.3L Learjet Flight Controls Abnormal source batch**
   - staged the complete five-procedure CL-102B Flight Controls Abnormal family from A-17 through A-19;
   - preserved nested source branches, the source-defined single/dual yaw-damper split and exact A-17/A-18/A-19 provenance;
