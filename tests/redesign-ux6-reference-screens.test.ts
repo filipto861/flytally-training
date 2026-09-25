@@ -5,7 +5,7 @@ import test from "node:test";
 const read=(path:string)=>readFileSync(new URL(`../${path}`,import.meta.url),"utf8");
 
 test("UX6.3 exposes the approved reference screen set",()=>{
-  const doc=read("UX6_3_REFERENCE_SCREENS.md");
+  const doc=read("TECHNICAL_DOCUMENTATION.md");
   for(const route of [
     "/ux6-preview",
     "/ux6-preview/performance",

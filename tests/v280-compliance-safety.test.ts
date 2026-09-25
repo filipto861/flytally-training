@@ -74,7 +74,7 @@ test("v2.8 globally exposes canonical legal and aviation-safety links",()=>{
 });
 
 test("v2.8 documents source-rights, AI human approval and no unauthorized operational interpolation",()=>{
-  const docs=read("docs/compliance/V2_8_COMPLIANCE_FOUNDATION.md"),policy=read("lib/operational-performance-policy.ts");
+  const docs=read("TECHNICAL_DOCUMENTATION.md"),policy=read("lib/operational-performance-policy.ts");
   assert.match(docs,/human governed review\/approval is required/i);
   assert.match(docs,/Proprietary, NDA-restricted/i);
   assert.match(docs,/must (?:not|never) rewrite a dataset from `none` to `linear-explicit`/);

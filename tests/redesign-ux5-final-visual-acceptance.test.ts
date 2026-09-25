@@ -11,7 +11,7 @@ const read = (path: string) =>
   readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("UX5 requires the complete production visual review matrix", () => {
-  const doc = read("UX5_FINAL_VISUAL_ACCEPTANCE.md");
+  const doc = read("TECHNICAL_DOCUMENTATION.md");
 
   for (const route of [
     "/",
@@ -84,7 +84,7 @@ test("UX5 shell Active Flight status is derived from the real lifecycle", () => 
 });
 
 test("UX5 cannot complete from automated tests without product-owner approval", () => {
-  const doc = read("UX5_FINAL_VISUAL_ACCEPTANCE.md");
+  const doc = read("TECHNICAL_DOCUMENTATION.md");
 
   assert.match(doc, /explicitly approve/i);
   assert.match(doc, /Do not mark UX5 complete from automated tests alone/i);

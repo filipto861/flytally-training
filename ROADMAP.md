@@ -5,8 +5,27 @@
 **Last updated:** 2026-09-25
 
 > This file is the single authoritative product/implementation roadmap for FlyTally Training.
-> Historical milestone/specification documents may remain in the repository as implementation evidence,
-> but they are not roadmaps and must not override this file or current executable contracts.
+> Historical milestone/specification documents have been consolidated into `TECHNICAL_DOCUMENTATION.md`.
+> Git history and pull requests retain the detailed implementation evidence; they are not competing roadmaps.
+
+## Progress at a glance
+
+| Area | Status | Next / note |
+| --- | --- | --- |
+| Core architecture, identity, governance | ✅ Complete | Maintain contracts |
+| LEARN / EFB product split | ✅ Complete | Maintain |
+| Takeoff + Landing Performance | ✅ Complete | Extend only from verified sources |
+| Partial Power · Aeronca preview | 🟡 Source-gated | Close independent 25% rated-thrust requirement |
+| EFB Flight Deck / FLY route | ✅ Complete | Maintain |
+| Learjet CHECKLIST | ✅ Complete | Live, synchronized to Active Flight |
+| Learjet QRH | ⬜ Planned | 15.3c — digitize governed abnormal/emergency content |
+| Learjet REF | ⬜ Planned | 15.3e — publish governed limitations |
+| SimBrief import | ⬜ Planned | 15.1 |
+| Climb / Cruise Reference | ⬜ Planned | 15.2 — source inventory first |
+| Multi-aircraft generic runtime | ✅ Complete baseline | Preserve no-aircraft-branch rule |
+| Documentation consolidation | ✅ Complete | Maintain one technical document |
+
+Legend: ✅ complete/live · 🟡 active or source-gated · ⬜ planned · ⛔ blocked.
 
 ## Roadmap governance
 
@@ -23,18 +42,18 @@ Roadmap discipline is mandatory for this project:
 - chat history, PR descriptions and commit history are supporting evidence only; they do not replace roadmap or changelog maintenance;
 - when roadmap direction changes, preserve the prior decision/history rather than silently rewriting it away, so future development can reconstruct why the project moved in a given direction.
 
-## Documentation consolidation — IN PROGRESS
+## Documentation consolidation — COMPLETE
 
 Goal: keep repository documentation easy to navigate and continuously maintainable.
 
 - retain `README.md` as the repository entry point;
 - retain `ROADMAP.md` as the authoritative direction/status control;
 - retain `CHANGELOG.md` as the authoritative accepted/released history;
-- consolidate the current technical/product architecture, governance, deployment, UX, safety, performance and multi-aircraft contracts into one maintained `TECHNICAL_DOCUMENTATION.md`;
-- retire superseded milestone/specification Markdown files after their still-current contracts are incorporated into the consolidated document;
-- preserve historical detail through Git history, PRs and `CHANGELOG.md` rather than permanent root-level milestone documents;
-- update documentation-contract tests so they validate the consolidated technical document instead of obsolete milestone files;
-- add a concise progress/status table near the top of this roadmap and keep it synchronized with major roadmap phases.
+- consolidated current technical/product architecture, governance, deployment, UX, safety, performance, content and multi-aircraft contracts into `TECHNICAL_DOCUMENTATION.md`;
+- retired superseded milestone/specification Markdown files after preserving their current contracts in the consolidated document;
+- historical detail remains in Git history, PRs and `CHANGELOG.md`, not permanent milestone files;
+- documentation-contract tests now validate the consolidated technical document rather than obsolete files;
+- the progress/status table near the top of this roadmap is the terse current-state overview and must stay synchronized with major phases.
 
 ## Product direction
 

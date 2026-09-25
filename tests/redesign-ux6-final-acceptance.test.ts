@@ -5,7 +5,7 @@ import test from "node:test";
 const read=(path:string)=>readFileSync(new URL("../"+path,import.meta.url),"utf8");
 
 test("UX6.9 defines the complete 64-screen acceptance matrix",()=>{
-  const doc=read("UX6_9_FINAL_ACCEPTANCE.md");
+  const doc=read("TECHNICAL_DOCUMENTATION.md");
   for(const route of [
     "/",
     "/aircraft/learjet-35a",
@@ -39,7 +39,7 @@ test("UX6.9 capture records overflow errors and governed Systems state",()=>{
 });
 
 test("UX6.9 keeps explicit product-owner approval as the final visual gate",()=>{
-  const doc=read("UX6_9_FINAL_ACCEPTANCE.md");
+  const doc=read("TECHNICAL_DOCUMENTATION.md");
 
   assert.match(doc,/Filip explicitly approves/i);
   assert.match(doc,/may not infer product-owner visual approval/i);
