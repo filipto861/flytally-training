@@ -56,8 +56,9 @@ export function FtFastPathChecklist() {
   const nextIndex = nextItem
     ? currentPhase.items.findIndex((item) => item.id === nextItem.id) + 1
     : currentPhase.items.length;
+  const currentPhaseId = currentPhase.id;
   const currentPhaseIndex = checklist.phases.findIndex(
-    (phase) => phase.id === currentPhase.id,
+    (phase) => phase.id === currentPhaseId,
   );
   const nextPhase = checklist.phases[currentPhaseIndex + 1];
 
@@ -67,7 +68,7 @@ export function FtFastPathChecklist() {
       setResetPhaseArmed(true);
       return;
     }
-    resetChecklistPhase(currentPhase.id);
+    resetChecklistPhase(currentPhaseId);
     setResetPhaseArmed(false);
   }
 
