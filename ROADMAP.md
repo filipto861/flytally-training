@@ -23,6 +23,19 @@ Roadmap discipline is mandatory for this project:
 - chat history, PR descriptions and commit history are supporting evidence only; they do not replace roadmap or changelog maintenance;
 - when roadmap direction changes, preserve the prior decision/history rather than silently rewriting it away, so future development can reconstruct why the project moved in a given direction.
 
+## Documentation consolidation — IN PROGRESS
+
+Goal: keep repository documentation easy to navigate and continuously maintainable.
+
+- retain `README.md` as the repository entry point;
+- retain `ROADMAP.md` as the authoritative direction/status control;
+- retain `CHANGELOG.md` as the authoritative accepted/released history;
+- consolidate the current technical/product architecture, governance, deployment, UX, safety, performance and multi-aircraft contracts into one maintained `TECHNICAL_DOCUMENTATION.md`;
+- retire superseded milestone/specification Markdown files after their still-current contracts are incorporated into the consolidated document;
+- preserve historical detail through Git history, PRs and `CHANGELOG.md` rather than permanent root-level milestone documents;
+- update documentation-contract tests so they validate the consolidated technical document instead of obsolete milestone files;
+- add a concise progress/status table near the top of this roadmap and keep it synchronized with major roadmap phases.
+
 ## Product direction
 
 FlyTally Training now has two explicit product modes:
@@ -579,7 +592,7 @@ The detailed future sequence is tracked in **Active implementation order** below
          - authenticated administrator publication completed successfully in production
          - production FLY smoke for `fc530-standard`: CHECKLIST is populated; `Exterior Preflight`, `Cabin Preflight`, `Before Starting Engines`, `Starting Engines`, `Runway Lineup` and `Quick Turnaround` are present; `Checklist unavailable` is absent
          - production readiness smoke: HTTP 200 · `status=ready` · operational true · source-governed release true
-       - **15.3b.5 EFB checklist session unification — LIVE IN PRODUCTION · MANUAL SMOKE PENDING**
+       - **15.3b.5 EFB checklist session unification — COMPLETE · LIVE IN PRODUCTION**
          - production acceptance bug addressed by making the new-shell EFB use the Fast Path provider as the single checklist state owner for the main Flight Deck, top progress indicator and fast-path drawer; legacy flag-off local checklist persistence remains isolated
          - completed items and selected phase now synchronize bidirectionally between the main Flight Deck and CHECKLIST drawer
          - CHECKLIST drawer now exposes reset-phase and two-step reset-all controls, phase completion markers and a next-phase affordance
@@ -594,7 +607,7 @@ The detailed future sequence is tracked in **Active implementation order** below
          - targeted Playwright 15.3b.5 smoke was not executed because local port 3000 was already occupied; this is an environment blocker from the two-server Playwright harness, not a test failure
          - merged to `main` in PR #234 · merge commit `7b1465f8ae4bef755e7ccb800a4b874a4716ff72`
          - production deployment `dpl_AMMSPGwSp84CDa5WQUUn9HcDS5Gq` reached **READY** and is aliased to `training.fly-tally.com`
-         - remaining acceptance: manual production synchronization smoke for main checklist ↔ fast-path drawer, reset controls and same-flight persistence/new-flight isolation
+         - product-owner production smoke PASS: main checklist ↔ fast-path synchronization, phase synchronization, reset controls and persistence behavior confirmed
      - **15.3c QRH fast path — CONTENT GAP CONFIRMED**
        - runtime/UI is implemented and deliberately fails closed unless the published abnormal module is fresh and all linked sources are CONTROLLING or OPERATING_REFERENCE
        - there is no Learjet bundled QRH/emergency fallback
