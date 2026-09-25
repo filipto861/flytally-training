@@ -507,6 +507,37 @@ The detailed future sequence is tracked in **Active implementation order** below
      - keep Rosemount/non-Rosemount applicability separated if the source tables differ
      - use bounded interpolation only where source geometry supports it; never extrapolate beyond published rows
      - first implementation step is a source inventory/digitization pass against the best available Learjet manuals before UI/runtime work
+   - **15.3 EFB / FLY content-completeness audit — AUDIT COMPLETE · IMPLEMENTATION PLANNED**
+     - audit scope: EFB side-nav **FLY**, fast-path **CHECKLIST / QRH / PERF / REF**, and the corresponding Learjet 35A governed data dependencies
+     - historical cause confirmed: the M39 Learjet clean reset intentionally retired the previous Learjet checklist/procedure/system/performance/limitation/abnormal payloads; the current rebuild has since restored bundled Takeoff/Landing performance, but the operational fast-path still depends on separately published governed modules for CHECKLIST, QRH and REF
+     - **15.3a FLY route dead-end — BUG CONFIRMED / HIGH PRIORITY**
+       - new-shell EFB navigation currently sends **FLY** to `/aircraft/:id/fly`
+       - that route still uses the older strict Flight Deck composition and calls `notFound()` when no operationally-ready published checklist/performance/abnormal module survives readiness gating
+       - unlike the current EFB Flight Brief/PERF path, the legacy FLY route does not merge the Learjet bundled performance package, so the aircraft can have working Takeoff/Landing performance and still have a dead FLY destination
+       - fix the new-shell FLY destination so it opens a valid EFB Flight Deck using the current new-shell data composition; preserve fail-closed behavior per individual missing module instead of making the entire destination disappear
+       - preserve legacy/flag-off behavior separately; do not weaken source-authority or freshness gates for checklist/QRH data
+     - **15.3b CHECKLIST fast path — CONTENT GAP CONFIRMED**
+       - runtime/UI is implemented and functional
+       - Learjet fast-path checklist requires a governed published universal `checklists` payload (or legacy normal-flight fallback); there is no Learjet bundled checklist fallback in the current rebuild
+       - source inventory confirms CL-102B contains the Normal Procedures checklist sequence, including Exterior Preflight, Cabin Preflight, Before Starting Engines, Starting Engines, Before Taxi, Taxi/Before Takeoff, Runway Lineup, After Takeoff, Climb, Cruise, Descent, Approach, Before Landing, After Landing and shutdown/secure phases
+       - next step: digitize the applicable CL-102B Normal Procedures into the universal checklist contract with effectivity/applicability preserved, link authoritative source references, publish, and verify fast-path population
+     - **15.3c QRH fast path — CONTENT GAP CONFIRMED**
+       - runtime/UI is implemented and deliberately fails closed unless the published abnormal module is fresh and all linked sources are CONTROLLING or OPERATING_REFERENCE
+       - there is no Learjet bundled QRH/emergency fallback
+       - source inventory confirms CL-102B contains dedicated Emergency and Abnormal Procedures sections with aircraft/equipment effectivity splits
+       - next step: digitize the applicable emergency/abnormal procedures into the universal abnormal contract, preserve memory-item/effectivity semantics, link authoritative source references, publish, and verify operational-readiness gating
+     - **15.3d PERF fast path — POPULATED / PARTIAL CONTENT COMPLETE**
+       - current Learjet bundled performance package contains the implemented Takeoff/Landing datasets and calculator definitions, so PERF does not depend solely on a DB-published performance bundle
+       - current package covers Takeoff N1, takeoff weight limits, V1/VR/V2, takeoff distance/wind support, VREF, approach/landing climb speeds and landing distance within their governed source envelopes
+       - remaining performance-content gap is primarily the planned 15.2 Climb/Cruise Reference work plus already-tracked source-envelope gaps; do not duplicate those into the Takeoff/Landing PERF workflow
+     - **15.3e REF fast path — CONTENT GAP CONFIRMED**
+       - REF is implemented but its source of truth is the governed published universal `limitations` payload; there is no Learjet bundled limitations fallback
+       - the current AFM source set contains FAA-approved FM-102 Section I Limitations material and should be the controlling basis for the initial REF dataset, with configuration/effectivity and temporary-change applicability handled explicitly
+       - next step: inventory/digitize high-value cockpit limitations first (speeds, weights, altitude, configuration/system restrictions and other source-defined operating limits), publish the universal limitations payload, then expand coverage systematically
+     - **15.3f EFB content acceptance — PLANNED**
+       - add a Learjet production-content acceptance check that distinguishes UI/runtime availability from actual non-empty governed data
+       - acceptance must assert: FLY opens; CHECKLIST has at least one applicable phase/item; QRH has at least one source-authoritative applicable scenario; PERF has calculator/dataset coverage; REF has at least one applicable limitation group/item
+       - missing data must surface as a tracked content gap rather than allowing a visually functional but empty EFB slot to be treated as complete
    - Flight Brief Takeoff/Landing convergence
    - source-backed operational W&B where available
    - navigation/icon cleanup
