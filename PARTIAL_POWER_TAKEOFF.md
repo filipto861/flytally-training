@@ -260,8 +260,8 @@ The staged contract is:
 
 - Full Rated remains the default and continues to use the existing operational calculation/persistence path.
 - Partial Power must be an explicit pilot selection.
-- thrust-reverser configuration must be explicitly selected; FlyTally does not infer it from simulator variant, serial number or aircraft name.
-- the current source-supported preview path is Aeronca only.
+- the current source-supported preview path is Aeronca only; the pilot-facing mode is therefore explicitly labeled **Partial Power · Aeronca** and selecting that mode binds the Aeronca source schedule.
+- no other thrust-reverser configuration is inferred from simulator variant, serial number or aircraft name.
 - the existing PP.2/PP.3 solver supplies Assumed Temperature, reduced N1, V1 and corrected Takeoff Distance; normal weight-based VR/V2 remain visible for context.
 - TORA and ASDA are mandatory for the preview.
 - dry hard-paved runway, anti-skid operative, anti-ice OFF and a full-rated-thrust takeoff within the preceding 30 days are surfaced as explicit eligibility confirmations.
