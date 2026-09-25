@@ -1,6 +1,9 @@
 import "server-only";
 
-import { learjet35aQrhPackage } from "../aircraft-data/learjet-35a/qrh/package.ts";
+import {
+  assertLearjet35aQrhPackageComplete,
+  learjet35aQrhPackage,
+} from "../aircraft-data/learjet-35a/qrh/package.ts";
 import { learjet35aQrhSourceManifest } from "../aircraft-data/learjet-35a/qrh/source-manifest.ts";
 import {
   createSourceReference,
@@ -156,6 +159,8 @@ async function ensureSourceReferences(subject: string): Promise<readonly string[
 export async function publishLearjetQrhRelease(
   subject: string,
 ): Promise<LearjetQrhReleaseResult> {
+  assertLearjet35aQrhPackageComplete();
+
   const validationErrors =
     validateUniversalAbnormalEmergencyPayload(learjet35aQrhPackage);
   if (validationErrors.length) {
