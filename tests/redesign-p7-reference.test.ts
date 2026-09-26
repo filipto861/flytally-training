@@ -12,12 +12,15 @@ test("P7.1 keeps REF as the fourth frozen W3 slot", () => {
   assert.match(panel, /"checklist",\s*"qrh",\s*"perf",\s*"ref"/);
 });
 
-test("P7.1 records universal limitations as the new-shell REF source of truth", () => {
+test("P7.1 and 15.2d keep REF governed while splitting LEARN tables from EFB lookup", () => {
   const inventory = read("TECHNICAL_DOCUMENTATION.md");
 
-  assert.match(inventory, /governed universal limitations\/reference data/i);
-  assert.match(inventory, /PERF already owns operational performance lookup/i);
-  assert.match(inventory, /must not.*promote legacy.*reference-knowledge.*content/i);
+  assert.match(inventory, /universal limitations\/reference data/i);
+  assert.match(inventory, /separate Reference performance package/i);
+  assert.match(inventory, /LEARN.*Reference[\s\S]*exact published source tables/i);
+  assert.match(inventory, /EFB.*REF fast path[\s\S]*Climb\/Cruise lookup/i);
+  assert.match(inventory, /PERF.*Takeoff\/Landing operational Performance/i);
+  assert.match(inventory, /Neither context promotes legacy.*reference-knowledge/i);
 });
 
 test("P7.2 projection preserves governed limitation facts and provenance", () => {
