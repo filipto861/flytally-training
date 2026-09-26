@@ -92,6 +92,7 @@ export default async function FlyPage({
       performanceDatasets={datasets}
       emergency={emergency}
       selectedVariant={selectedVariant}
+      presentation={newShell ? "checklist" : "deck"}
     />
   );
 
