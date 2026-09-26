@@ -1,0 +1,328 @@
+.workspace {
+  min-width: 0;
+  display: grid;
+  gap: var(--ft-space-4);
+  padding: var(--ft-space-4);
+  border: var(--ft-rule-default);
+  border-radius: var(--ft-radius-panel);
+  background: var(--ft-bg-panel);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: var(--ft-space-4);
+}
+
+.header > div {
+  min-width: 0;
+  display: grid;
+  gap: var(--ft-space-1);
+}
+
+.header p,
+.sectionHeading > span,
+.datasetPicker label,
+.referenceOnly,
+.envelope {
+  margin: 0;
+  color: var(--ft-text-metadata);
+  font-family: var(--ft-font-data);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.header h2 {
+  margin: 0;
+  font-family: var(--ft-font-ui);
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.header > div > span {
+  color: var(--ft-text-secondary);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.referenceOnly {
+  flex: none;
+  padding: var(--ft-space-1) var(--ft-space-2);
+  border: var(--ft-rule-default);
+  border-radius: 999px;
+  background: var(--ft-bg-inset);
+}
+
+.datasetPicker {
+  display: grid;
+  grid-template-columns: minmax(0, calc(var(--ft-space-7) * 3)) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--ft-space-3);
+  padding-top: var(--ft-space-3);
+  border-top: var(--ft-rule-default);
+}
+
+.datasetPicker select,
+.field input,
+.field select {
+  min-height: var(--ft-touch-target-min);
+  width: 100%;
+  padding: 0 var(--ft-space-3);
+  border: var(--ft-rule-default);
+  border-radius: var(--ft-radius-4);
+  background: var(--ft-bg-inset);
+  color: var(--ft-text-primary);
+  font: inherit;
+}
+
+.datasetPicker select:focus-visible,
+.field input:focus-visible,
+.field select:focus-visible,
+.sourceDetails summary:focus-visible {
+  outline: var(--ft-focus-width) solid var(--ft-focus);
+  outline-offset: var(--ft-focus-offset);
+}
+
+.calculator {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(calc(var(--ft-space-7) * 4.5), 0.8fr);
+  gap: var(--ft-space-4);
+}
+
+.inputs,
+.results {
+  min-width: 0;
+  display: grid;
+  align-content: start;
+  gap: var(--ft-space-3);
+  padding: var(--ft-space-4);
+  border: var(--ft-rule-default);
+  border-radius: var(--ft-radius-4);
+  background: var(--ft-bg-inset);
+}
+
+.sectionHeading {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--ft-space-3);
+}
+
+.sectionHeading > strong {
+  font-size: 0.86rem;
+}
+
+.sectionHeading > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.resultKind {
+  color: var(--ft-accent) !important;
+}
+
+.inputGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--ft-space-3);
+}
+
+.field {
+  min-width: 0;
+  display: grid;
+  gap: var(--ft-space-2);
+}
+
+.field > span {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--ft-space-2);
+}
+
+.field > span strong {
+  font-size: 0.76rem;
+}
+
+.field > span small {
+  color: var(--ft-text-metadata);
+  font-family: var(--ft-font-data);
+  font-size: 0.66rem;
+}
+
+.field input {
+  font-family: var(--ft-font-data);
+  font-variant-numeric: tabular-nums;
+}
+
+.envelope {
+  letter-spacing: 0;
+  line-height: 1.35;
+}
+
+.outputGrid {
+  display: grid;
+  gap: var(--ft-space-2);
+}
+
+.output {
+  min-height: calc(var(--ft-touch-target-min) + var(--ft-space-3));
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--ft-space-3);
+  padding: var(--ft-space-3);
+  border-radius: var(--ft-radius-4);
+  background: var(--ft-bg-panel);
+}
+
+.output span {
+  color: var(--ft-text-secondary);
+  font-size: 0.76rem;
+}
+
+.output strong {
+  color: var(--ft-text-primary);
+  font-family: var(--ft-font-data);
+  font-size: 1.05rem;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.output strong small {
+  color: var(--ft-text-metadata);
+  font-size: 0.68em;
+}
+
+.emptyResult,
+.unavailable {
+  min-height: calc(var(--ft-touch-target-min) * 2.5);
+  display: grid;
+  place-content: center;
+  gap: var(--ft-space-1);
+  padding: var(--ft-space-4);
+  border-radius: var(--ft-radius-4);
+  text-align: center;
+}
+
+.emptyResult {
+  color: var(--ft-text-secondary);
+  background: var(--ft-bg-panel);
+}
+
+.unavailable {
+  border: var(--ft-rule-default);
+  color: var(--ft-text-secondary);
+  background: var(--ft-bg-panel);
+}
+
+.emptyResult strong,
+.unavailable strong {
+  color: var(--ft-text-primary);
+}
+
+.emptyResult span,
+.unavailable span {
+  max-width: 44ch;
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.interpolationNote {
+  margin: 0;
+  color: var(--ft-text-metadata);
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
+
+.sourceDetails {
+  border-top: var(--ft-rule-default);
+  color: var(--ft-text-metadata);
+  font-size: 0.72rem;
+}
+
+.sourceDetails summary {
+  min-height: var(--ft-touch-target-min);
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.sourceDetails > div {
+  display: grid;
+  gap: var(--ft-space-2);
+  padding: 0 var(--ft-space-1) var(--ft-space-2);
+}
+
+.sourceDetails p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.sourceDetails ul {
+  margin: 0;
+  padding-left: var(--ft-space-5);
+  line-height: 1.5;
+}
+
+.sources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ft-space-1) var(--ft-space-3);
+  font-family: var(--ft-font-data);
+}
+
+.disclaimer {
+  padding-top: var(--ft-space-2);
+  border-top: var(--ft-rule-default);
+}
+
+@media (max-width: 1180px), (hover: none) {
+  .calculator {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .inputGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 48rem) {
+  .workspace {
+    margin-inline: calc(var(--ft-space-3) * -1);
+    padding: var(--ft-space-3);
+    border-inline: 0;
+    border-radius: 0;
+  }
+
+  .header {
+    display: grid;
+  }
+
+  .referenceOnly {
+    width: fit-content;
+  }
+
+  .datasetPicker {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--ft-space-2);
+  }
+
+  .inputGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .output {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .output strong {
+    text-align: left;
+  }
+}
