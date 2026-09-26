@@ -26,6 +26,25 @@ function numeric(value: unknown): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+function providerGeneratedAt(value: unknown): string | null | undefined {
+  if (value === undefined || value === null) return null;
+
+  const normalized = text(value, 64);
+  if (!normalized) return undefined;
+
+  if (/^\d+(?:\.\d+)?$/.test(normalized)) {
+    const seconds = Number(normalized);
+    if (!Number.isFinite(seconds) || seconds <= 0) return undefined;
+    const date = new Date(seconds * 1000);
+    return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
+  }
+
+  const milliseconds = Date.parse(normalized);
+  return Number.isNaN(milliseconds)
+    ? undefined
+    : new Date(milliseconds).toISOString();
+}
+
 function airport(value: unknown): SimBriefLatestOfp["departure"] | null {
   const row = object(value);
   if (!row) return null;
@@ -95,29 +114,16 @@ export function parseSimBriefLatestOfp(value: unknown): SimBriefLatestOfp | null
     ?? text(aircraft.icaocode, 8)
   )?.toUpperCase() ?? null;
   const requestId = text(params.request_id, 64);
-  const generatedUnix = numeric(params.time_generated);
-  if (
-    params.time_generated !== undefined
-    && params.time_generated !== null
-    && generatedUnix === null
-  ) {
-    return null;
-  }
+  const generatedAt = providerGeneratedAt(params.time_generated);
 
   if (
     !departure
     || !destination
     || !aircraftIcaoCode
     || !requestId
+    || generatedAt === undefined
   ) {
     return null;
-  }
-
-  let generatedAt: string | null = null;
-  if (generatedUnix && generatedUnix > 0) {
-    const generatedDate = new Date(generatedUnix * 1000);
-    if (Number.isNaN(generatedDate.getTime())) return null;
-    generatedAt = generatedDate.toISOString();
   }
 
   return {
