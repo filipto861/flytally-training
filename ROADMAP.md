@@ -537,16 +537,24 @@ The detailed future sequence is tracked in **Active implementation order** below
      - PR #265 corrected a production-smoke provider-shape mismatch after current SimBrief JSON v2 returned `params.time_generated` as ISO-8601 rather than Unix seconds; parser now accepts both formats and still fails closed on malformed timestamps
      - acceptance: typecheck PASS; targeted SimBrief suite 14/14 then 15/15 PASS after hotfix; full Node suite 1404 total / 1403 PASS / 0 FAIL / 1 SKIP; production build PASS; Playwright 400/400 PASS across configured projects
      - production smoke on 2026-09-26 successfully imported real SimBrief OFP `187654556` for `LJ35`, prefilling `LKPR → LFBO` and Estimated TOW `7719 kg`; production health/readiness remained 200/ready with no runtime errors
-   - **15.2 Learjet climb + cruise Reference performance — PLANNED · source-gated**
+   - **15.2 Learjet climb + cruise Reference performance — IN PROGRESS · source-gated**
      - place this under **Reference**, not the Takeoff/Landing Performance workspace
-     - climb reference: altitude/weight-driven source-backed time, distance and fuel to climb, including FC-200 / FC-530 applicability where the source distinguishes them
-     - preserve the published climb schedule and source assumptions; no invented optimum-climb logic outside source data
-     - cruise reference should let the pilot choose altitude, weight/temperature inputs as required by the source, then choose a published cruise regime
-     - planned cruise regimes: two-engine Normal Cruise, High-Speed Cruise, Long-Range Cruise and Single-Engine Long-Range Cruise where source data is available
-     - output only source-supported values such as KTAS, fuel flow and published power/N1 setting where available
-     - keep Rosemount/non-Rosemount applicability separated if the source tables differ
-     - use bounded interpolation only where source geometry supports it; never extrapolate beyond published rows
-     - first implementation step is a source inventory/digitization pass against the best available Learjet manuals before UI/runtime work
+     - **15.2a source inventory — IMPLEMENTED · acceptance pending**
+       - reviewed manufacturer CL-102B Change 2 Performance Data before any UI/runtime work
+       - two-engine Climb P-19…P-28 is **ALL** effectivity; source outputs Time / Distance / Fuel and publishes the 250 KIAS to 32,000 ft / 0.70 MI above 32,000 ft schedule
+       - do **not** invent an FC-200 / FC-530 split for climb: the reviewed CL-102B pages are ALL even though training material discusses those installations separately
+       - two-engine Long Range Cruise P-29…P-37 and Normal Cruise P-38…P-46 are published as separate **without Rosemount / with Rosemount** page families; preserve that split
+       - one-engine Long Range Cruise P-47…P-51 has the same Rosemount/non-Rosemount split and preserves mixed Mach/KIAS row semantics
+       - reviewed CL-102B does **not** contain a High-Speed Cruise table; FlightSafety narrative alone is insufficient, so High-Speed Cruise remains blocked until a source table is available
+       - source inventory is aircraft-owned, non-operational and intentionally absent from the bundled Takeoff/Landing Performance package
+     - **15.2b digitization — NEXT**
+       - digitize source-exact climb tables first as non-operational extracts, preserving blank/sparse cells and page provenance before designing a Reference runtime
+       - then digitize two-engine Long Range Cruise, Normal Cruise and one-engine Long Range Cruise as separate Rosemount/non-Rosemount families
+       - use bounded interpolation only after each source geometry is reviewed; never extrapolate beyond published rows
+     - **15.2c Reference runtime/UI — BLOCKED on accepted digitization**
+       - pilot selects only source-required weight / altitude / temperature inputs and a published cruise regime
+       - expose only direct source-supported outputs; no invented optimum-climb/cruise recommendation and no derived High-Speed Cruise
+       - keep all 15.2 surfaces under Reference and outside the Takeoff/Landing operational workspace
    - **15.3 EFB / FLY content-completeness audit — AUDIT COMPLETE · IMPLEMENTATION PLANNED**
      - audit scope: EFB side-nav **FLY**, fast-path **CHECKLIST / QRH / PERF / REF**, and the corresponding Learjet 35A governed data dependencies
      - historical cause confirmed: the M39 Learjet clean reset intentionally retired the previous Learjet checklist/procedure/system/performance/limitation/abnormal payloads; the current rebuild has since restored bundled Takeoff/Landing performance, but the operational fast-path still depends on separately published governed modules for CHECKLIST, QRH and REF
