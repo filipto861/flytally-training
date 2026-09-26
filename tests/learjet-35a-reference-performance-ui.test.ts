@@ -30,7 +30,7 @@ test("15.2c Reference calculator delegates all calculation to the generic perfor
   assert.match(component, /getPerformanceSelectionState/);
   assert.match(component, /performanceScalarKey/);
   assert.doesNotMatch(component, /learjet|35a|CL-102B|rosemount-pitot-static/i);
-  assert.doesNotMatch(component, /interpolate|trilinear|bilinear/i);
+  assert.doesNotMatch(\n    component,\n    /dataset\\.rows|weightedRows|buildWeightedCorners|getAxisBracket|interpolatePerformanceRow/,\n  );
 });
 
 test("15.2c Reference calculator exposes exact interpolated and fail-closed states", () => {
