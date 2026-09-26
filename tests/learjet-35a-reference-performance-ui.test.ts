@@ -86,6 +86,6 @@ test("15.2d LEARN table and EFB lookup remain responsive and touch-first", () =>
   assert.match(calculatorCss, /min-height:\s*var\(--ft-touch-target-min\)/);
   assert.match(calculatorCss, /@media \(max-width: 1180px\), \(hover: none\)/);
   assert.match(tableCss, /overflow:\s*auto/);
-  assert.match(tableCss, /min-height:var\(--ft-touch-target-min\)/);
+  assert.match(tableCss, /min-height:\s*var\(--ft-touch-target-min\)/);
   assert.match(tableCss, /@media \(max-width: 48rem\)/);
 });
