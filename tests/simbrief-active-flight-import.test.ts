@@ -235,14 +235,16 @@ test("15.1 Active Flight accepts field-level SimBrief provenance without changin
 });
 
 test("15.1 provider fetch uses JSON v2, no-store and a bounded request", async () => {
-  let observedUrl: URL | null = null;
-  let observedInit: RequestInit | undefined;
+  const observed: {
+    url?: URL;
+    init?: RequestInit;
+  } = {};
 
   const result = await fetchLatestSimBriefOfp(
     { kind: "alias", value: "Filip Test" },
     async (input, init) => {
-      observedUrl = new URL(String(input));
-      observedInit = init;
+      observed.url = new URL(String(input));
+      observed.init = init;
       return new Response(JSON.stringify(rawOfp), {
         status: 200,
         headers: { "content-type": "application/json" },
@@ -251,12 +253,12 @@ test("15.1 provider fetch uses JSON v2, no-store and a bounded request", async (
   );
 
   assert.equal(result.status, "ready");
-  assert.equal(observedUrl?.origin, "https://www.simbrief.com");
-  assert.equal(observedUrl?.searchParams.get("username"), "Filip Test");
-  assert.equal(observedUrl?.searchParams.get("json"), "v2");
-  assert.equal(observedInit?.method, "GET");
-  assert.equal(observedInit?.cache, "no-store");
-  assert.ok(observedInit?.signal instanceof AbortSignal);
+  assert.equal(observed.url?.origin, "https://www.simbrief.com");
+  assert.equal(observed.url?.searchParams.get("username"), "Filip Test");
+  assert.equal(observed.url?.searchParams.get("json"), "v2");
+  assert.equal(observed.init?.method, "GET");
+  assert.equal(observed.init?.cache, "no-store");
+  assert.ok(observed.init?.signal instanceof AbortSignal);
 });
 
 test("15.1 provider maps no-flight, malformed and unavailable responses fail-closed", async () => {
