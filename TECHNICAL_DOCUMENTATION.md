@@ -306,7 +306,7 @@ Reference remains the owning domain in both product contexts and uses two govern
 
 The dedicated **PERF** surface continues to own Takeoff/Landing operational Performance; Climb/Cruise Reference lookup is not moved into PERF. Existing governed limitations remain available in REF alongside the Reference lookup. Neither context promotes legacy `reference-knowledge` content.
 
-Historically P7 introduced REF as a limitations-only fast path and explicitly excluded performance lookup. Milestone 15.2d supersedes that presentation restriction while retaining P7's configuration filtering, provenance and aircraft-agnostic boundaries.
+REF was not P5 work; it was owned by the P7 reference phase. Historically P7 introduced REF as a limitations-only fast path and explicitly excluded performance lookup. Milestone 15.2d supersedes that presentation restriction while retaining P7's configuration filtering, provenance and aircraft-agnostic boundaries.
 
 ---
 
