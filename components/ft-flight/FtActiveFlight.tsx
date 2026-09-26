@@ -507,6 +507,7 @@ export function FtActiveFlight({
                   <input
                     id="ft-active-flight-weight"
                     name="weight"
+                    aria-label="Weight"
                     required
                     type="number"
                     min="1"
