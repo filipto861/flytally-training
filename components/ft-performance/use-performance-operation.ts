@@ -23,7 +23,10 @@ import {
   type TakeoffDeclaredDistanceConstraint,
 } from "@/lib/aviation/declared-distances";
 import { calculatePressureAltitudeFt } from "@/lib/aviation/pressure-altitude";
-import { calculateWindComponents, type WindComponents } from "@/lib/aviation/wind-component";
+import {
+  calculateObservedRunwayWindComponents,
+  type WindComponents,
+} from "@/lib/aviation/wind-component";
 import type { PilotTakeoffCalculatorDefinition } from "@/lib/pilot-takeoff-calculator";
 import {
   computePerformance,
@@ -175,29 +178,14 @@ function windComponentsForAppliedWeather(
     !runwayContext
     || runwayContext.headingTrueDeg === undefined
     || !observation
-    || observation.windSpeedKt === undefined
   ) return undefined;
 
-  if (observation.windCalm || Math.abs(observation.windSpeedKt) < 1e-9) {
-    return {
-      angleOffDeg: 0,
-      headwindKt: 0,
-      crosswindKt: 0,
-      ...(observation.windGustKt === undefined
-        ? {}
-        : {
-            gustHeadwindKt: 0,
-            gustCrosswindKt: 0,
-          }),
-    };
-  }
-
-  if (observation.windDirectionTrueDeg === undefined) return undefined;
-
-  return calculateWindComponents({
+  return calculateObservedRunwayWindComponents({
     windDirectionTrueDeg: observation.windDirectionTrueDeg,
     windSpeedKt: observation.windSpeedKt,
     windGustKt: observation.windGustKt,
+    windVariable: observation.windVariable,
+    windCalm: observation.windCalm,
     runwayHeadingTrueDeg: runwayContext.headingTrueDeg,
   });
 }
