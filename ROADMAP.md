@@ -2,7 +2,7 @@
 
 **Status:** Active  
 **Owner:** Filip Točík  
-**Last updated:** 2026-09-25
+**Last updated:** 2026-09-26
 
 > This file is the single authoritative product/implementation roadmap for FlyTally Training.
 > Historical milestone/specification documents are retained through Git history and pull requests rather than the active tree.
@@ -21,7 +21,7 @@
 | Operational CHECKLIST | ✅ | CL-102B package live; shared Active Flight session synchronized |
 | Operational QRH | 🚧 | QRH.3U complete package is live in governed production; QRH.4 cockpit acceptance is next |
 | REF / Limitations | ⏳ | Governed limitations content still to be populated |
-| Climb + Cruise Reference | ⏳ | Planned, source-gated |
+| Climb + Cruise Reference | ✅ | Source-digitized Reference runtime/UI complete; separate from Takeoff/Landing |
 | SimBrief Active Flight import | ⏳ | Planned |
 | Documentation consolidation | ✅ | Complete — four-file documentation surface verified |
 
@@ -570,7 +570,7 @@ The detailed future sequence is tracked in **Active implementation order** below
        - PDF text token `l087` at P-48 15,000 lb / 10,000 ft / ISA fuel flow was visually reviewed as 1087 and recorded as an explicit extraction correction
        - one-engine LRC acceptance: typecheck PASS; targeted extraction suite 7/7 PASS; full Node suite 1444 total / 1443 PASS / 0 FAIL / 1 SKIP; production build PASS; no browser/runtime surface changed, so Playwright not required
        - 15.2b source digitization is complete; use bounded interpolation only after each source geometry is reviewed; never extrapolate beyond published rows
-     - **15.2c Reference runtime/UI — IN PROGRESS · runtime COMPLETE · UI implementation in review**
+     - **15.2c Reference runtime/UI — COMPLETE · PR #273 + PR #274**
        - pilot selects only source-required weight / altitude / temperature inputs and a published cruise regime
        - 15.2c.1 runtime reuses the generic multi-axis performance contract/interpolation engine behind a separate Reference-only package registry; it is not registered in Takeoff/Landing Performance
        - accepted source grids are normalized to bounded three-axis lookup datasets; interpolation is allowed only inside complete published source rectangles and generic runtime extrapolation remains impossible
@@ -582,7 +582,8 @@ The detailed future sequence is tracked in **Active implementation order** below
        - runtime acceptance: PR #273 squash-merged as `7d0cd05337d229c6db74771cc6a0806507e7ac3a`; typecheck PASS; targeted Reference runtime 9/9 PASS; full Node 1453 total / 1452 PASS / 0 FAIL / 1 SKIP; production build PASS
        - 15.2c.2 UI binds the separately registered package into the new-shell Reference workspace after aircraft-configuration filtering; exact source rows, bounded interpolated results and fail-closed unavailable states are visually distinct
        - source/effectivity notes and provenance remain progressively disclosed; the UI exposes direct source-supported outputs only and does not invent optimum climb/cruise or High-Speed Cruise
-       - remaining acceptance: targeted UI tests, full Node suite, production build and responsive browser/Playwright acceptance
+       - UI acceptance: targeted Reference runtime/UI suite 15/15 PASS; full Node suite 1459 total / 1458 PASS / 0 FAIL / 1 SKIP; production build PASS; Playwright 388/388 PASS across the existing responsive browser matrix; the final post-browser change was test-only and did not alter production code
+       - local acceptance was executed on Node 22.19.0 while the repository/deployment contract remains Node 24.x; the product owner explicitly accepted this local-runtime deviation for merge
        - keep all 15.2 surfaces under Reference and outside the Takeoff/Landing operational workspace
    - **15.3 EFB / FLY content-completeness audit — AUDIT COMPLETE · IMPLEMENTATION PLANNED**
      - audit scope: EFB side-nav **FLY**, fast-path **CHECKLIST / QRH / PERF / REF**, and the corresponding Learjet 35A governed data dependencies
