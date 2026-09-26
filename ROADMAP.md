@@ -548,9 +548,13 @@ The detailed future sequence is tracked in **Active implementation order** below
        - reviewed CL-102B does **not** contain a High-Speed Cruise table; FlightSafety narrative alone is insufficient, so High-Speed Cruise remains blocked until a source table is available
        - source inventory is aircraft-owned, non-operational and intentionally absent from the bundled Takeoff/Landing Performance package
        - acceptance: typecheck PASS; targeted inventory suite 6/6 PASS; full Node suite 1417 total / 1416 PASS / 0 FAIL / 1 SKIP; production build PASS; no browser/runtime surface changed, so Playwright not required
-     - **15.2b digitization — NEXT**
-       - digitize source-exact climb tables first as non-operational extracts, preserving blank/sparse cells and page provenance before designing a Reference runtime
-       - then digitize two-engine Long Range Cruise, Normal Cruise and one-engine Long Range Cruise as separate Rosemount/non-Rosemount families
+     - **15.2b digitization — IN PROGRESS · climb extract COMPLETE · cruise extracts next**
+       - source-exact two-engine Climb P-19…P-28 is digitized as non-operational extracts across all 10 published weight tables and 23 altitude rows per table
+       - sparse high/hot cells remain absent; 1,079 published temperature tuples are preserved without filling source blanks
+       - source schedule, ALL effectivity, page provenance, output units and three visually reviewed PDF text-extraction corrections are explicit in the extract manifest
+       - interpolation and extrapolation remain disabled at the extraction layer; the extract is not registered in operational Performance or Reference runtime
+       - climb acceptance: typecheck PASS; targeted extraction suite 8/8 PASS; full Node suite 1425 total / 1424 PASS / 0 FAIL / 1 SKIP; production build PASS; no browser/runtime surface changed, so Playwright not required
+       - after climb acceptance, digitize two-engine Long Range Cruise, Normal Cruise and one-engine Long Range Cruise as separate Rosemount/non-Rosemount families
        - use bounded interpolation only after each source geometry is reviewed; never extrapolate beyond published rows
      - **15.2c Reference runtime/UI — BLOCKED on accepted digitization**
        - pilot selects only source-required weight / altitude / temperature inputs and a published cruise regime
