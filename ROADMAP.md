@@ -539,7 +539,7 @@ The detailed future sequence is tracked in **Active implementation order** below
      - production smoke on 2026-09-26 successfully imported real SimBrief OFP `187654556` for `LJ35`, prefilling `LKPR → LFBO` and Estimated TOW `7719 kg`; production health/readiness remained 200/ready with no runtime errors
    - **15.2 Learjet climb + cruise Reference performance — IN PROGRESS · source-gated**
      - place this under **Reference**, not the Takeoff/Landing Performance workspace
-     - **15.2a source inventory — IMPLEMENTED · acceptance pending**
+     - **15.2a source inventory — COMPLETE · PR #268**
        - reviewed manufacturer CL-102B Change 2 Performance Data before any UI/runtime work
        - two-engine Climb P-19…P-28 is **ALL** effectivity; source outputs Time / Distance / Fuel and publishes the 250 KIAS to 32,000 ft / 0.70 MI above 32,000 ft schedule
        - do **not** invent an FC-200 / FC-530 split for climb: the reviewed CL-102B pages are ALL even though training material discusses those installations separately
@@ -547,6 +547,7 @@ The detailed future sequence is tracked in **Active implementation order** below
        - one-engine Long Range Cruise P-47…P-51 has the same Rosemount/non-Rosemount split and preserves mixed Mach/KIAS row semantics
        - reviewed CL-102B does **not** contain a High-Speed Cruise table; FlightSafety narrative alone is insufficient, so High-Speed Cruise remains blocked until a source table is available
        - source inventory is aircraft-owned, non-operational and intentionally absent from the bundled Takeoff/Landing Performance package
+       - acceptance: typecheck PASS; targeted inventory suite 6/6 PASS; full Node suite 1417 total / 1416 PASS / 0 FAIL / 1 SKIP; production build PASS; no browser/runtime surface changed, so Playwright not required
      - **15.2b digitization — NEXT**
        - digitize source-exact climb tables first as non-operational extracts, preserving blank/sparse cells and page provenance before designing a Reference runtime
        - then digitize two-engine Long Range Cruise, Normal Cruise and one-engine Long Range Cruise as separate Rosemount/non-Rosemount families
