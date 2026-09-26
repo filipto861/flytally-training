@@ -47,12 +47,12 @@ export function FtReferencePage({
 
       {reference ? (
         <FtReferencePresentation reference={reference} view="full" />
-      ) : (
+      ) : !referencePerformance?.datasets.length ? (
         <section className={styles.empty} aria-label="Reference quick access unavailable">
           <strong>No quick-reference limitations available.</strong>
           <p>Use the published reference tools below.</p>
         </section>
-      )}
+      ) : null}
 
       {referencePerformance?.datasets.length ? (
         <FtReferencePerformance content={referencePerformance} />
