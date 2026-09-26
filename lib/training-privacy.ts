@@ -36,7 +36,7 @@ export async function exportTrainingData(accountSubject: string) {
       FROM training_aircraft_state
       WHERE account_subject=${accountSubject} AND aircraft_id<>${PRIVACY_RESET_AIRCRAFT_ID}
       ORDER BY aircraft_id`,
-    sql`SELECT id,aircraft_id,lifecycle,departure,destination,runway,weight,configuration,weather,performance_dependency,brief,
+    sql`SELECT id,aircraft_id,lifecycle,departure,destination,runway,weight,configuration,weather,performance_dependency,brief,prefill_provenance,
         created_at,updated_at,activated_at,deactivated_at,archived_at
       FROM training_active_flights
       WHERE account_subject=${accountSubject}

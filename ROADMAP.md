@@ -525,15 +525,17 @@ The detailed future sequence is tracked in **Active implementation order** below
    - acceptance before merge: source/provenance review, targeted solver/runtime tests, snapshot invalidation tests, full Node suite, production build, desktop/mobile/iPad Playwright, and manual production smoke
 
 15. **Post-Partial-Power product work** — PLANNED
-   - **15.1 SimBrief Active Flight import + weight prefill — PLANNED**
-     - add a user-configurable Navigraph Alias / SimBrief Pilot ID
-     - use the supported latest-OFP fetch path with JSON v2 only in response to an explicit pilot import/refresh action; do not background-poll SimBrief
-     - one action should import the latest planned flight into the Active Flight workflow and prefill supported fields such as departure, destination and planned takeoff weight
-     - use SimBrief Estimated TOW as the Takeoff weight prefill when present, preserving the OFP weight unit and converting only through existing unit-safe helpers
-     - imported values remain pilot-editable; a manual Takeoff weight override must not be silently overwritten without a new explicit SimBrief import/refresh action
-     - preserve provenance so the UI can distinguish SimBrief-prefilled values from pilot-entered values without adding explanatory clutter
-     - validate that the imported aircraft/profile is compatible with the currently selected Training aircraft; fail closed rather than silently mapping an unrelated SimBrief airframe
+   - **15.1 SimBrief Active Flight import + weight prefill — IN PROGRESS**
+     - add a user-configurable Navigraph Alias / SimBrief Pilot ID; keep the identifier as an explicit device-local preference rather than silently persisting an external account identifier server-side
+     - use the supported latest-OFP fetch path `xml.fetcher.php?...&json=v2` only in response to an explicit pilot import/refresh action; do not background-poll SimBrief
+     - one action should import the latest planned flight into the Active Flight workflow and prefill departure, destination and SimBrief Estimated TOW
+     - preserve the OFP weight unit (`kgs`/kg → kg, `lbs`/lb → lb); no hidden conversion is required because Active Flight already carries an explicit weight unit
+     - imported values remain pilot-editable; editing an imported field clears provenance for that field and no value may be silently overwritten without another explicit SimBrief import/refresh action
+     - persist field-level SimBrief prefill provenance with Active Flight so the UI can distinguish SimBrief-prefilled route/weight from pilot-entered values without clutter
+     - validate SimBrief `aircraft.icao_code` against aircraft-owned compatibility metadata; Learjet 35/36 accepts ICAO `LJ35`; fail closed on missing/mismatched aircraft identity rather than mapping by display name
+     - the server proxy must be same-origin, no-store, timeout-bounded and expose only the normalized fields Training consumes; do not retain the raw OFP
      - no periodic SimBrief polling; live METAR remains owned by the existing AviationWeather.gov workflow
+     - acceptance: parser/provider tests, Active Flight provenance/storage tests, explicit user-action/no-polling contract, aircraft mismatch gate, typecheck, full Node/build and responsive Playwright import flow
    - **15.2 Learjet climb + cruise Reference performance — PLANNED · source-gated**
      - place this under **Reference**, not the Takeoff/Landing Performance workspace
      - climb reference: altitude/weight-driven source-backed time, distance and fuel to climb, including FC-200 / FC-530 applicability where the source distinguishes them

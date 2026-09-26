@@ -9,6 +9,7 @@ import {
 } from "@/lib/aircraft-applicability";
 import { getActiveFlight } from "@/lib/active-flight/store";
 import { getBundledPerformancePackage } from "@/lib/bundled-performance-content";
+import { getBundledSimBriefProfile } from "@/lib/bundled-simbrief-content";
 import { getPublishedAircraftModule } from "@/lib/content-repository";
 import { getTrainingContentRepository } from "@/lib/content-store";
 import { isNewShellEnabled } from "@/lib/feature-flags";
@@ -31,6 +32,7 @@ export default async function FlightPage({
 
   const repository = getTrainingContentRepository();
   const bundledPackage = getBundledPerformancePackage(aircraftId);
+  const simBriefProfile = getBundledSimBriefProfile(aircraftId);
   const [aircraft, publishedPerformance] = await Promise.all([
     repository.getAircraft(aircraftId),
     getPublishedAircraftModule<AircraftPerformanceContent>(
@@ -68,6 +70,7 @@ export default async function FlightPage({
       performanceDatasets={performanceDatasets}
       takeoffCalculator={bundledPackage?.takeoffCalculator}
       landingCalculator={bundledPackage?.landingCalculator}
+      simBriefProfile={simBriefProfile}
     />
   );
 }

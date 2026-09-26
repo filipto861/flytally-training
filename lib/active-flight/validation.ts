@@ -1,4 +1,5 @@
 import type { ActiveFlight, ActiveFlightInput, ActiveFlightPatch } from "./types.ts";
+import type { SimBriefPrefillProvenance } from "../simbrief/types.ts";
 
 const ICAO = /^[A-Z0-9]{4}$/;
 const RUNWAY = /^[A-Z0-9]{1,4}[LCR]?$/;
@@ -57,6 +58,48 @@ function brief(value: unknown): ActiveFlightInput["brief"] | undefined | null {
   return notes ? { notes } : {};
 }
 
+function prefillProvenance(
+  value: unknown,
+): SimBriefPrefillProvenance | undefined | null {
+  if (value === undefined) return undefined;
+  if (value === null) return null;
+  const row = object(value);
+  if (!row || row.provider !== "simbrief") return undefined;
+  const requestId = text(row.requestId, 64);
+  const aircraftIcaoCode = text(row.aircraftIcaoCode, 8)?.toUpperCase();
+  const importedAt = text(row.importedAt, 64);
+  const generatedAt =
+    row.generatedAt === null
+      ? null
+      : text(row.generatedAt, 64);
+  if (
+    !requestId
+    || !aircraftIcaoCode
+    || !importedAt
+    || Number.isNaN(Date.parse(importedAt))
+    || (generatedAt !== null && (!generatedAt || Number.isNaN(Date.parse(generatedAt))))
+    || !Array.isArray(row.fields)
+  ) {
+    return undefined;
+  }
+  const allowed = new Set(["departure", "destination", "weight"]);
+  const fields = row.fields.filter(
+    (field): field is "departure" | "destination" | "weight" =>
+      typeof field === "string" && allowed.has(field),
+  );
+  if (fields.length !== row.fields.length || new Set(fields).size !== fields.length) {
+    return undefined;
+  }
+  return {
+    provider: "simbrief",
+    requestId,
+    generatedAt,
+    importedAt: new Date(importedAt).toISOString(),
+    aircraftIcaoCode,
+    fields,
+  };
+}
+
 export function parseActiveFlightInput(value: unknown): ActiveFlightInput | null {
   const row = object(value);
   if (!row) return null;
@@ -71,11 +114,13 @@ export function parseActiveFlightInput(value: unknown): ActiveFlightInput | null
       ? null
       : configuration(row.configuration);
   const selectedBrief = brief(row.brief);
+  const selectedProvenance = prefillProvenance(row.prefillProvenance);
   if (!aircraftId || !/^[a-zA-Z0-9][a-zA-Z0-9._:-]*$/.test(aircraftId)) return null;
   if (!departure || !destination || !selectedWeight) return null;
   if (row.runway !== undefined && row.runway !== null && !selectedRunway) return null;
   if (row.configuration !== undefined && row.configuration !== null && !selectedConfiguration) return null;
   if (row.brief !== undefined && selectedBrief === undefined) return null;
+  if (row.prefillProvenance !== undefined && selectedProvenance === undefined) return null;
   return {
     aircraftId,
     departure,
@@ -84,6 +129,9 @@ export function parseActiveFlightInput(value: unknown): ActiveFlightInput | null
     weight: selectedWeight,
     configuration: selectedConfiguration,
     ...(selectedBrief === undefined ? {} : { brief: selectedBrief }),
+    ...(selectedProvenance === undefined
+      ? {}
+      : { prefillProvenance: selectedProvenance }),
   };
 }
 
@@ -103,6 +151,11 @@ export function parseActiveFlightPatch(value: unknown): ActiveFlightPatch | null
     else { const parsed = configuration(row.configuration); if (!parsed) return null; Object.assign(patch, { configuration: parsed }); }
   }
   if ("brief" in row) { const parsed = brief(row.brief); if (parsed === undefined) return null; Object.assign(patch,{brief:parsed}); }
+  if ("prefillProvenance" in row) {
+    const parsed = prefillProvenance(row.prefillProvenance);
+    if (parsed === undefined) return null;
+    Object.assign(patch,{prefillProvenance:parsed});
+  }
   return Object.keys(patch).length ? patch : null;
 }
 
@@ -143,5 +196,9 @@ export function isActiveFlight(value: unknown): value is ActiveFlight {
   if (!dependency || typeof dependency.snapshotId !== "string" || !dependency.snapshotId) return false;
   if (row.weather !== null) return false;
   if (row.brief !== null && !object(row.brief)) return false;
+  if (row.prefillProvenance !== undefined && row.prefillProvenance !== null) {
+    const parsed = prefillProvenance(row.prefillProvenance);
+    if (!parsed) return false;
+  }
   return true;
 }

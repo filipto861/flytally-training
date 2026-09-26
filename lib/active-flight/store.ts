@@ -19,6 +19,7 @@ type ActiveFlightRow = {
   weather: unknown;
   performance_dependency: unknown;
   brief: unknown;
+  prefill_provenance: unknown;
   created_at: string | Date;
   updated_at: string | Date;
   activated_at: string | Date;
@@ -48,6 +49,9 @@ function mapRow(row: ActiveFlightRow): ActiveFlight {
     weather: row.weather == null ? null : jsonObject<ActiveFlight["weather"]>(row.weather),
     performanceDependency: jsonObject<ActiveFlight["performanceDependency"]>(row.performance_dependency),
     brief: row.brief == null ? null : jsonObject<ActiveFlight["brief"]>(row.brief),
+    prefillProvenance: row.prefill_provenance == null
+      ? null
+      : jsonObject<NonNullable<ActiveFlight["prefillProvenance"]>>(row.prefill_provenance),
     createdAt: new Date(row.created_at).toISOString(),
     updatedAt: new Date(row.updated_at).toISOString(),
     activatedAt: new Date(row.activated_at).toISOString(),
@@ -83,7 +87,7 @@ export async function createActiveFlight(
     )
     INSERT INTO training_active_flights(
       id,account_subject,aircraft_id,lifecycle,departure,destination,runway,weight,
-      configuration,weather,performance_dependency,brief,created_at,updated_at,
+      configuration,weather,performance_dependency,brief,prefill_provenance,created_at,updated_at,
       activated_at,deactivated_at,archived_at
     )
     SELECT
@@ -96,6 +100,7 @@ export async function createActiveFlight(
       NULL,
       ${JSON.stringify(dependency)}::jsonb,
       ${input.brief == null ? null : JSON.stringify(input.brief)}::jsonb,
+      ${input.prefillProvenance == null ? null : JSON.stringify(input.prefillProvenance)}::jsonb,
       ${now}::timestamptz,${now}::timestamptz,${now}::timestamptz,NULL,NULL
     FROM account_guard
     WHERE NOT EXISTS (
@@ -143,6 +148,10 @@ export async function updateActiveFlight(
   };
   const dependency = { snapshotId: activeFlightDependencyReference(merged) };
   const brief = patch.brief !== undefined ? patch.brief : current.brief;
+  const prefillProvenance =
+    patch.prefillProvenance !== undefined
+      ? patch.prefillProvenance
+      : current.prefillProvenance;
 
   const rows = await sql`WITH account_guard AS MATERIALIZED (
       SELECT pg_advisory_xact_lock(hashtextextended(${accountSubject}, 0))
@@ -155,6 +164,7 @@ export async function updateActiveFlight(
       configuration=${JSON.stringify(merged.configuration)}::jsonb,
       performance_dependency=${JSON.stringify(dependency)}::jsonb,
       brief=${brief == null ? null : JSON.stringify(brief)}::jsonb,
+      prefill_provenance=${prefillProvenance == null ? null : JSON.stringify(prefillProvenance)}::jsonb,
       updated_at=NOW()
     FROM account_guard
     WHERE account_subject=${accountSubject}

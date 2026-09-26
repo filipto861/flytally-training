@@ -38,7 +38,7 @@ export async function GET() {
       }
 
       try {
-        await sql`SELECT 1 FROM training_active_flights LIMIT 0`;
+        await sql`SELECT prefill_provenance FROM training_active_flights LIMIT 0`;
         activeFlightPersistence = true;
       } catch {
         activeFlightPersistence = false;
