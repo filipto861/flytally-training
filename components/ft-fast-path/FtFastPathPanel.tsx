@@ -8,6 +8,7 @@ import { fastPathTabs, type FastPathTab } from "@/lib/fast-path/panel-state";
 import type { PilotTakeoffCalculatorDefinition } from "@/lib/pilot-takeoff-calculator";
 import type {
   AircraftLimitationsContent,
+  AircraftPerformanceContent,
   PerformanceDataset,
 } from "@/lib/universal-aircraft-content";
 import type { OperationalEmergencyContent } from "@/lib/operational-flight-data";
@@ -34,6 +35,7 @@ export function FtFastPathPanel({
   emergency,
   referenceAircraft,
   referenceContent,
+  referencePerformance,
   selectedVariant,
   performanceDatasets,
   takeoffCalculator,
@@ -45,6 +47,7 @@ export function FtFastPathPanel({
     "id" | "variants" | "variantProfiles" | "equipmentTags"
   >;
   referenceContent?: AircraftLimitationsContent;
+  referencePerformance?: AircraftPerformanceContent;
   selectedVariant?: string;
   performanceDatasets: readonly PerformanceDataset[];
   takeoffCalculator?: PilotTakeoffCalculatorDefinition;
@@ -175,6 +178,7 @@ export function FtFastPathPanel({
             <FtFastPathReference
               aircraft={referenceAircraft}
               content={referenceContent}
+              performance={referencePerformance}
             />
           )}
         </div>
