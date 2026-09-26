@@ -1147,6 +1147,10 @@ test("B5 Flight Brief reuses the Landing snapshot and shared Landing editor", as
   await landing.getByLabel("Landing QNH").fill("1013.25");
   await landing.getByLabel("Landing OAT").fill("15");
   await landing.getByRole("button", { name: "Calculate Landing", exact: true }).click();
+  await expect(landing.locator('[data-ft-landing-performance-strip="true"]')).toHaveAttribute(
+    "data-stale",
+    "false",
+  );
 
   await page.goto(`${shellOnBase}${aircraftPath}/flight`);
   const brief = page.getByRole("region", { name: "Flight Brief" });
@@ -1178,12 +1182,20 @@ test("B5 destination change invalidates Landing without invalidating Takeoff", a
   await takeoff.getByLabel("QNH").fill("1013.25");
   await takeoff.getByLabel("OAT").fill("15");
   await takeoff.getByRole("button", { name: "Calculate Takeoff", exact: true }).click();
+  await expect(takeoff.locator('[data-ft-performance-strip="true"]')).toHaveAttribute(
+    "data-stale",
+    "false",
+  );
 
   const landing = workspace.getByRole("region", { name: "Landing Performance", exact: true });
   await landing.getByLabel("Landing runway").selectOption({ index: 1 });
   await landing.getByLabel("Landing QNH").fill("1013.25");
   await landing.getByLabel("Landing OAT").fill("15");
   await landing.getByRole("button", { name: "Calculate Landing", exact: true }).click();
+  await expect(landing.locator('[data-ft-landing-performance-strip="true"]')).toHaveAttribute(
+    "data-stale",
+    "false",
+  );
 
   await page.goto(`${shellOnBase}${aircraftPath}/flight`);
   const active = page.getByRole("region", { name: "Active Flight" });
