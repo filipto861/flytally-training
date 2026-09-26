@@ -31,7 +31,7 @@ test("P1.1 production shell exposes Learn/EFB destinations and preserves four EF
   const modes=read("lib/aircraft-product-mode.ts");
   const nav=read("components/ft-shell/navigation.ts");
 
-  for(const label of ["Learn","Systems","Procedures","Limitations","Reference","Flight Brief","Performance","Flight Deck"]){
+  for(const label of ["Learn","Systems","Procedures","Limitations","Reference","Flight Brief","Performance","Checklist"]){
     assert.match(modes,new RegExp(`label: "${label}"`));
   }
   for(const label of ["CHECKLIST","QRH","PERF","REF"]){
