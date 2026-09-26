@@ -33,13 +33,13 @@ test("phase reset now requires an explicit second action",()=>{
 });
 
 test("15.3d operational checklist consumes workspace theme roles in dark and light EFB",()=>{
-  assert.match(checklistCss,/\.itemWrap[\\s\\S]*background:\s*var\(--ft-bg-panel/);
-  assert.match(checklistCss,/\.item[\\s\\S]*color:\s*var\(--ft-text-primary/);
-  assert.match(checklistCss,/\.phaseBar[\\s\\S]*background:\s*var\(--ft-bg-panel/);
-  assert.match(checklistCss,/\.phasePicker select[\\s\\S]*background:\s*var\(--ft-bg-inset/);
-  assert.match(checklistCss,/\.done \.item[\\s\\S]*background:\s*var\(--ft-state-completed-bg/);
-  assert.match(checklistCss,/\.warning[\\s\\S]*var\(--ft-source-warning-bg/);
-  assert.match(checklistCss,/\.caution[\\s\\S]*var\(--ft-source-caution-bg/);
+  assert.match(checklistCss,/\.itemWrap[\s\S]*background:\s*var\(--ft-bg-panel/);
+  assert.match(checklistCss,/\.item[\s\S]*color:\s*var\(--ft-text-primary/);
+  assert.match(checklistCss,/\.phaseBar[\s\S]*background:\s*var\(--ft-bg-panel/);
+  assert.match(checklistCss,/\.phasePicker select[\s\S]*background:\s*var\(--ft-bg-inset/);
+  assert.match(checklistCss,/\.done \.item[\s\S]*background:\s*var\(--ft-state-completed-bg/);
+  assert.match(checklistCss,/\.warning[\s\S]*var\(--ft-source-warning-bg/);
+  assert.match(checklistCss,/\.caution[\s\S]*var\(--ft-source-caution-bg/);
 });
 
 test("cockpit controls keep large touch targets and visible keyboard focus",()=>{
