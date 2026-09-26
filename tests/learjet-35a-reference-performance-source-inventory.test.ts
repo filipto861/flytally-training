@@ -69,9 +69,9 @@ test("15.2 inventory records only direct source outputs before runtime design", 
   assert.deepEqual(
     family("climb-two-engine").directOutputs,
     [
-      "time from sea-level baseline · min",
-      "distance from sea-level baseline · NM",
-      "fuel from sea-level baseline · lb",
+      "time · min",
+      "distance · NM",
+      "fuel · lb",
     ],
   );
   assert.deepEqual(
