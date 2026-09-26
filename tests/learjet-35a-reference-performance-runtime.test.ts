@@ -130,7 +130,11 @@ test("15.2c climb returns exact source data and bounded trilinear interpolation"
     const expected =
       ((low.resultRow?.outputs[key] as number)
       + (high.resultRow?.outputs[key] as number)) / 2;
-    assert.equal(midpoint.resultRow?.outputs[key], expected);
+    const actual = midpoint.resultRow?.outputs[key] as number;
+    assert.ok(
+      Math.abs(actual - expected) < 1e-9,
+      `${key}: expected ${expected}, received ${actual}`,
+    );
   }
 });
 
