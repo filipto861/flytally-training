@@ -44,8 +44,8 @@ function memoryStorage(): SimBriefPreferenceStorage {
 const rawOfp = {
   fetch: { status: "Success" },
   params: {
-    request_id: "123456789",
-    time_generated: "1790360000",
+    request_id: "187654556",
+    time_generated: "2026-09-26T14:23:58Z",
     units: "kgs",
   },
   origin: {
@@ -53,11 +53,11 @@ const rawOfp = {
     name: "Vaclav Havel Airport Prague",
   },
   destination: {
-    icao_code: "EGSS",
-    name: "London Stansted Airport",
+    icao_code: "LFBO",
+    name: "Blagnac",
   },
   weights: {
-    est_tow: "15000",
+    est_tow: "7719",
   },
   aircraft: {
     icaocode: "LJ35",
@@ -112,13 +112,13 @@ test("15.1 parses only the normalized OFP fields Active Flight consumes", () => 
     name: "Vaclav Havel Airport Prague",
   });
   assert.deepEqual(parsed.destination, {
-    icao: "EGSS",
-    name: "London Stansted Airport",
+    icao: "LFBO",
+    name: "Blagnac",
   });
-  assert.deepEqual(parsed.weight, { value: 15000, unit: "kg" });
+  assert.deepEqual(parsed.weight, { value: 7719, unit: "kg" });
   assert.equal(parsed.aircraftIcaoCode, "LJ35");
-  assert.equal(parsed.requestId, "123456789");
-  assert.equal(parsed.generatedAt, new Date(1790360000 * 1000).toISOString());
+  assert.equal(parsed.requestId, "187654556");
+  assert.equal(parsed.generatedAt, "2026-09-26T14:23:58.000Z");
 
   assert.deepEqual(parseNormalizedSimBriefOfp(parsed), parsed);
 });
@@ -138,7 +138,7 @@ test("15.1 preserves lb OFP weight units and omits unsupported TOW without losin
   assert.ok(unsupportedWeight);
   assert.equal(unsupportedWeight.weight, undefined);
   assert.equal(unsupportedWeight.departure.icao, "LKPR");
-  assert.equal(unsupportedWeight.destination.icao, "EGSS");
+  assert.equal(unsupportedWeight.destination.icao, "LFBO");
 });
 
 test("15.1 route import remains valid when Estimated TOW is absent", () => {
@@ -340,6 +340,21 @@ test("15.1 generic runtime contains no Learjet aircraft identity", () => {
   const aircraftOwned = read("aircraft-data/learjet-35a/simbrief-profile.ts");
   assert.match(aircraftOwned, /aircraftId: "learjet-35a"/);
   assert.match(aircraftOwned, /acceptedIcaoCodes: \["LJ35"\]/);
+});
+
+test("15.1 still accepts legacy numeric SimBrief generation timestamps", () => {
+  const parsed = parseSimBriefLatestOfp({
+    ...rawOfp,
+    params: {
+      ...rawOfp.params,
+      time_generated: "1790360000",
+    },
+  });
+  assert.ok(parsed);
+  assert.equal(
+    parsed.generatedAt,
+    new Date(1790360000 * 1000).toISOString(),
+  );
 });
 
 test("15.1 invalid provider generation timestamps fail closed", () => {
