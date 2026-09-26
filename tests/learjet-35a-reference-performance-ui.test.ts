@@ -84,6 +84,8 @@ test("15.2d LEARN table and EFB lookup remain responsive and touch-first", () =>
   const tableCss = read("components/ft-reference/reference-performance-table.module.css");
 
   assert.match(calculatorCss, /min-height:\s*var\(--ft-touch-target-min\)/);
+  assert.match(calculatorCss, /\.calculator[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\)/);
+  assert.match(calculatorCss, /\.inputGrid[\s\S]*repeat\(2, minmax\(0, 1fr\)\)/);
   assert.match(calculatorCss, /@media \(max-width: 1180px\), \(hover: none\)/);
   assert.match(tableCss, /overflow:\s*auto/);
   assert.match(tableCss, /min-height:\s*var\(--ft-touch-target-min\)/);
