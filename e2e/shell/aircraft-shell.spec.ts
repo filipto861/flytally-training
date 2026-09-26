@@ -1924,14 +1924,25 @@ test("15.2d EFB REF resolves exact and interpolated source-backed results", asyn
   ).toBeVisible();
   await expect(performance.getByText("REFERENCE LOOKUP", { exact: true })).toBeVisible();
 
-  const inputSection = performance.getByRole("region", { name: "Reference performance inputs" });
-  const resultSection = performance.getByRole("region", { name: "Reference performance result" });
-  const inputBox = await inputSection.boundingBox();
-  const resultBox = await resultSection.boundingBox();
-  expect(inputBox).not.toBeNull();
-  expect(resultBox).not.toBeNull();
-  if (inputBox && resultBox) {
-    expect(resultBox.y).toBeGreaterThanOrEqual(inputBox.y + inputBox.height - 2);
+  const layout = await performance.evaluate((element) => {
+    const inputs = element.querySelector<HTMLElement>(
+      '[aria-label="Reference performance inputs"]',
+    );
+    const result = element.querySelector<HTMLElement>(
+      '[aria-label="Reference performance result"]',
+    );
+    if (!inputs || !result) return null;
+
+    const inputBox = inputs.getBoundingClientRect();
+    const resultBox = result.getBoundingClientRect();
+    return {
+      inputBottom: inputBox.bottom,
+      resultTop: resultBox.top,
+    };
+  });
+  expect(layout).not.toBeNull();
+  if (layout) {
+    expect(layout.resultTop).toBeGreaterThanOrEqual(layout.inputBottom - 2);
   }
 
   const weight = performance.getByRole("spinbutton", { name: /Gross weight/ });
