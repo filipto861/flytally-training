@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 
-import { performanceScalarKey } from "@/lib/performance-runtime";
 import type {
   AircraftPerformanceContent,
   PerformanceAxis,
@@ -12,6 +11,10 @@ import type {
 } from "@/lib/universal-aircraft-content";
 
 import styles from "./reference-performance-table.module.css";
+
+function scalarKey(value: PerformanceScalar): string {
+  return `${typeof value}:${String(value)}`;
+}
 
 function scalarLabel(value: PerformanceScalar): string {
   if (typeof value === "boolean") return value ? "Yes" : "No";
@@ -42,7 +45,7 @@ function rowMatches(
   return Object.entries(inputs).every(([key, value]) => {
     const rowValue = row.inputs[key];
     return rowValue !== undefined
-      && performanceScalarKey(rowValue) === performanceScalarKey(value);
+      && scalarKey(rowValue) === scalarKey(value);
   });
 }
 
@@ -103,12 +106,12 @@ export function FtReferencePerformanceTable({
   const rowAxis = dataset?.axes[1];
   const columnAxis = dataset?.axes[2];
   const [sliceKey, setSliceKey] = useState(
-    sliceAxis?.values[0] === undefined ? "" : performanceScalarKey(sliceAxis.values[0]),
+    sliceAxis?.values[0] === undefined ? "" : scalarKey(sliceAxis.values[0]),
   );
 
   const selectedSlice = useMemo(() => {
     if (!sliceAxis) return undefined;
-    return sliceAxis.values.find((value) => performanceScalarKey(value) === sliceKey)
+    return sliceAxis.values.find((value) => scalarKey(value) === sliceKey)
       ?? sliceAxis.values[0];
   }, [sliceAxis, sliceKey]);
 
@@ -146,7 +149,7 @@ export function FtReferencePerformanceTable({
                 const nextDataset = datasets.find((item) => item.id === event.target.value);
                 setDatasetId(event.target.value);
                 const nextSlice = nextDataset?.axes[0]?.values[0];
-                setSliceKey(nextSlice === undefined ? "" : performanceScalarKey(nextSlice));
+                setSliceKey(nextSlice === undefined ? "" : scalarKey(nextSlice));
               }}
             >
               {datasets.map((item) => (
@@ -159,11 +162,11 @@ export function FtReferencePerformanceTable({
         <label>
           <span>{sliceAxis.label}</span>
           <select
-            value={performanceScalarKey(selectedSlice)}
+            value={scalarKey(selectedSlice)}
             onChange={(event) => setSliceKey(event.target.value)}
           >
             {sliceAxis.values.map((value) => {
-              const key = performanceScalarKey(value);
+              const key = scalarKey(value);
               return <option key={key} value={key}>{axisValueLabel(sliceAxis, value)}</option>;
             })}
           </select>
@@ -179,7 +182,7 @@ export function FtReferencePerformanceTable({
             <tr>
               <th scope="col">{rowAxis.label}{rowAxis.unit ? ` (${rowAxis.unit})` : ""}</th>
               {columnAxis.values.map((columnValue) => (
-                <th scope="col" key={performanceScalarKey(columnValue)}>
+                <th scope="col" key={scalarKey(columnValue)}>
                   {axisValueLabel(columnAxis, columnValue)}
                 </th>
               ))}
@@ -187,12 +190,12 @@ export function FtReferencePerformanceTable({
           </thead>
           <tbody>
             {rowAxis.values.map((rowValue) => (
-              <tr key={performanceScalarKey(rowValue)}>
+              <tr key={scalarKey(rowValue)}>
                 <th scope="row">{axisValueLabel(rowAxis, rowValue)}</th>
                 {columnAxis.values.map((columnValue) => (
                   <SourceCell
                     dataset={dataset}
-                    key={performanceScalarKey(columnValue)}
+                    key={scalarKey(columnValue)}
                     row={exactRow(dataset, {
                       [sliceAxis.key]: selectedSlice,
                       [rowAxis.key]: rowValue,
