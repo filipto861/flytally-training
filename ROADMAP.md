@@ -595,14 +595,14 @@ The detailed future sequence is tracked in **Active implementation order** below
        - existing governed limitations stay available in REF; the new Climb/Cruise lookup is additive to the REF fast path, not a replacement for limitations
        - preserve configuration/effectivity filtering, source provenance, responsive cockpit/iPad usability, legacy flag-off behavior, and aircraft-agnostic presentation/runtime boundaries
        - acceptance: targeted context-split/P5/P7 suite 39/39 PASS; full Node suite 1460 total / 1459 PASS / 0 FAIL / 1 SKIP; production build PASS; Playwright 392/392 PASS; final post-browser change was documentation-only and did not alter production code
-   - **15.2e / 15.3c EFB checklist ownership + REF drawer polish — IN PROGRESS**
+   - **15.2e / 15.3c EFB checklist ownership + REF drawer polish — COMPLETE · PR #276**
      - supersedes the new-shell presentation where the left-rail **FLY** destination opened a second aggregate Flight Deck containing Checklist / Performance / Emergency tabs
      - new-shell EFB side navigation exposes a dedicated **Checklist** destination (`CHK`) at the existing `/fly` compatibility route; the full-page surface renders only the operational checklist and keeps the shared Active Flight checklist session
      - dedicated **PERF** remains the full Performance workspace; operational **QRH** remains the Emergency/Abnormal fast path; remove their duplicate tabs from the new-shell checklist page
      - flag-off / legacy `/fly` keeps the historical aggregate Flight Deck unchanged for backward compatibility
      - EFB **REF** fast-path calculator keeps the same governed data/runtime but uses a drawer-specific compact layout: inputs remain readable and the result stacks below inputs rather than competing side-by-side in the 520 px drawer
      - preserve source/effectivity filtering, exact/interpolated/unavailable semantics, no-extrapolation rules, touch targets, keyboard/focus behavior and responsive iPad/mobile acceptance
-     - acceptance: targeted IA/Reference tests, full Node suite, production build, and responsive Playwright covering dedicated Checklist navigation plus REF drawer layout
+     - acceptance: targeted IA/Reference/legacy-shell regression suite **60/60 PASS**; full Node **1460 total / 1459 PASS / 0 FAIL / 1 SKIP**; production build **PASS** from the production-code revision (subsequent fixes were test-only); Playwright **392/392 PASS**; working tree clean
    - **15.3 EFB / FLY content-completeness audit — AUDIT COMPLETE · IMPLEMENTATION PLANNED**
      - audit scope: EFB side-nav **FLY**, fast-path **CHECKLIST / QRH / PERF / REF**, and the corresponding Learjet 35A governed data dependencies
      - historical cause confirmed: the M39 Learjet clean reset intentionally retired the previous Learjet checklist/procedure/system/performance/limitation/abnormal payloads; the current rebuild has since restored bundled Takeoff/Landing performance, but the operational fast-path still depends on separately published governed modules for CHECKLIST, QRH and REF
