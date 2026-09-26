@@ -100,13 +100,13 @@ export function FtReferencePerformance({
     >
       <header className={styles.header}>
         <div>
-          <p>REFERENCE PERFORMANCE</p>
-          <h2 id="reference-performance-heading">Performance reference</h2>
+          <p>EFB · REF</p>
+          <h2 id="reference-performance-heading">Climb / cruise lookup</h2>
           <span>
-            Source-backed reference tables with bounded software interpolation.
+            Enter current conditions for an exact or bounded interpolated reference result.
           </span>
         </div>
-        <span className={styles.referenceOnly}>REFERENCE ONLY</span>
+        <span className={styles.referenceOnly}>REFERENCE LOOKUP</span>
       </header>
 
       {datasets.length > 1 ? (
