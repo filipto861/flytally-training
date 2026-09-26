@@ -74,7 +74,7 @@ test("B4 UX6 Performance consumes real runway data, governed config and airport-
   assert.match(controller,/current\.departure\.icao/);
   assert.match(controller,/\/api\/weather\/metar\?icao=/);
   assert.match(controller,/calculatePressureAltitudeFt/);
-  assert.match(controller,/calculateWindComponents/);
+  assert.match(controller,/calculateObservedRunwayWindComponents/);
   assert.match(controller,/previousDeparture/);
   assert.match(controller,/setAvailableWeather\(null\)/);
   assert.match(controller,/storedState\?\.requiresRecalculation/);
