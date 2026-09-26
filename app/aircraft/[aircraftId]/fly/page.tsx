@@ -98,7 +98,7 @@ export default async function FlyPage({
 
   if (newShell) {
     return (
-      <main data-ft-fly-page="true" aria-label="Flight Deck workspace">
+      <main data-ft-fly-page="true" aria-label="Checklist workspace">
         {deck}
       </main>
     );
