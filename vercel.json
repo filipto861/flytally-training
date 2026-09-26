@@ -1,12 +1,14 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
-  "regions": ["fra1"],
   "git": {
     "deploymentEnabled": {
       "*": false,
       "main": true
     }
   },
+  "regions": [
+    "fra1"
+  ],
   "ignoreCommand": "node tooling/vercel-ignore-build.mjs"
 }
