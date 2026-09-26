@@ -39,9 +39,11 @@ function rowMatches(
   row: PerformanceRow,
   inputs: Readonly<Record<string, PerformanceScalar>>,
 ): boolean {
-  return Object.entries(inputs).every(
-    ([key, value]) => performanceScalarKey(row.inputs[key]) === performanceScalarKey(value),
-  );
+  return Object.entries(inputs).every(([key, value]) => {
+    const rowValue = row.inputs[key];
+    return rowValue !== undefined
+      && performanceScalarKey(rowValue) === performanceScalarKey(value);
+  });
 }
 
 function exactRow(
