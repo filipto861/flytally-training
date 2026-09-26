@@ -12,6 +12,20 @@ This file is the authoritative version history for completed FlyTally Training w
 - keep historical entries intact; correct factual mistakes explicitly rather than silently erasing project history;
 - **ROADMAP.md defines where the project is going; CHANGELOG.md records what actually changed. Both must remain synchronized before a material work item is considered closed.**
 
+## 2026-09-26
+
+### Changed
+- **PR #264 + hotfix PR #265 — SimBrief Active Flight import + TOW prefill**
+  - added explicit pilot-initiated SimBrief latest-OFP import to Active Flight using Navigraph Alias or SimBrief Pilot ID, with no background polling;
+  - prefills departure, destination and Estimated TOW when present while preserving SimBrief kg/lb units;
+  - keeps imported values editable and stores field-level provenance so manual overrides clear source attribution only for the edited field;
+  - keeps Alias/Pilot ID device-local and opt-in; raw OFP data is not retained server-side;
+  - added aircraft-owned SimBrief compatibility metadata; Learjet 35/36 accepts `LJ35` and mismatched/missing aircraft identity fails closed;
+  - added nullable `training_active_flights.prefill_provenance JSONB` persistence and readiness coverage;
+  - PR #265 fixed current SimBrief JSON v2 ISO-8601 `params.time_generated` parsing while retaining legacy Unix-second compatibility and malformed-value rejection;
+  - acceptance: typecheck PASS; targeted SimBrief suite 15/15 PASS after hotfix; full Node suite 1404 total / 1403 PASS / 0 FAIL / 1 SKIP; production build PASS; Playwright 400/400 PASS;
+  - production deployment on 2026-09-26 remained 200/ready with no runtime errors, and authenticated live smoke successfully imported OFP `187654556` for `LJ35`, prefilling `LKPR → LFBO` and Estimated TOW `7719 kg`.
+
 ## 2026-09-25
 
 ### Changed
