@@ -548,7 +548,7 @@ The detailed future sequence is tracked in **Active implementation order** below
        - reviewed CL-102B does **not** contain a High-Speed Cruise table; FlightSafety narrative alone is insufficient, so High-Speed Cruise remains blocked until a source table is available
        - source inventory is aircraft-owned, non-operational and intentionally absent from the bundled Takeoff/Landing Performance package
        - acceptance: typecheck PASS; targeted inventory suite 6/6 PASS; full Node suite 1417 total / 1416 PASS / 0 FAIL / 1 SKIP; production build PASS; no browser/runtime surface changed, so Playwright not required
-     - **15.2b digitization — IN PROGRESS · climb + two-engine LRC extracts COMPLETE · Normal Cruise next**
+     - **15.2b digitization — IN PROGRESS · climb + two-engine LRC + Normal Cruise COMPLETE · one-engine LRC next**
        - source-exact two-engine Climb P-19…P-28 is digitized as non-operational extracts across all 10 published weight tables and 23 altitude rows per table
        - sparse high/hot cells remain absent; 1,079 published temperature tuples are preserved without filling source blanks
        - source schedule, ALL effectivity, page provenance, output units and three visually reviewed PDF text-extraction corrections are explicit in the extract manifest
@@ -559,7 +559,11 @@ The detailed future sequence is tracked in **Active implementation order** below
        - Rosemount and non-Rosemount extracts intentionally retain distinct indicated-Mach values while preserving the source-identical KTAS / specific-range values
        - CL-102B shading that denotes maximum specific range is not represented by text extraction; no optimum/max-range flag is inferred, and the gap is explicit in sourcePresentation
        - two-engine LRC acceptance: typecheck PASS; targeted extraction suite 6/6 PASS; full Node suite 1431 total / 1430 PASS / 0 FAIL / 1 SKIP; production build PASS; no browser/runtime surface changed, so Playwright not required
-       - next after LRC acceptance: digitize Normal Cruise and one-engine Long Range Cruise as separate Rosemount/non-Rosemount families
+       - Normal Cruise P-38…P-46 and P-38.1…P-46.1 is digitized as separate without-Rosemount / with-Rosemount source extracts across 17 weights, 25,000–45,000 ft and ISA -10 / ISA / ISA +10 / ISA +15 / ISA +20
+       - published cruise schedule remains effectivity-specific: Mach .77 MI without Rosemount and Mach .75 MI with Rosemount; each family preserves 442 published KTAS/fuel-flow tuples
+       - three visually verified source-printed anomalies are preserved exactly rather than silently repaired: P-40 16,000 lb / 25,000 ft prints 416 KTAS, P-44 12,500 lb / 30,000 ft prints 421 lb/hr, and P-41.1 15,000 lb / 30,000 ft prints 28 KTAS; all remain non-operational pending source reconciliation
+       - Normal Cruise acceptance: typecheck PASS; targeted extraction suite 6/6 PASS; full Node suite 1437 total / 1436 PASS / 0 FAIL / 1 SKIP; production build PASS; no browser/runtime surface changed, so Playwright not required
+       - next: digitize one-engine Long Range Cruise as separate Rosemount/non-Rosemount families
        - use bounded interpolation only after each source geometry is reviewed; never extrapolate beyond published rows
      - **15.2c Reference runtime/UI — BLOCKED on accepted digitization**
        - pilot selects only source-required weight / altitude / temperature inputs and a published cruise regime
