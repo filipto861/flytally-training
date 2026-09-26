@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { calculateWindComponents } from "../lib/aviation/wind-component.ts";
+import {
+  calculateObservedRunwayWindComponents,
+  calculateWindComponents,
+} from "../lib/aviation/wind-component.ts";
 
 const near = (actual: number, expected: number, tolerance = 1e-9) => {
   assert.ok(Math.abs(actual - expected) <= tolerance, `${actual} != ${expected}`);
@@ -112,6 +115,56 @@ test("B9-C zero wind speed produces zero longitudinal and crosswind components",
     runwayHeadingTrueDeg: 180,
   });
   assert.ok(result);
+  near(result.headwindKt, 0);
+  near(result.crosswindKt, 0);
+});
+
+
+test("VRB03KT uses the zero-wind baseline without inventing a direction", () => {
+  const result = calculateObservedRunwayWindComponents({
+    windDirectionTrueDeg: undefined,
+    windSpeedKt: 3,
+    windVariable: true,
+    windCalm: false,
+    runwayHeadingTrueDeg: 243,
+  });
+  assert.ok(result);
+  assert.equal(result.basis, "low-variable-zero-baseline");
+  near(result.headwindKt, 0);
+  near(result.crosswindKt, 0);
+});
+
+test("light variable wind with a gust above 3 kt remains unresolved", () => {
+  assert.equal(calculateObservedRunwayWindComponents({
+    windDirectionTrueDeg: undefined,
+    windSpeedKt: 3,
+    windGustKt: 5,
+    windVariable: true,
+    windCalm: false,
+    runwayHeadingTrueDeg: 243,
+  }), undefined);
+});
+
+test("VRB04KT remains fail-closed because the runway component is not known", () => {
+  assert.equal(calculateObservedRunwayWindComponents({
+    windDirectionTrueDeg: undefined,
+    windSpeedKt: 4,
+    windVariable: true,
+    windCalm: false,
+    runwayHeadingTrueDeg: 243,
+  }), undefined);
+});
+
+test("observed calm wind resolves to zero without requiring a direction", () => {
+  const result = calculateObservedRunwayWindComponents({
+    windDirectionTrueDeg: undefined,
+    windSpeedKt: 0,
+    windVariable: false,
+    windCalm: true,
+    runwayHeadingTrueDeg: 243,
+  });
+  assert.ok(result);
+  assert.equal(result.basis, "calm");
   near(result.headwindKt, 0);
   near(result.crosswindKt, 0);
 });
