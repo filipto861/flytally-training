@@ -50,18 +50,18 @@ export const learjet35aReferencePerformanceSourceInventory = {
         all: ["P-19", "P-20", "P-21", "P-22", "P-23", "P-24", "P-25", "P-26", "P-27", "P-28"],
       },
       inputSemantics: [
-        "start climb weight · lb",
+        "weight · lb",
         "pressure altitude · 1000 ft",
         "temperature column · ISA -10 / ISA / ISA +10 / ISA +15 / ISA +20",
       ],
       directOutputs: [
-        "time from sea-level baseline · min",
-        "distance from sea-level baseline · NM",
-        "fuel from sea-level baseline · lb",
+        "time · min",
+        "distance · NM",
+        "fuel · lb",
       ],
       sourceNotes: [
         "Published climb schedule: 250 KIAS up to 32,000 ft; 0.70 MI above 32,000 ft.",
-        "CL-102B marks the climb tables ALL effectivity; do not create an FC-200/FC-530 split from training-manual commentary alone.",
+        "CL-102B marks P-19 through P-28 ALL effectivity; do not create an FC-200/FC-530 split from training-manual commentary alone.",
       ],
     },
     {
