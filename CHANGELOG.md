@@ -15,6 +15,13 @@ This file is the authoritative version history for completed FlyTally Training w
 ## 2026-09-26
 
 ### Changed
+- **PR #278 — operational Checklist dark-theme correction**
+  - corrected the full-page operational Checklist so phase controls, checklist cards, text, borders, completed state, footer controls and source warning/caution surfaces consume the existing FlyTally workspace semantic theme tokens instead of legacy hard-coded light surfaces;
+  - retained explicit light fallbacks for flag-off/legacy compatibility without changing checklist content, applicability, progress/session state or operational behavior;
+  - added a static regression contract for Checklist theme roles and browser acceptance proving the dark-workspace checklist card resolves to `--ft-bg-panel` (`#101821`) instead of white;
+  - hardened pre-existing B5 browser tests by waiting for the asynchronous requestAnimationFrame-backed Takeoff/Landing calculation result before dependent navigation/actions; no Performance runtime or calculation behavior changed;
+  - acceptance: targeted checklist/theme/B5 regression **25/25 PASS**; full Node **1461 total / 1460 PASS / 0 FAIL / 1 SKIP**; production build **PASS**; focused B5 Playwright **8/8 PASS** serially; full responsive Playwright **396/396 PASS**; final working tree clean; production deployment/smoke pending merge.
+
 - **PR #276 — EFB Checklist ownership + REF fast-path layout polish**
   - renamed the new-shell EFB left-rail operational destination from **FLY** to **Checklist / CHK** while retaining the existing `/fly` route as a compatibility path;
   - changed new-shell `/fly` to a dedicated full-page operational Checklist workspace instead of a second aggregate Flight Deck;
