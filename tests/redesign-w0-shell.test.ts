@@ -97,7 +97,7 @@ test("P1.1 shell owns mode-specific navigation while preserving four EFB fast-pa
   const sideNav = read("components/ft-shell/FtSideNav.tsx");
   const fastPath = read("components/ft-shell/navigation.ts");
 
-  for (const label of ["Learn", "Systems", "Procedures", "Limitations", "Reference", "Flight Brief", "Performance", "Flight Deck"]) {
+  for (const label of ["Learn", "Systems", "Procedures", "Limitations", "Reference", "Flight Brief", "Performance", "Checklist"]) {
     assert.match(productMode, new RegExp(`label: "${label}"`));
   }
   for (const label of ["CHECKLIST", "QRH", "PERF", "REF"]) {
