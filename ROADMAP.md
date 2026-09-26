@@ -570,9 +570,16 @@ The detailed future sequence is tracked in **Active implementation order** below
        - PDF text token `l087` at P-48 15,000 lb / 10,000 ft / ISA fuel flow was visually reviewed as 1087 and recorded as an explicit extraction correction
        - one-engine LRC acceptance: typecheck PASS; targeted extraction suite 7/7 PASS; full Node suite 1444 total / 1443 PASS / 0 FAIL / 1 SKIP; production build PASS; no browser/runtime surface changed, so Playwright not required
        - 15.2b source digitization is complete; use bounded interpolation only after each source geometry is reviewed; never extrapolate beyond published rows
-     - **15.2c Reference runtime/UI — READY · source digitization accepted**
+     - **15.2c Reference runtime/UI — IN PROGRESS · runtime package implemented · acceptance pending**
        - pilot selects only source-required weight / altitude / temperature inputs and a published cruise regime
+       - 15.2c.1 runtime now reuses the generic multi-axis performance contract/interpolation engine behind a separate Reference-only package registry; it is not registered in Takeoff/Landing Performance
+       - accepted source grids are normalized to bounded three-axis lookup datasets; interpolation is allowed only inside complete published source rectangles and generic runtime extrapolation remains impossible
+       - Rosemount/non-Rosemount cruise effectivity uses existing aircraft applicability metadata; one family per regime survives configuration filtering
+       - reviewed source-printed anomaly coordinates are omitted from the runtime grids, so exact lookup and any interpolation requiring those coordinates fail closed while the raw extraction evidence remains unchanged
+       - one-engine LRC retains mixed Mach-indicated/KIAS source semantics through a reference-unit output; interpolation across the 20,000/25,000 ft unit boundary fails closed
+       - High-Speed Cruise remains absent because no reviewed source table exists; LRC maximum-specific-range shading is not inferred from text extraction
        - expose only direct source-supported outputs; no invented optimum-climb/cruise recommendation and no derived High-Speed Cruise
+       - next after runtime acceptance: wire the Reference-only selector/results UI and responsive browser acceptance
        - keep all 15.2 surfaces under Reference and outside the Takeoff/Landing operational workspace
    - **15.3 EFB / FLY content-completeness audit — AUDIT COMPLETE · IMPLEMENTATION PLANNED**
      - audit scope: EFB side-nav **FLY**, fast-path **CHECKLIST / QRH / PERF / REF**, and the corresponding Learjet 35A governed data dependencies
