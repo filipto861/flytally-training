@@ -59,7 +59,7 @@ test("P1.1 EFB navigation contains no training destinations", () => {
   const destinations = getAircraftModeDestinations(aircraftId, "efb");
   assert.deepEqual(
     destinations.map((destination) => destination.label),
-    ["Flight Brief", "Performance", "Flight Deck"],
+    ["Flight Brief", "Performance", "Checklist"],
   );
   assert.ok(destinations.every((destination) => !/systems|training|learn/i.test(destination.label)));
 });
