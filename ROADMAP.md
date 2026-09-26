@@ -548,7 +548,7 @@ The detailed future sequence is tracked in **Active implementation order** below
        - reviewed CL-102B does **not** contain a High-Speed Cruise table; FlightSafety narrative alone is insufficient, so High-Speed Cruise remains blocked until a source table is available
        - source inventory is aircraft-owned, non-operational and intentionally absent from the bundled Takeoff/Landing Performance package
        - acceptance: typecheck PASS; targeted inventory suite 6/6 PASS; full Node suite 1417 total / 1416 PASS / 0 FAIL / 1 SKIP; production build PASS; no browser/runtime surface changed, so Playwright not required
-     - **15.2b digitization — IN PROGRESS · climb + two-engine LRC + Normal Cruise COMPLETE · one-engine LRC next**
+     - **15.2b digitization — COMPLETE · climb + two-engine LRC + Normal Cruise + one-engine LRC accepted**
        - source-exact two-engine Climb P-19…P-28 is digitized as non-operational extracts across all 10 published weight tables and 23 altitude rows per table
        - sparse high/hot cells remain absent; 1,079 published temperature tuples are preserved without filling source blanks
        - source schedule, ALL effectivity, page provenance, output units and three visually reviewed PDF text-extraction corrections are explicit in the extract manifest
@@ -563,9 +563,14 @@ The detailed future sequence is tracked in **Active implementation order** below
        - published cruise schedule remains effectivity-specific: Mach .77 MI without Rosemount and Mach .75 MI with Rosemount; each family preserves 442 published KTAS/fuel-flow tuples
        - three visually verified source-printed anomalies are preserved exactly rather than silently repaired: P-40 16,000 lb / 25,000 ft prints 416 KTAS, P-44 12,500 lb / 30,000 ft prints 421 lb/hr, and P-41.1 15,000 lb / 30,000 ft prints 28 KTAS; all remain non-operational pending source reconciliation
        - Normal Cruise acceptance: typecheck PASS; targeted extraction suite 6/6 PASS; full Node suite 1437 total / 1436 PASS / 0 FAIL / 1 SKIP; production build PASS; no browser/runtime surface changed, so Playwright not required
-       - next: digitize one-engine Long Range Cruise as separate Rosemount/non-Rosemount families
-       - use bounded interpolation only after each source geometry is reviewed; never extrapolate beyond published rows
-     - **15.2c Reference runtime/UI — BLOCKED on accepted digitization**
+       - one-engine Long Range Cruise P-47…P-51 and P-47.1…P-51.1 is digitized as separate without-Rosemount / with-Rosemount source extracts across 9 weights, 10,000–30,000 ft and ISA -10 / ISA / ISA +10 / ISA +15 / ISA +20
+       - each effectivity family preserves 174 published tuples and the source transition from Mach-indicated reference at 30,000/25,000 ft to KIAS reference at 20,000/15,000/10,000 ft
+       - Rosemount effectivity retains its distinct Mach/KIAS reference schedule while source-identical KTAS/fuel-flow values remain paired, except two visually verified P-48 printed anomalies
+       - P-48 16,000 lb prints 265 KTAS at 25,000 ft / ISA +10 and 294 KTAS at 20,000 ft / ISA +10; both are preserved exactly and explicitly blocked from operational use pending source reconciliation
+       - PDF text token `l087` at P-48 15,000 lb / 10,000 ft / ISA fuel flow was visually reviewed as 1087 and recorded as an explicit extraction correction
+       - one-engine LRC acceptance: typecheck PASS; targeted extraction suite 7/7 PASS; full Node suite 1444 total / 1443 PASS / 0 FAIL / 1 SKIP; production build PASS; no browser/runtime surface changed, so Playwright not required
+       - 15.2b source digitization is complete; use bounded interpolation only after each source geometry is reviewed; never extrapolate beyond published rows
+     - **15.2c Reference runtime/UI — READY · source digitization accepted**
        - pilot selects only source-required weight / altitude / temperature inputs and a published cruise regime
        - expose only direct source-supported outputs; no invented optimum-climb/cruise recommendation and no derived High-Speed Cruise
        - keep all 15.2 surfaces under Reference and outside the Takeoff/Landing operational workspace
