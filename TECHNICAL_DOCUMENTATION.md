@@ -242,11 +242,11 @@ Active Flight persistence includes nullable `prefill_provenance`. Deployment boo
 
 The EFB checklist uses one canonical checklist session shared by:
 
-- main Flight Deck checklist;
+- the full-page EFB **Checklist** workspace at the compatibility route `/fly`;
 - top checklist progress indicator;
 - CHECKLIST fast-path drawer.
 
-The new-shell EFB canonical state is owned by the Fast Path provider. Legacy flag-off checklist persistence remains isolated for compatibility.
+The new-shell EFB canonical state is owned by the Fast Path provider. The new-shell `/fly` presentation is checklist-only: Performance remains owned by the dedicated PERF workspace and Emergency/Abnormal remains owned by QRH. The historical aggregate Flight Deck presentation remains only on the flag-off legacy path for backward compatibility.
 
 Current operational checklist behavior:
 
@@ -437,7 +437,7 @@ The current shell/design system is shared across production routes rather than i
 
 Mobile support is part of the responsive web product, not a separate native application.
 
-The PWA/offline boundary supports explicitly prepared Flight Deck content. Offline readiness must remain configuration-safe and source-safe.
+The PWA/offline boundary supports explicitly prepared operational EFB content, including the full-page Checklist workspace. Offline readiness must remain configuration-safe and source-safe.
 
 Do not treat cached content as automatically current/authoritative merely because it is available offline.
 

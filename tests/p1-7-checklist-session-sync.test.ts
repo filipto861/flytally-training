@@ -129,11 +129,12 @@ test("15.3b.5 pre-existing unscoped session progress migrates once into the Acti
   assert.equal(cleanFlightB.selectedPhaseId, "before-start");
 });
 
-test("15.3b.5 main Flight Deck and fast path share provider-owned checklist state", () => {
+test("15.3c full-page Checklist and fast path share provider-owned checklist state", () => {
   const provider = read("components/ft-fast-path/FtFastPathProvider.tsx");
   const operational = read("components/operational-checklist.tsx");
   const fastPath = read("components/ft-fast-path/FtFastPathChecklist.tsx");
   const shell = read("components/ft-shell/FtShell.tsx");
+  const fly = read("app/aircraft/[aircraftId]/fly/page.tsx");
 
   assert.match(provider, /useActiveFlightState/);
   assert.match(provider, /window\.localStorage/);
@@ -154,6 +155,7 @@ test("15.3b.5 main Flight Deck and fast path share provider-owned checklist stat
   assert.doesNotMatch(fastPath, /flatItems\.find/);
 
   assert.match(shell, /activeFlight=\{activeFlight\}/);
+  assert.match(fly, /presentation=\{newShell \? "checklist" : "deck"\}/);
 });
 
 test("15.3b.5 reset normalization stays within current checklist identities", () => {

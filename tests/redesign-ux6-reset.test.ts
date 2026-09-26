@@ -15,7 +15,7 @@ test("P1.1 replaces the mixed five-destination shell with explicit Learn and EFB
   );
   assert.deepEqual(
     getAircraftModeDestinations("ux6-aircraft", "efb").map((destination) => destination.label),
-    ["Flight Brief", "Performance", "Flight Deck"],
+    ["Flight Brief", "Performance", "Checklist"],
   );
 });
 

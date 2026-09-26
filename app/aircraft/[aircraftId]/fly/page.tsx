@@ -92,12 +92,13 @@ export default async function FlyPage({
       performanceDatasets={datasets}
       emergency={emergency}
       selectedVariant={selectedVariant}
+      presentation={newShell ? "checklist" : "deck"}
     />
   );
 
   if (newShell) {
     return (
-      <main data-ft-fly-page="true" aria-label="Flight Deck workspace">
+      <main data-ft-fly-page="true" aria-label="Checklist workspace">
         {deck}
       </main>
     );
