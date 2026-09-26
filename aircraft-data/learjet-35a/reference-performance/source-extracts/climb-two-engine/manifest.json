@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "status": "source-extract-only",
+  "id": "learjet-35a-climb-two-engine-source",
+  "title": "Learjet 35A/36A Climb Performance · Two Engine",
+  "source": {
+    "manualId": "CL-102B",
+    "document": "Learjet 35/36 Crew Checklist & Quick Reference Handbook",
+    "baseIssue": "April 2001",
+    "currentChange": "Change 2 · May 2008",
+    "section": "Performance Data",
+    "title": "CLIMB PERFORMANCE · TWO ENGINE",
+    "pageLabels": ["P-19", "P-20", "P-21", "P-22", "P-23", "P-24", "P-25", "P-26", "P-27", "P-28"],
+    "effectivity": "ALL"
+  },
+  "schedule": {
+    "atOrBelow32000Ft": {"speed": 250, "unit": "KIAS"},
+    "above32000Ft": {"speed": 0.70, "unit": "MI"}
+  },
+  "temperatureOrderIsaDeviationC": [-10, 0, 10, 15, 20],
+  "tupleOrder": ["timeMin", "distanceNm", "fuelLb"],
+  "outputs": {
+    "timeMin": {"unit": "min", "sourcePrecision": 0.1},
+    "distanceNm": {"unit": "NM", "sourcePrecision": 0.1},
+    "fuelLb": {"unit": "lb", "sourcePrecision": 0.1}
+  },
+  "tables": [
+    {"page": "P-19", "weightLb": 18300, "file": "p19.json", "publishedTemperatureTuples": 100},
+    {"page": "P-20", "weightLb": 18000, "file": "p20.json", "publishedTemperatureTuples": 101},
+    {"page": "P-21", "weightLb": 17000, "file": "p21.json", "publishedTemperatureTuples": 102},
+    {"page": "P-22", "weightLb": 16000, "file": "p22.json", "publishedTemperatureTuples": 106},
+    {"page": "P-23", "weightLb": 15000, "file": "p23.json", "publishedTemperatureTuples": 107},
+    {"page": "P-24", "weightLb": 14000, "file": "p24.json", "publishedTemperatureTuples": 110},
+    {"page": "P-25", "weightLb": 13000, "file": "p25.json", "publishedTemperatureTuples": 111},
+    {"page": "P-26", "weightLb": 12000, "file": "p26.json", "publishedTemperatureTuples": 113},
+    {"page": "P-27", "weightLb": 11000, "file": "p27.json", "publishedTemperatureTuples": 114},
+    {"page": "P-28", "weightLb": 10000, "file": "p28.json", "publishedTemperatureTuples": 115}
+  ],
+  "constraints": {
+    "operationalUseBlocked": true,
+    "interpolationAuthorized": false,
+    "extrapolationAllowed": false
+  },
+  "extractionNotes": [
+    "Source-exact digitization of CL-102B P-19 through P-28 only; not registered in any operational Performance or Reference runtime.",
+    "Each row is [pressureAltitudeFt, timeMin, distanceNm, fuelLb, ...] in temperatureOrderIsaDeviationC order. Missing trailing tuples preserve blank source regions.",
+    "Three PDF text-extraction ambiguities were checked against rendered source pages before normalization and are recorded explicitly below."
+  ],
+  "extractionCorrections": [
+    {
+      "page": "P-23",
+      "pressureAltitudeFt": 5000,
+      "normalizedTuple": {"isaDeviationC": 20, "timeMin": 1.5, "distanceNm": 6.7, "fuelLb": 66.7},
+      "reason": "PDF text extraction split the printed 1.5 token; visually verified against the rendered source."
+    },
+    {
+      "page": "P-25",
+      "pressureAltitudeFt": 5000,
+      "normalizedTuples": [
+        {"isaDeviationC": 0, "timeMin": 0.8, "distanceNm": 3.5, "fuelLb": 43.1},
+        {"isaDeviationC": 10, "timeMin": 1.0, "distanceNm": 4.3, "fuelLb": 48.4}
+      ],
+      "reason": "PDF text extraction dropped decimal punctuation in two tokens; visually verified against the rendered source."
+    },
+    {
+      "page": "P-26",
+      "pressureAltitudeFt": 45000,
+      "reason": "PDF text extraction emitted stray terminal punctuation after the ISA +10 tuple; rendered source shows no ISA +15 / ISA +20 values."
+    }
+  ]
+}
