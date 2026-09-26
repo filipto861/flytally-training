@@ -22,6 +22,7 @@ export function FlightDeck({
   performanceDatasets,
   emergency,
   selectedVariant,
+  presentation = "deck",
 }: Readonly<{
   aircraftId: string;
   aircraftName: string;
@@ -29,12 +30,19 @@ export function FlightDeck({
   performanceDatasets: readonly OperationalPerformanceDataset[];
   emergency?: OperationalEmergencyContent;
   selectedVariant?: string;
+  presentation?: "deck" | "checklist";
 }>) {
+  const checklistOnly = presentation === "checklist";
   const available = useMemo(() => [
     checklist ? "checklist" as const : undefined,
-    performanceDatasets.length ? "performance" as const : undefined,
-    emergency?.scenarios.length ? "emergency" as const : undefined,
-  ].filter((value): value is FlightView => Boolean(value)), [checklist, performanceDatasets.length, emergency?.scenarios.length]);
+    !checklistOnly && performanceDatasets.length ? "performance" as const : undefined,
+    !checklistOnly && emergency?.scenarios.length ? "emergency" as const : undefined,
+  ].filter((value): value is FlightView => Boolean(value)), [
+    checklist,
+    checklistOnly,
+    performanceDatasets.length,
+    emergency?.scenarios.length,
+  ]);
   const [view, setView] = useState<FlightView>(available[0] ?? "checklist");
   const active = available.includes(view) ? view : available[0];
 
@@ -45,10 +53,14 @@ export function FlightDeck({
   };
 
   return (
-    <section className={styles.deck} aria-label={`${aircraftName} flight deck`}>
+    <section
+      className={styles.deck}
+      aria-label={checklistOnly ? `${aircraftName} checklist workspace` : `${aircraftName} flight deck`}
+      data-flight-deck-presentation={presentation}
+    >
       <header className={styles.header}>
         <div>
-          <span>FLY</span>
+          <span>{checklistOnly ? "CHECKLIST" : "FLY"}</span>
           <strong>{aircraftName}</strong>
         </div>
         <OfflineFlightBootstrap />
@@ -68,8 +80,12 @@ export function FlightDeck({
       <div className={styles.content}>
         {!available.length ? (
           <section className={styles.emptyState} role="status">
-            <strong>Flight Deck data unavailable</strong>
-            <p>No source-authoritative operational module is available for this aircraft configuration yet.</p>
+            <strong>{checklistOnly ? "Checklist unavailable" : "Flight Deck data unavailable"}</strong>
+            <p>
+              {checklistOnly
+                ? "No source-authoritative operational checklist is available for this aircraft configuration yet."
+                : "No source-authoritative operational module is available for this aircraft configuration yet."}
+            </p>
           </section>
         ) : null}
         {active === "checklist" && checklist
