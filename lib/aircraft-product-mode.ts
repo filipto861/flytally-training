@@ -73,8 +73,8 @@ export function getAircraftModeDestinations(
       },
       {
         key: "checklist",
-        label: "Flight Deck",
-        shortLabel: "FLY",
+        label: "Checklist",
+        shortLabel: "CHK",
         href: `${base}/fly`,
       },
     ];
