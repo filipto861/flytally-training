@@ -373,6 +373,36 @@ test("W3 checklist state persists after closing and reopening the panel", async 
 
 
 
+test("15.3d full-page Checklist follows the dark workspace theme", async ({ page }) => {
+  await page.addInitScript(() => {
+    window.localStorage.setItem("flytally-training-workspace-theme", "dark");
+  });
+  await page.goto(`${shellOnBase}${aircraftPath}/fly`);
+
+  const workspace = page.locator('.ft-workspace[data-theme="dark"]');
+  await expect(workspace).toBeVisible();
+
+  const checklist = page.getByRole("region", { name: "Browser CI Checklist" });
+  const firstItem = checklist.getByRole("button", { name: /During Preflight/ });
+  await expect(firstItem).toBeVisible();
+
+  const theme = await firstItem.evaluate((button) => {
+    const workspaceElement = button.closest<HTMLElement>(".ft-workspace");
+    const card = button.parentElement;
+    if (!workspaceElement || !card) return null;
+    return {
+      panel: getComputedStyle(workspaceElement).getPropertyValue("--ft-bg-panel").trim(),
+      cardBackground: getComputedStyle(card).backgroundColor,
+    };
+  });
+
+  expect(theme).not.toBeNull();
+  if (theme) {
+    expect(theme.panel.toLowerCase()).toBe("#101821");
+    expect(theme.cardBackground).toBe("rgb(16, 24, 33)");
+  }
+});
+
 test("15.3c full-page Checklist and fast path stay synchronized", async ({ page }) => {
   await page.goto(`${shellOnBase}${aircraftPath}/fly`);
 
