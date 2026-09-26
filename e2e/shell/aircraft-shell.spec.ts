@@ -1860,7 +1860,7 @@ test("P7 REF preserves the selected variant in the full-reference deep link", as
 
   const panel = page.getByRole("dialog", { name: "Operational fast path" });
   await expect(
-    panel.getByRole("link", { name: "Open full reference", exact: true }),
+    panel.getByRole("link", { name: "Open Learn reference tables", exact: true }),
   ).toHaveAttribute(
     "href",
     `${aircraftPath}/reference?variant=Standard`,
@@ -1891,15 +1891,31 @@ test("P7 new-shell Reference page reuses the REF limitation presentation", async
   ).toHaveAttribute("aria-current", "page");
 });
 
-test("15.2c Reference performance resolves exact and interpolated source-backed results", async ({ page }) => {
+test("15.2d LEARN Reference presents the published source matrix without interpolation UI", async ({ page }) => {
   await page.goto(`${shellOnBase}${aircraftPath}/reference?variant=Standard`);
 
-  const performance = page.locator('[data-ft-reference-performance="true"]');
+  const table = page.locator('[data-ft-reference-source-table="true"]');
+  await expect(table).toBeVisible();
+  await expect(
+    table.getByRole("heading", { name: "Published source tables", exact: true }),
+  ).toBeVisible();
+  await expect(table.getByText("SOURCE VALUES", { exact: true })).toBeVisible();
+  await expect(table.getByRole("spinbutton")).toHaveCount(0);
+  await expect(table.getByText("300 KTAS", { exact: true })).toBeVisible();
+  await expect(table.getByText("600 lb/hr", { exact: true })).toBeVisible();
+  await expect(page.locator('[data-ft-reference-performance="true"]')).toHaveCount(0);
+});
+
+test("15.2d EFB REF resolves exact and interpolated source-backed results", async ({ page }) => {
+  await page.goto(`${shellOnBase}${aircraftPath}/efb?variant=Standard`);
+  const panel = await openFastPath(page, "REF");
+  const performance = panel.locator('[data-ft-reference-performance="true"]');
+
   await expect(performance).toBeVisible();
   await expect(
-    performance.getByRole("heading", { name: "Performance reference", exact: true }),
+    performance.getByRole("heading", { name: "Climb / cruise lookup", exact: true }),
   ).toBeVisible();
-  await expect(performance.getByText("REFERENCE ONLY", { exact: true })).toBeVisible();
+  await expect(performance.getByText("REFERENCE LOOKUP", { exact: true })).toBeVisible();
 
   const weight = performance.getByRole("spinbutton", { name: /Gross weight/ });
   const altitude = performance.getByRole("spinbutton", { name: /Pressure altitude/ });
@@ -1923,10 +1939,11 @@ test("15.2c Reference performance resolves exact and interpolated source-backed 
   await expect(performance).toContainText("No extrapolation.");
 });
 
-test("15.2c Reference performance fails closed and discloses provenance explicitly", async ({ page }) => {
-  await page.goto(`${shellOnBase}${aircraftPath}/reference?variant=Standard`);
+test("15.2d EFB REF fails closed outside the published envelope and discloses provenance", async ({ page }) => {
+  await page.goto(`${shellOnBase}${aircraftPath}/efb?variant=Standard`);
+  const panel = await openFastPath(page, "REF");
+  const performance = panel.locator('[data-ft-reference-performance="true"]');
 
-  const performance = page.locator('[data-ft-reference-performance="true"]');
   await performance.getByRole("spinbutton", { name: /Gross weight/ }).fill("13000");
   await performance.getByRole("spinbutton", { name: /Pressure altitude/ }).fill("5000");
   await performance.getByRole("spinbutton", { name: /ISA deviation/ }).fill("5");

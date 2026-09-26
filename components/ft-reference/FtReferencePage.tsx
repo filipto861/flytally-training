@@ -6,7 +6,7 @@ import {
 import type { ReferencePresentation } from "@/lib/reference-presentation";
 import type { AircraftPerformanceContent } from "@/lib/universal-aircraft-content";
 
-import { FtReferencePerformance } from "./FtReferencePerformance";
+import { FtReferencePerformanceTable } from "./FtReferencePerformanceTable";
 import { FtReferencePresentation } from "./FtReferencePresentation";
 import styles from "./ft-reference.module.css";
 
@@ -55,7 +55,7 @@ export function FtReferencePage({
       ) : null}
 
       {referencePerformance?.datasets.length ? (
-        <FtReferencePerformance content={referencePerformance} />
+        <FtReferencePerformanceTable content={referencePerformance} />
       ) : null}
 
       {destinations.length ? (

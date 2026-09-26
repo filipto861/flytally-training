@@ -15,6 +15,17 @@ This file is the authoritative version history for completed FlyTally Training w
 ## 2026-09-26
 
 ### Changed
+- **PR #275 — Reference context split: LEARN source tables + EFB REF lookup**
+  - kept Climb/Cruise inside the Reference domain instead of moving it into Takeoff/Landing PERF;
+  - changed **LEARN → Reference** from an input-driven calculator to a published source-table browser, with regime/source-slice selection and exact source values only;
+  - sparse, blocked and source-anomaly cells remain visibly unavailable in LEARN; interpolated values are never inserted into the displayed source matrix;
+  - moved/reused the existing generic Climb/Cruise lookup in **EFB → REF fast path**, preserving exact `SOURCE ROW`, bounded `INTERPOLATED` and fail-closed `Unavailable` states;
+  - EFB REF accepts continuous numeric inputs only inside complete published source geometry; extrapolation, sparse-corner bridging, anomaly repair and one-engine Mach/KIAS boundary interpolation remain blocked;
+  - preserved existing governed limitations in REF and left the dedicated PERF surface unchanged for Takeoff/Landing;
+  - retained #272 source extracts and #273 generic Reference runtime as canonical, with no second calculation engine and no Learjet-specific runtime branch;
+  - updated the historical P5/P7 ownership documentation without erasing the prior decision trail;
+  - acceptance: targeted context-split/P5/P7 suite **39/39 PASS**; full Node **1460 total / 1459 PASS / 0 FAIL / 1 SKIP**; production build **PASS**; Playwright **392/392 PASS**. The final correction was documentation-only, so the previously green build/browser evidence remained applicable.
+
 - **PR #272 + PR #273 + PR #274 — Learjet Climb/Cruise Reference source digitization, runtime and UI**
   - digitized the reviewed CL-102B climb, two-engine Long Range Cruise, Normal Cruise and one-engine Long Range Cruise source tables as governed source evidence, preserving source axes, sparse geometry, Rosemount/non-Rosemount effectivity and visually verified printed anomalies rather than silently repairing them;
   - added a separate Reference-only performance package/registry that reuses the generic multi-axis performance runtime and remains isolated from Takeoff/Landing Performance;

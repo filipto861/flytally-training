@@ -21,7 +21,7 @@
 | Operational CHECKLIST | ✅ | CL-102B package live; shared Active Flight session synchronized |
 | Operational QRH | 🚧 | QRH.3U complete package is live in governed production; QRH.4 cockpit acceptance is next |
 | REF / Limitations | ⏳ | Governed limitations content still to be populated |
-| Climb + Cruise Reference | ✅ | Source-digitized Reference runtime/UI complete; separate from Takeoff/Landing |
+| Climb + Cruise Reference | ✅ | Source/runtime complete; LEARN source tables + EFB REF bounded lookup complete |
 | SimBrief Active Flight import | ⏳ | Planned |
 | Documentation consolidation | ✅ | Complete — four-file documentation surface verified |
 
@@ -585,6 +585,16 @@ The detailed future sequence is tracked in **Active implementation order** below
        - UI acceptance: targeted Reference runtime/UI suite 15/15 PASS; full Node suite 1459 total / 1458 PASS / 0 FAIL / 1 SKIP; production build PASS; Playwright 388/388 PASS across the existing responsive browser matrix; the final post-browser change was test-only and did not alter production code
        - local acceptance was executed on Node 22.19.0 while the repository/deployment contract remains Node 24.x; the product owner explicitly accepted this local-runtime deviation for merge
        - keep all 15.2 surfaces under Reference and outside the Takeoff/Landing operational workspace
+     - **15.2d Reference context split — COMPLETE · PR #275**
+       - product decision: Reference remains the owning domain in both product contexts; this does **not** move Climb/Cruise into Takeoff/Landing PERF
+       - **LEARN → Reference** becomes a source-table browser: select a published regime/source table and inspect the complete published matrix rather than entering arbitrary calculation inputs
+       - LEARN table presentation must show exact source values only; sparse/blocked cells remain visibly unavailable and no interpolation result is presented as source data
+       - **EFB → REF fast path** owns the input-driven Reference lookup/calculator over the same governed 15.2 datasets and the same generic runtime
+       - EFB REF accepts continuous numeric inputs within the published source envelope and returns exact or bounded interpolated results; no extrapolation, sparse-corner bridging, source-anomaly repair, or interpolation across the one-engine Mach/KIAS semantic boundary
+       - existing #272 source extracts and #273 runtime remain canonical; #274 calculation UI is reused/repositioned rather than replaced with a second calculation engine
+       - existing governed limitations stay available in REF; the new Climb/Cruise lookup is additive to the REF fast path, not a replacement for limitations
+       - preserve configuration/effectivity filtering, source provenance, responsive cockpit/iPad usability, legacy flag-off behavior, and aircraft-agnostic presentation/runtime boundaries
+       - acceptance: targeted context-split/P5/P7 suite 39/39 PASS; full Node suite 1460 total / 1459 PASS / 0 FAIL / 1 SKIP; production build PASS; Playwright 392/392 PASS; final post-browser change was documentation-only and did not alter production code
    - **15.3 EFB / FLY content-completeness audit — AUDIT COMPLETE · IMPLEMENTATION PLANNED**
      - audit scope: EFB side-nav **FLY**, fast-path **CHECKLIST / QRH / PERF / REF**, and the corresponding Learjet 35A governed data dependencies
      - historical cause confirmed: the M39 Learjet clean reset intentionally retired the previous Learjet checklist/procedure/system/performance/limitation/abnormal payloads; the current rebuild has since restored bundled Takeoff/Landing performance, but the operational fast-path still depends on separately published governed modules for CHECKLIST, QRH and REF

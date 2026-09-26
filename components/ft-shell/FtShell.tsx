@@ -10,6 +10,7 @@ import {
 } from "@/lib/aircraft-applicability";
 import { getActiveFlight } from "@/lib/active-flight/store";
 import { getBundledPerformancePackage } from "@/lib/bundled-performance-content";
+import { getBundledReferencePerformancePackage } from "@/lib/bundled-reference-performance-content";
 import {
   normalizeLegacyFlightFlow,
   normalizeUniversalChecklist,
@@ -44,6 +45,7 @@ export async function FtShell({
 
   const repository = getTrainingContentRepository();
   const bundledPerformance = getBundledPerformancePackage(aircraftId);
+  const bundledReferencePerformance = getBundledReferencePerformancePackage(aircraftId);
   const [
     aircraft,
     universalChecklist,
@@ -156,6 +158,7 @@ export async function FtShell({
           emergency={emergency}
           referenceAircraft={aircraft}
           referenceContent={publishedLimitations}
+          referencePerformance={bundledReferencePerformance?.content}
           selectedVariant={selectedVariant}
           performanceDatasets={performanceDatasets}
           takeoffCalculator={bundledPerformance?.takeoffCalculator}

@@ -295,7 +295,18 @@ Uses the canonical Performance presentation/controller and governed aircraft per
 
 ### REF
 
-Uses governed universal limitations/reference data. PERF already owns operational performance lookup, so REF must not duplicate Performance calculations or promote legacy `reference-knowledge` content into operational output. In the historical ownership split, REF was not P5 work; it was owned by the P7 reference phase.
+Reference remains the owning domain in both product contexts and uses two governed data families:
+
+- universal limitations/reference data;
+- the separate Reference performance package for source-backed Climb/Cruise tables.
+
+**LEARN → Reference** presents exact published source tables for study. It may select a regime and source-table slice such as gross weight, but it must not insert interpolated values into the displayed source matrix. Sparse, blocked or reviewed-anomaly cells remain visibly unavailable.
+
+**EFB → REF fast path** provides the input-driven Climb/Cruise lookup over the same governed Reference datasets. Exact source rows are distinguished from bounded software interpolation. Continuous numeric inputs are permitted only inside complete published source geometry. Extrapolation, sparse-corner bridging, anomaly repair and interpolation across the one-engine Mach/KIAS reference-unit boundary remain fail-closed.
+
+The dedicated **PERF** surface continues to own Takeoff/Landing operational Performance; Climb/Cruise Reference lookup is not moved into PERF. Existing governed limitations remain available in REF alongside the Reference lookup. Neither context promotes legacy `reference-knowledge` content.
+
+REF was not P5 work; it was owned by the P7 reference phase. Historically P7 introduced REF as a limitations-only fast path and explicitly excluded performance lookup. Milestone 15.2d supersedes that presentation restriction while retaining P7's configuration filtering, provenance and aircraft-agnostic boundaries.
 
 ---
 
