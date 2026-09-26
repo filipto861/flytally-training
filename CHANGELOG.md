@@ -15,6 +15,17 @@ This file is the authoritative version history for completed FlyTally Training w
 ## 2026-09-26
 
 ### Changed
+- **PR #276 — EFB Checklist ownership + REF fast-path layout polish**
+  - renamed the new-shell EFB left-rail operational destination from **FLY** to **Checklist / CHK** while retaining the existing `/fly` route as a compatibility path;
+  - changed new-shell `/fly` to a dedicated full-page operational Checklist workspace instead of a second aggregate Flight Deck;
+  - removed duplicate Performance and Emergency tabs from the new-shell Checklist page; dedicated **PERF** remains the Performance workspace and **QRH** remains the operational Emergency/Abnormal fast path;
+  - preserved one canonical Active Flight checklist session across the full-page Checklist and CHECKLIST fast-path drawer;
+  - preserved the historical aggregate Flight Deck only for the flag-off legacy path, keeping backward compatibility isolated from the new-shell IA;
+  - polished the EFB **REF** fast-path layout without changing its governed data or runtime: result now stacks below inputs and the drawer uses a readable two-column input grid with narrow-screen fallback;
+  - retained exact `SOURCE ROW`, bounded `INTERPOLATED`, fail-closed `Unavailable`, provenance/effectivity disclosure, no extrapolation and sparse/anomaly boundary protections;
+  - synchronized ROADMAP and TECHNICAL_DOCUMENTATION with the new Checklist ownership while preserving historical decision records;
+  - acceptance: targeted IA/Reference/legacy-shell regression suite **60/60 PASS**; full Node **1460 total / 1459 PASS / 0 FAIL / 1 SKIP**; production build **PASS** on the production-code revision, with subsequent changes test-only; Playwright **392/392 PASS**; final working tree clean.
+
 - **PR #275 — Reference context split: LEARN source tables + EFB REF lookup**
   - kept Climb/Cruise inside the Reference domain instead of moving it into Takeoff/Landing PERF;
   - changed **LEARN → Reference** from an input-driven calculator to a published source-table browser, with regime/source-slice selection and exact source values only;
