@@ -332,3 +332,19 @@
 .checklistActions button:disabled{opacity:.45}
 .nextPhaseButton{justify-self:stretch;background:var(--ft-text-primary);color:var(--ft-bg-panel)}
 .checklistActions button:focus-visible,.nextPhaseButton:focus-visible{outline:var(--ft-focus-width) solid var(--ft-focus);outline-offset:var(--ft-focus-offset)}
+
+.referenceStack {
+  display: grid;
+  gap: var(--ft-space-4);
+  padding: var(--ft-space-4);
+}
+
+.referenceStack > .fullPageLink {
+  justify-self: start;
+}
+
+@media (max-width: 1180px), (hover: none) {
+  .referenceStack {
+    padding: var(--ft-space-3);
+  }
+}
