@@ -373,6 +373,36 @@ test("W3 checklist state persists after closing and reopening the panel", async 
 
 
 
+test("15.3d full-page Checklist follows the dark workspace theme", async ({ page }) => {
+  await page.addInitScript(() => {
+    window.localStorage.setItem("flytally-training-workspace-theme", "dark");
+  });
+  await page.goto(`${shellOnBase}${aircraftPath}/fly`);
+
+  const workspace = page.locator('.ft-workspace[data-theme="dark"]');
+  await expect(workspace).toBeVisible();
+
+  const checklist = page.getByRole("region", { name: "Browser CI Checklist" });
+  const firstItem = checklist.locator('button[aria-pressed]').first();
+  await expect(firstItem).toBeVisible();
+
+  const theme = await firstItem.evaluate((button) => {
+    const workspaceElement = button.closest<HTMLElement>(".ft-workspace");
+    const card = button.parentElement;
+    if (!workspaceElement || !card) return null;
+    return {
+      panel: getComputedStyle(workspaceElement).getPropertyValue("--ft-bg-panel").trim(),
+      cardBackground: getComputedStyle(card).backgroundColor,
+    };
+  });
+
+  expect(theme).not.toBeNull();
+  if (theme) {
+    expect(theme.panel.toLowerCase()).toBe("#101821");
+    expect(theme.cardBackground).toBe("rgb(16, 24, 33)");
+  }
+});
+
 test("15.3c full-page Checklist and fast path stay synchronized", async ({ page }) => {
   await page.goto(`${shellOnBase}${aircraftPath}/fly`);
 
@@ -1117,6 +1147,10 @@ test("B5 Flight Brief reuses the Landing snapshot and shared Landing editor", as
   await landing.getByLabel("Landing QNH").fill("1013.25");
   await landing.getByLabel("Landing OAT").fill("15");
   await landing.getByRole("button", { name: "Calculate Landing", exact: true }).click();
+  await expect(landing.locator('[data-ft-landing-performance-strip="true"]')).toHaveAttribute(
+    "data-stale",
+    "false",
+  );
 
   await page.goto(`${shellOnBase}${aircraftPath}/flight`);
   const brief = page.getByRole("region", { name: "Flight Brief" });
@@ -1148,12 +1182,20 @@ test("B5 destination change invalidates Landing without invalidating Takeoff", a
   await takeoff.getByLabel("QNH").fill("1013.25");
   await takeoff.getByLabel("OAT").fill("15");
   await takeoff.getByRole("button", { name: "Calculate Takeoff", exact: true }).click();
+  await expect(takeoff.locator('[data-ft-performance-strip="true"]')).toHaveAttribute(
+    "data-stale",
+    "false",
+  );
 
   const landing = workspace.getByRole("region", { name: "Landing Performance", exact: true });
   await landing.getByLabel("Landing runway").selectOption({ index: 1 });
   await landing.getByLabel("Landing QNH").fill("1013.25");
   await landing.getByLabel("Landing OAT").fill("15");
   await landing.getByRole("button", { name: "Calculate Landing", exact: true }).click();
+  await expect(landing.locator('[data-ft-landing-performance-strip="true"]')).toHaveAttribute(
+    "data-stale",
+    "false",
+  );
 
   await page.goto(`${shellOnBase}${aircraftPath}/flight`);
   const active = page.getByRole("region", { name: "Active Flight" });

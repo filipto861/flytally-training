@@ -603,6 +603,12 @@ The detailed future sequence is tracked in **Active implementation order** below
      - EFB **REF** fast-path calculator keeps the same governed data/runtime but uses a drawer-specific compact layout: inputs remain readable and the result stacks below inputs rather than competing side-by-side in the 520 px drawer
      - preserve source/effectivity filtering, exact/interpolated/unavailable semantics, no-extrapolation rules, touch targets, keyboard/focus behavior and responsive iPad/mobile acceptance
      - acceptance: targeted IA/Reference/legacy-shell regression suite **60/60 PASS**; full Node **1460 total / 1459 PASS / 0 FAIL / 1 SKIP**; production build **PASS** from the production-code revision (subsequent fixes were test-only); Playwright **392/392 PASS**; working tree clean
+   - **15.3d Checklist dark-theme correction — ACCEPTED · READY TO MERGE · PR #278**
+     - production visual smoke after #276 exposed legacy hard-coded light surfaces inside `OperationalChecklist`; the surrounding EFB shell was dark while phase controls and checklist item cards remained white
+     - replace checklist surface/text/border/completed/source-warning/source-caution styling with existing workspace semantic tokens while retaining legacy light fallbacks for flag-off compatibility
+     - no checklist data, progress/session, applicability or operational behavior changes
+     - add static token regression plus browser acceptance proving a dark-workspace checklist card resolves to `--ft-bg-panel` rather than white
+     - acceptance: targeted checklist/theme/B5 regression **25/25 PASS**; full Node **1461 total / 1460 PASS / 0 FAIL / 1 SKIP**; production build **PASS**; focused B5 Playwright **8/8 PASS** serially; full responsive Playwright **396/396 PASS**; working tree clean; production visual smoke remains post-merge/deploy
    - **15.3 EFB / FLY content-completeness audit — AUDIT COMPLETE · IMPLEMENTATION PLANNED**
      - audit scope: EFB side-nav **FLY**, fast-path **CHECKLIST / QRH / PERF / REF**, and the corresponding Learjet 35A governed data dependencies
      - historical cause confirmed: the M39 Learjet clean reset intentionally retired the previous Learjet checklist/procedure/system/performance/limitation/abnormal payloads; the current rebuild has since restored bundled Takeoff/Landing performance, but the operational fast-path still depends on separately published governed modules for CHECKLIST, QRH and REF
