@@ -18,13 +18,14 @@ test("B9-C runway-only context exposes slope without requiring a METAR", () => {
 });
 
 test("B9-C runway plus METAR context delegates wind and slope math to generic aviation utilities", () => {
-  assert.match(panel, /calculateWindComponents\(/);
+  assert.match(panel, /calculateObservedRunwayWindComponents\(/);
   assert.match(panel, /calculateRunwaySlope\(/);
   assert.match(panel, /runwayHeadingTrueDeg: runwayContext\.headingTrueDeg/);
 });
 
-test("B9-C calm METAR is represented as zero-speed wind for component display", () => {
-  assert.match(panel, /metarSnapshot\?\.windCalm \? 0 : metarSnapshot\?\.windSpeedKt/);
+test("B9-C calm METAR is delegated to the shared observed-wind resolver", () => {
+  assert.match(panel, /windSpeedKt: metarSnapshot\.windSpeedKt/);
+  assert.match(panel, /windCalm: metarSnapshot\.windCalm/);
   assert.match(panel, /if \(snapshot\.windCalm\) return "Wind calm"/);
 });
 
@@ -47,7 +48,9 @@ test("B9-C missing opposite-end elevation has an explicit runway-slope unavailab
 
 test("B9-C missing runway heading or METAR wind has an explicit wind unavailable state", () => {
   assert.match(panel, /runwayContext\.headingTrueDeg !== undefined/);
-  assert.match(panel, /Wind components unavailable — missing runway heading or METAR/);
+  assert.match(panel, /snapshot\.windSpeedKt === undefined/);
+  assert.match(panel, /Wind components unavailable — missing runway heading or METAR wind/);
+  assert.match(panel, /variable direction cannot be resolved for this runway/);
 });
 
 test("B9-C environment panel exposes region semantics and labelled values", () => {

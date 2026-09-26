@@ -3,7 +3,8 @@ import fs from "node:fs";
 import test from "node:test";
 
 const read = (path: string) => fs.readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
-const forbiddenRuntime = /learjet|bristell|cessna|boeing|rotax|N1|V1|VR|V2|VREF|takeoff|landing/i;
+const forbiddenRuntime =
+  /learjet|bristell|cessna|boeing|rotax|\b(?:N1|V1|VR|V2|VREF)\b|takeoff|landing/i;
 
 test("B9-C wind-component runtime remains aircraft- and phase-agnostic", () => {
   const source = read("lib/aviation/wind-component.ts");

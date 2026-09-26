@@ -1,6 +1,6 @@
 import type { SelectedRunwayContext } from "@/lib/aviation/airport-types";
 import { calculateRunwaySlope } from "@/lib/aviation/runway-slope";
-import { calculateWindComponents } from "@/lib/aviation/wind-component";
+import { calculateObservedRunwayWindComponents } from "@/lib/aviation/wind-component";
 import type { MetarSnapshot } from "@/lib/weather/metar-types";
 
 import styles from "./environment-context-panel.module.css";
@@ -30,7 +30,7 @@ function crosswindText(crosswindKt: number): string {
 
 function windSourceText(
   snapshot: MetarSnapshot,
-  angleOffDeg: number,
+  wind: ReturnType<typeof calculateObservedRunwayWindComponents>,
 ): string {
   if (snapshot.windCalm) return "Wind calm";
   const direction = snapshot.windVariable
@@ -40,7 +40,13 @@ function windSourceText(
       : `${Math.round(snapshot.windDirectionTrueDeg)}°`;
   const speed = snapshot.windSpeedKt === undefined ? "—" : `${Math.round(snapshot.windSpeedKt)} kt`;
   const gust = snapshot.windGustKt === undefined ? "" : `, gusting ${Math.round(snapshot.windGustKt)} kt`;
-  return `Wind ${direction} at ${speed}${gust} (${Math.round(angleOffDeg)}° off runway)`;
+
+  if (wind?.basis === "low-variable-zero-baseline") {
+    return `Wind ${direction} at ${speed}${gust} — zero-wind baseline used`;
+  }
+
+  const angle = wind ? ` (${Math.round(wind.angleOffDeg)}° off runway)` : "";
+  return `Wind ${direction} at ${speed}${gust}${angle}`;
 }
 
 function slopeText(slopePercent: number): string {
@@ -51,26 +57,39 @@ function slopeText(slopePercent: number): string {
     : `Runway slope −${magnitude}% (downhill)`;
 }
 
+function windUnavailableText(
+  snapshot: MetarSnapshot,
+  runwayHeadingTrueDeg: number | undefined,
+): string {
+  if (
+    runwayHeadingTrueDeg === undefined
+    || snapshot.windSpeedKt === undefined
+  ) {
+    return "Wind components unavailable — missing runway heading or METAR wind.";
+  }
+  if (snapshot.windVariable) {
+    return "Wind components unavailable — variable direction cannot be resolved for this runway.";
+  }
+  return "Wind components unavailable — missing runway heading or METAR wind.";
+}
+
+
 export function EnvironmentContextPanel({
   runwayContext,
   metarSnapshot,
 }: EnvironmentContextPanelProps) {
   if (!runwayContext) return null;
 
-  const windDirectionTrueDeg = metarSnapshot?.windCalm
-    ? runwayContext.headingTrueDeg
-    : metarSnapshot?.windDirectionTrueDeg;
-  const windSpeedKt = metarSnapshot?.windCalm ? 0 : metarSnapshot?.windSpeedKt;
   const wind = (
     metarSnapshot
     && runwayContext.headingTrueDeg !== undefined
-    && windDirectionTrueDeg !== undefined
-    && windSpeedKt !== undefined
   )
-    ? calculateWindComponents({
-        windDirectionTrueDeg,
-        windSpeedKt,
+    ? calculateObservedRunwayWindComponents({
+        windDirectionTrueDeg: metarSnapshot.windDirectionTrueDeg,
+        windSpeedKt: metarSnapshot.windSpeedKt,
         windGustKt: metarSnapshot.windGustKt,
+        windVariable: metarSnapshot.windVariable,
+        windCalm: metarSnapshot.windCalm,
         runwayHeadingTrueDeg: runwayContext.headingTrueDeg,
       })
     : undefined;
@@ -121,12 +140,12 @@ export function EnvironmentContextPanel({
                 ) : null}
                 <div>
                   <dt>Source wind</dt>
-                  <dd>{windSourceText(metarSnapshot, wind.angleOffDeg)}</dd>
+                  <dd>{windSourceText(metarSnapshot, wind)}</dd>
                 </div>
               </dl>
             ) : (
               <p className={styles.unavailable}>
-                Wind components unavailable — missing runway heading or METAR.
+                {windUnavailableText(metarSnapshot, runwayContext.headingTrueDeg)}
               </p>
             )}
           </div>

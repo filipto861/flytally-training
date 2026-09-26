@@ -17,7 +17,10 @@ import {
   resolveRunwayEnd,
 } from "@/lib/aviation/runway-context";
 import { calculatePressureAltitudeFt } from "@/lib/aviation/pressure-altitude";
-import { calculateWindComponents, type WindComponents } from "@/lib/aviation/wind-component";
+import {
+  calculateObservedRunwayWindComponents,
+  type WindComponents,
+} from "@/lib/aviation/wind-component";
 import type { PilotLandingCalculatorDefinition } from "@/lib/pilot-landing-calculator";
 import {
   computeLandingPerformance,
@@ -362,14 +365,14 @@ export function useLandingPerformanceOperation({
       !runwayContext
       || runwayContext.headingTrueDeg === undefined
       || !observation
-      || observation.windDirectionTrueDeg === undefined
-      || observation.windSpeedKt === undefined
     ) return undefined;
 
-    return calculateWindComponents({
+    return calculateObservedRunwayWindComponents({
       windDirectionTrueDeg: observation.windDirectionTrueDeg,
       windSpeedKt: observation.windSpeedKt,
       windGustKt: observation.windGustKt,
+      windVariable: observation.windVariable,
+      windCalm: observation.windCalm,
       runwayHeadingTrueDeg: runwayContext.headingTrueDeg,
     });
   }, [appliedWeather.observation, runwayContext]);
