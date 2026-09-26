@@ -9,10 +9,12 @@ import {
 import {
   configurationForAircraftVariant,
   filterLimitationsForConfiguration,
+  filterPerformanceForConfiguration,
   resolveSelectedVariant,
   withVariantQuery,
 } from "@/lib/aircraft-applicability";
 import { getBundledPerformancePackage } from "@/lib/bundled-performance-content";
+import { getBundledReferencePerformancePackage } from "@/lib/bundled-reference-performance-content";
 import {
   getAircraftContentBundle,
   getPublishedAircraftModule,
@@ -54,10 +56,18 @@ export default async function ReferenceHubPage({
   ].filter((item): item is { key: string; kicker: string; title: string; text: string } => Boolean(item));
 
   if (isNewShellEnabled()) {
+    const configuration = configurationForAircraftVariant(aircraft, selectedVariant);
     const configuredLimitations = publishedLimitations
       ? filterLimitationsForConfiguration(
           publishedLimitations,
-          configurationForAircraftVariant(aircraft, selectedVariant),
+          configuration,
+        )
+      : undefined;
+    const bundledReferencePerformance = getBundledReferencePerformancePackage(aircraftId);
+    const referencePerformance = bundledReferencePerformance
+      ? filterPerformanceForConfiguration(
+          bundledReferencePerformance.content,
+          configuration,
         )
       : undefined;
     const reference = toReferencePresentation(configuredLimitations);
@@ -88,13 +98,14 @@ export default async function ReferenceHubPage({
         : []),
     ];
 
-    if (!reference && !destinations.length) notFound();
+    if (!reference && !referencePerformance?.datasets.length && !destinations.length) notFound();
 
     return (
       <FtReferencePage
         aircraftId={aircraft.id}
         selectedVariant={selectedVariant}
         reference={reference}
+        referencePerformance={referencePerformance}
         destinations={destinations}
       />
     );

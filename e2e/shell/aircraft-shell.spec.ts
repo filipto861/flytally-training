@@ -1891,6 +1891,56 @@ test("P7 new-shell Reference page reuses the REF limitation presentation", async
   ).toHaveAttribute("aria-current", "page");
 });
 
+test("15.2c Reference performance resolves exact and interpolated source-backed results", async ({ page }) => {
+  await page.goto(`${shellOnBase}${aircraftPath}/reference?variant=Standard`);
+
+  const performance = page.locator('[data-ft-reference-performance="true"]');
+  await expect(performance).toBeVisible();
+  await expect(
+    performance.getByRole("heading", { name: "Performance reference", exact: true }),
+  ).toBeVisible();
+  await expect(performance.getByText("REFERENCE ONLY", { exact: true })).toBeVisible();
+
+  const weight = performance.getByRole("spinbutton", { name: /Gross weight/ });
+  const altitude = performance.getByRole("spinbutton", { name: /Pressure altitude/ });
+  const isa = performance.getByRole("spinbutton", { name: /ISA deviation/ });
+
+  await weight.fill("10000");
+  await altitude.fill("0");
+  await isa.fill("0");
+
+  await expect(performance.getByText("SOURCE ROW", { exact: true })).toBeVisible();
+  await expect(performance.getByText("300 KTAS", { exact: true })).toBeVisible();
+  await expect(performance.getByText("600 lb/hr", { exact: true })).toBeVisible();
+
+  await weight.fill("11000");
+  await altitude.fill("5000");
+  await isa.fill("5");
+
+  await expect(performance.getByText("INTERPOLATED", { exact: true })).toBeVisible();
+  await expect(performance.getByText("335 KTAS", { exact: true })).toBeVisible();
+  await expect(performance.getByText("685 lb/hr", { exact: true })).toBeVisible();
+  await expect(performance).toContainText("No extrapolation.");
+});
+
+test("15.2c Reference performance fails closed and discloses provenance explicitly", async ({ page }) => {
+  await page.goto(`${shellOnBase}${aircraftPath}/reference?variant=Standard`);
+
+  const performance = page.locator('[data-ft-reference-performance="true"]');
+  await performance.getByRole("spinbutton", { name: /Gross weight/ }).fill("13000");
+  await performance.getByRole("spinbutton", { name: /Pressure altitude/ }).fill("5000");
+  await performance.getByRole("spinbutton", { name: /ISA deviation/ }).fill("5");
+
+  await expect(performance.getByText("Unavailable", { exact: true })).toBeVisible();
+  await expect(performance).toContainText("outside a complete published source region");
+
+  const details = performance.locator("details");
+  await expect(details).not.toHaveAttribute("open", "");
+  await details.getByText("Source, effectivity & boundaries", { exact: true }).click();
+  await expect(details).toHaveAttribute("open", "");
+  await expect(details.getByText(/browser-ci-reference-performance-source/)).toBeVisible();
+});
+
 test("P7 flag OFF preserves the legacy Reference hub", async ({ page }) => {
   await page.goto(`${aircraftPath}/reference`);
 

@@ -15,6 +15,18 @@ This file is the authoritative version history for completed FlyTally Training w
 ## 2026-09-26
 
 ### Changed
+- **PR #272 + PR #273 + PR #274 — Learjet Climb/Cruise Reference source digitization, runtime and UI**
+  - digitized the reviewed CL-102B climb, two-engine Long Range Cruise, Normal Cruise and one-engine Long Range Cruise source tables as governed source evidence, preserving source axes, sparse geometry, Rosemount/non-Rosemount effectivity and visually verified printed anomalies rather than silently repairing them;
+  - added a separate Reference-only performance package/registry that reuses the generic multi-axis performance runtime and remains isolated from Takeoff/Landing Performance;
+  - exact source rows and bounded source-authorized interpolation are supported only inside complete published source regions; extrapolation, blocked anomaly cells, sparse corners and one-engine Mach/KIAS unit-boundary interpolation fail closed;
+  - kept High-Speed Cruise absent because no reviewed source table exists and did not invent optimum-climb/cruise or maximum-specific-range recommendations from chart shading/text extraction;
+  - added the new-shell Reference performance workspace with aircraft-configuration filtering, generic axis-driven inputs, explicit SOURCE ROW / INTERPOLATED / Unavailable states, published envelopes and progressively disclosed source/effectivity/provenance notes;
+  - added deterministic browser-fixture and responsive E2E coverage for exact, interpolated, unavailable and provenance states without adding aircraft-specific calculation logic to the UI;
+  - PR #272 source acceptance: targeted one-engine LRC extraction 7/7 PASS; full Node 1444 total / 1443 PASS / 0 FAIL / 1 SKIP; production build PASS;
+  - PR #273 runtime acceptance: targeted Reference runtime 9/9 PASS; full Node 1453 total / 1452 PASS / 0 FAIL / 1 SKIP; production build PASS;
+  - PR #274 UI acceptance: targeted Reference runtime/UI 15/15 PASS; full Node 1459 total / 1458 PASS / 0 FAIL / 1 SKIP; production build PASS; Playwright 388/388 PASS. The final correction was test-only, so the previously green build/browser evidence remained applicable;
+  - local PR #274 acceptance ran on Node 22.19.0 while the repository/deployment contract remains Node 24.x; this local-runtime deviation was explicitly accepted for merge.
+
 - **PR #264 + hotfix PR #265 — SimBrief Active Flight import + TOW prefill**
   - added explicit pilot-initiated SimBrief latest-OFP import to Active Flight using Navigraph Alias or SimBrief Pilot ID, with no background polling;
   - prefills departure, destination and Estimated TOW when present while preserving SimBrief kg/lb units;

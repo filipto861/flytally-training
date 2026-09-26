@@ -4,7 +4,9 @@ import {
   withVariantQuery,
 } from "@/lib/aircraft-applicability";
 import type { ReferencePresentation } from "@/lib/reference-presentation";
+import type { AircraftPerformanceContent } from "@/lib/universal-aircraft-content";
 
+import { FtReferencePerformance } from "./FtReferencePerformance";
 import { FtReferencePresentation } from "./FtReferencePresentation";
 import styles from "./ft-reference.module.css";
 
@@ -19,11 +21,13 @@ export function FtReferencePage({
   aircraftId,
   selectedVariant,
   reference,
+  referencePerformance,
   destinations,
 }: Readonly<{
   aircraftId: string;
   selectedVariant?: string;
   reference?: ReferencePresentation;
+  referencePerformance?: AircraftPerformanceContent;
   destinations: readonly FtReferenceDestination[];
 }>) {
   return (
@@ -43,12 +47,16 @@ export function FtReferencePage({
 
       {reference ? (
         <FtReferencePresentation reference={reference} view="full" />
-      ) : (
+      ) : !referencePerformance?.datasets.length ? (
         <section className={styles.empty} aria-label="Reference quick access unavailable">
           <strong>No quick-reference limitations available.</strong>
           <p>Use the published reference tools below.</p>
         </section>
-      )}
+      ) : null}
+
+      {referencePerformance?.datasets.length ? (
+        <FtReferencePerformance content={referencePerformance} />
+      ) : null}
 
       {destinations.length ? (
         <section className={styles.destinations} aria-labelledby="reference-tools-heading">
@@ -67,7 +75,7 @@ export function FtReferencePage({
         </section>
       ) : null}
 
-      {!reference && !destinations.length ? (
+      {!reference && !referencePerformance?.datasets.length && !destinations.length ? (
         <section className={styles.empty}>
           <strong>No published reference content.</strong>
           <p>The current aircraft package does not expose a reference surface.</p>
