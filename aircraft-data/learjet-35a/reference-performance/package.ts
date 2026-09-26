@@ -1,20 +1,20 @@
-import climbManifestJson from "./source-extracts/climb-two-engine/manifest.json";
-import climbP19Json from "./source-extracts/climb-two-engine/p19.json";
-import climbP20Json from "./source-extracts/climb-two-engine/p20.json";
-import climbP21Json from "./source-extracts/climb-two-engine/p21.json";
-import climbP22Json from "./source-extracts/climb-two-engine/p22.json";
-import climbP23Json from "./source-extracts/climb-two-engine/p23.json";
-import climbP24Json from "./source-extracts/climb-two-engine/p24.json";
-import climbP25Json from "./source-extracts/climb-two-engine/p25.json";
-import climbP26Json from "./source-extracts/climb-two-engine/p26.json";
-import climbP27Json from "./source-extracts/climb-two-engine/p27.json";
-import climbP28Json from "./source-extracts/climb-two-engine/p28.json";
-import lrcTwoEngineWithRosemountJson from "./source-extracts/long-range-cruise-two-engine-with-rosemount.json";
-import lrcTwoEngineWithoutRosemountJson from "./source-extracts/long-range-cruise-two-engine-without-rosemount.json";
-import normalCruiseWithRosemountJson from "./source-extracts/normal-cruise-with-rosemount.json";
-import normalCruiseWithoutRosemountJson from "./source-extracts/normal-cruise-without-rosemount.json";
-import lrcOneEngineWithRosemountJson from "./source-extracts/long-range-cruise-one-engine-with-rosemount.json";
-import lrcOneEngineWithoutRosemountJson from "./source-extracts/long-range-cruise-one-engine-without-rosemount.json";
+import climbManifestJson from "./source-extracts/climb-two-engine/manifest.json" with { type: "json" };
+import climbP19Json from "./source-extracts/climb-two-engine/p19.json" with { type: "json" };
+import climbP20Json from "./source-extracts/climb-two-engine/p20.json" with { type: "json" };
+import climbP21Json from "./source-extracts/climb-two-engine/p21.json" with { type: "json" };
+import climbP22Json from "./source-extracts/climb-two-engine/p22.json" with { type: "json" };
+import climbP23Json from "./source-extracts/climb-two-engine/p23.json" with { type: "json" };
+import climbP24Json from "./source-extracts/climb-two-engine/p24.json" with { type: "json" };
+import climbP25Json from "./source-extracts/climb-two-engine/p25.json" with { type: "json" };
+import climbP26Json from "./source-extracts/climb-two-engine/p26.json" with { type: "json" };
+import climbP27Json from "./source-extracts/climb-two-engine/p27.json" with { type: "json" };
+import climbP28Json from "./source-extracts/climb-two-engine/p28.json" with { type: "json" };
+import lrcTwoEngineWithRosemountJson from "./source-extracts/long-range-cruise-two-engine-with-rosemount.json" with { type: "json" };
+import lrcTwoEngineWithoutRosemountJson from "./source-extracts/long-range-cruise-two-engine-without-rosemount.json" with { type: "json" };
+import normalCruiseWithRosemountJson from "./source-extracts/normal-cruise-with-rosemount.json" with { type: "json" };
+import normalCruiseWithoutRosemountJson from "./source-extracts/normal-cruise-without-rosemount.json" with { type: "json" };
+import lrcOneEngineWithRosemountJson from "./source-extracts/long-range-cruise-one-engine-with-rosemount.json" with { type: "json" };
+import lrcOneEngineWithoutRosemountJson from "./source-extracts/long-range-cruise-one-engine-without-rosemount.json" with { type: "json" };
 
 import type { BundledReferencePerformancePackage } from "../../../lib/reference-performance-package.ts";
 import type {
