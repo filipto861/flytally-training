@@ -49,6 +49,9 @@ function simBriefErrorMessage(error: unknown): string {
   if (!(error instanceof SimBriefClientError)) {
     return "Unable to import the latest SimBrief OFP.";
   }
+  if (error.code === "unauthorized") {
+    return "Sign in to FlyTally Training to import from SimBrief.";
+  }
   if (error.code === "simbrief_no_flight") {
     return "No current SimBrief OFP was found for this account.";
   }
