@@ -57,6 +57,23 @@ function slopeText(slopePercent: number): string {
     : `Runway slope −${magnitude}% (downhill)`;
 }
 
+function windUnavailableText(
+  snapshot: MetarSnapshot,
+  runwayHeadingTrueDeg: number | undefined,
+): string {
+  if (
+    runwayHeadingTrueDeg === undefined
+    || snapshot.windSpeedKt === undefined
+  ) {
+    return "Wind components unavailable — missing runway heading or METAR wind.";
+  }
+  if (snapshot.windVariable) {
+    return "Wind components unavailable — variable direction cannot be resolved for this runway.";
+  }
+  return "Wind components unavailable — missing runway heading or METAR wind.";
+}
+
+
 export function EnvironmentContextPanel({
   runwayContext,
   metarSnapshot,
@@ -128,7 +145,7 @@ export function EnvironmentContextPanel({
               </dl>
             ) : (
               <p className={styles.unavailable}>
-                Wind components unavailable — variable direction cannot be resolved for this runway.
+                {windUnavailableText(metarSnapshot, runwayContext.headingTrueDeg)}
               </p>
             )}
           </div>
