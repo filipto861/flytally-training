@@ -373,15 +373,19 @@ test("W3 checklist state persists after closing and reopening the panel", async 
 
 
 
-test("15.3b.5 Flight Deck and fast path checklist stay synchronized", async ({ page }) => {
+test("15.3c full-page Checklist and fast path stay synchronized", async ({ page }) => {
   await page.goto(`${shellOnBase}${aircraftPath}/fly`);
 
-  const flightDeck = page.getByRole("region", {
-    name: "Browser CI Aircraft flight deck",
+  const checklistWorkspace = page.getByRole("region", {
+    name: "Browser CI Aircraft checklist workspace",
   });
-  const mainChecklist = flightDeck.getByRole("region", {
+  const mainChecklist = checklistWorkspace.getByRole("region", {
     name: "Browser CI Checklist",
   });
+
+  await expect(checklistWorkspace.getByRole("navigation", { name: "Flight tools" })).toHaveCount(0);
+  await expect(checklistWorkspace.getByRole("button", { name: "Performance", exact: true })).toHaveCount(0);
+  await expect(checklistWorkspace.getByRole("button", { name: "Emergency quick reference" })).toHaveCount(0);
 
   const batteryButton = mainChecklist.getByRole("button", {
     name: /Battery.*ON/,
@@ -602,12 +606,15 @@ test("P1 flag off redirects /flight to the legacy operational /fly route", async
   ).toBeVisible();
 });
 
-test("P1 preserves the existing /fly operational route", async ({ page }) => {
+test("15.3c new-shell /fly is the dedicated Checklist workspace", async ({ page }) => {
   await page.goto(`${shellOnBase}${aircraftPath}/fly`);
 
   await expect(page).toHaveURL(`${shellOnBase}${aircraftPath}/fly`);
   await expect(
-    page.getByRole("region", { name: "Browser CI Aircraft flight deck" }),
+    page.getByRole("main", { name: "Checklist workspace" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("region", { name: "Browser CI Aircraft checklist workspace" }),
   ).toBeVisible();
   await expect(page.getByRole("main", { name: "Flight workspace" })).toHaveCount(0);
 });
@@ -1917,6 +1924,16 @@ test("15.2d EFB REF resolves exact and interpolated source-backed results", asyn
   ).toBeVisible();
   await expect(performance.getByText("REFERENCE LOOKUP", { exact: true })).toBeVisible();
 
+  const inputSection = performance.getByRole("region", { name: "Reference performance inputs" });
+  const resultSection = performance.getByRole("region", { name: "Reference performance result" });
+  const inputBox = await inputSection.boundingBox();
+  const resultBox = await resultSection.boundingBox();
+  expect(inputBox).not.toBeNull();
+  expect(resultBox).not.toBeNull();
+  if (inputBox && resultBox) {
+    expect(resultBox.y).toBeGreaterThanOrEqual(inputBox.y + inputBox.height - 2);
+  }
+
   const weight = performance.getByRole("spinbutton", { name: /Gross weight/ });
   const altitude = performance.getByRole("spinbutton", { name: /Pressure altitude/ });
   const isa = performance.getByRole("spinbutton", { name: /ISA deviation/ });
@@ -2015,7 +2032,7 @@ test("P1.1 compact rail exposes mode-specific accessible destination names", asy
 
   await page.goto(`${shellOnBase}${aircraftPath}/efb`);
   nav = await workspaceNavigation(page, testInfo.project.name);
-  for (const label of ["Flight Brief", "Performance", "Flight Deck"]) {
+  for (const label of ["Flight Brief", "Performance", "Checklist"]) {
     await expect(nav.getByRole("link", { name: label, exact: true })).toBeVisible();
   }
   await expect(nav.getByRole("link", { name: "Systems", exact: true })).toHaveCount(0);
