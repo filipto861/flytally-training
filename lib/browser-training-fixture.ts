@@ -3,6 +3,7 @@ import type { StaticTrainingContentSeed } from "./static-content-repository";
 import type { AircraftChecklistContent,AircraftLimitationsContent,AircraftPerformanceContent,AircraftProcedureContent,AircraftSystemsContent,TrainingSourceReference } from "./universal-aircraft-content";
 import type { AircraftAbnormalEmergencyContent } from "./universal-abnormal-emergency";
 import type { BundledPerformancePackage } from "./performance-package";
+import type { BundledReferencePerformancePackage } from "./reference-performance-package";
 import type { PilotLandingCalculatorDefinition } from "./pilot-landing-calculator";
 import type { PilotTakeoffCalculatorDefinition } from "./pilot-takeoff-calculator";
 
@@ -357,6 +358,61 @@ export const browserTrainingPerformancePackage:BundledPerformancePackage={
   content:performance,
   takeoffCalculator:browserTakeoffCalculator,
   landingCalculator:browserLandingCalculator,
+};
+
+const referencePerformanceSource={
+  manualId:"browser-ci-reference-performance-source",
+  section:"15.2c deterministic fixture",
+  pageLabel:"REF-PERF-1",
+} satisfies TrainingSourceReference;
+
+const referencePerformance:AircraftPerformanceContent={
+  aircraftId:browserTrainingAircraftId,
+  title:"Browser CI Reference Performance",
+  sourcePolicy:"available-sources",
+  disclaimer:"Deterministic browser test fixture only. Reference data, not operational Takeoff/Landing Performance.",
+  datasets:[
+    {
+      id:"browser-reference-cruise",
+      title:"Browser Reference Cruise",
+      description:"Complete three-axis deterministic grid for Reference performance browser acceptance.",
+      kind:"reference-table",
+      phase:"reference",
+      calculator:{
+        kind:"multi-axis-metric-grid",
+        operation:"reference",
+        inputAxes:["weightLb","pressureAltitudeFt","isaDeviationC"],
+        outputKeys:["ktas","fuelFlowLbPerHr"],
+      },
+      axes:[
+        {key:"weightLb",label:"Gross weight",unit:"lb",values:[10000,12000]},
+        {key:"pressureAltitudeFt",label:"Pressure altitude",unit:"ft",values:[0,10000]},
+        {key:"isaDeviationC",label:"ISA deviation",unit:"°C",values:[0,10]},
+      ],
+      outputs:[
+        {key:"ktas",label:"True airspeed",unit:"KTAS"},
+        {key:"fuelFlowLbPerHr",label:"Fuel flow",unit:"lb/hr"},
+      ],
+      rows:[
+        {inputs:{weightLb:10000,pressureAltitudeFt:0,isaDeviationC:0},outputs:{ktas:300,fuelFlowLbPerHr:600}},
+        {inputs:{weightLb:10000,pressureAltitudeFt:0,isaDeviationC:10},outputs:{ktas:310,fuelFlowLbPerHr:620}},
+        {inputs:{weightLb:10000,pressureAltitudeFt:10000,isaDeviationC:0},outputs:{ktas:340,fuelFlowLbPerHr:650}},
+        {inputs:{weightLb:10000,pressureAltitudeFt:10000,isaDeviationC:10},outputs:{ktas:350,fuelFlowLbPerHr:670}},
+        {inputs:{weightLb:12000,pressureAltitudeFt:0,isaDeviationC:0},outputs:{ktas:320,fuelFlowLbPerHr:700}},
+        {inputs:{weightLb:12000,pressureAltitudeFt:0,isaDeviationC:10},outputs:{ktas:330,fuelFlowLbPerHr:720}},
+        {inputs:{weightLb:12000,pressureAltitudeFt:10000,isaDeviationC:0},outputs:{ktas:360,fuelFlowLbPerHr:750}},
+        {inputs:{weightLb:12000,pressureAltitudeFt:10000,isaDeviationC:10},outputs:{ktas:370,fuelFlowLbPerHr:770}},
+      ],
+      interpolation:"linear-explicit",
+      notes:["Browser-only source/effectivity note for progressive-disclosure acceptance."],
+      sources:[referencePerformanceSource],
+    },
+  ],
+};
+
+export const browserTrainingReferencePerformancePackage:BundledReferencePerformancePackage={
+  aircraftId:browserTrainingAircraftId,
+  content:referencePerformance,
 };
 
 
