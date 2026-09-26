@@ -383,7 +383,7 @@ test("15.3d full-page Checklist follows the dark workspace theme", async ({ page
   await expect(workspace).toBeVisible();
 
   const checklist = page.getByRole("region", { name: "Browser CI Checklist" });
-  const firstItem = checklist.getByRole("button", { name: /During Preflight/ });
+  const firstItem = checklist.locator('button[aria-pressed]').first();
   await expect(firstItem).toBeVisible();
 
   const theme = await firstItem.evaluate((button) => {
