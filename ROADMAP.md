@@ -525,17 +525,18 @@ The detailed future sequence is tracked in **Active implementation order** below
    - acceptance before merge: source/provenance review, targeted solver/runtime tests, snapshot invalidation tests, full Node suite, production build, desktop/mobile/iPad Playwright, and manual production smoke
 
 15. **Post-Partial-Power product work** — PLANNED
-   - **15.1 SimBrief Active Flight import + weight prefill — IN PROGRESS**
-     - add a user-configurable Navigraph Alias / SimBrief Pilot ID; keep the identifier as an explicit device-local preference rather than silently persisting an external account identifier server-side
-     - use the supported latest-OFP fetch path `xml.fetcher.php?...&json=v2` only in response to an explicit pilot import/refresh action; do not background-poll SimBrief
-     - one action should import the latest planned flight into the Active Flight workflow and prefill departure, destination and SimBrief Estimated TOW
-     - preserve the OFP weight unit (`kgs`/kg → kg, `lbs`/lb → lb); no hidden conversion is required because Active Flight already carries an explicit weight unit
-     - imported values remain pilot-editable; editing an imported field clears provenance for that field and no value may be silently overwritten without another explicit SimBrief import/refresh action
-     - persist field-level SimBrief prefill provenance with Active Flight so the UI can distinguish SimBrief-prefilled route/weight from pilot-entered values without clutter
-     - validate SimBrief `aircraft.icao_code` against aircraft-owned compatibility metadata; Learjet 35/36 accepts ICAO `LJ35`; fail closed on missing/mismatched aircraft identity rather than mapping by display name
-     - the server proxy must be same-origin, no-store, timeout-bounded and expose only the normalized fields Training consumes; do not retain the raw OFP
-     - no periodic SimBrief polling; live METAR remains owned by the existing AviationWeather.gov workflow
-     - acceptance: parser/provider tests, Active Flight provenance/storage tests, explicit user-action/no-polling contract, aircraft mismatch gate, typecheck, full Node/build and responsive Playwright import flow
+   - **15.1 SimBrief Active Flight import + weight prefill — COMPLETE · LIVE · PR #264 + hotfix PR #265**
+     - user-configurable Navigraph Alias / SimBrief Pilot ID is available in Active Flight; the identifier remains an explicit device-local opt-in preference and is not persisted as Training account data
+     - latest-OFP import uses the supported `xml.fetcher.php?...&json=v2` path only after an explicit pilot Import action; there is no background SimBrief polling
+     - one action prefills departure, destination and SimBrief Estimated TOW when present; OFP `kgs`/kg and `lbs`/lb units are preserved without hidden conversion
+     - imported values remain pilot-editable; editing an imported field clears provenance only for that field, and no value is silently overwritten without another explicit SimBrief import/refresh action
+     - field-level SimBrief provenance persists with Active Flight; raw OFP data and Alias/Pilot ID are not retained server-side
+     - aircraft compatibility is aircraft-owned and fail-closed; Learjet 35/36 accepts SimBrief ICAO `LJ35` and unrelated/missing aircraft identity is rejected
+     - the server proxy is same-origin, authenticated, no-store and timeout-bounded; live METAR remains owned by the existing AviationWeather.gov workflow
+     - production schema includes nullable `training_active_flights.prefill_provenance JSONB`; readiness explicitly gates on the column
+     - PR #265 corrected a production-smoke provider-shape mismatch after current SimBrief JSON v2 returned `params.time_generated` as ISO-8601 rather than Unix seconds; parser now accepts both formats and still fails closed on malformed timestamps
+     - acceptance: typecheck PASS; targeted SimBrief suite 14/14 then 15/15 PASS after hotfix; full Node suite 1404 total / 1403 PASS / 0 FAIL / 1 SKIP; production build PASS; Playwright 400/400 PASS across configured projects
+     - production smoke on 2026-09-26 successfully imported real SimBrief OFP `187654556` for `LJ35`, prefilling `LKPR → LFBO` and Estimated TOW `7719 kg`; production health/readiness remained 200/ready with no runtime errors
    - **15.2 Learjet climb + cruise Reference performance — PLANNED · source-gated**
      - place this under **Reference**, not the Takeoff/Landing Performance workspace
      - climb reference: altitude/weight-driven source-backed time, distance and fuel to climb, including FC-200 / FC-530 applicability where the source distinguishes them
