@@ -89,7 +89,8 @@ export function FtReferencePerformance({
 
   const allInputsPresent = state.missingAxisKeys.length === 0;
   const unavailable = allInputsPresent && !state.resultRow;
-  const sourceLines = [...new Set(dataset.sources.map(sourceKey))];
+  const notes = dataset.notes ?? [];
+  const sourceLines = [...new Set((dataset.sources ?? []).map(sourceKey))];
 
   return (
     <section
@@ -250,10 +251,10 @@ export function FtReferencePerformance({
       <details className={styles.sourceDetails}>
         <summary>Source, effectivity & boundaries</summary>
         <div>
-          <p>{dataset.description}</p>
-          {dataset.notes.length ? (
+          {dataset.description ? <p>{dataset.description}</p> : null}
+          {notes.length ? (
             <ul>
-              {dataset.notes.filter(Boolean).map((note) => <li key={note}>{note}</li>)}
+              {notes.filter(Boolean).map((note) => <li key={note}>{note}</li>)}
             </ul>
           ) : null}
           {sourceLines.length ? (
