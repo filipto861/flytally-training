@@ -79,7 +79,7 @@ These remain binding unless new evidence reveals a material safety, correctness 
 | Operational QRH content/runtime | ✅ | Complete reviewed governed Learjet Emergency + Abnormal package live |
 | QRH cockpit acceptance | 🚧 | Final R1 acceptance/closure still required |
 | Climb + Cruise Reference | ✅ | LEARN source tables + EFB bounded lookup live |
-| Learjet Limitations / REF content | ➡️ | Runtime exists; governed Learjet limitations payload still needs source-backed population |
+| Learjet Limitations / REF content | ⚠️ | Universal runtime exists; target production profile is FC-530, while the reviewed FM-102 source is FC-200. Applicable FC-530 AFM source acquisition/review is source-gated |
 | Generic Weight & Balance platform | ✅ | Generic contract, calculator, route and tests exist |
 | Learjet operational Weight & Balance | ⚠️ | Source-gated on aircraft-specific current W&B/configuration records |
 | Offline Flight Deck boundary | 🚧 | Explicit `/fly` preparation/caching exists; governed-content currency semantics need R1 closure |
@@ -90,7 +90,7 @@ These remain binding unless new evidence reveals a material safety, correctness 
 | Order | Phase | Status | Purpose |
 | ---: | --- | :---: | --- |
 | 0 | **R0 — Product Truth & Governance Reset** | ✅ | Canonical capability/roadmap/change/architecture ownership restored via PR #279 |
-| 1 | **R1 — EFB Safety & Foundation Closure** | ➡️ | Close applicability, QRH, REF content, offline currency and EFB completeness gates |
+| 1 | **R1 — EFB Safety & Foundation Closure** | 🚧 | Close effective-configuration, QRH acceptance, offline currency, EFB content-state and no-code regression gates |
 | 2 | **R2 — Cockpit Workflow / Digital Binder** | ⏳ | Make cockpit use immediate, content-dominant and state-preserving without a third navigation model |
 | 3 | **R3 — Active Flight / Flight Brief Convergence** | ⏳ | Make Flight Brief a meaningful contextual hub, not another duplicate dashboard |
 | 4 | **R4 — Real Second-Aircraft Production Proof** | ⏳ | Prove the generic/no-code architecture with real governed source content |
@@ -135,42 +135,20 @@ PR #236 intentionally consolidated Training to four maintained Markdown files. R
 
 ---
 
-## R1 — EFB Safety & Foundation Closure — NEXT
+## R1 — EFB Safety & Foundation Closure — ACTIVE
 
-R1 must close before the cockpit UX phase. It is primarily a correctness/acceptance phase, not a new architecture rewrite.
+R1 starts only after the R0 governance reset. It is a correctness/acceptance phase, not a new architecture rewrite.
 
-### R1.1 — QRH.4 cockpit acceptance
+A source-applicability audit performed at R1 start corrected one important premise from R0: the production Learjet profile renders as **Learjet 35A · Flysimware FC-530** with selected variant `fc530-standard`. The reviewed FAA-approved **FM-102** source identifies itself as the Learjet 35A/36A **FC-200** AFM. CL-102B's revision log separately harmonizes its later changes with **FM-108**, and FAA airworthiness-directive service-information mapping identifies **FM-108** as the Learjet 35A/36A **FC-530** AFM family.
 
-Scope:
+Therefore:
 
-- execute the existing QRH.4 acceptance contract against the real cockpit surfaces;
-- verify Emergency vs Abnormal distinction, memory-item emphasis, graphical source envelopes, source/authority disclosure and fail-closed configuration filtering;
-- verify the actual Fast Path scroll container on desktop, mobile, iPad landscape and iPad portrait;
-- complete authenticated production smoke before formal closure.
+- FM-102 must **not** be treated as the controlling Limitations source for the current FC-530 production profile;
+- no Limitations value may be copied from FM-102 into the FC-530 operational REF merely because it appears similar/common;
+- Learjet Limitations population is moved to the SOURCE-GATED lane until the applicable FC-530 AFM/revision/supplement set is acquired and reviewed;
+- this source gate does not block unrelated R1 safety closure or R2 cockpit UX work, provided missing Limitations remain explicitly unavailable rather than fabricated.
 
-Do not redesign the QRH content contract unless acceptance reveals a genuine defect.
-
-### R1.2 — Learjet Limitations → operational REF
-
-Use the FAA-approved FM-102 Section I Limitations source family as the controlling basis for the initial Learjet limitations dataset, subject to exact revision/effectivity review.
-
-Initial scope should prioritize high-value cockpit limitations such as source-defined:
-
-- airspeed/Mach limits;
-- weights and C.G. limits;
-- altitude limits;
-- configuration/system restrictions;
-- fuel/operational restrictions where supported by the controlling source.
-
-Requirements:
-
-- exact provenance and effectivity;
-- temporary-change applicability handled explicitly;
-- no generic “typical Learjet” values;
-- governed draft → review → approval → publication lifecycle;
-- missing/ambiguous applicability fails closed.
-
-### R1.3 — Effective-configuration consistency — AVIATION-CRITICAL GATE
+### R1.1 — Effective-configuration consistency — AVIATION-CRITICAL GATE
 
 Confirmed audit finding: the current shell/Fast Path resolves its selected variant independently from child routes, while child pages may resolve an explicit `?variant=`.
 
@@ -183,9 +161,24 @@ Acceptance:
 - explicit regression test proving the page and Fast Path resolve the same effective variant/configuration for a route;
 - CHECKLIST/QRH/PERF/REF use the same applicability context;
 - persisted operational state either scopes to or invalidates against configuration identity as appropriate;
+- correcting/changing configuration cannot silently continue with stale configuration-dependent state;
 - no silent fallback from an invalid explicit configuration to a generic/default configuration.
 
-### R1.4 — Offline governed-content currency
+This gate closes before final QRH cockpit acceptance so the acceptance run exercises the same configuration context the pilot actually selected.
+
+### R1.2 — QRH.4 cockpit acceptance
+
+Scope:
+
+- execute the existing QRH.4 acceptance contract against the real cockpit surfaces after R1.1 configuration consistency is closed;
+- verify Emergency vs Abnormal distinction, memory-item emphasis, graphical source envelopes, source/authority disclosure and fail-closed configuration filtering;
+- verify the actual Fast Path scroll container on desktop, mobile, iPad landscape and iPad portrait;
+- verify the applicable QRH package remains source-authoritative for the selected configuration;
+- complete authenticated production smoke before formal closure.
+
+Do not redesign the QRH content contract unless acceptance reveals a genuine defect.
+
+### R1.3 — Offline governed-content currency
 
 Current explicit offline preparation is valuable, but a cached `/fly` page must not implicitly mean “current”.
 
@@ -194,25 +187,28 @@ Design and close an explicit currency contract covering:
 - publication/source identity stored with prepared operational content;
 - what the UI may claim when offline currentness cannot be revalidated;
 - behavior after a publication becomes stale or is replaced;
-- variant-safe cache identity;
+- variant/configuration-safe cache identity;
 - weather remains live-only/not cached;
 - fail-closed handling where currentness is safety-relevant.
 
 Do not invent arbitrary time-expiry thresholds that look like operational validity.
 
-### R1.5 — EFB content acceptance
+### R1.4 — EFB content-state acceptance
 
-Add/execute a production-content gate that distinguishes available UI from meaningful governed content.
+Add/execute a production-content gate that distinguishes available UI from meaningful source-backed content.
 
 For Learjet acceptance, require:
 
 - Checklist: at least one applicable source-backed phase/item;
 - QRH: at least one source-authoritative applicable scenario and correct class/effectivity behavior;
-- PERF: supported calculator/dataset coverage within source envelopes;
-- REF: at least one applicable governed limitation group/item;
-- missing content surfaces explicitly as unavailable/content gap.
+- PERF: supported calculator/dataset coverage inside its source envelopes;
+- REF: at least one applicable source-backed Reference capability is usable; the current governed Climb/Cruise Reference may satisfy this;
+- if governed Limitations are not available for the selected configuration, the Limitations portion of REF must explicitly fail closed as unavailable/source-gated;
+- no visually functional but empty slot may be treated as complete.
 
-### R1.6 — Lightweight no-code architecture regression
+R1 does **not** fabricate or publish FC-200 FM-102 limitations for the FC-530 profile merely to satisfy this acceptance gate.
+
+### R1.5 — Lightweight no-code architecture regression
 
 Before R2 adds more cockpit surface:
 
@@ -227,13 +223,20 @@ This is a cheap architecture drift check, **not** the full R4 second-aircraft pr
 
 R1 closes only after:
 
+- R1.1 effective-configuration consistency is proven by regression evidence;
+- QRH.4 cockpit acceptance is executed against that effective configuration;
+- offline governed-content currency has an explicit fail-closed contract;
+- EFB content-state acceptance proves CHK/QRH/PERF/REF behavior without substituting missing Limitations;
+- lightweight no-code architecture regression passes;
 - targeted unit/contract tests PASS;
 - full Node suite PASS;
 - production build PASS;
 - responsive cockpit Playwright PASS;
 - authenticated production smoke PASS where required;
-- no unresolved applicability/currency blocker remains for CHK/QRH/PERF/REF;
+- no unresolved **non-source-gated** applicability/currency blocker remains;
 - `ROADMAP.md`, `FEATURES.md` and `CHANGELOG.md` are synchronized.
+
+Source-gated Learjet Limitations do not block R1/R2 when the application correctly exposes their unavailable state and does not imply unsupported operational completeness.
 
 ---
 
@@ -400,7 +403,26 @@ Add new cells/regions/factors only from reviewed authoritative source evidence.
 
 No extrapolation, anomaly repair or invented continuity.
 
-### SG3 — Learjet operational Weight & Balance — SOURCE-GATED
+### SG3 — Learjet Limitations / operational REF — SOURCE-GATED
+
+The current production Learjet profile is FC-530 (`fc530-standard`).
+
+The reviewed project AFM, FM-102 Change 14, explicitly belongs to Learjet 35A/36A aircraft with the FC-200 autopilot. It is therefore not accepted as the controlling Limitations source for the FC-530 profile.
+
+Independent source identification is consistent that the applicable FC-530 AFM family is FM-108; CL-102B Change 2 also records harmonization with FM-108 Change 22. The actual applicable FM-108 revision/supplement/temporary-change set must be obtained and reviewed before operational Limitations publication.
+
+Activation requirements:
+
+- acquire a traceable applicable FC-530 AFM source set (FM-108 family) and required supplements/temporary changes;
+- verify revision/effectivity against the configured aircraft/variant before extracting values;
+- register the source/revision and exact source references through governed content;
+- inventory Section I before digitization;
+- publish only values whose applicability is proven for the target configuration;
+- keep missing/uncertain items unavailable.
+
+FM-102 may be used only as comparison/background evidence unless a separate authoritative source proves a specific datum applicable to the FC-530 configuration.
+
+### SG4 — Learjet operational Weight & Balance — SOURCE-GATED
 
 The generic W&B platform is implemented.
 
@@ -418,11 +440,11 @@ When evidence exists, decide full-workspace/Fast-Path placement from real usage 
 | --- | --- | --- |
 | Shell/Fast Path may resolve a different variant than a query-selected child page | R1 | Fix/test before R2 |
 | Offline cached operational content has no closed currentness contract | R1 | Define and verify currency semantics |
-| Learjet Limitations content gap leaves REF incomplete | R1 | Governed FM-102-backed population |
+| Reviewed FM-102 is FC-200 while production target is FC-530 | SOURCE-GATED SG3 | Acquire/review applicable FM-108 family before Limitations publication; never substitute FM-102 by assumption |
 | QRH.4 is implemented substantially but not formally accepted/closed | R1 | Execute cockpit/production acceptance |
 | Flight Brief contains placeholder areas | R3 | Hide until meaningful deterministic contract exists |
 | Generic W&B status was absent from old overview | R0 | Corrected in FEATURES/roadmap; Learjet data remains source-gated |
-| Source-gated Partial Power/performance/W&B could distort sequencing | SOURCE-GATED lane | Keep non-blocking until evidence exists |
+| Source-gated Partial Power/performance/Limitations/W&B could distort sequencing | SOURCE-GATED lane | Keep non-blocking until evidence exists; missing content must fail closed |
 | Old roadmap mixed planning with historical implementation evidence | R0 | History stays in CHANGELOG/Git |
 | Superseded open branches/PRs add repository noise | R6 | Controlled retirement pass |
 

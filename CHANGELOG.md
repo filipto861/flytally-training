@@ -14,6 +14,15 @@ This file is the authoritative version history for completed FlyTally Training w
 
 ## Unreleased
 
+### R1 source-applicability correction
+- Started R1 planning from the merged R0 baseline and re-checked the actual production aircraft identity before any Limitations work.
+- Confirmed the production Learjet launch surface identifies **Learjet 35A · Flysimware FC-530** with selected variant `fc530-standard`.
+- Corrected the R0 assumption that FM-102 could control the initial Learjet Limitations dataset: the reviewed FAA-approved FM-102 source identifies itself as the FC-200 AFM, while CL-102B's revision log and FAA service-information mapping identify the FC-530 AFM family as FM-108.
+- Moved Learjet Limitations publication to the parallel SOURCE-GATED lane until the applicable FM-108 revision/supplement/temporary-change set is available and reviewed.
+- Reordered R1 so effective-configuration consistency is the first aviation-critical gate, followed by QRH.4 cockpit acceptance, offline governed-content currency, EFB content-state acceptance and the lightweight no-code regression.
+- R1/R2 are not blocked merely to fill a missing Limitations payload: absent FC-530 Limitations must remain explicitly unavailable, while existing source-backed REF capabilities may continue to operate.
+- No functional runtime, aviation dataset, DB schema or deployment behavior changed in this planning correction.
+
 ### Documentation / roadmap governance — R0
 - Rebuilt `ROADMAP.md` as a forward-looking R0–R6 execution plan instead of a PR-by-PR implementation journal; detailed completed history remains in this changelog, tests, PRs and Git history.
 - Restored canonical `FEATURES.md` as the Training capability inventory and aligned document ownership with the FlyTally-wide model used by Logbook.

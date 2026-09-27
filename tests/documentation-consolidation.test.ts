@@ -53,6 +53,9 @@ test("feature list remains a capability inventory rather than an implementation 
   assert.match(features, /canonical product capability inventory/i);
   assert.match(features, /Generic Weight & Balance platform|Weight & Balance platform/i);
   assert.match(features, /Learjet operational W&B.+SOURCE-GATED/is);
+  assert.match(features, /Learjet Limitations — SOURCE-GATED/i);
+  assert.match(features, /FM-102.+FC-200/is);
+  assert.match(features, /FM-108.+FC-530/is);
   assert.match(features, /Operational Fast Path/i);
   assert.doesNotMatch(features, /Active implementation order/i);
 });
@@ -66,6 +69,9 @@ test("roadmap exposes the forward-looking phase model and source-gated lane", ()
   assert.match(roadmap, /## SOURCE-GATED lane/);
   assert.match(roadmap, /Effective-configuration consistency/);
   assert.match(roadmap, /Offline governed-content currency/);
+  assert.match(roadmap, /FM-102.+FC-200/is);
+  assert.match(roadmap, /FM-108.+FC-530/is);
+  assert.match(roadmap, /Source-gated Learjet Limitations do not block R1\/R2/i);
   assert.doesNotMatch(roadmap, /## Active implementation order/);
 });
 

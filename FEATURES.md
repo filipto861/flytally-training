@@ -210,11 +210,14 @@ Product-completion note:
 - sparse/blocked/anomalous source cells remain unavailable.
 - one-engine Mach/KIAS source-unit boundaries are not silently bridged.
 
-### Learjet Limitations — CONTENT-LIMITED
+### Learjet Limitations — SOURCE-GATED
 
 - universal limitations/Reference runtime exists;
-- Learjet operational limitations payload is not yet sufficiently populated for R1 closure;
-- initial governed content is planned from the applicable FAA-approved FM-102 Section I source family with explicit effectivity.
+- the current production Learjet profile is FC-530 (`fc530-standard`);
+- the reviewed FAA-approved FM-102 source explicitly identifies itself as the Learjet 35A/36A FC-200 AFM, so it is not accepted as the controlling Limitations source for this FC-530 profile;
+- CL-102B Change 2 records harmonization with FM-108 Change 22, and FAA service-information mapping identifies FM-108 as the Learjet 35A/36A FC-530 AFM family;
+- operational Limitations remain unavailable until the applicable FM-108 revision/supplement/temporary-change set is acquired, reviewed, registered and mapped to the target configuration;
+- no FM-102 datum is promoted into FC-530 operational REF merely because it appears likely to be common.
 
 ## Weight & Balance platform — IMPLEMENTED / AIRCRAFT CONTENT-LIMITED
 
