@@ -22,11 +22,10 @@ test("v3.0 preserves the focused Training task model instead of rebuilding navig
 
 test("current roadmap supersedes historical v3.0 sequencing with the LEARN/EFB architecture",()=>{
   const roadmap=read("ROADMAP.md");
-  assert.match(roadmap,/single authoritative product\/implementation roadmap/i);
+  assert.match(roadmap,/canonical execution plan for `flytally-training`/i);
   assert.match(roadmap,/LEARN.*aircraft knowledge/i);
-  assert.match(roadmap,/EFB.*operational flight tools/i);
-  assert.match(roadmap,/P1\.1 — LEARN \/ EFB product mode split — COMPLETE/);
-  assert.match(roadmap,/P1\.1 production follow-up — merged via PR #213/);
+  assert.match(roadmap,/EFB.*Active Flight.*Flight Brief.*Performance/i);
+  assert.match(roadmap,/LEARN and EFB remain separate contexts/i);
 });
 
 
@@ -45,7 +44,8 @@ test("v3.0 U5 makes learner continuation discoverable without changing the four-
   for(const label of ["Home","Fly","Learn","Reference"])assert.ok(read("components/aircraft-workspace-nav.tsx").includes(`label: "${label}"`));
 });
 
-test("current roadmap retains responsive acceptance as a global merge requirement",()=>{
+test("current roadmap retains responsive cockpit acceptance across R2",()=>{
   const roadmap=read("ROADMAP.md");
-  assert.match(roadmap,/desktop\/iPad\/mobile acceptance required before merge/i);
+  assert.match(roadmap,/desktop \+ iPad landscape \+ iPad portrait \+ mobile acceptance/i);
+  assert.match(roadmap,/light \+ dark\/night acceptance/i);
 });

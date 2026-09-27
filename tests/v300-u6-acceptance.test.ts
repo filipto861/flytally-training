@@ -32,11 +32,11 @@ test("v3.0 U6 supports reduced motion and forced colors",()=>{
   assert.match(css,/aria-current="page"/);
 });
 
-test("v3.0 U6 remains loaded after U5 while ROADMAP tracks only current implementation work",()=>{
+test("v3.0 U6 remains loaded after U5 while ROADMAP tracks current forward execution",()=>{
   const layout=read("app/layout.tsx");
   const roadmap=read("ROADMAP.md");
   assert.ok(layout.indexOf('import "./v300-u6-acceptance.css"')>layout.indexOf('import "./v300-u5-training.css"'));
-  assert.match(roadmap,/single authoritative product\/implementation roadmap/i);
-  assert.match(roadmap,/P1\.1 — LEARN \/ EFB product mode split — COMPLETE/);
-  assert.match(roadmap,/P1\.1 production follow-up — merged via PR #213/);
+  assert.match(roadmap,/canonical execution plan for `flytally-training`/i);
+  assert.match(roadmap,/LEARN and EFB remain separate contexts/i);
+  assert.match(roadmap,/R1 — EFB Safety & Foundation Closure/i);
 });
