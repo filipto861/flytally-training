@@ -12,6 +12,18 @@ This file is the authoritative version history for completed FlyTally Training w
 - keep historical entries intact; correct factual mistakes explicitly rather than silently erasing project history;
 - **ROADMAP.md defines where the project is going; CHANGELOG.md records what actually changed. Both must remain synchronized before a material work item is considered closed.**
 
+## Unreleased
+
+### Documentation / roadmap governance — R0
+- Rebuilt `ROADMAP.md` as a forward-looking R0–R6 execution plan instead of a PR-by-PR implementation journal; detailed completed history remains in this changelog, tests, PRs and Git history.
+- Restored canonical `FEATURES.md` as the Training capability inventory and aligned document ownership with the FlyTally-wide model used by Logbook.
+- Superseded the PR #236 four-file-count rule with a five-file canonical surface while preserving its anti-sprawl/consolidation intent; documentation-contract tests now enforce the new set.
+- Reconciled known product-truth drift: SimBrief import and Climb/Cruise Reference are live, the generic Weight & Balance platform exists while Learjet operational W&B remains source-gated, and the governed Learjet QRH package is live while final cockpit acceptance remains open.
+- Incorporated the independent roadmap review after repo verification: effective variant/configuration consistency and offline governed-content currency are explicit R1 safety gates; a lightweight no-code architecture spot-check precedes cockpit UX work while the full real second-aircraft proof remains R4.
+- Recorded the cockpit “digital binder” direction as an R2 UX principle without creating another navigation model or weakening applicability/provenance semantics.
+- Factual status correction: PR #278 is merged on `main` as `ade51447968c5af594532c45c6a3a98e44b7ac18`; the older 2026-09-26 changelog entry is intentionally retained as the pre-merge state it recorded.
+- No functional runtime, aviation data, database schema or deployment behavior is changed by R0.
+
 ## 2026-09-26
 
 ### Changed
