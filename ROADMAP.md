@@ -83,13 +83,13 @@ These remain binding unless new evidence reveals a material safety, correctness 
 | Generic Weight & Balance platform | ✅ | Generic contract, calculator, route and tests exist |
 | Learjet operational Weight & Balance | ⚠️ | Source-gated on aircraft-specific current W&B/configuration records |
 | Offline Flight Deck boundary | 🚧 | Explicit `/fly` preparation/caching exists; governed-content currency semantics need R1 closure |
-| Documentation governance | 🚧 | R0 resets the stale four-file rule and roadmap/changelog drift |
+| Documentation governance | ✅ | R0 rebuilt the canonical five-file control surface and reconciled roadmap/changelog drift |
 
 ## Execution order
 
 | Order | Phase | Status | Purpose |
 | ---: | --- | :---: | --- |
-| 0 | **R0 — Product Truth & Governance Reset** | 🚧 | Restore one coherent planning/control surface before further product work |
+| 0 | **R0 — Product Truth & Governance Reset** | ✅ | Canonical capability/roadmap/change/architecture ownership restored via PR #279 |
 | 1 | **R1 — EFB Safety & Foundation Closure** | ➡️ | Close applicability, QRH, REF content, offline currency and EFB completeness gates |
 | 2 | **R2 — Cockpit Workflow / Digital Binder** | ⏳ | Make cockpit use immediate, content-dominant and state-preserving without a third navigation model |
 | 3 | **R3 — Active Flight / Flight Brief Convergence** | ⏳ | Make Flight Brief a meaningful contextual hub, not another duplicate dashboard |
@@ -101,7 +101,7 @@ Parallel to R0–R6, source-gated items remain in the **SOURCE-GATED lane** belo
 
 ---
 
-## R0 — Product Truth & Governance Reset — ACTIVE
+## R0 — Product Truth & Governance Reset — COMPLETE · PR #279
 
 ### Scope
 
@@ -116,9 +116,18 @@ Parallel to R0–R6, source-gated items remain in the **SOURCE-GATED lane** belo
 
 - `README.md`, `ROADMAP.md`, `FEATURES.md`, `CHANGELOG.md` and `TECHNICAL_DOCUMENTATION.md` have non-overlapping documented ownership;
 - documentation-contract tests enforce the five-file surface;
-- no known contradiction remains between the roadmap overview and current `main`;
+- no known contradiction remains between the roadmap overview and the audited `main` baseline;
 - old implementation history remains recoverable from `CHANGELOG.md`/Git;
 - no functional runtime behavior changes in R0.
+
+Verification on PR #279 head `30cce334db9cda70d5dfd48ffe0be7ee5ebc87a6`:
+- GitHub Actions **Verify Training PASS** (run #735);
+- TypeScript **PASS**;
+- full Node suite **1462 total / 1461 PASS / 0 FAIL / 1 SKIP**;
+- production build **PASS**;
+- Playwright **N/A** for the documentation-only R0 runtime scope;
+- DB/migration **N/A**;
+- deployment **N/A**.
 
 ### Superseded decision
 

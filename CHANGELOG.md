@@ -23,6 +23,7 @@ This file is the authoritative version history for completed FlyTally Training w
 - Recorded the cockpit “digital binder” direction as an R2 UX principle without creating another navigation model or weakening applicability/provenance semantics.
 - Factual status correction: PR #278 is merged on `main` as `ade51447968c5af594532c45c6a3a98e44b7ac18`; the older 2026-09-26 changelog entry is intentionally retained as the pre-merge state it recorded.
 - No functional runtime, aviation data, database schema or deployment behavior is changed by R0.
+- PR #279 verification on head `30cce334db9cda70d5dfd48ffe0be7ee5ebc87a6`: GitHub Actions Verify Training PASS; TypeScript PASS; full Node suite **1462 total / 1461 PASS / 0 FAIL / 1 SKIP**; production build PASS; Playwright/DB/deploy N/A for this documentation-only scope.
 
 ## 2026-09-26
 
