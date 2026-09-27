@@ -244,142 +244,443 @@ Source-gated Learjet Limitations do not block R1/R2 when the application correct
 
 Goal: translate the strongest property of the cockpit reference video into FlyTally without creating a third navigation system.
 
-### Product contract
+The target is not visual imitation of a paper checklist app. The target is cockpit immediacy:
 
-Keep:
+> **High-value operational information is one deliberate action away, the current flight/configuration context is preserved, and the operational content dominates the display.**
 
-- full EFB workspaces for deeper work;
-- persistent Fast Path `CHECKLIST / QRH / PERF / REF` for immediate access;
-- canonical state shared between full and quick surfaces.
+R2 starts only after the non-source-gated R1 safety gates close.
 
-Improve:
+### R2.0 — Cockpit UX baseline and reachability inventory
 
-- one-action reachability from anywhere in EFB;
-- content dominance over application chrome;
-- touch ergonomics;
-- state/scroll/selection preservation when switching operational domains;
-- visual hierarchy for source-backed operational content;
-- night/dark readability;
-- iPad landscape/portrait behavior.
+Read-only analysis before visual changes.
 
-Do not copy:
+Inventory the effective EFB experience on:
 
-- flat paper/PDF metaphors where FlyTally can preserve richer state;
-- hidden applicability;
-- loss of exact/interpolated/unavailable distinctions;
-- static content that discards provenance or conditional structure.
+- Flight Brief;
+- full Performance;
+- full Checklist;
+- Fast Path CHECKLIST;
+- Fast Path QRH;
+- Fast Path PERF;
+- Fast Path REF;
+- top-bar Active Flight/context controls;
+- desktop, iPad landscape, iPad portrait and mobile;
+- light and dark/night themes.
 
-### Acceptance
+Record for every operational domain:
 
-- explicit reachability contract for all four Fast Path domains;
-- state-preservation regressions across domain switching;
-- desktop + iPad landscape + iPad portrait + mobile acceptance;
-- light + dark/night acceptance;
-- no duplicate canonical checklist/performance/QRH/reference state introduced.
+- number of deliberate interactions needed to reach it from each EFB workspace;
+- whether selected phase/procedure/calculation/reference context survives navigation;
+- whether the current aircraft/variant/flight identity remains visible or recoverable;
+- effective scroll container and sticky/fixed controls;
+- duplicated controls/content;
+- empty chrome and avoidable dead space;
+- touch-target/focus/keyboard behavior.
 
-W&B does **not** automatically become a fifth Fast Path item in R2. Reconsider placement only when source-backed operational W&B exists and real cockpit usage justifies permanent access.
+No design change belongs in R2.0.
+
+### R2.1 — Shell hierarchy and one-action operational access
+
+Keep the existing architecture:
+
+- full workspaces for deeper work;
+- persistent Fast Path for immediate access;
+- Active Flight as context, not mode;
+- no new parallel navigation system.
+
+Acceptance direction:
+
+- from any normal EFB workspace, CHECKLIST / QRH / PERF / REF is reachable in one deliberate Fast Path action;
+- accessing Fast Path never resets or silently rewrites the current Active Flight/configuration;
+- application chrome is reduced where it competes with operational content, but critical context/source state remains visible;
+- mobile does not require a detour through another page merely because the desktop rail cannot fit.
+
+Do not rename/restructure domains merely for visual novelty.
+
+### R2.2 — Fast Path surface contract
+
+Define one consistent contract for how quick-access content behaves regardless of domain.
+
+The contract must cover:
+
+- drawer vs full-screen behavior by viewport;
+- opening/closing/focus return;
+- scroll ownership;
+- sticky headings/actions;
+- source/authority disclosure placement;
+- unavailable/non-applicable states;
+- state preservation on close/reopen;
+- interaction with the underlying full workspace.
+
+CHECKLIST, QRH, PERF and REF may have different content density, but should not feel like four unrelated mini-apps.
+
+### R2.3 — Operational continuity and state preservation
+
+Prove that navigation convenience does not create state ambiguity.
+
+Required regressions:
+
+- Checklist selected phase/completed items survive full-page ↔ Fast Path switching;
+- QRH selected category/procedure and applicable configuration remain stable while moving between operational surfaces;
+- Performance setup/result validity is not recreated by opening another surface;
+- REF selection/input state follows an explicit persistence rule and never creates a second canonical source of truth;
+- switching Fast Path domains does not mutate another domain's state;
+- variant/configuration changes continue to invalidate or re-scope dependent state according to R1 contracts.
+
+Preserving stale state is not a goal; preserving **valid** state is.
+
+### R2.4 — Domain cockpit presentation pass
+
+Apply the common cockpit principles without flattening domain-specific semantics.
+
+**CHECKLIST**
+- current phase/current step should dominate;
+- challenge/response scanability and completed state remain explicit;
+- reset/destructive actions remain deliberate;
+- source warning/caution information remains readable without overwhelming normal flow.
+
+**QRH**
+- Emergency vs Abnormal and memory-item boundaries remain explicit;
+- conditional/nested procedures remain source-faithful;
+- graphical source references stay legible;
+- category/procedure navigation stays fast under stress.
+
+**PERF**
+- current valid result and stale/recalculate state must be immediately distinguishable;
+- setup remains operation-owned;
+- exact/interpolated/unavailable and source boundaries remain visible;
+- no automatic recalculation is introduced for convenience.
+
+**REF**
+- quick lookup prioritizes the actual result/source context;
+- exact source values are not visually confused with interpolation;
+- unavailable Limitations stay unavailable until the correct source gate closes;
+- Climb/Cruise Reference remains Reference, not PERF.
+
+### R2.5 — Cockpit acceptance
+
+Acceptance matrix:
+
+- desktop;
+- iPad landscape;
+- iPad portrait;
+- mobile;
+- light;
+- dark/night;
+- keyboard/focus where applicable;
+- touch-only use.
+
+Required evidence:
+
+- explicit one-action reachability contract for all four Fast Path domains;
+- state-preservation regression coverage;
+- no duplicate canonical domain state;
+- no new aircraft-ID runtime branch;
+- no loss of source/applicability/invalidation information;
+- responsive browser acceptance on the effective production shell.
+
+W&B does **not** automatically become a fifth Fast Path item in R2. Reconsider placement only when source-backed operational W&B exists and real cockpit use justifies permanent access.
 
 ---
 
 ## R3 — Active Flight / Flight Brief Convergence — PLANNED
 
-Goal: make Flight Brief the useful contextual entry point for the active flight without becoming another calculation engine or generic dashboard.
+Goal: make Flight Brief a useful contextual entry point for the active flight without becoming another calculation engine, another persistence model or a generic dashboard.
 
-### Rules
+R3 starts after R2 cockpit navigation/state contracts are stable.
 
-- display only values owned by existing canonical domains;
-- Performance results stay owned by Performance;
-- Active Flight stays the flight-context owner;
-- no hidden recalculation;
-- no AI/predictive procedure relevance;
-- no duplicate persisted truth.
+### R3.0 — Flight Brief ownership matrix
 
-Current empty placeholder areas such as `Flight Considerations` and `Relevant Procedures` must not remain visible without meaningful governed content.
+Before UI work, inventory every field/section the Brief currently displays or proposes to display.
 
-If `Relevant Procedures` is introduced, its contract must be deterministic and auditable (for example explicit applicability to the proven current configuration), not guessed relevance.
+For each item identify exactly one canonical owner:
 
-### Acceptance
+- Active Flight;
+- Takeoff Performance;
+- Landing Performance;
+- SimBrief prefill provenance;
+- weather availability/applied state;
+- other explicitly governed source state.
 
-Every displayed field must trace to an existing canonical owner/provenance. New derived/aggregated fields require an explicit contract before implementation.
+Classify every proposed field as:
+
+- direct canonical fact;
+- derived but deterministic presentation;
+- unsupported/duplicate;
+- future/source-gated.
+
+Nothing ships because it is “useful-looking” without an owner.
+
+### R3.1 — Remove placeholder cockpit surfaces
+
+Current empty/placeholder areas such as `Flight Considerations` and `Relevant Procedures` must not occupy operational UI without meaningful governed content.
+
+Rules:
+
+- hide absent capabilities rather than presenting decorative empty sections;
+- distinguish unavailable from merely not-yet-entered;
+- no fake recommendations;
+- no inferred “what the pilot probably needs”.
+
+### R3.2 — Canonical flight + operation summary
+
+Converge the Brief around the information already owned elsewhere:
+
+- flight identity/departure/destination;
+- explicit Active Flight context;
+- Takeoff result/validity state;
+- Landing result/validity state;
+- explicit weather/source age where already available;
+- source/provenance cues where operationally meaningful.
+
+The Brief may summarize and deep-link; it must not recalculate or independently persist Performance truth.
+
+### R3.3 — Relevant Procedures decision gate
+
+Do **not** implement a predictive procedure engine by default.
+
+If a future use case is accepted, it must be deterministic and auditable, for example:
+
+- a procedure explicitly applicable to the proven current aircraft configuration;
+- a direct link selected by the pilot;
+- a source-defined relationship already represented in governed data.
+
+Weather, route or flight-phase heuristics must not silently promote procedures as operationally “relevant”.
+
+If no deterministic high-value contract is proven, omit this section.
+
+### R3.4 — Active Flight transition/invalidation acceptance
+
+Verify that edits to Active Flight context do not create stale-looking summaries.
+
+Acceptance must cover relevant changes such as:
+
+- departure/destination;
+- weight;
+- runway where owned by the relevant operation;
+- configuration;
+- imported-vs-manual field provenance;
+- new/replaced Active Flight identity.
+
+The Brief must always reflect the canonical stale/current state of its dependent operation rather than copying old result values into a new context.
+
+### R3 acceptance
+
+- every displayed operational value has a documented canonical owner;
+- no duplicated calculator/persistence path;
+- no empty placeholder chrome;
+- no predictive/AI procedure recommendation;
+- operation stale/current state is preserved exactly;
+- responsive/night acceptance passes.
 
 ---
 
 ## R4 — Real Second-Aircraft Production Proof — PLANNED
 
-Goal: prove FlyTally Training is a platform, not a Learjet-specific application with generic-looking code.
+Goal: prove FlyTally Training is an aircraft platform, not a Learjet application with generic-looking code.
 
-### Scope
+R4 does not start by choosing whatever aircraft has the easiest data. Source rights, applicability and real product value are part of the selection gate.
 
-Onboard one real second aircraft using real, legally usable governed source content.
+### R4.0 — Aircraft/source selection gate
 
-Acceptance must prove:
+Before onboarding, record:
+
+- selected real aircraft/configuration;
+- intended supported modules;
+- authoritative source set and revision/effectivity;
+- whether the source may legally be used for the intended product context;
+- known source gaps;
+- what is intentionally unsupported.
+
+A sparse package is acceptable. Invented completeness is not.
+
+### R4.1 — Governed no-code onboarding
+
+Prove, through the existing data/admin path:
 
 1. dynamic aircraft registration;
 2. real variant/configuration structure;
-3. controlled source revisions/references;
-4. publication of supported universal modules;
-5. learner discovery/library visibility;
-6. rendering through existing routes/components;
-7. generic calculator/runtime use where applicable;
-8. coexistence with Learjet without aircraft-ID branches.
+3. controlled source revision/reference registration;
+4. source-backed draft/review/approval/publication;
+5. learner catalogue discovery.
 
-Sparse aircraft packages remain valid. No requirement to fabricate unsupported modules.
+No new aircraft-specific learner route/component/runtime branch.
 
-Selection of the second aircraft is a product/source decision made when R4 starts; do not pick one merely because data is easy to invent.
+### R4.2 — Cross-domain runtime proof
+
+Exercise only the modules genuinely supported by the selected aircraft sources.
+
+Where applicable, prove:
+
+- Systems/Procedures/Reference rendering;
+- Checklist/QRH applicability;
+- generic Performance calculator/runtime contracts;
+- generic W&B contract if source-backed;
+- LEARN/EFB capability discovery with intentionally missing modules failing closed.
+
+The second aircraft is not required to mirror Learjet feature-for-feature.
+
+### R4.3 — Architecture regression
+
+Automated/static evidence must confirm:
+
+- no aircraft-ID branch in generic learner/runtime paths;
+- source/applicability contracts are shared;
+- sparse capability discovery remains data-driven;
+- Learjet remains unaffected by the second package.
+
+### R4.4 — Production acceptance
+
+- governed source/content publication verified;
+- responsive learner/EFB routes for supported modules verified;
+- production smoke;
+- no cross-aircraft state leakage;
+- documentation updated with the proven platform boundary.
+
+R4 is complete only when the second aircraft is real product evidence, not merely a synthetic fixture.
 
 ---
 
 ## R5 — LEARN Content & Training Depth — PLANNED
 
-Goal: deepen the learning product after the operational foundation and platform proof are stable.
+Goal: deepen the learning product after the operational foundation and second-aircraft platform proof are stable.
 
-Candidate work:
+Do not pre-commit to large content volumes before source/effectivity coverage is understood.
 
-- systematic Systems coverage;
-- Procedures learning depth;
-- source-backed training overlays;
-- scenarios;
-- progress/evidence;
-- cross-linking between Aircraft, Procedures, Performance and Training where deterministic.
+### R5.0 — Coverage and source matrix
 
-Rules:
+For the active aircraft packages, inventory by domain:
 
-- operational QRH/checklist content stays separate from instructional overlays;
-- source-exact procedure logic is never rewritten into invented prose;
-- `memoryItem` remains source-backed only;
-- Draft/unverified content must not appear operationally authoritative.
+- source authority/revision;
+- applicability;
+- current published coverage;
+- missing content;
+- training-overlay opportunity;
+- source/legal blockers.
 
-R5 should be broken into source-backed aircraft/content milestones when activated rather than pre-planning fictitious coverage now.
+Use this matrix to order R5 work; do not choose by whichever page is easiest to build.
+
+### R5.1 — Systems depth
+
+Expand Systems where source-backed, preserving:
+
+- aircraft/configuration applicability;
+- nested subsystem relationships;
+- diagrams/schematics only where source/licensing/representation supports them;
+- separation from cockpit Orientation;
+- no generic “typical aircraft” explanations presented as aircraft fact.
+
+### R5.2 — Procedures learning layer
+
+Build instructional procedure learning separately from operational Checklist/QRH truth.
+
+Possible learning elements may include source-backed:
+
+- context;
+- flow relationships;
+- expected responses;
+- explanation;
+- practice modes.
+
+Operational source order, conditions and memory-item boundaries remain authoritative and are never rewritten to suit a lesson.
+
+### R5.3 — Training scenarios and progress
+
+Introduce/expand scenario/progress features only with explicit contracts for:
+
+- what evidence is persisted;
+- completion semantics;
+- retry/review behavior;
+- retention;
+- separation from Active Flight operational state.
+
+Training completion is not regulatory currency unless a future explicitly proven authority contract says so.
+
+### R5.4 — Deterministic learning cross-links
+
+Cross-link Aircraft / Procedures / Performance / Training only when relationships are explicit in governed data or intentionally authored training metadata.
+
+Avoid recommendation heuristics that make source-backed material appear more authoritative than its evidence.
+
+### R5 acceptance
+
+R5 is broken into aircraft/content milestones when activated. Each milestone requires its own source inventory, applicability gate, acceptance tests and docs closeout.
 
 ---
 
 ## R6 — Platform Maturity — PLANNED
 
-Goal: make the platform easier to operate, publish, observe and maintain at scale.
+Goal: make the platform easier to operate, publish, observe and retire safely at scale.
 
-Candidate work:
+R6 is not a dumping ground for unresolved product features. Items enter R6 only when their contract and value are clear.
 
-- content Studio/publishing workflow improvements;
-- explicit stale-content surfacing for administrators;
-- offline robustness beyond the R1 safety contract;
-- CI/release reliability;
-- production observability;
-- stale branch/PR retirement;
-- documentation automation where useful;
-- feature-flag/legacy retirement.
+### R6.1 — Content administration and stale-source surfacing
 
-### Legacy retirement gate
+Audit the complete stale-content workflow:
 
-Before deleting any legacy path/flag, define and prove per flag:
+- new source revision registration;
+- affected publication detection;
+- administrator visibility;
+- review/republication path;
+- learner/operational fail-closed behavior.
+
+A backend stale flag with no actionable owner-visible path is insufficient.
+
+### R6.2 — Offline robustness beyond R1
+
+After R1 establishes the safety/currentness contract, improve offline usability without weakening it.
+
+Candidate scope:
+
+- clearer prepared/offline state;
+- controlled cache refresh/retirement;
+- generalized supported EFB routes if justified;
+- explicit recovery after content/configuration updates.
+
+Offline availability must never become an authority/currentness claim.
+
+### R6.3 — CI, release and observability reliability
+
+Harden evidence delivery rather than merely adding more checks.
+
+Scope may include:
+
+- risk-based test classification;
+- flaky/infrastructure failure identification;
+- build/runtime distinction;
+- production readiness reliability;
+- actionable runtime/error observability;
+- preservation of local verification when CI budget/availability is constrained.
+
+Do not weaken acceptance because a pipeline is inconvenient.
+
+### R6.4 — Repository hygiene
+
+Controlled cleanup of:
+
+- superseded draft PRs;
+- stale branches;
+- obsolete test assumptions;
+- dead compatibility code after its retirement gate is met.
+
+History remains recoverable through Git; cleanup must not erase governance rationale.
+
+### R6.5 — Legacy / feature-flag retirement
+
+Before deleting any legacy path/flag, prove per flag:
 
 - replacement capability is production-live;
 - required responsive/browser acceptance exists;
 - no required data migration remains;
 - production observation/smoke evidence is sufficient for the affected surface;
 - rollback path is understood;
-- retirement is explicitly recorded in roadmap/changelog.
+- retirement is explicitly recorded in ROADMAP/CHANGELOG.
 
-No blanket “cleanup” retirement.
+No blanket cleanup retirement.
+
+### R6 acceptance
+
+Platform maturity is closed only through individually accepted milestones. “Modernized” or “cleaned up” is not a measurable completion state.
 
 ---
 

@@ -14,6 +14,15 @@ This file is the authoritative version history for completed FlyTally Training w
 
 ## Unreleased
 
+### Roadmap phase decomposition — R2 through R6
+- Expanded the post-R1 roadmap into explicit analysis/implementation/acceptance milestones without changing runtime behavior.
+- R2 now separates cockpit UX baseline/reachability, shell hierarchy, Fast Path surface contract, state preservation, domain presentation and responsive/night acceptance.
+- R3 now requires a canonical Flight Brief ownership matrix, removal of empty placeholder cockpit chrome, canonical summary-only behavior and an explicit decision gate before any Relevant Procedures feature.
+- R4 now starts with a real aircraft/source-selection gate and proves governed no-code onboarding, cross-domain sparse capability behavior, architecture regression and production acceptance.
+- R5 now starts from a source/applicability coverage matrix before Systems, Procedures learning, scenarios/progress or deterministic cross-links are scheduled.
+- R6 now separates stale-source administration, offline robustness, CI/observability reliability, repository hygiene and per-flag legacy retirement.
+- No functional code, aviation data, DB schema or deployment behavior changed.
+
 ### R1 source-applicability correction
 - Started R1 planning from the merged R0 baseline and re-checked the actual production aircraft identity before any Limitations work.
 - Confirmed the production Learjet launch surface identifies **Learjet 35A · Flysimware FC-530** with selected variant `fc530-standard`.

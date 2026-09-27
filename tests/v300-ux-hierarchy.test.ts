@@ -46,6 +46,7 @@ test("v3.0 U5 makes learner continuation discoverable without changing the four-
 
 test("current roadmap retains responsive cockpit acceptance across R2",()=>{
   const roadmap=read("ROADMAP.md");
-  assert.match(roadmap,/desktop \+ iPad landscape \+ iPad portrait \+ mobile acceptance/i);
-  assert.match(roadmap,/light \+ dark\/night acceptance/i);
+  assert.match(roadmap,/### R2\.5 — Cockpit acceptance/i);
+  assert.match(roadmap,/\- desktop;[\s\S]*\- iPad landscape;[\s\S]*\- iPad portrait;[\s\S]*\- mobile;/i);
+  assert.match(roadmap,/\- light;[\s\S]*\- dark\/night;/i);
 });
