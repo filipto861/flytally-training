@@ -2,832 +2,439 @@
 
 **Status:** Active  
 **Owner:** Filip Točík  
-**Last updated:** 2026-09-26
+**Last reconciled:** 27 September 2026
 
-> This file is the single authoritative product/implementation roadmap for FlyTally Training.
-> Historical milestone/specification documents are retained through Git history and pull requests rather than the active tree.
-> They are not roadmaps and must not override this file or current executable contracts.
+This is the canonical execution plan for `flytally-training`.
 
-## Progress overview
+- `FEATURES.md` = what the product has, intentionally limits, or plans to have.
+- `ROADMAP.md` = what happens next, in what order, with dependencies and acceptance gates.
+- `CHANGELOG.md` = what actually changed.
+- `TECHNICAL_DOCUMENTATION.md` = current technical/product contracts.
+- `README.md` = repository entry point.
 
-| Area | Status | Current state |
-| --- | :---: | --- |
-| Core architecture / governed content | ✅ | Production foundation complete |
-| Multi-aircraft / no-code runtime | ✅ | Generic runtime and governed DB architecture established |
-| LEARN / EFB product shell | ✅ | Live in production |
-| Active Flight / Flight Brief | ✅ | Live in production |
-| Takeoff + Landing Performance | ✅ | Source-backed operational workflow live |
-| Partial Power / Reduced Thrust | ⚠️ | Source-backed training preview live; operational enablement remains source-blocked |
-| Operational CHECKLIST | ✅ | CL-102B package live; shared Active Flight session synchronized |
-| Operational QRH | 🚧 | QRH.3U complete package is live in governed production; QRH.4 cockpit acceptance is next |
-| REF / Limitations | ⏳ | Governed limitations content still to be populated |
-| Climb + Cruise Reference | ✅ | Source/runtime complete; LEARN source tables + EFB REF bounded lookup complete |
-| SimBrief Active Flight import | ⏳ | Planned |
-| Documentation consolidation | ✅ | Complete — four-file documentation surface verified |
+Detailed historical milestone evidence belongs in `CHANGELOG.md`, pull requests, tests and Git history. This roadmap deliberately does not repeat old PR-by-PR implementation journals.
 
-**Legend:** ✅ complete/live · 🚧 in progress · ⏳ planned · ⚠️ blocked/limited
+## Status legend
 
-## Roadmap governance
+- ✅ **COMPLETE** — implemented and accepted for the stated scope.
+- 🚧 **ACTIVE** — current work.
+- ➡️ **NEXT** — first implementation phase after ACTIVE closes.
+- ⏳ **PLANNED** — accepted direction, not yet active.
+- ⚠️ **SOURCE-GATED** — engineering may exist, but operational completion requires authoritative source evidence.
+- 🔬 **RESEARCH** — not implementation-ready.
 
-Roadmap discipline is mandatory for this project:
+## Product north star
 
-- every implementation step must be recorded here before or when work starts;
-- every newly discovered idea, follow-up, product improvement, source gap, technical debt item or deferred decision must be added here so it cannot be lost between chats or development sessions;
-- active work must use an explicit status such as **PLANNED**, **IN PROGRESS**, **BLOCKED**, or **COMPLETE**;
-- when work is completed, this roadmap must be updated to **COMPLETE** and record the relevant PR/merge and acceptance gate where applicable;
-- a feature is not considered fully closed until its roadmap status is updated;
-- if implementation reveals additional work, that follow-up must be added as a separate roadmap item rather than left only in chat, code comments or PR discussion;
-- **ROADMAP.md and CHANGELOG.md are mandatory project controls**: the roadmap records intended direction/status, while the changelog records what actually changed and reached an accepted/production state;
-- before starting material work, confirm it is represented in the roadmap; before closing/merging/deploying material work, update the roadmap status and append the corresponding changelog entry;
-- chat history, PR descriptions and commit history are supporting evidence only; they do not replace roadmap or changelog maintenance;
-- when roadmap direction changes, preserve the prior decision/history rather than silently rewriting it away, so future development can reconstruct why the project moved in a given direction.
+FlyTally Training has two explicit contexts:
 
-## Documentation consolidation — COMPLETE · PR #236
-
-Goal: keep repository documentation easy to navigate and continuously maintainable.
-
-- repository Markdown surface reduced to four maintained files only: `README.md`, `ROADMAP.md`, `CHANGELOG.md`, `TECHNICAL_DOCUMENTATION.md`;
-- `README.md` is the short repository entry point;
-- `ROADMAP.md` remains the authoritative direction/status control;
-- `CHANGELOG.md` remains the authoritative accepted/released history;
-- `TECHNICAL_DOCUMENTATION.md` now consolidates current technical/product architecture, content/source governance, identity, persistence/privacy, Active Flight, operational checklist/fast path, performance, W&B, UX/PWA, admin, deployment, security/compliance and Learjet reference-aircraft contracts;
-- superseded milestone/specification Markdown files were removed from the active tree after their still-current contracts were incorporated; exact historical wording remains available through Git history and PRs;
-- documentation-contract tests were redirected from retired milestone files to the consolidated technical reference or to the executable runtime contract itself;
-- the progress/status table near the top of this roadmap is now the concise project overview requested by the product owner;
-- acceptance complete: typecheck PASS; full Node suite 1220 total / 1219 PASS / 0 FAIL / 1 SKIP; production build PASS; Playwright not required because the PR changes documentation and documentation-contract tests only, with no runtime/UI behavior change.
-
-## Product direction
-
-FlyTally Training now has two explicit product modes:
-
-- **LEARN** — aircraft knowledge, systems, procedures, limitations, reference and training.
-- **EFB** — operational flight tools: Flight Brief, Performance, operational checklist/QRH and future W&B.
+- **LEARN** — aircraft knowledge, Systems, Procedures, Limitations, Reference and Training.
+- **EFB** — Active Flight, Flight Brief, Performance, operational Checklist, QRH and operational Reference.
 
 Core ownership rule:
 
 > **Active Flight defines what flight. Performance defines what calculation.**
 
-The product must keep learning state separate from operational flight state. Source-backed aviation data remains fail-closed: no silent extrapolation, fabricated values, active-runway guessing, or unsupported corrections.
+Cockpit UX direction:
 
-## Current baseline
+> **High-value operational information should be reachable in one deliberate action without losing the current flight context.**
 
-Reference aircraft: **Learjet 35A/36A**
+> **In cockpit use, content is the interface. Navigation chrome should recede behind the checklist, QRH procedure, performance result or reference data.**
 
-Completed foundations:
+The reference-video “digital binder” is a UX principle, not a paper/PDF UI to copy.
 
-- governed aircraft performance configuration;
-- real airport/runway-end domain with OurAirports provenance;
-- Active Flight creation without mandatory runway/flaps;
-- operation-owned Takeoff and Landing setup;
-- AviationWeather.gov METAR integration;
-- source-backed Takeoff N1 / V1 / VR / V2 / Takeoff Distance;
-- source-backed Landing VREF / Landing Climb / Approach Climb / Factored Landing Distance;
-- explicit Calculate/Recalculate workflow;
-- persisted versioned Takeoff and Landing results with dependency-based stale detection;
-- shared responsive Performance editor from dedicated Performance and Flight Brief;
-- responsive UX6 shell on desktop, iPad and mobile.
+## Frozen decisions
 
-Latest completed functional phase:
+These remain binding unless new evidence reveals a material safety, correctness or architecture problem:
 
-- **B4 Integrated Takeoff Performance — merged via PR #210**
-- **P1.1 LEARN / EFB product mode split — merged via PR #211**
-- **P1.1 production follow-up — merged via PR #213**; EFB top-bar Active Flight status now reconciles local/anonymous and server state consistently.
-- P1.1 final follow-up gate: 1032 Node tests passed, 1 skipped, build passed, Playwright 360/360.
-- **P1.2 Versioned Performance Snapshot V2 — merged via PR #214**; Takeoff now persists V2 snapshots with explicit provenance and operation-scoped validity inputs, while Landing V2 contract/storage identity is defined for B5.
-- P1.2 final gate: 1041 Node tests passed, 1 skipped, build passed, Playwright 360/360.
-- **P1.3 Canonical Performance operation controller — merged via PR #215**; Takeoff operation state now has one controller for setup, AVAILABLE/APPLIED weather, validity, calculation and V2 persistence.
-- P1.3 final gate: 1050 Node tests passed, 1 skipped, build passed, Playwright 364/364.
-- **P1.4 Flight Brief EFB home — merged via PR #216**; Flight Brief now surfaces canonical Takeoff status/results and opens the shared responsive Performance editor without creating a second calculator or persistence model.
-- P1.4 final gate: 1057 Node tests passed, 1 skipped, build passed, Playwright 368/368.
-- **B5 Integrated Landing Performance — merged via PR #217**; destination-owned Landing now shares the canonical Performance architecture while retaining independent setup, snapshot and invalidation.
-- B5 final gate on head `b4472795223c6815c0a55e016ea8708a9632b523`: 1066 Node total / 1065 passed / 0 failed / 1 skipped, production build passed, full Playwright 372 passed with 8 stale-assumption failures, exact targeted rerun 8/8 passed after test-only correction. Production smoke passed after merge commit `839dc30b4bf9261d43737566e6c653322c56984f`.
-- **B6 Takeoff wind correction — merged via PR #218**; source-backed signed runway-wind corrections are integrated for supported Flaps 8 Takeoff V1 and distance.
-- **Partial Power source extraction — merged via PR #219**.
-- **Declared-distance workflow — merged via PR #220**.
-- **Partial Power assumed-temperature solver — merged via PR #221**.
-- **Partial Power reduced-N1 source/runtime boundary — merged via PR #222**; Aeronca source-supported evaluation exists but remains operationally blocked by unresolved thrust-limit validation.
-- **Continuous Performance interpolation + calculation feedback — merged via PR #223**.
-- **Sea-level performance floor — merged via PR #224**; negative derived PA retains its observed value for display while Takeoff performance uses the published 0 ft / S.L. source floor. Acceptance: targeted 76/76 PASS, full Node 1191 total / 1190 PASS / 0 FAIL / 1 SKIP, production build PASS, full Playwright 388/388 PASS, production readiness HTTP 200.
+- aircraft-specific technical content is governed data; generic product behavior is code;
+- LEARN and EFB remain separate contexts;
+- Active Flight is persistent context, never a silent global mode switch;
+- CHECKLIST, QRH, PERF and REF remain separate operational domains;
+- the persistent EFB Fast Path remains `CHECKLIST / QRH / PERF / REF` through R2;
+- Climb/Cruise belongs to Reference, not Takeoff/Landing Performance;
+- source provenance and effectivity/applicability are first-class;
+- missing/ambiguous/non-applicable aviation data fails closed;
+- no unsupported extrapolation or sparse-cell bridging;
+- `AVAILABLE` weather is not `APPLIED` weather;
+- manual weather remains sticky until explicitly changed;
+- changing a Performance dependency invalidates the previous result;
+- Training is not an approved EFB and does not replace current AFM/QRH;
+- legacy flag-OFF behavior remains until explicit retirement acceptance;
+- no predictive/AI-inferred operational procedure recommendations;
+- source-blocked work does not block unrelated roadmap progress.
 
-## Phase 1 — LEARN / EFB separation and Performance operation architecture
+## Current product truth
 
-Architecture is frozen. Implement sequentially; do not combine phases into one PR.
+| Area | Status | Current state |
+| --- | :---: | --- |
+| Governed content / source architecture | ✅ | Production foundation live |
+| Multi-aircraft / no-code runtime | ✅ | Generic runtime and DB-governed aircraft model established |
+| LEARN / EFB shell | ✅ | Live |
+| Active Flight | ✅ | Lifecycle/persistence live |
+| SimBrief Active Flight import | ✅ | Explicit pilot-initiated prefill live |
+| Flight Brief | 🚧 | Live, but cockpit content model still has placeholder/unfinished areas |
+| Takeoff + Landing Performance | ✅ | Canonical source-backed operational workflows live |
+| Partial Power / Reduced Thrust | ⚠️ | Source-supported training preview exists; operational enablement is source-gated |
+| Operational CHECKLIST | ✅ | Governed CL-102B package live; Active Flight-scoped session shared across full page/Fast Path |
+| Operational QRH content/runtime | ✅ | Complete reviewed governed Learjet Emergency + Abnormal package live |
+| QRH cockpit acceptance | 🚧 | Final R1 acceptance/closure still required |
+| Climb + Cruise Reference | ✅ | LEARN source tables + EFB bounded lookup live |
+| Learjet Limitations / REF content | ➡️ | Runtime exists; governed Learjet limitations payload still needs source-backed population |
+| Generic Weight & Balance platform | ✅ | Generic contract, calculator, route and tests exist |
+| Learjet operational Weight & Balance | ⚠️ | Source-gated on aircraft-specific current W&B/configuration records |
+| Offline Flight Deck boundary | 🚧 | Explicit `/fly` preparation/caching exists; governed-content currency semantics need R1 closure |
+| Documentation governance | ✅ | R0 rebuilt the canonical five-file control surface and reconciled roadmap/changelog drift |
 
-### P1.1 — LEARN / EFB product mode split — COMPLETE · PR #211 + follow-up PR #213
+## Execution order
 
-Goal: make user intent explicit before entering the aircraft workspace.
+| Order | Phase | Status | Purpose |
+| ---: | --- | :---: | --- |
+| 0 | **R0 — Product Truth & Governance Reset** | ✅ | Canonical capability/roadmap/change/architecture ownership restored via PR #279 |
+| 1 | **R1 — EFB Safety & Foundation Closure** | ➡️ | Close applicability, QRH, REF content, offline currency and EFB completeness gates |
+| 2 | **R2 — Cockpit Workflow / Digital Binder** | ⏳ | Make cockpit use immediate, content-dominant and state-preserving without a third navigation model |
+| 3 | **R3 — Active Flight / Flight Brief Convergence** | ⏳ | Make Flight Brief a meaningful contextual hub, not another duplicate dashboard |
+| 4 | **R4 — Real Second-Aircraft Production Proof** | ⏳ | Prove the generic/no-code architecture with real governed source content |
+| 5 | **R5 — LEARN Content & Training Depth** | ⏳ | Deepen Systems, Procedures and Training on the stable platform |
+| 6 | **R6 — Platform Maturity** | ⏳ | Harden publishing, offline robustness, CI/observability, legacy retirement and repo hygiene |
 
-LEARN contains only learning/knowledge surfaces:
-- Learn home / training;
-- Systems;
-- Procedures;
-- Limitations;
-- Reference;
-- scenarios/orientation where applicable.
+Parallel to R0–R6, source-gated items remain in the **SOURCE-GATED lane** below and activate only when required evidence exists.
 
-EFB contains only operational surfaces:
-- Flight Brief;
-- Performance;
-- operational checklist;
-- QRH / abnormal quick reference;
-- future W&B when source-backed.
+---
+
+## R0 — Product Truth & Governance Reset — COMPLETE · PR #279
+
+### Scope
+
+- replace the old implementation-journal roadmap with this forward-looking plan;
+- restore a canonical `FEATURES.md` capability inventory;
+- supersede the former “exactly four Markdown files” rule with five canonical maintained documents;
+- reconcile known status drift, including SimBrief, Reference, QRH, W&B platform state and PR #278;
+- keep detailed completed history in `CHANGELOG.md`, PRs, tests and Git;
+- preserve frozen and superseded decisions explicitly rather than silently rewriting history.
+
+### Acceptance
+
+- `README.md`, `ROADMAP.md`, `FEATURES.md`, `CHANGELOG.md` and `TECHNICAL_DOCUMENTATION.md` have non-overlapping documented ownership;
+- documentation-contract tests enforce the five-file surface;
+- no known contradiction remains between the roadmap overview and the audited `main` baseline;
+- old implementation history remains recoverable from `CHANGELOG.md`/Git;
+- no functional runtime behavior changes in R0.
+
+Verification on PR #279 head `30cce334db9cda70d5dfd48ffe0be7ee5ebc87a6`:
+- GitHub Actions **Verify Training PASS** (run #735);
+- TypeScript **PASS**;
+- full Node suite **1462 total / 1461 PASS / 0 FAIL / 1 SKIP**;
+- production build **PASS**;
+- Playwright **N/A** for the documentation-only R0 runtime scope;
+- DB/migration **N/A**;
+- deployment **N/A**.
+
+### Superseded decision
+
+PR #236 intentionally consolidated Training to four maintained Markdown files. R0 supersedes only the **file-count/document-ownership** part of that decision so Training can use the same canonical capability-inventory model as FlyTally Logbook. The anti-sprawl principle remains frozen.
+
+---
+
+## R1 — EFB Safety & Foundation Closure — NEXT
+
+R1 must close before the cockpit UX phase. It is primarily a correctness/acceptance phase, not a new architecture rewrite.
+
+### R1.1 — QRH.4 cockpit acceptance
+
+Scope:
+
+- execute the existing QRH.4 acceptance contract against the real cockpit surfaces;
+- verify Emergency vs Abnormal distinction, memory-item emphasis, graphical source envelopes, source/authority disclosure and fail-closed configuration filtering;
+- verify the actual Fast Path scroll container on desktop, mobile, iPad landscape and iPad portrait;
+- complete authenticated production smoke before formal closure.
+
+Do not redesign the QRH content contract unless acceptance reveals a genuine defect.
+
+### R1.2 — Learjet Limitations → operational REF
+
+Use the FAA-approved FM-102 Section I Limitations source family as the controlling basis for the initial Learjet limitations dataset, subject to exact revision/effectivity review.
+
+Initial scope should prioritize high-value cockpit limitations such as source-defined:
+
+- airspeed/Mach limits;
+- weights and C.G. limits;
+- altitude limits;
+- configuration/system restrictions;
+- fuel/operational restrictions where supported by the controlling source.
+
+Requirements:
+
+- exact provenance and effectivity;
+- temporary-change applicability handled explicitly;
+- no generic “typical Learjet” values;
+- governed draft → review → approval → publication lifecycle;
+- missing/ambiguous applicability fails closed.
+
+### R1.3 — Effective-configuration consistency — AVIATION-CRITICAL GATE
+
+Confirmed audit finding: the current shell/Fast Path resolves its selected variant independently from child routes, while child pages may resolve an explicit `?variant=`.
+
+Goal:
+
+> One effective aircraft configuration must drive the page, Fast Path and all operational projections for the same rendered workspace.
+
+Acceptance:
+
+- explicit regression test proving the page and Fast Path resolve the same effective variant/configuration for a route;
+- CHECKLIST/QRH/PERF/REF use the same applicability context;
+- persisted operational state either scopes to or invalidates against configuration identity as appropriate;
+- no silent fallback from an invalid explicit configuration to a generic/default configuration.
+
+### R1.4 — Offline governed-content currency
+
+Current explicit offline preparation is valuable, but a cached `/fly` page must not implicitly mean “current”.
+
+Design and close an explicit currency contract covering:
+
+- publication/source identity stored with prepared operational content;
+- what the UI may claim when offline currentness cannot be revalidated;
+- behavior after a publication becomes stale or is replaced;
+- variant-safe cache identity;
+- weather remains live-only/not cached;
+- fail-closed handling where currentness is safety-relevant.
+
+Do not invent arbitrary time-expiry thresholds that look like operational validity.
+
+### R1.5 — EFB content acceptance
+
+Add/execute a production-content gate that distinguishes available UI from meaningful governed content.
+
+For Learjet acceptance, require:
+
+- Checklist: at least one applicable source-backed phase/item;
+- QRH: at least one source-authoritative applicable scenario and correct class/effectivity behavior;
+- PERF: supported calculator/dataset coverage within source envelopes;
+- REF: at least one applicable governed limitation group/item;
+- missing content surfaces explicitly as unavailable/content gap.
+
+### R1.6 — Lightweight no-code architecture regression
+
+Before R2 adds more cockpit surface:
+
+- search generic runtime for new aircraft-ID branches;
+- verify content discovery remains route/database driven;
+- verify one canonical state owner per operational domain;
+- keep the existing real/sparse-aircraft contract tests green.
+
+This is a cheap architecture drift check, **not** the full R4 second-aircraft product proof.
+
+### R1 acceptance gate
+
+R1 closes only after:
+
+- targeted unit/contract tests PASS;
+- full Node suite PASS;
+- production build PASS;
+- responsive cockpit Playwright PASS;
+- authenticated production smoke PASS where required;
+- no unresolved applicability/currency blocker remains for CHK/QRH/PERF/REF;
+- `ROADMAP.md`, `FEATURES.md` and `CHANGELOG.md` are synchronized.
+
+---
+
+## R2 — Cockpit Workflow / Digital Binder — PLANNED
+
+Goal: translate the strongest property of the cockpit reference video into FlyTally without creating a third navigation system.
+
+### Product contract
+
+Keep:
+
+- full EFB workspaces for deeper work;
+- persistent Fast Path `CHECKLIST / QRH / PERF / REF` for immediate access;
+- canonical state shared between full and quick surfaces.
+
+Improve:
+
+- one-action reachability from anywhere in EFB;
+- content dominance over application chrome;
+- touch ergonomics;
+- state/scroll/selection preservation when switching operational domains;
+- visual hierarchy for source-backed operational content;
+- night/dark readability;
+- iPad landscape/portrait behavior.
+
+Do not copy:
+
+- flat paper/PDF metaphors where FlyTally can preserve richer state;
+- hidden applicability;
+- loss of exact/interpolated/unavailable distinctions;
+- static content that discards provenance or conditional structure.
+
+### Acceptance
+
+- explicit reachability contract for all four Fast Path domains;
+- state-preservation regressions across domain switching;
+- desktop + iPad landscape + iPad portrait + mobile acceptance;
+- light + dark/night acceptance;
+- no duplicate canonical checklist/performance/QRH/reference state introduced.
+
+W&B does **not** automatically become a fifth Fast Path item in R2. Reconsider placement only when source-backed operational W&B exists and real cockpit usage justifies permanent access.
+
+---
+
+## R3 — Active Flight / Flight Brief Convergence — PLANNED
+
+Goal: make Flight Brief the useful contextual entry point for the active flight without becoming another calculation engine or generic dashboard.
+
+### Rules
+
+- display only values owned by existing canonical domains;
+- Performance results stay owned by Performance;
+- Active Flight stays the flight-context owner;
+- no hidden recalculation;
+- no AI/predictive procedure relevance;
+- no duplicate persisted truth.
+
+Current empty placeholder areas such as `Flight Considerations` and `Relevant Procedures` must not remain visible without meaningful governed content.
+
+If `Relevant Procedures` is introduced, its contract must be deterministic and auditable (for example explicit applicability to the proven current configuration), not guessed relevance.
+
+### Acceptance
+
+Every displayed field must trace to an existing canonical owner/provenance. New derived/aggregated fields require an explicit contract before implementation.
+
+---
+
+## R4 — Real Second-Aircraft Production Proof — PLANNED
+
+Goal: prove FlyTally Training is a platform, not a Learjet-specific application with generic-looking code.
+
+### Scope
+
+Onboard one real second aircraft using real, legally usable governed source content.
+
+Acceptance must prove:
+
+1. dynamic aircraft registration;
+2. real variant/configuration structure;
+3. controlled source revisions/references;
+4. publication of supported universal modules;
+5. learner discovery/library visibility;
+6. rendering through existing routes/components;
+7. generic calculator/runtime use where applicable;
+8. coexistence with Learjet without aircraft-ID branches.
+
+Sparse aircraft packages remain valid. No requirement to fabricate unsupported modules.
+
+Selection of the second aircraft is a product/source decision made when R4 starts; do not pick one merely because data is easy to invent.
+
+---
+
+## R5 — LEARN Content & Training Depth — PLANNED
+
+Goal: deepen the learning product after the operational foundation and platform proof are stable.
+
+Candidate work:
+
+- systematic Systems coverage;
+- Procedures learning depth;
+- source-backed training overlays;
+- scenarios;
+- progress/evidence;
+- cross-linking between Aircraft, Procedures, Performance and Training where deterministic.
 
 Rules:
-- aircraft/variant is shared context, not an EFB destination;
-- legacy routes remain compatible;
-- no Performance math/storage changes in P1.1;
-- preserve UX6 visual language and responsive behavior.
 
-### P1.2 — Versioned Performance Snapshot V2 — COMPLETE · PR #214
+- operational QRH/checklist content stays separate from instructional overlays;
+- source-exact procedure logic is never rewritten into invented prose;
+- `memoryItem` remains source-backed only;
+- Draft/unverified content must not appear operationally authoritative.
 
-Introduce:
-- `schemaVersion: 2`;
-- `TakeoffSnapshotV2`;
-- `LandingSnapshotV2`;
-- separate operation storage identity;
-- explicit source/input/result/validity contracts.
+R5 should be broken into source-backed aircraft/content milestones when activated rather than pre-planning fictitious coverage now.
 
-Legacy v1 migration rule:
-- preserve known QNH/OAT/result values;
-- do not fabricate weather observation identity;
-- mark weather provenance as legacy/unknown;
-- migrated legacy result may be shown as historical/stored but requires recalculation before it becomes fully CURRENT V2 operational data;
-- retain v1 storage key as read/migration fallback.
+---
 
-`dependencySnapshotId` is audit/debug metadata only, not an operation validity dependency.
+## R6 — Platform Maturity — PLANNED
 
-### P1.3 — Canonical Performance operation controller — COMPLETE · PR #215
+Goal: make the platform easier to operate, publish, observe and maintain at scale.
 
-Introduce one shared operation state owner, conceptually:
+Candidate work:
 
-- `usePerformanceOperation("TAKEOFF")`;
-- `usePerformanceOperation("LANDING")`.
+- content Studio/publishing workflow improvements;
+- explicit stale-content surfacing for administrators;
+- offline robustness beyond the R1 safety contract;
+- CI/release reliability;
+- production observability;
+- stale branch/PR retirement;
+- documentation automation where useful;
+- feature-flag/legacy retirement.
 
-Owns:
-- setup;
-- applied weather;
-- available weather observation;
-- result snapshot;
-- validity/diff;
-- calculate/recalculate;
-- manual override;
-- apply latest METAR.
+### Legacy retirement gate
 
-Weather rule:
-- AVAILABLE observation and APPLIED weather are separate;
-- before calculation, clean AUTO bindings may follow latest METAR;
-- after calculation, newer METAR must not silently replace applied inputs;
-- show **NEWER WEATHER AVAILABLE** and require explicit **APPLY & RECALCULATE**;
-- manual overrides remain sticky;
-- displayed wind must correspond to APPLIED weather, not merely latest fetched METAR.
+Before deleting any legacy path/flag, define and prove per flag:
 
-No Takeoff wind correction math in this phase.
+- replacement capability is production-live;
+- required responsive/browser acceptance exists;
+- no required data migration remains;
+- production observation/smoke evidence is sufficient for the affected surface;
+- rollback path is understood;
+- retirement is explicitly recorded in roadmap/changelog.
 
-### P1.4 — Flight Brief becomes EFB home — COMPLETE · PR #216
+No blanket “cleanup” retirement.
 
-Flight Brief is the EFB landing surface.
+---
 
-It may initiate Performance through the same canonical operation controller/snapshot, but it does not own a second calculator or persistence model.
+## SOURCE-GATED lane
 
-Target behavior:
-- Takeoff card: runway, N1, V1, VR, V2, TOD, validity state;
-- Calculate/Edit opens shared responsive sheet/drawer;
-- dedicated Performance page remains available;
-- desktop side drawer; iPad/mobile responsive sheet/full-height treatment.
+These items are intentionally non-blocking for R0–R6.
 
-## B5 — Integrated Landing Performance — COMPLETE · PR #217
+### SG1 — Partial Power operational enablement — SOURCE-GATED
 
-Destination-owned Landing workflow reusing the same operation architecture:
+Existing source-supported preview/runtime work does not prove the unresolved independent 25% rated-thrust requirement.
 
-- destination RunwayEnd;
-- destination METAR;
-- Landing weight;
-- governed Flaps 40 configuration;
-- explicit Calculate Landing;
-- independent Landing snapshot/invalidation;
-- Flight Brief integration.
+Until authoritative source closure exists:
 
-Canonical source-backed outputs:
-- VREF vs gross weight;
-- Landing Climb Speed vs gross weight;
-- Approach Climb Speed vs gross weight;
-- Factored Landing Distance Flaps 40 vs pressure altitude / OAT / gross weight.
+- no operational enablement;
+- no unsupported assumed limit;
+- no UI wording implying approved reduced-thrust authority.
 
-B5 intentionally does not apply unsupported wind/slope/declared-distance corrections.
+### SG2 — Performance source-envelope extensions — SOURCE-GATED
 
-## B6 — Takeoff wind correction — COMPLETE · PR #218
+Add new cells/regions/factors only from reviewed authoritative source evidence.
 
-B6 acceptance complete (2026-09-24). Gate progression: generic runtime **38/38 PASS**; source-grid gate **48/48 PASS**; canonical operation gate **81/81 PASS**; post-race-fix targeted gate **35/35 PASS**; production build PASS; targeted responsive Playwright **4/4 PASS**; final full Node suite **1092 total / 1091 PASS / 0 FAIL / 1 SKIP**; final production build PASS; full Playwright **384/384 PASS** across desktop, mobile, iPad landscape and iPad portrait.
+No extrapolation, anomaly repair or invented continuity.
 
-Source topology is frozen as two independent post-baseline transforms:
+### SG3 — Learjet operational Weight & Balance — SOURCE-GATED
 
-- `(zeroWindDistanceFt, runwayWindComponentKt) -> correctedTakeoffDistanceFt`
-- `(zeroWindV1Kias, runwayWindComponentKt) -> correctedV1Kias`
+The generic W&B platform is implemented.
 
-The baseline remains the existing governed zero-wind dry-runway calculation. Wind correction is applied only after that baseline resolves successfully.
+Learjet operational W&B requires aircraft-specific current evidence, including the applicable empty weight/moment/CG, interior/loading configuration and source tables/records needed for the selected aircraft.
 
-### B6.1 — source extraction and correction contract
+Training-manual examples are not substitutes for the current aircraft record.
 
-- source chart: Learjet 35A/36A AFM takeoff-distance and V1 wind panels as reproduced in FlightSafety Chapter 20 / Figures 20-2 and 20-3;
-- preserve the chart wind convention explicitly: tailwind negative input, headwind positive input;
-- digitize headwind and tailwind envelopes independently;
-- verify several zero-wind ordinates across the chart, not a single worked example;
-- explicitly re-check the suspicious 8,000/10,000 ft takeoff-distance region before authoring production data;
-- include source provenance and extraction notes with the governed data;
-- no extrapolation beyond the published chart envelope.
+When evidence exists, decide full-workspace/Fast-Path placement from real usage rather than pre-allocating a permanent navigation slot.
 
-### B6.2 — generic correction runtime
+---
 
-- runtime remains aircraft-agnostic;
-- introduce a declarative post-baseline transform contract rather than Learjet-specific math;
-- independently evaluate distance and V1 wind corrections;
-- exact source points and bounded interpolation only;
-- fail closed for unsupported baseline/wind combinations;
-- preserve uncorrected VR, V2 and N1 behavior.
+## Known risks carried into the roadmap
 
-### B6.3 — operation integration
-
-- use the already-computed APPLIED runway wind component from the canonical Takeoff operation controller;
-- snapshot stores the corrected operational outputs and sufficient provenance/input identity to invalidate when applied wind changes;
-- newer AVAILABLE weather must still require explicit apply/recalculate after a result exists;
-- manual weather override remains sticky;
-- zero-wind result must be identical to the existing B4/P1 baseline.
-
-### B6.4 — acceptance
-
-- source-node tests for both distance and V1 transforms;
-- interpolation tests for headwind and tailwind separately;
-- zero-wind identity tests across multiple baseline ordinates;
-- no-extrapolation tests at wind and baseline-distance/V1 bounds;
-- FlightSafety worked-example cross-check where the source gives enough information;
-- snapshot invalidation on applied-wind change;
-- regression coverage proving VR/V2/N1 and Landing are unchanged;
-- desktop/iPad/mobile Playwright acceptance before merge.
-
-## Partial Power / Reduced Thrust Takeoff — PP.3 SOURCE/RUNTIME BOUNDARY COMPLETE · PR #222
-
-Raw source extraction may proceed independently after B6 source/runtime boundaries are frozen.
-
-Required source datasets:
-- no thrust reversers;
-- Aeronca thrust reversers;
-- TR-4000 thrust reversers.
-
-Source procedure:
-1. determine highest allowable Assumed Temperature from runway/weight constraints;
-2. determine V1 using that Assumed Temperature;
-3. determine reduced N1 from Ambient Temperature + Assumed Temperature;
-4. enforce aircraft/configuration applicability and source limits.
-
-Solver/runtime prerequisites:
-- Snapshot V2/weather applied-state — COMPLETE;
-- verified Flaps 8 wind datasets — COMPLETE; Flaps 20 nonzero-wind remains fail-closed;
-- declared-distance TORA/ASDA workflow — COMPLETE · PR #220;
-- Takeoff Weight Limits at ambient and assumed temperature — STAGED in PP.2;
-- P-6/P-6.1 parenthesized N1 semantics — unresolved and still fail-closed for operational N1 use.
-
-## Runway declared distances — COMPLETE · PR #220
-
-Physical runway surface length is not TORA/ASDA/TODA/LDA.
-
-The generic declared-distance contract requires explicit per-value provenance and provides a fail-closed Learjet takeoff constraint of `min(TORA, ASDA)`. This contract is not a dependency of the existing full-rated Takeoff calculation.
-
-Current UX follow-up on `feat/performance-interpolation-loading`:
-- selecting a runway prefills the visible TORA field from the bundled airport database physical runway length as a **suggestion only**;
-- the suggestion is explicitly labeled as non-authoritative and does not enter the declared-distance contract until the pilot confirms or edits it;
-- ASDA is moved out of the primary setup grid into declared-distance details;
-- ASDA is never silently assumed equal to TORA because a separately declared ASDA may differ;
-- a future authoritative declared-distance provider can replace the suggestion through the existing provider boundary.
-
-For the Learjet 35/36 takeoff-field-length chart topology, usable takeoff runway remains limited by the lower of authoritative/confirmed TORA and ASDA; TODA is not substituted.
-
-## Continuous performance interpolation + calculation feedback — COMPLETE · PR #223
-
-User-facing goal: ordinary in-envelope inputs must not be forced onto table breakpoints.
-
-Rules:
-- every numeric source grid declared `linear-explicit` uses bounded interpolation between complete published source corners;
-- fractional pressure altitude, OAT, weight and supported wind values are accepted inside the source envelope;
-- Takeoff Distance / V1 Flaps 8 wind transforms retain signed-wind interpolation between their published headwind/tailwind nodes;
-- Partial Power assumed temperature is searched continuously at 0.1°C resolution across the published Takeoff Weight Limit envelope instead of only at table temperature nodes;
-- Aeronca reduced N1 may follow the W1072-authorized bounded interpolation already established in PP.3;
-- runway length is a continuous constraint, not a lookup breakpoint;
-- sparse source regions still fail closed;
-- negative derived pressure altitude uses the published **S.L. chart floor** rather than failing below the first table row;
-- no arbitrary mathematical extrapolation beyond an authoritative source envelope;
-- where a checklist table is narrower than the underlying AFM chart, extend the governed dataset from the AFM chart instead of extrapolating the checklist-table edge;
-- missing configuration-specific source data is not fabricated. In particular, Flaps 20 nonzero-wind Takeoff correction remains fail-closed until a verified source is digitized.
-
-UX:
-- Calculate/Recalculate yields one animation frame before synchronous computation so the disabled loading state is visible;
-- Takeoff and Landing Calculate actions expose `aria-busy`, “Calculating…” and a spinner while calculation is pending;
-- duplicate calculation clicks are blocked while pending.
-
-## Later product work
-
-The detailed future sequence is tracked in **Active implementation order** below. Current planned follow-up is:
-- Performance source-envelope completion;
-- Partial Power / Derated Takeoff operational source closure and pilot UI;
-- Flight Brief Takeoff/Landing convergence;
-- source-backed operational W&B where available;
-- navigation/icon cleanup;
-- second/third aircraft acceptance against the same LEARN/EFB and Performance contracts;
-- legacy compatibility cleanup once migration telemetry/tests prove it is safe.
+| Risk | Owner phase | Required treatment |
+| --- | --- | --- |
+| Shell/Fast Path may resolve a different variant than a query-selected child page | R1 | Fix/test before R2 |
+| Offline cached operational content has no closed currentness contract | R1 | Define and verify currency semantics |
+| Learjet Limitations content gap leaves REF incomplete | R1 | Governed FM-102-backed population |
+| QRH.4 is implemented substantially but not formally accepted/closed | R1 | Execute cockpit/production acceptance |
+| Flight Brief contains placeholder areas | R3 | Hide until meaningful deterministic contract exists |
+| Generic W&B status was absent from old overview | R0 | Corrected in FEATURES/roadmap; Learjet data remains source-gated |
+| Source-gated Partial Power/performance/W&B could distort sequencing | SOURCE-GATED lane | Keep non-blocking until evidence exists |
+| Old roadmap mixed planning with historical implementation evidence | R0 | History stays in CHANGELOG/Git |
+| Superseded open branches/PRs add repository noise | R6 | Controlled retirement pass |
 
 ## Global acceptance principles
 
-- one authoritative roadmap: this file;
-- aircraft-agnostic runtime, aircraft-specific governed data;
-- explicit Calculate action;
-- no hidden recalculation;
-- immutable calculation snapshots;
-- operation-scoped invalidation;
-- source provenance visible and auditable;
-- manual overrides explicit and sticky;
-- no arbitrary METAR operational-expiry thresholds;
-- no silent or unsupported extrapolation;
-- source-envelope extensions must come from the AFM/manual chart where available;
-- no fabricated aviation authority;
-- desktop/iPad/mobile acceptance required before merge.
+For every material milestone:
 
-## Active implementation order
-
-1. **P1.1 — LEARN / EFB split + Active Flight top-bar reconciliation** — COMPLETE · PR #211 + PR #213
-2. **P1.2 — Snapshot V2** — COMPLETE · PR #214
-3. **P1.3 — canonical Performance operation controller** — COMPLETE · PR #215
-4. **P1.4 — Flight Brief EFB home** — COMPLETE · PR #216
-5. **B5 — Landing integration** — COMPLETE · PR #217
-6. **B6 — Takeoff wind correction** — COMPLETE · PR #218
-   - B6.1 source extraction + correction contract — COMPLETE
-   - B6.2 generic correction runtime — COMPLETE
-   - B6.3 canonical Takeoff operation integration — COMPLETE
-   - B6.4 acceptance — COMPLETE
-7. **Partial Power source extraction** — COMPLETE · PR #219
-   - source contract + applicability inventory — COMPLETE
-   - three configuration-specific N1 schedules — COMPLETE
-   - assumed-temperature source semantics captured without guessing unresolved parentheses
-   - local gate: typecheck PASS + 8/8 targeted source tests
-   - at this phase boundary the solver remained blocked on declared-distance TORA/ASDA; that prerequisite was subsequently completed in PR #220
-8. **Declared-distance provider/input hardening (TORA + ASDA)** — COMPLETE · PR #220
-   - generic declared-distance/provenance contract — COMPLETE
-   - fail-closed `min(TORA, ASDA)` takeoff constraint — COMPLETE
-   - optional operation-owned manual TORA/ASDA inputs — COMPLETE
-   - provider-neutral adapter with identity/provenance validation — COMPLETE
-   - full-rated Takeoff remains independent of declared distances
-   - acceptance: typecheck PASS · 31/31 targeted · 4/4 targeted Playwright · 1118 Node / 1117 PASS / 1 SKIP · 388/388 full Playwright
-9. **Partial Power assumed-temperature prerequisites / solver contract** — COMPLETE · PR #221
-   - Takeoff Weight Limits Flaps 8° / 20° — ACCEPTED locally
-   - prerequisite gate: typecheck PASS + 69/69 targeted tests
-   - generic assumed-temperature selector contract — ACCEPTED locally (90/90 PP.2/B6/B7/B8/PP.1 gate)
-   - explicit lower-of-TORA/ASDA, ambient + assumed weight-limit checks, no invented temperatures
-   - Learjet candidate adapter with Flaps 8 B6 wind preservation / Flaps 20 nonzero-wind fail-closed — ACCEPTED locally
-   - local adapter gate: typecheck PASS + 100/100 targeted tests
-   - at PP.2 completion the adapter intentionally remained N1-free; reduced-N1 source/runtime work followed in PR #222, while unresolved configuration-specific source semantics remain fail-closed
-10. **Partial Power reduced-N1 source/runtime boundary** — COMPLETE · PR #222
-   - preserve explicit thrust-reverser configuration identity
-   - exact-source-cell boundary — COMPLETE
-   - anti-ice OFF and TR-4000 <=3000 ft limits enforced
-   - FAA-approved AFMS W1072 Figure 5 bounded Aeronca interpolation — COMPLETE
-   - Aeronca-specific full-rated Takeoff N1 P-5.1 dataset — COMPLETE
-   - Aeronca candidate/N1 integration with 7.7 N1-point limit — COMPLETE as source-supported only
-   - no-reverser and TR-4000 interpolation remain unauthorized
-   - unresolved parenthesized cells remain fail-closed
-   - acceptance: 56/56 targeted · full Node 1181 total / 1180 PASS / 1 SKIP · production build PASS
-11. **Continuous Performance interpolation + calculate feedback** — COMPLETE · PR #223
-   - bounded interpolation for all currently governed numeric grids remains enabled
-   - Partial Power assumed-temperature search uses 0.1°C bounded interpolation rather than table-node stepping
-   - fractional wind / weight / runway constraints covered by regression tests
-   - TORA airport-db prefill is suggestion-only until verified; ASDA moved to advanced details
-   - Takeoff + Landing calculate buttons paint disabled loading feedback before synchronous work
-   - no extrapolation; Flaps 20 nonzero-wind remains source-blocked
-   - acceptance: targeted 134/134 · full Node 1186 total / 1185 PASS / 1 SKIP · build PASS · targeted browser 8/8 · full Playwright 388/388
-12. **Sea-level performance floor** — COMPLETE · PR #224
-   - negative derived pressure altitude uses 0 ft / S.L. as the Takeoff source floor
-   - UI keeps actual derived PA visible and separately shows the performance PA used
-   - LFMN-like -100 ft PA resolves N1/V1/TOD instead of Out of range
-   - ordinary in-envelope values continue bounded interpolation
-   - no upper-altitude clamping or arbitrary extrapolation was introduced
-   - acceptance: targeted 76/76 PASS · full Node 1191 total / 1190 PASS / 0 FAIL / 1 SKIP · production build PASS · full Playwright 388/388 PASS · production readiness HTTP 200
-   - merged to `main` in PR #224; production merge commit `7d90482dcb909e159fbfe95a94bc315e971b9374`
-
-13. **Performance source-envelope completion** — DEFERRED · authoritative Section V source pages unavailable
-   - keep the currently digitized Learjet source envelopes as the governed operational limits
-   - use bounded interpolation between published source nodes when all required source corners exist
-   - do not extrapolate beyond the current published/encoded envelope merely to increase coverage
-   - values outside the governed source envelope remain unavailable / fail-closed
-   - reopen this phase only if the applicable authoritative AFM/AFMS performance pages become available
-
-14. **Partial Power / Derated Takeoff operational enablement + pilot UI** — IN PROGRESS · source-gated
-   - **14.1 Thrust-mode UI + source-supported training preview — COMPLETE · PR #226 · LIVE IN PRODUCTION**
-     - explicit **Full Rated / Partial Power / Assumed Temperature** selector added; Full Rated remains the safe default
-     - Partial Power requires explicit thrust-reverser configuration and never infers it from aircraft name, serial number or simulator variant
-     - current preview supports the existing Aeronca source-backed path; no-reverser and TR-4000 remain fail-closed
-     - required eligibility confirmations are surfaced in the pilot UI: dry hard-paved runway, anti-skid operative, anti-ice OFF and full-rated-thrust takeoff within the preceding 30 days
-     - TORA + ASDA and source-backed runway wind are required before preview calculation
-     - source-supported result presents Assumed Temperature, target N1, V1, VR, V2, corrected Takeoff Distance, Full Rated N1 reference and the governing declared-distance limit
-     - the result is explicitly labeled **SOURCE-SUPPORTED TRAINING PREVIEW** and is not written into the operational Takeoff Snapshot V2
-     - targeted helper/controller/UI regression tests added
-     - first local gate exposed a Node ESM JSON-fixture import incompatibility before the new preview cases executed; test/runtime boundary was corrected so the Node-testable preview core is JSON-import-free and tests load JSON fixtures explicitly through fs
-     - targeted verification after the fix: typecheck PASS · PP.2/PP.3/PP.4 targeted suite **42/42 PASS** · production build PASS
-     - first full repository verify: **1197 total / 1194 PASS / 2 FAIL / 1 SKIP**; both failures were stale source-text assertions caused by the intentional split Full Rated/Partial Power calculation gates and the shared displayed-calculation METAR atomicity guard, not runtime calculation failures
-     - stale DD.4 and P1.3 regression assertions updated to the new controller contract
-     - final full repository verify after the assertion fixes: **1197 total / 1196 PASS / 0 FAIL / 1 SKIP** · production build PASS
-     - full Playwright browser acceptance on the runtime implementation: **388/388 PASS**
-     - automated acceptance is green; product owner explicitly approved production merge on 2026-09-24 without a separate pre-merge manual Partial Power UI smoke
-     - merged to `main` in PR #226 · merge commit `b1c508fe4fcbe6e2fa185f4694e3c4818745ed83`
-     - production deployment `dpl_BDEuUEKaGrqokzYkyyb8YrPs1Vyn` reached **READY** and is aliased to `training.fly-tally.com`
-     - production readiness smoke: HTTP 200 · `status=ready` · operational profile true · source-governed release profile true
-     - **follow-up:** manual-weather Partial Power currently has no manual runway-wind input. Add either explicit manual wind entry or an explicit source-safe zero-wind confirmation path before treating manual weather as complete for Partial Power
-     - **follow-up:** Partial Power UI should aggregate and display **all current blockers at once** (configuration, eligibility, wind/flap/source limitations) instead of stopping on the first failure; this must remain explanatory only and must not weaken fail-closed behavior
-   - **14.1a EFB simplification pass — COMPLETE · PR #227 · LIVE IN PRODUCTION**
-     - Partial Power setup reduced to pilot-facing essentials; explanatory helper copy and training-style prose removed from the primary workflow
-     - the single currently supported source path is now one explicit mode option: **Partial Power · Aeronca**; selecting that mode binds the Aeronca source schedule and the separate thrust-reverser selector is removed
-     - compact eligibility controls retained: **Dry hard-paved**, **Anti-skid operative**, **Full-rated <30 days**
-     - Partial Power keeps TORA + ASDA directly visible; verbose declared-distance explanation is removed
-     - result keeps only a concise **TRAINING · 25% LIMIT UNVERIFIED** header badge instead of a separate warning panel or paragraph copy
-     - weather source provenance is retained as concise metadata; explanatory prose is removed
-     - existing fail-closed runtime behavior and source constraints are unchanged
-     - source-text regression tests updated to assert behavior rather than removed explanatory wording
-     - targeted acceptance: typecheck PASS · PP.4/DD targeted suite **12/12 PASS** · production build PASS
-     - full repository verify: **1197 total / 1196 PASS / 0 FAIL / 1 SKIP** · production build PASS
-     - full Playwright browser acceptance: **388/388 PASS**
-     - product owner explicitly approved production merge on 2026-09-25 without a separate local manual desktop smoke
-     - merged to `main` in PR #227 · merge commit `49e0f7c5497397fd706f011cafe086762fdc233b`
-     - production deployment `dpl_ZCCsG6c7QzQY7t73uW3HnAbkA5nv` reached **READY** and is aliased to `training.fly-tally.com`
-     - production readiness smoke: HTTP 200 · `status=ready` · operational profile true · source-governed release profile true
-   - **14.1b Partial Power EFB hard simplification — COMPLETE · PR #228 · LIVE IN PRODUCTION**
-     - TORA remains always directly editable so intersection departures can be entered without a separate workflow
-     - duplicate ASDA entry removed from the primary Partial Power flow; when no independent ASDA override is entered, **ASDA = TORA** is used as the conservative takeoff-field assumption so `min(TORA, ASDA)` cannot exceed TORA
-     - optional compact **ASDA override** disclosure retained for independently known declared-distance data
-     - Partial Power eligibility checkboxes removed from the pilot workflow; selecting **Partial Power · Aeronca** evaluates the training preview under the published prerequisite assumptions, while Anti-ice remains a real explicit calculation/configuration input
-     - keep the result visibly training/source-limited until 14.2 closes the independent 25% rated-thrust requirement
-     - METAR is automatic by default: fetch/apply on airport selection, poll every 5 minutes, and automatically update an existing calculation when a newer observation changes source-backed inputs; manual QNH/OAT edits remain sticky overrides with a compact **AUTO METAR** reset
-     - remove remaining action/provenance helper copy that does not contribute to the calculation or a blocking state
-     - implementation includes updated PP/DD/weather regression contracts and browser acceptance for automatic METAR behavior
-     - first targeted local gate: typecheck **FAIL (2 errors)** · targeted suite **21/24 PASS / 3 FAIL** · build compiled but failed TypeScript
-       - obsolete Flight Brief reference to `newerWeatherAvailable` after AUTO-METAR contract change
-       - captured departure ICAO remained typed as optional inside the async METAR refresh closure
-       - three source-text regression assertions still expected removed UI/old controller markers
-     - corrective commits remove the obsolete Flight Brief notice, capture a non-optional METAR station value, and align DD/P1.3 tests with the simplified contract
-     - targeted re-run after fixes: typecheck PASS · PP/DD/P1.3 targeted suite **24/24 PASS** · production build PASS
-     - first full verify after targeted green: **1197 total / 1195 PASS / 1 FAIL / 1 SKIP**; the only failure was a stale B4 source-text assertion still expecting the removed manual METAR action
-     - B4 assertion updated to the AUTO-METAR contract; no performance/runtime calculation failure was reported
-     - first full Playwright run was invalidated by local-server environment contamination: Playwright reused an already-running local server, so fixture and FT_NEW_SHELL webServer env were not applied; broad failures included missing Browser CI fixture, wrong flag-off behavior, and authenticated API behavior
-     - Playwright config hardened: existing local servers are no longer reused by default; explicit reuse now requires `PW_REUSE_EXISTING_SERVER=1`
-     - **no second full-suite rerun required for 14.1b**; acceptance may close with targeted unit/browser verification of the corrected contracts plus production readiness smoke
-     - targeted closeout unit gate after B4 correction: **28/28 PASS**
-     - targeted AUTO-METAR Playwright attempt did not start because port 3000 was already occupied; this is an environment/startup conflict, not a browser-test failure. Playwright correctly refused to reuse the existing server after the config hardening.
-     - product owner explicitly approved production merge on 2026-09-25 without rerunning the blocked targeted browser pair; production smoke will be used as the remaining deployment acceptance check
-     - merged to `main` in PR #228 · merge commit `a87dca16cf38e2a540bd58f9d0f3a9c53d926d60`
-     - production deployment `dpl_37E5teXinHi2rEdj3bXXsz1BdgxH` reached **READY** and is aliased to `training.fly-tally.com`
-     - production readiness smoke: HTTP 200 · `status=ready` · operational profile true · source-governed release profile true
-   - **14.2 Independent 25% rated-thrust source closure — BLOCKED**
-     - FlightSafety requires thrust reduction <=25% of rated takeoff thrust for the existing ambient condition
-     - CL-102B P-6/P-6.1 provide configuration-specific reduced-N1 schedules and a 7.7 N1-point cap, but no verified N1-to-rated-thrust relationship has been found
-     - AFMS W1072 authorizes Aeronca Partial Power N1 interpolation and directs crews back to the basic AFM Partial Power procedure; it does not independently close the 25% check
-   - **14.3 Operational Snapshot V2 + stale dependency integration — BLOCKED UNTIL 14.2**
-     - the production training preview intentionally remains ephemeral and does not write an operational Takeoff snapshot
-     - operational thrust-mode persistence and validity dependencies will be implemented only after the independent 25% rated-thrust source check is closed
-   - **14.4 Operational enablement — BLOCKED UNTIL 14.2**
-
-   - add an explicit Takeoff thrust-mode selector to the operational Performance UI:
-     - **Full Rated** — current behavior
-     - **Partial Power / Assumed Temperature** — source-governed reduced-thrust path
-   - keep Full Rated as the safe default; selecting Partial Power must be an explicit pilot action
-   - Partial Power setup must surface/validate the required inputs and eligibility:
-     - confirmed/authoritative TORA
-     - separately declared ASDA
-     - dry hard-paved runway
-     - anti-skid operative
-     - bleed-air anti-ice OFF
-     - full-rated-thrust takeoff within the preceding 30 days
-     - applicable thrust-reverser configuration
-   - reuse the existing source-backed assumed-temperature engine:
-     - search bounded assumed temperature at 0.1°C resolution
-     - enforce ambient and assumed-temperature Takeoff Weight Limits
-     - enforce usable runway as `min(TORA, ASDA)`
-     - calculate source-backed V1 and Takeoff Distance
-     - preserve supported wind correction and fail closed where a configuration-specific correction source is missing
-   - pilot result should clearly distinguish Full Rated from Partial Power and, when source-authorized, present:
-     - Assumed Temperature
-     - reduced/target N1
-     - V1
-     - VR
-     - V2
-     - corrected Takeoff Distance
-     - Full Rated N1 as reference/context where useful
-   - persist thrust mode and every Partial Power validity dependency in the Takeoff snapshot so any relevant input/source/configuration drift marks the result stale
-   - Aeronca source/runtime support already exists and enforces the P-6.1 maximum 7.7 N1-point reduction
-   - **blocking source issue:** FlightSafety separately states <=25% rated-takeoff-thrust reduction; do not invent an N1-to-thrust conversion. Operational Partial Power must remain fail-closed until this check can be validated from an authoritative applicable source or its correct source-defined method is established
-   - no-reverser parenthesized/interpolation semantics remain unresolved and fail-closed
-   - TR-4000 source gaps remain fail-closed
-   - Flaps 20 nonzero-wind Partial Power remains fail-closed until a verified wind-correction source is digitized
-   - acceptance before merge: source/provenance review, targeted solver/runtime tests, snapshot invalidation tests, full Node suite, production build, desktop/mobile/iPad Playwright, and manual production smoke
-
-15. **Post-Partial-Power product work** — PLANNED
-   - **15.1 SimBrief Active Flight import + weight prefill — COMPLETE · LIVE · PR #264 + hotfix PR #265**
-     - user-configurable Navigraph Alias / SimBrief Pilot ID is available in Active Flight; the identifier remains an explicit device-local opt-in preference and is not persisted as Training account data
-     - latest-OFP import uses the supported `xml.fetcher.php?...&json=v2` path only after an explicit pilot Import action; there is no background SimBrief polling
-     - one action prefills departure, destination and SimBrief Estimated TOW when present; OFP `kgs`/kg and `lbs`/lb units are preserved without hidden conversion
-     - imported values remain pilot-editable; editing an imported field clears provenance only for that field, and no value is silently overwritten without another explicit SimBrief import/refresh action
-     - field-level SimBrief provenance persists with Active Flight; raw OFP data and Alias/Pilot ID are not retained server-side
-     - aircraft compatibility is aircraft-owned and fail-closed; Learjet 35/36 accepts SimBrief ICAO `LJ35` and unrelated/missing aircraft identity is rejected
-     - the server proxy is same-origin, authenticated, no-store and timeout-bounded; live METAR remains owned by the existing AviationWeather.gov workflow
-     - production schema includes nullable `training_active_flights.prefill_provenance JSONB`; readiness explicitly gates on the column
-     - PR #265 corrected a production-smoke provider-shape mismatch after current SimBrief JSON v2 returned `params.time_generated` as ISO-8601 rather than Unix seconds; parser now accepts both formats and still fails closed on malformed timestamps
-     - acceptance: typecheck PASS; targeted SimBrief suite 14/14 then 15/15 PASS after hotfix; full Node suite 1404 total / 1403 PASS / 0 FAIL / 1 SKIP; production build PASS; Playwright 400/400 PASS across configured projects
-     - production smoke on 2026-09-26 successfully imported real SimBrief OFP `187654556` for `LJ35`, prefilling `LKPR → LFBO` and Estimated TOW `7719 kg`; production health/readiness remained 200/ready with no runtime errors
-   - **15.2 Learjet climb + cruise Reference performance — IN PROGRESS · source-gated**
-     - place this under **Reference**, not the Takeoff/Landing Performance workspace
-     - **15.2a source inventory — COMPLETE · PR #268**
-       - reviewed manufacturer CL-102B Change 2 Performance Data before any UI/runtime work
-       - two-engine Climb P-19…P-28 is **ALL** effectivity; source outputs Time / Distance / Fuel and publishes the 250 KIAS to 32,000 ft / 0.70 MI above 32,000 ft schedule
-       - do **not** invent an FC-200 / FC-530 split for climb: the reviewed CL-102B pages are ALL even though training material discusses those installations separately
-       - two-engine Long Range Cruise P-29…P-37 and Normal Cruise P-38…P-46 are published as separate **without Rosemount / with Rosemount** page families; preserve that split
-       - one-engine Long Range Cruise P-47…P-51 has the same Rosemount/non-Rosemount split and preserves mixed Mach/KIAS row semantics
-       - reviewed CL-102B does **not** contain a High-Speed Cruise table; FlightSafety narrative alone is insufficient, so High-Speed Cruise remains blocked until a source table is available
-       - source inventory is aircraft-owned, non-operational and intentionally absent from the bundled Takeoff/Landing Performance package
-       - acceptance: typecheck PASS; targeted inventory suite 6/6 PASS; full Node suite 1417 total / 1416 PASS / 0 FAIL / 1 SKIP; production build PASS; no browser/runtime surface changed, so Playwright not required
-     - **15.2b digitization — COMPLETE · climb + two-engine LRC + Normal Cruise + one-engine LRC accepted**
-       - source-exact two-engine Climb P-19…P-28 is digitized as non-operational extracts across all 10 published weight tables and 23 altitude rows per table
-       - sparse high/hot cells remain absent; 1,079 published temperature tuples are preserved without filling source blanks
-       - source schedule, ALL effectivity, page provenance, output units and three visually reviewed PDF text-extraction corrections are explicit in the extract manifest
-       - interpolation and extrapolation remain disabled at the extraction layer; the extract is not registered in operational Performance or Reference runtime
-       - climb acceptance: typecheck PASS; targeted extraction suite 8/8 PASS; full Node suite 1425 total / 1424 PASS / 0 FAIL / 1 SKIP; production build PASS; no browser/runtime surface changed, so Playwright not required
-       - two-engine Long Range Cruise P-29…P-37 and P-29.1…P-37.1 is digitized as separate without-Rosemount / with-Rosemount source extracts across 17 published weight tables, 35,000–45,000 ft and ISA -10 / ISA / ISA +10
-       - each LRC effectivity family preserves 241 published source tuples; sparse high-weight/high-altitude cells remain absent
-       - Rosemount and non-Rosemount extracts intentionally retain distinct indicated-Mach values while preserving the source-identical KTAS / specific-range values
-       - CL-102B shading that denotes maximum specific range is not represented by text extraction; no optimum/max-range flag is inferred, and the gap is explicit in sourcePresentation
-       - two-engine LRC acceptance: typecheck PASS; targeted extraction suite 6/6 PASS; full Node suite 1431 total / 1430 PASS / 0 FAIL / 1 SKIP; production build PASS; no browser/runtime surface changed, so Playwright not required
-       - Normal Cruise P-38…P-46 and P-38.1…P-46.1 is digitized as separate without-Rosemount / with-Rosemount source extracts across 17 weights, 25,000–45,000 ft and ISA -10 / ISA / ISA +10 / ISA +15 / ISA +20
-       - published cruise schedule remains effectivity-specific: Mach .77 MI without Rosemount and Mach .75 MI with Rosemount; each family preserves 442 published KTAS/fuel-flow tuples
-       - three visually verified source-printed anomalies are preserved exactly rather than silently repaired: P-40 16,000 lb / 25,000 ft prints 416 KTAS, P-44 12,500 lb / 30,000 ft prints 421 lb/hr, and P-41.1 15,000 lb / 30,000 ft prints 28 KTAS; all remain non-operational pending source reconciliation
-       - Normal Cruise acceptance: typecheck PASS; targeted extraction suite 6/6 PASS; full Node suite 1437 total / 1436 PASS / 0 FAIL / 1 SKIP; production build PASS; no browser/runtime surface changed, so Playwright not required
-       - one-engine Long Range Cruise P-47…P-51 and P-47.1…P-51.1 is digitized as separate without-Rosemount / with-Rosemount source extracts across 9 weights, 10,000–30,000 ft and ISA -10 / ISA / ISA +10 / ISA +15 / ISA +20
-       - each effectivity family preserves 174 published tuples and the source transition from Mach-indicated reference at 30,000/25,000 ft to KIAS reference at 20,000/15,000/10,000 ft
-       - Rosemount effectivity retains its distinct Mach/KIAS reference schedule while source-identical KTAS/fuel-flow values remain paired, except two visually verified P-48 printed anomalies
-       - P-48 16,000 lb prints 265 KTAS at 25,000 ft / ISA +10 and 294 KTAS at 20,000 ft / ISA +10; both are preserved exactly and explicitly blocked from operational use pending source reconciliation
-       - PDF text token `l087` at P-48 15,000 lb / 10,000 ft / ISA fuel flow was visually reviewed as 1087 and recorded as an explicit extraction correction
-       - one-engine LRC acceptance: typecheck PASS; targeted extraction suite 7/7 PASS; full Node suite 1444 total / 1443 PASS / 0 FAIL / 1 SKIP; production build PASS; no browser/runtime surface changed, so Playwright not required
-       - 15.2b source digitization is complete; use bounded interpolation only after each source geometry is reviewed; never extrapolate beyond published rows
-     - **15.2c Reference runtime/UI — COMPLETE · PR #273 + PR #274**
-       - pilot selects only source-required weight / altitude / temperature inputs and a published cruise regime
-       - 15.2c.1 runtime reuses the generic multi-axis performance contract/interpolation engine behind a separate Reference-only package registry; it is not registered in Takeoff/Landing Performance
-       - accepted source grids are normalized to bounded three-axis lookup datasets; interpolation is allowed only inside complete published source rectangles and generic runtime extrapolation remains impossible
-       - Rosemount/non-Rosemount cruise effectivity uses existing aircraft applicability metadata; one family per regime survives configuration filtering
-       - reviewed source-printed anomaly coordinates are omitted from the runtime grids, so exact lookup and any interpolation requiring those coordinates fail closed while the raw extraction evidence remains unchanged
-       - one-engine LRC retains mixed Mach-indicated/KIAS source semantics through a reference-unit output; interpolation across the 20,000/25,000 ft unit boundary fails closed
-       - High-Speed Cruise remains absent because no reviewed source table exists; LRC maximum-specific-range shading is not inferred from text extraction
-       - expose only direct source-supported outputs; no invented optimum-climb/cruise recommendation and no derived High-Speed Cruise
-       - runtime acceptance: PR #273 squash-merged as `7d0cd05337d229c6db74771cc6a0806507e7ac3a`; typecheck PASS; targeted Reference runtime 9/9 PASS; full Node 1453 total / 1452 PASS / 0 FAIL / 1 SKIP; production build PASS
-       - 15.2c.2 UI binds the separately registered package into the new-shell Reference workspace after aircraft-configuration filtering; exact source rows, bounded interpolated results and fail-closed unavailable states are visually distinct
-       - source/effectivity notes and provenance remain progressively disclosed; the UI exposes direct source-supported outputs only and does not invent optimum climb/cruise or High-Speed Cruise
-       - UI acceptance: targeted Reference runtime/UI suite 15/15 PASS; full Node suite 1459 total / 1458 PASS / 0 FAIL / 1 SKIP; production build PASS; Playwright 388/388 PASS across the existing responsive browser matrix; the final post-browser change was test-only and did not alter production code
-       - local acceptance was executed on Node 22.19.0 while the repository/deployment contract remains Node 24.x; the product owner explicitly accepted this local-runtime deviation for merge
-       - keep all 15.2 surfaces under Reference and outside the Takeoff/Landing operational workspace
-     - **15.2d Reference context split — COMPLETE · PR #275**
-       - product decision: Reference remains the owning domain in both product contexts; this does **not** move Climb/Cruise into Takeoff/Landing PERF
-       - **LEARN → Reference** becomes a source-table browser: select a published regime/source table and inspect the complete published matrix rather than entering arbitrary calculation inputs
-       - LEARN table presentation must show exact source values only; sparse/blocked cells remain visibly unavailable and no interpolation result is presented as source data
-       - **EFB → REF fast path** owns the input-driven Reference lookup/calculator over the same governed 15.2 datasets and the same generic runtime
-       - EFB REF accepts continuous numeric inputs within the published source envelope and returns exact or bounded interpolated results; no extrapolation, sparse-corner bridging, source-anomaly repair, or interpolation across the one-engine Mach/KIAS semantic boundary
-       - existing #272 source extracts and #273 runtime remain canonical; #274 calculation UI is reused/repositioned rather than replaced with a second calculation engine
-       - existing governed limitations stay available in REF; the new Climb/Cruise lookup is additive to the REF fast path, not a replacement for limitations
-       - preserve configuration/effectivity filtering, source provenance, responsive cockpit/iPad usability, legacy flag-off behavior, and aircraft-agnostic presentation/runtime boundaries
-       - acceptance: targeted context-split/P5/P7 suite 39/39 PASS; full Node suite 1460 total / 1459 PASS / 0 FAIL / 1 SKIP; production build PASS; Playwright 392/392 PASS; final post-browser change was documentation-only and did not alter production code
-   - **15.2e / 15.3c EFB checklist ownership + REF drawer polish — COMPLETE · PR #276**
-     - supersedes the new-shell presentation where the left-rail **FLY** destination opened a second aggregate Flight Deck containing Checklist / Performance / Emergency tabs
-     - new-shell EFB side navigation exposes a dedicated **Checklist** destination (`CHK`) at the existing `/fly` compatibility route; the full-page surface renders only the operational checklist and keeps the shared Active Flight checklist session
-     - dedicated **PERF** remains the full Performance workspace; operational **QRH** remains the Emergency/Abnormal fast path; remove their duplicate tabs from the new-shell checklist page
-     - flag-off / legacy `/fly` keeps the historical aggregate Flight Deck unchanged for backward compatibility
-     - EFB **REF** fast-path calculator keeps the same governed data/runtime but uses a drawer-specific compact layout: inputs remain readable and the result stacks below inputs rather than competing side-by-side in the 520 px drawer
-     - preserve source/effectivity filtering, exact/interpolated/unavailable semantics, no-extrapolation rules, touch targets, keyboard/focus behavior and responsive iPad/mobile acceptance
-     - acceptance: targeted IA/Reference/legacy-shell regression suite **60/60 PASS**; full Node **1460 total / 1459 PASS / 0 FAIL / 1 SKIP**; production build **PASS** from the production-code revision (subsequent fixes were test-only); Playwright **392/392 PASS**; working tree clean
-   - **15.3d Checklist dark-theme correction — ACCEPTED · READY TO MERGE · PR #278**
-     - production visual smoke after #276 exposed legacy hard-coded light surfaces inside `OperationalChecklist`; the surrounding EFB shell was dark while phase controls and checklist item cards remained white
-     - replace checklist surface/text/border/completed/source-warning/source-caution styling with existing workspace semantic tokens while retaining legacy light fallbacks for flag-off compatibility
-     - no checklist data, progress/session, applicability or operational behavior changes
-     - add static token regression plus browser acceptance proving a dark-workspace checklist card resolves to `--ft-bg-panel` rather than white
-     - acceptance: targeted checklist/theme/B5 regression **25/25 PASS**; full Node **1461 total / 1460 PASS / 0 FAIL / 1 SKIP**; production build **PASS**; focused B5 Playwright **8/8 PASS** serially; full responsive Playwright **396/396 PASS**; working tree clean; production visual smoke remains post-merge/deploy
-   - **15.3 EFB / FLY content-completeness audit — AUDIT COMPLETE · IMPLEMENTATION PLANNED**
-     - audit scope: EFB side-nav **FLY**, fast-path **CHECKLIST / QRH / PERF / REF**, and the corresponding Learjet 35A governed data dependencies
-     - historical cause confirmed: the M39 Learjet clean reset intentionally retired the previous Learjet checklist/procedure/system/performance/limitation/abnormal payloads; the current rebuild has since restored bundled Takeoff/Landing performance, but the operational fast-path still depends on separately published governed modules for CHECKLIST, QRH and REF
-     - **15.3a FLY route dead-end — COMPLETE · PR #229 · LIVE IN PRODUCTION**
-       - new-shell EFB navigation currently sends **FLY** to `/aircraft/:id/fly`
-       - that route still uses the older strict Flight Deck composition and calls `notFound()` when no operationally-ready published checklist/performance/abnormal module survives readiness gating
-       - unlike the current EFB Flight Brief/PERF path, the legacy FLY route does not merge the Learjet bundled performance package, so the aircraft can have working Takeoff/Landing performance and still have a dead FLY destination
-       - fix the new-shell FLY destination so it opens a valid EFB Flight Deck using the current new-shell data composition; preserve fail-closed behavior per individual missing module instead of making the entire destination disappear
-       - preserve legacy/flag-off behavior separately; do not weaken source-authority or freshness gates for checklist/QRH data
-       - implementation: new-shell `/fly` now stays reachable even when DB operational modules are sparse, merges the current bundled Learjet Performance package into the Flight Deck, and keeps checklist/QRH behind existing operational-readiness gates
-       - new-shell route no longer applies the all-modules-missing `notFound()` boundary; the strict all-missing 404 remains flag-off/legacy only
-       - Flight Deck now renders an explicit fail-closed empty state if an aircraft genuinely has no operational modules
-       - targeted regression coverage added in `tests/p1-5-fly-route.test.ts`; M53 operational-boundary expectation updated for the bundled-performance merge
-       - local acceptance: typecheck PASS · targeted 15.3a/M53/UX6 suite **15/15 PASS** · production build PASS
-       - merged to `main` in PR #229 · merge commit `22e5e4a23f1eda93429486585e78fb6c9743f84b`
-       - production deployment `dpl_C45SzjJxxoJKqRjqMNM1yZ75o1Ve` reached **READY** and is aliased to `training.fly-tally.com`
-       - production FLY smoke: `/aircraft/learjet-35a/fly` HTTP 200 and renders the new-shell `data-ft-fly-page` workspace with Performance content
-       - production readiness smoke: HTTP 200 · `status=ready` · operational profile true · source-governed release profile true
-     - **15.3b CHECKLIST fast path — COMPLETE · LIVE IN PRODUCTION**
-       - runtime/UI is implemented and functional; the governed universal `checklists` payload is now published in production
-       - CL-102B Normal Procedures N-2 through N-18 have been digitized into `aircraft-data/learjet-35a/checklists/normal-checklist.ts` using the universal checklist contract
-       - N-15 Landing Speeds/Distances remains owned by Performance and is intentionally not duplicated into checklist content
-       - source provenance is embedded at phase/item level using `CL-102B`; a reviewed source manifest records Change 2, the source fingerprint and the OPERATING_REFERENCE authority boundary
-       - current `fc530-standard` applicability is source/configuration driven: Rosemount wording and FC-530 trim checks are selected; non-Rosemount alternatives are filtered out
-       - generic thrust-reverser and drag-chute checks fail closed while those equipment states remain `unknown`
-       - TR-4000/Aeronca model-specific actions are intentionally omitted until the simulator thrust-reverser model is positively identified; FC-200-only items are omitted for the current FC-530 target
-       - the serial-number-specific FL410 oxygen-mask item is deferred until checklist applicability can represent aircraft serial/effectivity explicitly
-       - source-visible optional-equipment qualifiers remain literal `if installed` wording where no registered configuration key exists; no new applicability identifiers are invented
-       - guarded publisher `tooling/publish-learjet-checklist.ts` validates the payload, registers CL-102B/source reference if absent, then creates/approves/publishes the governed `checklists:bundle` only with explicit `CONFIRM_LEARJET_CHECKLIST_PUBLISH=yes`
-       - focused regression coverage validates universal schema, unique IDs, source identity/fingerprint, target-profile filtering, registered applicability identifiers, source-critical Power/panel/start handoff items and the explicit publication guard
-       - through-flight ◆ markers and Normal Procedure bold-emphasis semantics are not inferred because the parsed source does not preserve a reliable item-level mapping and the current checklist contract has no explicit field for those semantics
-       - focused acceptance gate PASS (2026-09-25): `npm run typecheck` PASS · targeted checklist/runtime/P5 suite **32/32 PASS** · production `npm run build` PASS
-       - the only build warning is the pre-existing non-blocking Turbopack workspace-root/package-lock warning outside the repository
-       - PR #230 merged to `main` as `1d0adda4139149be1a2e8f99a87d7696dfce889f`; reviewed CL-102B checklist content is now governed and live in production
-       - first explicit publisher run failed **before any database action** because `tsx` transformed the script as CommonJS and rejected top-level `await`; this is a tooling/runtime defect, not a checklist-content validation failure
-       - **15.3b.1 Checklist publisher CJS runtime hotfix — COMPLETE · PR #231 · MERGED**
-         - publisher now runs through an explicit `async main()` entrypoint; no top-level `await` remains
-         - regression coverage invokes the exact Node/tsx runtime command with confirmation removed and requires the script to reach the confirmation guard with exit code 2
-         - the regression explicitly rejects the prior `Top-level await is currently not supported` transform failure
-         - focused acceptance PASS (2026-09-25): typecheck PASS · publisher/checklist suite **10/10 PASS** · production build PASS
-         - merged to `main` as `7fd163ee1e3ac6feddaaaf66101e07b1c9db3e70`
-       - **15.3b.2 Checklist publisher local environment loading — COMPLETE · PR #232 · MERGED**
-         - the guarded publisher is a plain Node/tsx command, so unlike `next build` it does not automatically load `.env.local`
-         - npm publisher command now uses Node 24 `--env-file-if-exists=.env.local`, preserving local production DB configuration without copying secrets into the shell
-         - missing `.env.local` remains harmless; the explicit publish confirmation guard still executes first
-         - the real-runtime regression now includes the env-file flag and rejects unsupported-option/runtime-transform regressions
-         - focused acceptance PASS (2026-09-25): typecheck PASS · publisher/checklist suite **10/10 PASS** · production build PASS
-         - merged to `main` as `c6609df49d5ec9e2f7a7bda7715564f20ca564a6`
-         - historical local publish path was later superseded by 15.3b.4 because the production database credential is intentionally non-pullable
-       - **15.3b.3 Production DB credential handoff for one-shot checklist publication — BLOCKED / SUPERSEDED BY 15.3b.4**
-         - explicit publish now reaches the runtime guard correctly, but local `.env.local` does not contain `TRAINING_DATABASE_URL`
-         - linking the repository and using Vercel `env run -e production` still cannot supply the database credential because the Production project marks it as a non-pullable Secret
-         - production itself remains healthy and database-backed; this is a release-path limitation, not a database outage or checklist-content failure
-         - do not copy or expose the Production DB secret merely to complete this release
-       - **15.3b.4 Authenticated production-runtime checklist release — COMPLETE · PR #233 · LIVE IN PRODUCTION**
-         - added shared server-only `publishLearjetChecklistRelease()` helper that owns payload validation, exact CL-102B manifest/fingerprint checks, source registration/reference creation, idempotence and the governed draft → approval → publication lifecycle
-         - the CLI publisher now delegates to the same helper; there is no second weaker publication implementation
-         - added authenticated Training-admin server action `publishLearjetChecklistReleaseAction`; administrator authorization is checked before the explicit confirmation value
-         - Admin → Platform tools now exposes **Publish reviewed Learjet checklist** with a required confirmation checkbox
-         - the action runs inside the production runtime, so it uses the already-configured protected `TRAINING_DATABASE_URL` without pulling or exposing the secret locally
-         - release result is idempotent for an identical payload and revalidates Learjet admin, checklist and FLY surfaces
-         - focused tests cover shared governance helper ownership, CLI guard preservation, admin gating/confirmation, runtime revalidation and absence of DB-secret handling in the action
-         - focused acceptance PASS (2026-09-25): typecheck PASS · checklist/admin suite **11/11 PASS** · production build PASS
-         - merged to `main` as `4229882b17022879485f70aaff5742215c3e7e33`
-         - production deployment `dpl_AswMNS8dfQegSArqTh3Qkjg3y1E4` reached **READY**
-         - authenticated administrator publication completed successfully in production
-         - production FLY smoke for `fc530-standard`: CHECKLIST is populated; `Exterior Preflight`, `Cabin Preflight`, `Before Starting Engines`, `Starting Engines`, `Runway Lineup` and `Quick Turnaround` are present; `Checklist unavailable` is absent
-         - production readiness smoke: HTTP 200 · `status=ready` · operational true · source-governed release true
-       - **15.3b.5 EFB checklist session unification — COMPLETE · LIVE IN PRODUCTION**
-         - production acceptance bug addressed by making the new-shell EFB use the Fast Path provider as the single checklist state owner for the main Flight Deck, top progress indicator and fast-path drawer; legacy flag-off local checklist persistence remains isolated
-         - completed items and selected phase now synchronize bidirectionally between the main Flight Deck and CHECKLIST drawer
-         - CHECKLIST drawer now exposes reset-phase and two-step reset-all controls, phase completion markers and a next-phase affordance
-         - fast-path CURRENT STEP now follows the selected phase rather than mixing the global first-unchecked item with another displayed phase
-         - EFB canonical persistence now uses localStorage scoped by the current Active Flight ID; same-flight progress survives tab/browser navigation on the same device, while a new Active Flight receives an isolated clean session
-         - one-time migration imports the pre-existing unscoped canonical session (sessionStorage) or legacy operational state into the new scoped session and consumes the old key so it cannot seed later flights repeatedly
-         - Learn checklist-training persistence remains unscoped/session-based and separate from Active Flight operational state
-         - focused coverage added for Active Flight key isolation, one-time migration, shared Flight Deck/Fast Path ownership, reset controls and browser synchronization
-         - first focused gate: session/runtime cases passed, but typecheck/build exposed one callback-narrowing error in Fast Path reset and P5.6 exposed one stale source-text assertion after the intended e2e test rename
-         - both gate findings are fixed without changing runtime behavior: reset callback now captures the already-validated phase id, and P5.6 expects the new flight-scoped migration test title
-         - focused acceptance PASS (2026-09-25): typecheck PASS · targeted session/P5/15.3b.5 suite **30/30 PASS** · production build PASS
-         - targeted Playwright 15.3b.5 smoke was not executed because local port 3000 was already occupied; this is an environment blocker from the two-server Playwright harness, not a test failure
-         - merged to `main` in PR #234 · merge commit `7b1465f8ae4bef755e7ccb800a4b874a4716ff72`
-         - production deployment `dpl_AMMSPGwSp84CDa5WQUUn9HcDS5Gq` reached **READY** and is aliased to `training.fly-tally.com`
-         - product-owner production smoke PASS: main checklist ↔ fast-path synchronization, phase synchronization, reset controls and persistence behavior confirmed
-     - **15.3c QRH fast path — IN PROGRESS**
-       - runtime/UI is implemented and deliberately fails closed unless the published abnormal module is fresh and all linked sources are CONTROLLING or OPERATING_REFERENCE
-       - there is no Learjet bundled QRH/emergency fallback
-       - **QRH.1 source inventory + contract-gap audit — COMPLETE · PR #237**
-         - CL-102B Change 2 is the operating-reference source; the AFM remains controlling in a conflict
-         - Emergency section inventory: E-i/E-ii introduction, E-1/E-2 index, source procedures from E-4 onward; 11 index categories / 30 indexed procedure titles
-         - Abnormal section inventory: A-i/A-ii introduction, A-1/A-1.1/A-2/A-3 index, source procedures from A-4 onward; 13 index categories / 65 indexed procedure-title entries including configuration-specific thrust-reverser branches
-         - LOEP effectivity splits are captured explicitly for serial/AMK families, Rosemount pitot-static and no-reverser/Aeronca/TR-4000 configurations
-         - CL-102B defines memory items by boxed presentation and requires page-level effectivity review; neither semantic may be inferred from title text
-         - current universal abnormal contract is training-first: it requires difficulty/minutes/setup/objectives/debrief/prompt/explanation even though the source QRH does not supply those fields
-         - current operational QRH projection has no explicit Emergency-vs-Abnormal procedure class, hard-codes the visible EMERGENCY label, and infers immediate/memory presentation from stage-label text
-         - current flat `expectedResponse[]` can carry action text but cannot faithfully model source conditional branches/substeps such as E-4 without flattening semantics
-         - current applicability model can represent equipment/modification state but has no first-class aircraft serial-number range; serial/AMK source effectivity must therefore remain fail-closed until explicitly mapped
-         - structured source inventory is committed in `aircraft-data/learjet-35a/qrh/source-inventory.ts`; it is audit evidence only and is not publishable operational content
-         - acceptance: typecheck PASS · focused QRH.1 suite 4/4 PASS · full Node suite 1224 total / 1223 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright not required because QRH.1 changes source inventory, tests and roadmap only
-       - **QRH.2 contract hardening — COMPLETE · PR #238**
-         - evolve the generic abnormal/emergency contract without Learjet-specific runtime branches
-         - add explicit procedure class (Emergency / Abnormal), explicit memory-item semantics and source-faithful conditional/substep structure
-         - separate source-exact operational procedure data from optional Training scenario metadata so QRH publication does not require invented training prose
-         - preserve existing scenario-training compatibility through an explicit training projection/overlay rather than weakening source-governed QRH data
-         - define a fail-closed mapping strategy for serial/AMK effectivity before any variant-specific Learjet procedure is published
-         - implementation delivers a versioned v2 operational-first contract, explicit procedure class/memory semantics, nested condition branches, source effectivity mapping gate, optional Training overlay, section introductions and backward-compatible legacy projection
-         - aircraft search indexes v2 source structure without depending on training-only metadata; deterministic browser acceptance now exercises v2 Emergency/Abnormal class, memory items and conditional branches directly
-         - acceptance on head `59bc099`: typecheck PASS · targeted QRH/P5/P6 suite 43/43 PASS · full Node suite 1232 total / 1231 PASS / 0 FAIL / 1 SKIP · production build PASS · targeted Playwright QRH acceptance 8/8 PASS across desktop Chromium, mobile Chromium, iPad landscape and iPad portrait
-       - **QRH.3 source digitization/publication — IN PROGRESS**
-         - digitize applicable CL-102B Emergency and Abnormal procedure content only after QRH.2 contract semantics are accepted
-         - preserve exact page-level provenance, WARNING/CAUTION/NOTE, memory items, conditional branches and effectivity
-         - **QRH.3A Emergency source batch 1 — COMPLETE · PR #239:** CL-102B E-i/E-4/E-5/E-9/E-10/E-11 digitized into the generic v2 contract (Emergency section guidance, DOOR LIGHT, AC INVERTER FAILURE — TOTAL, GENERATOR FAILURE (DUAL), ENGINE FAILURE); source-boxed Engine Failure memory items are explicit at action level; all reviewed pages are ALL-aircraft effectivity
-         - real CL-102B source review exposed informational/non-action procedure lines; the generic QRH step contract now carries an `information` step through validation, search, operational projection and presentation instead of falsely coercing those lines into crew actions
-         - QRH.3A remains deliberately unbundled/unpublished until the complete applicable Learjet QRH package and effectivity mapping pass are ready; partial content must not become a production fallback
-         - QRH.3A acceptance on head `9809c04`: typecheck PASS · targeted QRH/P5/P6/W2 suite 58/58 PASS · full Node suite 1239 total / 1238 PASS / 0 FAIL / 1 SKIP · production build PASS · targeted Playwright QRH acceptance 8/8 PASS across desktop Chromium, mobile Chromium, iPad landscape and iPad portrait
-         - **QRH.3B Engine emergency source batch — COMPLETE · PR #240:** source-reviewed E-12 ENGINE FIRE — SHUTDOWN and E-19 OIL PRESSURE LIGHT(S) are staged; branch-level memory semantics are explicit so only the boxed E-12 branch is classified as memory
-         - E-13 AIRSTART ENVELOPE remains fail-closed: its graphical operating envelope is not flattened into text; generic source-figure support must be defined before it is digitized
-         - QRH.3B acceptance on head `ba2447a`: typecheck PASS · targeted QRH/P5/P6/W2 suite 64/64 PASS · full Node suite 1245 total / 1244 PASS / 0 FAIL / 1 SKIP · production build PASS · targeted Playwright QRH acceptance 8/8 PASS across desktop Chromium, mobile Chromium, iPad landscape and iPad portrait
-         - **QRH.3C Airstart source batch — COMPLETE · PR #241:** source-reviewed textual procedures E-14–E-18 are staged separately from their unresolved E-13 graphical prerequisite; no memory items are inferred because visual review shows no boxed memory presentation on these pages
-         - QRH.3C explicitly blocks operational publication on E-13: all four airstart procedures carry the unresolved graphical-envelope dependency while preserving their textual source content and ALL-aircraft effectivity
-         - QRH.3C acceptance on head `98785d6`: typecheck PASS · targeted QRH/P5/P6/W2 suite 70/70 PASS · full Node suite 1251 total / 1250 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright not required because QRH.3C changes staged source content/tests/roadmap only and introduces no runtime/UI behavior change
-         - **QRH.3D ALL-aircraft mid-section Emergency batch — COMPLETE · PR #242:** staged the reviewed ALL-aircraft procedures from E-21 and E-25 through E-33, preserving visual boxed-memory boundaries and nested decision structure
-         - E-20/E-20.1/E-20.2 BLEED AIR LIGHT and the E-22/E-22.1/E-23/E-23.1/E-24 CABIN/COCKPIT FIRE family remain explicitly fail-closed because source applicability depends on serial ranges/AMK state that the current generic configuration contract cannot prove
-         - QRH.3D acceptance on head `2993d3e`: typecheck PASS · targeted QRH/P5/P6/W2 suite 76/76 PASS · full Node suite 1257 total / 1256 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright not required because the final PR changes staged source content/tests/roadmap only and introduces no runtime/UI behavior change
-         - **QRH.3E generic source-effectivity architecture — COMPLETE · PR #243:** added exact aircraft serial identity, source serial-number ranges and nested `anyOf` effectivity composition to the generic applicability runtime so source rules such as serial-range OR AMK can be represented without Learjet-specific branches
-         - serial identity participates in the effective-configuration snapshot so changing aircraft S/N invalidates configuration-dependent state deterministically; missing/unknown serial or modification facts continue to fail closed
-         - governance traverses identifiers inside nested effectivity alternatives, and Studio configuration can persist an exact manufacturer serial identifier without interpreting its format
-         - QRH.3E acceptance on head `975e4cb`: typecheck PASS · targeted configuration/applicability/governance/QRH suite 92/92 PASS · full Node suite 1265 total / 1264 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright not required because no cockpit/browser behavior changed
-         - **QRH.3E.1 mapped-QRH validator parity — COMPLETE · PR #244:** wired serial-range and nested-OR applicability selectors into the QRH v2 mapped-effectivity guard so the QRH-specific precondition matches the accepted generic applicability contract
-         - QRH.3E.1 acceptance on head `55ea2e3`: typecheck PASS · targeted QRH/applicability contract suite 38/38 PASS · full Node suite 1266 total / 1265 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright not required because no browser/presentation behavior changed
-         - **QRH.3F serial/AMK Emergency source batch — COMPLETE · PR #245:** digitized the E-20/E-20.1/E-20.2 BLEED AIR LIGHT family and the E-22/E-22.1/E-23/E-23.1/E-24 CABIN/COCKPIT FIRE family using exact serial ranges plus AMK 76-7 / AMK 78-13 applicability; preserved independent page-level effectivity so mixed first-page/continuation combinations resolve correctly
-         - early serials whose source branch depends on AMK state remain fail-closed when that modification state is unknown; E-24 remains common only after the scenario-level configuration gate proves that a complete E-23/E-23.1 continuation can be selected
-         - visual source review confirms the only memory box in this QRH.3F batch is CABIN/COCKPIT FIRE steps 1–3 on E-22/E-22.1; BLEED AIR LIGHT and E-23/E-24 continuation content is not marked as memory
-         - QRH.3F acceptance on head `37c01ca`: typecheck PASS · targeted QRH/applicability/P5/P6/W2 suite 111/111 PASS · full Node suite 1272 total / 1271 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright not required because no browser/presentation behavior changed
-         - **QRH.3G thrust-reverser Emergency source batch — COMPLETE · PR #246:** staged E-35 Aeronca and E-35.1 TR-4000 takeoff emergencies using explicit generic configuration-equipment identifiers `thrust-reverser-aeronca` and `thrust-reverser-tr4000`; E-34 is source crew-notes material with no procedure action content
-         - preserve the source index split: Aeronca E-35 carries Below-V1 and Above-V1 paths under INADVERTENT THRUST REVERSER DEPLOYMENT, while TR-4000 E-35.1 carries Below-V1 under that title and Above-V1 under the separate INDICATION OF THRUST REVERSER DEPLOYMENT title
-         - visual source review fixes memory boundaries at E-35 Below-V1 steps 1–3, E-35 Above-V1 steps 1–7, E-35.1 Below-V1 steps 1–3, and E-35.1 Above-V1 through the boxed step-8 DEPLOY-light branch
-         - production publication remains fail-closed until the selected Learjet configuration explicitly registers/resolves exactly one of the two thrust-reverser equipment identities
-         - QRH.3G acceptance on head `f9f7d48`: typecheck PASS · targeted QRH/applicability/P5/P6/W2 suite 118/118 PASS · full Node suite 1279 total / 1278 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright not required because no browser/presentation behavior changed
-         - **QRH.3H Anti-Icing Abnormal source batch — COMPLETE · PR #247:** digitized the complete 12-procedure Anti-Icing index family from A-4 through A-9/A-9.1 plus the A-i Abnormal section introduction; preserved the A-6/A-6.1 through A-9/A-9.1 serial split and nested source conditions
-         - `WSHLD DEFOG LIGHT (IF INSTALLED)` is additionally gated by explicit generic configuration equipment `windshield-defog`; unknown/absent installation state fails closed
-         - visual review of A-4 through A-9.1 found no boxed memory items, so this batch introduces no inferred memory flags; no Training overlay is invented
-         - QRH.3H acceptance on head `b06d4f5`: typecheck PASS · targeted QRH/applicability/P5/P6/W2 suite 126/126 PASS · full Node suite 1287 total / 1286 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright not required because no browser/presentation behavior changed
-         - **QRH.3I Electrical Abnormal source batch — COMPLETE · PR #248:** digitized the complete two-procedure Electrical family from A-9/A-9.1 and A-10; preserved exact generator serial-page provenance plus nested reset/failure branches
-         - visual source review confirms A-9/A-9.1 and A-10 contain no boxed memory items; optional auxiliary-inverter qualifiers remain source text rather than becoming unregistered runtime assumptions
-         - QRH.3I acceptance on head `06f36d0`: typecheck PASS · targeted QRH/applicability/P5/P6/W2 suite 132/132 PASS · full Node suite 1293 total / 1292 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright not required because no browser/presentation behavior changed
-         - **QRH.3J Engine Abnormal source batch — COMPLETE · PR #249:** digitized the complete six-procedure Engine family from A-11 through A-13, including ABNORMAL ENGINE OPERATION, FUEL CMPTR LIGHT, ENG CHIP LIGHT, ENGINE OVERSPEED, ENGINE SHUTDOWN IN FLIGHT and STARTER ENGAGED LIGHT REMAINS ILLUMINATED
-         - preserve nested source conditions in fuel-computer, overspeed and starter-engaged procedures; retain exact A-11/A-12/A-13 provenance and ALL-aircraft effectivity
-         - visual source review confirms no boxed memory items on A-11 through A-13; A-11 vertical marks are Change 1 revision bars and must not be interpreted as memory boxes
-         - QRH.3J acceptance on head `92691f1`: typecheck PASS · targeted QRH/applicability/P5/P6/W2 suite 138/138 PASS · full Node suite 1299 total / 1298 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright not required because no browser/presentation behavior changed
-         - **QRH.3K Environmental Abnormal source batch — COMPLETE · PR #250:** digitized the complete five-procedure Environmental family from A-14 through A-16.1, including exact A-15/A-15.1 and A-16/A-16.1 serial variants plus the A-14 AMK 90-3 emergency-airflow control split
-         - `INADVERTENT ACTIVATION OF EMERGENCY AIRFLOW (IF INSTALLED)` is gated by explicit generic configuration equipment `emergency-airflow`; prior-aircraft AMK 90-3 state remains fail-closed where the source requires it
-         - visual review of A-14 through A-16.1 found no boxed memory items; the legacy comparison glyph on A-16/A-16.1 is explicitly documented and normalized to `≤` in the staged transcription rather than silently emitting the PDF encoding artifact
-         - QRH.3K acceptance on head `137b9b0`: typecheck PASS · targeted QRH/applicability/P5/P6/W2 suite 145/145 PASS · full Node suite 1306 total / 1305 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright not required because no browser/presentation behavior changed
-         - **QRH.3L Flight Controls Abnormal source batch — COMPLETE · PR #251:** digitized the complete five-procedure Flight Controls family from A-17 through A-19: AUG AIL LIGHT, MACH TRIM MALFUNCTION, PITCH TRIM LIGHT IN FLIGHT, STALL WARNING SYSTEM FAILURE and YAW DAMPER FAILURE
-         - preserve nested source branches, the source-defined single/dual yaw-damper split and exact A-17/A-18/A-19 provenance; `MACH TRIM MALFUNCTION` and `PITCH TRIM LIGHT IN FLIGHT` retain explicit `IF APPLICABLE` fail-closed equipment applicability rather than aircraft-name inference
-         - visual review of A-17 through A-19 found no boxed memory items
-         - QRH.3L acceptance on head `d2dbf6f`: typecheck PASS · targeted QRH/applicability/P5/P6/W2 suite 152/152 PASS · full Node suite 1313 total / 1312 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright not required because no browser/presentation behavior changed
-         - **QRH.3M Fuel Abnormal source batch — COMPLETE · PR #252:** digitized the complete ten-procedure Fuel family from A-19 through A-23, preserving source branches, exact page provenance and equipment-qualified FUS VALVE paths
-         - `CROSSFLOW VALVE FAILS TO OPEN` and `NORMAL FUEL TRANSFER SYSTEM FAILURE` use explicit generic `fuselage-valve-switch` configuration state; unknown installation state fails closed instead of selecting a source path by inference
-         - visual review of A-19 through A-23 found no boxed memory items; nested fuel-balance, jettison, low-fuel and standby-pump conditions remain structured source branches
-         - QRH.3M acceptance on head `fc1e603`: typecheck PASS · targeted QRH/applicability/P5/P6/W2 suite 159/159 PASS · full Node suite 1320 total / 1319 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright not required because no browser/presentation behavior changed
-         - **QRH.3N Hydraulic Abnormal source batch — COMPLETE · PR #253:** digitized the complete two-procedure Hydraulic family on A-23/A-24: LO HYD LIGHT (LOW HYDRAULIC PRESSURE) and HYDRAULIC SYSTEM FAILURE/ALTERNATE GEAR EXTENSION
-         - `LO HYD LIGHT` preserves the source `IF INSTALLED` qualifier through explicit generic `lo-hyd-light` configuration equipment; unknown/absent installation state fails closed while the all-aircraft alternate-gear procedure remains available
-         - preserve the A-23 pressure-result branch, A-24 alternate-gear extension sequence and source references to hydraulic-system-failure and gear-up landing procedures; visual review found no boxed memory items
-         - QRH.3N acceptance on head `dff2221`: typecheck PASS · targeted QRH/applicability/P5/P6/W2 suite 166/166 PASS · full Node suite 1327 total / 1326 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright not required because no browser/presentation behavior changed
-         - **QRH.3O Instruments Abnormal source batch — COMPLETE · PR #254:** digitized PITOT-STATIC SYSTEM MALFUNCTION from A-25/A-25.1 and V.G. MON LIGHT from A-26
-         - PITOT-STATIC SYSTEM MALFUNCTION preserves distinct `With Rosemount Pitot-Static System` and `Without Rosemount Pitot-Static System` source paths through explicit generic `rosemount-pitot-static-system` configuration state; unknown installation remains fail-closed
-         - preserve the source-specific overspeed/stick-puller logic, static-source recovery differences, AFM correction-chart reference and A-26 gyro-monitor guidance; visual review found no boxed memory items
-         - QRH.3O acceptance on head `7534297`: typecheck PASS · targeted QRH/applicability/P5/P6/W2 suite 173/173 PASS · full Node suite 1334 total / 1333 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright not required because no browser/presentation behavior changed
-         - **QRH.3P Landing Gear Abnormal source batch — COMPLETE · PR #255:** digitized the complete three-procedure Landing Gear family on A-26/A-27: ALTERNATE GEAR EXTENSION/ELECTRICAL MALFUNCTION, ANTI-SKID GEN LIGHT — ANTI-SKID OFF OPERATION and NOSE WHEEL STEERING MALFUNCTION
-         - preserve the A-26 electrical alternate-extension sequence, the A-27 conditional anti-skid path and distinct normal-taxi vs takeoff nose-wheel-steering procedures; all three pages are ALL-aircraft and visual review found no boxed memory items
-         - QRH.3P acceptance on head `cd1a5d4`: typecheck PASS · targeted QRH/applicability/P5/P6/W2 suite 179/179 PASS · full Node suite 1340 total / 1339 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright not required because no browser/presentation behavior changed
-         - **QRH.3Q Landings Abnormal source batch — COMPLETE · PR #256:** digitized the complete ten-procedure Landings family from A-27 through A-33.2, including the multi-page GEAR UP LANDING continuation, hydraulic/flap/stabilizer/icing landing branches and ONE THRUST REVERSER DEPLOYED LANDING
-         - first nine Landings procedures are ALL-aircraft; ONE THRUST REVERSER DEPLOYED LANDING is source-qualified to explicit TR-4000 thrust-reverser configuration and must fail closed for Aeronca/unknown/contradictory identity
-         - visual review found no boxed memory items on A-27 through A-33.2; the vertical marks on A-31 are source change bars, not memory boxes
-         - QRH.3Q acceptance on head `4f4976e`: typecheck PASS · targeted QRH/applicability/P5/P6/W2 suite 187/187 PASS · full Node suite 1348 total / 1347 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright not required because no browser/presentation behavior changed
-         - **QRH.3R Turbulence Abnormal source batch — COMPLETE · PR #257:** digitized TURBULENT AIR PENETRATION across the distinct A-33 Without Thrust Reversers, A-33.1 Aeronca and A-33.2 TR-4000 source-effectivity pages
-         - preserve the identical six-step source procedure while selecting exactly one source page through explicit generic thrust-reverser configuration; unknown/absent/contradictory identity must fail closed
-         - visual review found no boxed memory items on A-33/A-33.1/A-33.2
-         - QRH.3R acceptance on head `7646138`: typecheck PASS · targeted QRH/applicability/P5/P6/W2 suite 192/192 PASS · full Node suite 1353 total / 1352 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright not required because no browser/presentation behavior changed
-         - **QRH.3S Thrust Reversers Abnormal source batch — COMPLETE · PR #258:** digitized all six textual Thrust Reversers abnormal procedures from A-34.1/A-35.1 Aeronca and A-34.2 TR-4000 while accounting explicitly for the seventh indexed entry, the graphical A-35.2 THRUST REVERSER RESTOW ENVELOPE
-         - Aeronca and TR-4000 procedures use the existing generic thrust-reverser configuration identities and fail closed for unknown/absent/partial/contradictory identity; preserve all source-specific UNLOCK/DEPLOY/BLEED VALVE branches and landing references
-         - A-35.2 remains an explicit blocking graphical dependency for TR-4000 inadvertent deployment; do not flatten the indicated-airspeed/altitude restow envelope into textual thresholds
-         - visual review found no boxed memory items on A-34.1/A-34.2/A-35.1; annunciator depictions are indications, not memory boxes
-         - QRH.3S acceptance on head `c6c64f2`: typecheck PASS · targeted QRH/applicability/P5/P6/W2 suite 201/201 PASS · full Node suite 1362 total / 1361 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright not required because no browser/presentation behavior changed
-         - **QRH.3T graphical-envelope support — COMPLETE · PR #259:** added one aircraft-agnostic QRH operating-envelope figure contract, operational projection and responsive SVG presentation for source-digitized visual-reference geometry
-         - represented both E-13 AIRSTART ENVELOPE and A-35.2 THRUST REVERSER RESTOW ENVELOPE with source axes, labelled regions/guides/annotations and exact source-page provenance; figure geometry remains explicitly non-computational and cannot be used for interpolation, lookup or automated envelope membership
-         - attached E-13 to all four airstart procedures and A-35.2 to the TR-4000 inadvertent-deployment procedure, removing the final known graphical representation blockers without adding Learjet-specific runtime branches
-         - QRH.3T acceptance: typecheck PASS · targeted QRH/applicability/P5/P6/W2 suite 98/98 PASS · full Node suite 1363 total / 1362 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright 392/392 PASS across desktop Chromium, mobile Chromium, iPad landscape and iPad portrait
-         - **QRH.3U governed package/publication closure — COMPLETE · PR #260 + hotfix PR #261 · LIVE:** assembled and published the complete reviewed Learjet Emergency + Abnormal QRH as one governed `abnormal/bundle`
-         - package-level reconciliation against the authoritative E-1 Emergency index found and corrected three earlier Electrical omissions — BATTERY OVERHEAT LIGHT(S) (NICAD ONLY), CURRENT LIMITER FAILURE and ESSENTIAL BUS FAILURE — DC POWER LOSS — from E-6/E-6.1 and E-7/E-8/E-7.1
-         - final package contains 29 Emergency textual scenarios + E-13 AIRSTART ENVELOPE = all 30 indexed Emergency entries, and 64 Abnormal textual scenarios + A-35.2 RESTOW ENVELOPE = all 65 indexed Abnormal entries
-         - the E-6/E-6.1 family preserves the 35-509 / 36-054 and AMK 85-1 split; BATTERY OVERHEAT retains the source's NICAD ONLY qualifier through explicit `nicad-batteries` configured-equipment state; the E-7/E-8/E-7.1 family preserves the 35-202/206 / 36-041 and AMK 78-13 split; unknown required modification/equipment state remains fail-closed
-         - PR #261 added a reserved non-runtime applicability vocabulary registry after the first production publish attempt correctly failed closed on unregistered AMK identifiers; registry membership records only known vocabulary and never asserts installed/not-installed state
-         - governed release requires explicit administrator confirmation, reuses the immutable CL-102B Change 2 source identity, validates package completeness and applicability registration, then draft → approve → publish through the existing abnormal-domain lifecycle
-         - acceptance: typecheck PASS · focused QRH.3U suite 18/18 PASS · full Node suite 1381 total / 1380 PASS / 0 FAIL / 1 SKIP · production build PASS · Playwright 392/392 PASS; hotfix targeted 29/29 PASS · hotfix full Node 1384 total / 1383 PASS / 0 FAIL / 1 SKIP
-         - governed production publication version `8b2b0468-10b5-4711-b1c7-3787f375aa84` published successfully on 2026-09-25; production readiness remained 200/ready with source-governed release checks true and no runtime errors
-         - authenticated production smoke for `fc530-standard` confirmed operational QRH content is present (including ENGINE FIRE and E-13 AIRSTART ENVELOPE), the prior `QRH unavailable` state is gone, and configuration-specific content such as TR-4000 RESTOW and NICAD-only BATTERY OVERHEAT remains correctly filtered when those installation facts are not asserted
-       - **QRH.4 cockpit acceptance — IN PROGRESS**
-         - verify fast-path category/procedure navigation, Emergency-vs-Abnormal distinction, memory-item emphasis, configuration filtering, graphical-envelope presentation and source/authority disclosure on desktop/mobile/iPad
-         - acceptance must exercise the real Fast Path scroll container rather than window-only scrolling; mobile QRH Quick Access must collapse/re-expand correctly inside the full-screen drawer
-         - Emergency and Abnormal procedures must remain textually explicit and visually distinguishable without relying on color alone; memory-item metadata must remain visibly emphasized and machine-identifiable for acceptance
-         - package-level acceptance must prove fail-closed filtering still hides unknown NICAD/TR-4000 configuration content while retaining source-authoritative all-aircraft procedures
-         - full Node/build/Playwright plus authenticated production smoke before closure
-     - **15.3d PERF fast path — POPULATED / PARTIAL CONTENT COMPLETE**
-       - current Learjet bundled performance package contains the implemented Takeoff/Landing datasets and calculator definitions, so PERF does not depend solely on a DB-published performance bundle
-       - current package covers Takeoff N1, takeoff weight limits, V1/VR/V2, takeoff distance/wind support, VREF, approach/landing climb speeds and landing distance within their governed source envelopes
-       - remaining performance-content gap is primarily the planned 15.2 Climb/Cruise Reference work plus already-tracked source-envelope gaps; do not duplicate those into the Takeoff/Landing PERF workflow
-     - **15.3e REF fast path — CONTENT GAP CONFIRMED**
-       - REF is implemented but its source of truth is the governed published universal `limitations` payload; there is no Learjet bundled limitations fallback
-       - the current AFM source set contains FAA-approved FM-102 Section I Limitations material and should be the controlling basis for the initial REF dataset, with configuration/effectivity and temporary-change applicability handled explicitly
-       - next step: inventory/digitize high-value cockpit limitations first (speeds, weights, altitude, configuration/system restrictions and other source-defined operating limits), publish the universal limitations payload, then expand coverage systematically
-     - **15.3f EFB content acceptance — PLANNED**
-       - add a Learjet production-content acceptance check that distinguishes UI/runtime availability from actual non-empty governed data
-       - acceptance must assert: FLY opens; CHECKLIST has at least one applicable phase/item; QRH has at least one source-authoritative applicable scenario; PERF has calculator/dataset coverage; REF has at least one applicable limitation group/item
-       - missing data must surface as a tracked content gap rather than allowing a visually functional but empty EFB slot to be treated as complete
-   - Flight Brief Takeoff/Landing convergence
-   - source-backed operational W&B where available
-   - navigation/icon cleanup
-   - second/third aircraft acceptance against the same LEARN/EFB and Performance contracts
-   - legacy compatibility cleanup once migration telemetry/tests prove it is safe
+- inspect actual repo/runtime before design;
+- define scope, dependencies, acceptance criteria and DO/DO NOT boundaries;
+- prefer small implementation batches;
+- preserve backward compatibility unless retirement is explicit;
+- typecheck/targeted tests/full suite/build/Playwright/DB/production smoke according to scope;
+- report unrun checks as `NOT RUN`, never implied PASS;
+- update `ROADMAP.md`, `FEATURES.md` and `CHANGELOG.md` in the same work cycle when their truth changes;
+- production stability and aviation/data integrity outrank schedule convenience.

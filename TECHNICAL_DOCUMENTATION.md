@@ -616,21 +616,26 @@ Documentation assertions should reference this file when they are validating arc
 
 ## 20. Documentation governance
 
-The repository keeps only four maintained Markdown entry points:
+The repository keeps five maintained Markdown entry points:
 
 - `README.md` — short repository entry point;
-- `ROADMAP.md` — authoritative future direction/status;
-- `CHANGELOG.md` — accepted/released history;
+- `FEATURES.md` — canonical product capability inventory: implemented, intentionally constrained, source-gated and planned capabilities;
+- `ROADMAP.md` — authoritative future direction, phase order, dependencies, decisions and status;
+- `CHANGELOG.md` — accepted/released implementation history;
 - `TECHNICAL_DOCUMENTATION.md` — this living technical/product reference.
 
 Rules:
 
 - update this document when architecture, governance, safety, data ownership, deployment or major UX contracts materially change;
-- do not create a new milestone `.md` for routine implementation work;
-- record implementation sequencing/status in `ROADMAP.md`;
+- keep `FEATURES.md` about capability truth, not implementation sequencing;
+- keep `ROADMAP.md` forward-looking and concise; do not turn it back into a PR-by-PR engineering diary;
 - record accepted/released changes in `CHANGELOG.md`;
+- do not create a new milestone `.md` for routine implementation work;
 - use PR descriptions, Git history and tests as detailed historical evidence;
-- if a future topic becomes large enough to justify a separate normative document, first record that decision in the roadmap rather than allowing documentation sprawl to return.
+- preserve superseded decisions explicitly in the controlling document/changelog rather than silently rewriting history;
+- if a future topic becomes large enough to justify another normative document, first record that governance decision in the roadmap rather than allowing documentation sprawl to return.
+
+R0 (27 September 2026) supersedes the PR #236 **four-file count** only. The consolidation/anti-sprawl decision itself remains valid. Restoring `FEATURES.md` aligns Training with the FlyTally-wide documentation model while keeping architecture in this document and implementation history out of the roadmap.
 
 ---
 
@@ -643,7 +648,7 @@ The following former Markdown families were intentionally consolidated into this
 | `ARCHITECTURE.md`, `CONTENT_ARCHITECTURE.md`, `M9_*`, `V31_M1_*` | §§ 1–4 |
 | `IDENTITY_CONTRACT.md`, `M7_*` | §§ 5–6 |
 | `DEVELOPMENT.md`, `DEPLOYMENT.md`, `NO_CODE_ACCEPTANCE.md` | §§ 4, 15, 19 |
-| `FEATURES.md`, `V1_RELEASE.md` | §§ 1, 2, 18 |
+| pre-R0 `FEATURES.md` snapshot (removed by PR #236), `V1_RELEASE.md` | Current capability inventory is restored in `FEATURES.md`; architectural contracts remain in §§ 1, 2, 18 |
 | `M32_*` through `M39_*`, `M46_*` through `M58_*` | §§ 8, 12–14, 18 |
 | `P5_OPERATIONAL_FAST_PATH.md` | §§ 8–9 |
 | `P7_REFERENCE_FAST_PATH.md` | § 9 |

@@ -1,17 +1,18 @@
 # FlyTally Training
 
-FlyTally Training is the aircraft learning, training and operational-reference product in the FlyTally ecosystem. It is intentionally separate from FlyTally Logbook so training content, aircraft packages and EFB workflows can evolve without coupling to the regulatory logbook runtime.
+FlyTally Training is the aircraft learning, training and operational-reference product in the FlyTally ecosystem. It is intentionally separate from FlyTally Logbook so aircraft content, training and EFB workflows can evolve without coupling to the regulatory logbook runtime.
 
 ## Documentation
 
-The repository intentionally keeps a small documentation surface:
+Start here, in this order:
 
-- **`ROADMAP.md`** — authoritative implementation direction, status and next work.
-- **`CHANGELOG.md`** — accepted/released history.
-- **`TECHNICAL_DOCUMENTATION.md`** — living technical/product architecture, governance, safety, data, UX and deployment reference.
-- **`README.md`** — this short entry point.
+1. **`ROADMAP.md`** — current phase, next work, dependencies and frozen planning decisions.
+2. **`FEATURES.md`** — canonical product capability inventory.
+3. **`CHANGELOG.md`** — what actually changed.
+4. **`TECHNICAL_DOCUMENTATION.md`** — current technical/product architecture, governance, safety, data, UX and deployment contracts.
+5. **`README.md`** — this short repository entry point.
 
-Historical milestone/specification Markdown files were consolidated into the living technical documentation. Exact historical wording remains available through Git history and pull requests.
+The five-file surface is intentional. Detailed milestone history belongs in `CHANGELOG.md`, tests, pull requests and Git history rather than new routine milestone Markdown files.
 
 ## Core product rules
 
@@ -19,7 +20,8 @@ Historical milestone/specification Markdown files were consolidated into the liv
 - Operational content is source-governed and fails closed when provenance, authority, applicability or source envelope is insufficient.
 - AI may assist drafting but is never source authority and never bypasses human approval.
 - Training and Logbook share identity through an explicit contract, not database/session internals.
-- LEARN and EFB are separate product modes; Active Flight defines flight context while Performance owns calculations.
+- LEARN and EFB are separate product contexts; Active Flight defines flight context while Performance owns calculations.
+- Missing or source-blocked aviation data remains unavailable rather than being replaced by representative values.
 
 ## Development
 

@@ -26,15 +26,15 @@ test("UX6 reset preserves W3 fast-path semantics", () => {
   );
 });
 
-test("P1.1 ROADMAP is the single authoritative active implementation roadmap", () => {
+test("current ROADMAP owns forward execution while preserving the LEARN/EFB architecture", () => {
   const roadmap = read("ROADMAP.md");
 
-  assert.match(roadmap, /single authoritative product\/implementation roadmap/i);
-  assert.match(roadmap, /P1\.1 — LEARN \/ EFB product mode split — COMPLETE/i);
-  assert.match(roadmap, /P1\.1 production follow-up — merged via PR #213/i);
-  assert.match(roadmap, /P1\.2 — Versioned Performance Snapshot V2/i);
-  assert.match(roadmap, /P1\.3 — Canonical Performance operation controller/i);
-  assert.match(roadmap, /P1\.4 — Flight Brief becomes EFB home/i);
+  assert.match(roadmap, /canonical execution plan for `flytally-training`/i);
+  assert.match(roadmap, /LEARN.*aircraft knowledge/i);
+  assert.match(roadmap, /EFB.*Active Flight.*Flight Brief.*Performance/i);
+  assert.match(roadmap, /R1 — EFB Safety & Foundation Closure/i);
+  assert.match(roadmap, /R2 — Cockpit Workflow \/ Digital Binder/i);
+  assert.doesNotMatch(roadmap, /## Active implementation order/);
 });
 
 test("current technical documentation keeps the shell responsive across cockpit form factors", () => {

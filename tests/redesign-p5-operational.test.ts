@@ -84,7 +84,8 @@ test("P5.1 keeps REF ownership documented in the historical P5 contract", () => 
   const roadmap = read("ROADMAP.md");
 
   assert.match(inventory, /REF was not P5 work; it was owned by the P7 reference phase/i);
-  assert.match(roadmap, /one authoritative roadmap: this file/i);
+  assert.match(roadmap, /canonical execution plan for `flytally-training`/i);
+  assert.match(roadmap, /Fast Path remains `CHECKLIST \/ QRH \/ PERF \/ REF` through R2/i);
 });
 
 test("P5 reusable operational paths remain aircraft-agnostic", () => {
