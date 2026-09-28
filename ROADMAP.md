@@ -240,7 +240,7 @@ Next.js mechanism is deliberately **not frozen until a spike proves it**. The fi
   - selected scope exposes the deterministic effective-configuration snapshot identity;
   - configuration derivation failure becomes `configuration-invalid`;
   - acceptance on PR head: TypeScript PASS; full Node **1471 total / 1470 PASS / 0 FAIL / 1 SKIP**; production build PASS.
-- **R1.1b — Next.js shell/provider scope spike — ACCEPTED · READY TO MERGE · PR #286**
+- **R1.1b — Next.js shell/provider scope spike — COMPLETE · PR #286**
   - use a query-aware parallel-route slot page because Next.js 16 pages receive `searchParams` while shared layouts deliberately do not;
   - pass that slot through the existing aircraft layout and render it inside `FtFastPathProvider`, proving a future server-resolved Fast Path registration can share the existing provider without a header hack or second persisted selector;
   - keep the spike non-authoritative: the existing Fast Path payload is not rewired in this batch, so R1.1c still owns actual CHECKLIST / QRH / PERF / REF scope wiring;
@@ -248,11 +248,22 @@ Next.js mechanism is deliberately **not frozen until a spike proves it**. The fi
   - duplicate `variant` query values are ambiguous and fail closed as `configuration-invalid`;
   - acceptance on implementation head `ce82c47d0cad22693984dec0f247e81b08c689e2`: Verify Training **PASS**; TypeScript **PASS**; full Node **1472 total / 1471 PASS / 0 FAIL / 1 SKIP**; production build **PASS**; Browser smoke **420/420 PASS** across desktop, mobile, iPad landscape and iPad portrait;
   - the first Verify build attempt hit a transient Turbopack/next-font internal resolution failure while the parallel Browser build passed; rerun passed without a code change, so no product defect was attributed to that runner failure.
-- **R1.1c — page + Fast Path scope wiring — NEXT**
-  - wire CHECKLIST / QRH / PERF / REF to the proven shared scope;
-  - gate invalid/unselected EFB states;
-  - preserve explicit variant through navigation;
-  - remove the Fast Path REF query workaround.
+- **R1.1c — page + Fast Path scope wiring — ACTIVE**
+  - **R1.1c.1 — scoped Fast Path projection contract — NEXT**
+    - move configuration-dependent Fast Path filtering out of `FtShell` and into the proven query-aware server slot;
+    - define one serializable aircraft-agnostic projection carrying the workspace scope identity plus configuration-filtered CHECKLIST / QRH / PERF / REF payloads;
+    - register that projection into the existing client provider with a fail-closed request-echo guard so a retained layout cannot display a payload from a different `?variant=`;
+    - do not change Performance validity or Checklist snapshot schema yet; those remain R1.1d/e.
+  - **R1.1c.2 — operational page resolver adoption — PLANNED**
+    - new-shell EFB pages consume the same workspace resolver semantics as Fast Path;
+    - explicit unknown/ambiguous/configuration-invalid requests render an explicit invalid configuration state instead of legacy fallback;
+    - multi-variant EFB with no safe selection renders Configuration not selected;
+    - legacy flag-OFF routes keep the historical resolver until retirement.
+  - **R1.1c.3 — domain wiring and workaround retirement — PLANNED**
+    - CHECKLIST / QRH / PERF / REF consume the scoped projection and report the same `{aircraftId, variantKey, effectiveConfigurationSnapshotId}`;
+    - remove the Fast Path REF `window.location.search` resolver/filter workaround;
+    - preserve explicit variant through client navigation and verify no stale-config render window;
+    - run responsive Browser acceptance before closing R1.1c.
 - **R1.1d — Performance effective-configuration invalidation — PLANNED**
   - add effective-configuration snapshot identity as a distinct Takeoff/Landing validity dependency;
   - old stored snapshots without this dependency require explicit recalculation.
