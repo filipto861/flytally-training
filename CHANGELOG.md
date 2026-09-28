@@ -21,6 +21,8 @@ This file is the authoritative version history for completed FlyTally Training w
 - Added fail-closed handling for duplicate/ambiguous `variant` query values.
 - Added browser acceptance for explicit valid scope, effective-configuration snapshot identity, client navigation with preserved variant, and explicit invalid scope.
 - Runtime aviation content, Performance calculations, Checklist persistence and legacy flag-OFF behavior are unchanged in this spike.
+- Acceptance on head `ce82c47d0cad22693984dec0f247e81b08c689e2`: Verify Training PASS; TypeScript PASS; full Node **1472 total / 1471 PASS / 0 FAIL / 1 SKIP**; production build PASS; Browser smoke **420/420 PASS** across desktop, mobile, iPad landscape and iPad portrait.
+- The first Verify build attempt failed in a transient Turbopack/next-font internal resolver path while the Browser workflow built the same head successfully; a rerun of the failed Verify job passed without a code change.
 
 
 ### Browser responsive acceptance reliability
