@@ -14,6 +14,17 @@ This file is the authoritative version history for completed FlyTally Training w
 
 ## Unreleased
 
+### R1.1a workspace-scope resolver contract — PR #283
+- Added a new-shell-only, aircraft-agnostic workspace aircraft-scope resolver without changing the legacy `resolveSelectedVariant()` behavior.
+- Explicit invalid variant requests now have a fail-closed `unknown-variant` result in the new contract instead of permission to select a sole/default/common configuration.
+- Added explicit `unselected`, `selected`, `unknown-variant` and `configuration-invalid` states plus selection provenance (`explicit`, `sole-variant-default`, `common-aircraft`).
+- Preserved support for aircraft with no variant dimension by resolving the existing common configuration rather than incorrectly treating them as unconfigured.
+- Selected scope exposes the existing deterministic effective-configuration snapshot identity so later R1.1 batches can invalidate state on same-variant serial/equipment/modification changes.
+- Added generic regression coverage for explicit-valid, explicit-invalid single/multi variant, sole-default, multi-unselected, common-aircraft, snapshot drift/stability and configuration-resolution failure.
+- Acceptance on head `e836a665c8b6e8bca64b0cdfca48b6d82b4bb3c7`: GitHub Verify Training PASS; TypeScript PASS; full Node **1471 total / 1470 PASS / 0 FAIL / 1 SKIP**; production build PASS; Playwright/DB/deploy N/A for this pure contract batch.
+- No FtShell/Fast Path wiring, Performance persistence, Checklist session schema, Partial Power applicability or legacy runtime behavior changed yet.
+
+
 ### Independent R1 safety review reconciliation
 - Reconciled the independent R1.1/R1.3 review against current `main` rather than accepting its unverified assumptions.
 - Confirmed the page/Fast Path variant split, permissive explicit-invalid fallback, and the Fast Path REF `window.location.search` workaround.
