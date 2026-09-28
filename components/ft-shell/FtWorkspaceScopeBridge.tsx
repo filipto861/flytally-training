@@ -99,9 +99,11 @@ export function FtWorkspaceScopeRegistration({
     );
   }
 
+  const { registerScope } = context;
+
   useLayoutEffect(() => {
-    context.registerScope(scope);
-  }, [context, scope]);
+    registerScope(scope);
+  }, [registerScope, scope]);
 
   return (
     <span
