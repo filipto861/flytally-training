@@ -249,8 +249,8 @@ Next.js mechanism is deliberately **not frozen until a spike proves it**. The fi
   - acceptance on implementation head `ce82c47d0cad22693984dec0f247e81b08c689e2`: Verify Training **PASS**; TypeScript **PASS**; full Node **1472 total / 1471 PASS / 0 FAIL / 1 SKIP**; production build **PASS**; Browser smoke **420/420 PASS** across desktop, mobile, iPad landscape and iPad portrait;
   - the first Verify build attempt hit a transient Turbopack/next-font internal resolution failure while the parallel Browser build passed; rerun passed without a code change, so no product defect was attributed to that runner failure.
 - **R1.1c — page + Fast Path scope wiring — ACTIVE**
-  - **R1.1c.1 — scoped Fast Path projection contract — NEXT**
-    - move configuration-dependent Fast Path filtering out of `FtShell` and into the proven query-aware server slot;
+  - **R1.1c.1 — scoped Fast Path projection contract — IN PROGRESS**
+    - construct the canonical configuration-dependent Fast Path projection in the proven query-aware server slot; keep current `FtShell` consumers unchanged until R1.1c.3 so this first batch is a shadow/dark-launch contract rather than a simultaneous state-owner cutover;
     - define one serializable aircraft-agnostic projection carrying the workspace scope identity plus configuration-filtered CHECKLIST / QRH / PERF / REF payloads;
     - register that projection into the existing client provider with a fail-closed request-echo guard so a retained layout cannot display a payload from a different `?variant=`;
     - do not change Performance validity or Checklist snapshot schema yet; those remain R1.1d/e.
