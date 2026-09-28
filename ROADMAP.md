@@ -231,19 +231,32 @@ Next.js mechanism is deliberately **not frozen until a spike proves it**. The fi
 
 #### R1.1 implementation order
 
-1. Write failing fixture/regression tests against current main for:
-   - valid explicit variant;
-   - invalid explicit variant on single-variant aircraft;
-   - invalid explicit variant on multi-variant aircraft;
-   - multi-variant EFB with no selection.
-2. Add the shared new-shell resolution contract and deterministic identity assertions.
-3. Run the Next.js shell/provider integration spike.
-4. Wire page + Fast Path to the proven shared scope.
-5. Add Performance effective-configuration invalidation.
-6. Add Checklist effective-configuration mismatch handling.
-7. Remove the REF query workaround.
-8. Verify Partial Power preview applicability against the same scope.
-9. Run full R1.1 responsive/legacy regression gates.
+- **R1.1a — workspace-scope resolver contract — ACCEPTED · READY TO MERGE · PR #283**
+  - add a new-shell-only aircraft-agnostic resolver; legacy `resolveSelectedVariant()` remains untouched;
+  - explicit unknown variant never falls back;
+  - zero-variant aircraft resolves a common-aircraft scope;
+  - one variant with no request resolves as `sole-variant-default`;
+  - multiple variants with no request remain `unselected`;
+  - selected scope exposes the deterministic effective-configuration snapshot identity;
+  - configuration derivation failure becomes `configuration-invalid`;
+  - acceptance on PR head: TypeScript PASS; full Node **1471 total / 1470 PASS / 0 FAIL / 1 SKIP**; production build PASS.
+- **R1.1b — Next.js shell/provider scope spike — NEXT**
+  - prove the smallest query-aware architecture that lets the page and Fast Path share one resolved scope while preserving server-side filtering and shared checklist/provider state;
+  - reject the candidate if it requires undocumented headers, duplicate selection truth or a stale-config render window.
+- **R1.1c — page + Fast Path scope wiring — PLANNED**
+  - wire CHECKLIST / QRH / PERF / REF to the proven shared scope;
+  - gate invalid/unselected EFB states;
+  - preserve explicit variant through navigation;
+  - remove the Fast Path REF query workaround.
+- **R1.1d — Performance effective-configuration invalidation — PLANNED**
+  - add effective-configuration snapshot identity as a distinct Takeoff/Landing validity dependency;
+  - old stored snapshots without this dependency require explicit recalculation.
+- **R1.1e — Checklist configuration mismatch handling — PLANNED**
+  - carry effective-configuration snapshot identity in the session contract;
+  - never silently continue or reset progress across a mismatch.
+- **R1.1f — Partial Power applicability + final acceptance — PLANNED**
+  - verify the training-preview source schedule against the effective configuration;
+  - run responsive/legacy/no-aircraft-branch acceptance and close R1.1.
 
 #### Acceptance
 
