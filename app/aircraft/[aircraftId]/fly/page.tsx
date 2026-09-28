@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 
 import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
 import { FlightDeck } from "@/components/flight-deck";
+import { FtConfigurationState } from "@/components/ft-shell/FtConfigurationState";
 import {
   configurationForAircraftVariant,
   filterAbnormalEmergencyForConfiguration,
@@ -9,6 +10,9 @@ import {
   filterPerformanceForConfiguration,
   resolveSelectedVariant,
 } from "@/lib/aircraft-applicability";
+import {
+  resolveWorkspaceAircraftScopeFromSearchParam,
+} from "@/lib/workspace-aircraft-scope";
 import { getBundledPerformancePackage } from "@/lib/bundled-performance-content";
 import { normalizeUniversalChecklist } from "@/lib/checklist-runtime";
 import { getPublishedAircraftModule } from "@/lib/content-repository";
@@ -29,7 +33,7 @@ export default async function FlyPage({
   searchParams,
 }: Readonly<{
   params: Promise<{ aircraftId: string }>;
-  searchParams: Promise<{ variant?: string }>;
+  searchParams: Promise<{ variant?: string | string[] }>;
 }>) {
   const [{ aircraftId }, { variant }] = await Promise.all([params, searchParams]);
   const newShell = isNewShellEnabled();
@@ -46,8 +50,22 @@ export default async function FlyPage({
   ]);
   if (!aircraft) notFound();
 
-  const selectedVariant = resolveSelectedVariant(variant, aircraft.variants);
-  const configuration = configurationForAircraftVariant(aircraft, selectedVariant);
+  const workspaceScope = newShell
+    ? resolveWorkspaceAircraftScopeFromSearchParam(aircraft, variant)
+    : undefined;
+  if (newShell && workspaceScope?.status !== "selected") {
+    return <FtConfigurationState scope={workspaceScope} />;
+  }
+
+  const selectedVariant = newShell
+    ? workspaceScope?.status === "selected"
+      ? workspaceScope.variantKey ?? undefined
+      : undefined
+    : resolveSelectedVariant(variant as string | undefined, aircraft.variants);
+  const configuration =
+    newShell && workspaceScope?.status === "selected"
+      ? workspaceScope.configuration
+      : configurationForAircraftVariant(aircraft, selectedVariant);
 
   const configuredChecklist = operationalReadiness.checklists.ready && checklistContent
     ? filterChecklistForConfiguration(checklistContent, configuration)
