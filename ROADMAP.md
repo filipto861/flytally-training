@@ -246,7 +246,7 @@ Next.js mechanism is deliberately **not frozen until a spike proves it**. The fi
   - keep the spike non-authoritative: the existing Fast Path payload is not rewired in this batch, so R1.1c still owns actual CHECKLIST / QRH / PERF / REF scope wiring;
   - add browser evidence that the slot receives explicit `?variant=`, updates across client navigation under the shared layout, exposes the effective snapshot identity, and preserves an explicit invalid variant as invalid;
   - duplicate `variant` query values are ambiguous and fail closed as `configuration-invalid`;
-  - acceptance on PR head `ce82c47d0cad22693984dec0f247e81b08c689e2`: Verify Training **PASS**; TypeScript **PASS**; full Node **1472 total / 1471 PASS / 0 FAIL / 1 SKIP**; production build **PASS**; Browser smoke **420/420 PASS** across desktop, mobile, iPad landscape and iPad portrait;
+  - acceptance on implementation head `ce82c47d0cad22693984dec0f247e81b08c689e2`: Verify Training **PASS**; TypeScript **PASS**; full Node **1472 total / 1471 PASS / 0 FAIL / 1 SKIP**; production build **PASS**; Browser smoke **420/420 PASS** across desktop, mobile, iPad landscape and iPad portrait;
   - the first Verify build attempt hit a transient Turbopack/next-font internal resolution failure while the parallel Browser build passed; rerun passed without a code change, so no product defect was attributed to that runner failure.
 - **R1.1c — page + Fast Path scope wiring — NEXT**
   - wire CHECKLIST / QRH / PERF / REF to the proven shared scope;
