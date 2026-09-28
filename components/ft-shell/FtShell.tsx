@@ -32,6 +32,7 @@ import { FtFastPathRail } from "./FtFastPathRail";
 import { FtNavDrawer } from "./FtNavDrawer";
 import { FtSideNav } from "./FtSideNav";
 import { FtTopBar } from "./FtTopBar";
+import { FtWorkspaceScopeProvider } from "./FtWorkspaceScopeProvider";
 import styles from "./ft-shell.module.css";
 
 export async function FtShell({
@@ -132,13 +133,14 @@ export async function FtShell({
     : undefined;
 
   return (
-    <FtFastPathProvider
-      aircraftId={aircraftId}
-      checklist={checklist}
-      selectedVariant={selectedVariant}
-      activeFlight={activeFlight}
-    >
-      <section className={styles.shell} data-ft-shell="true" aria-label="Aircraft workspace shell">
+    <FtWorkspaceScopeProvider aircraft={aircraft}>
+      <FtFastPathProvider
+        aircraftId={aircraftId}
+        checklist={checklist}
+        selectedVariant={selectedVariant}
+        activeFlight={activeFlight}
+      >
+        <section className={styles.shell} data-ft-shell="true" aria-label="Aircraft workspace shell">
         <FtSideNav aircraftId={aircraftId} />
 
         <div className={styles.workspace}>
@@ -153,17 +155,18 @@ export async function FtShell({
         </div>
 
         <FtFastPathRail aircraftId={aircraftId} />
-        <FtFastPathPanel
-          activeFlight={activeFlight}
-          emergency={emergency}
-          referenceAircraft={aircraft}
-          referenceContent={publishedLimitations}
-          referencePerformance={bundledReferencePerformance?.content}
-          selectedVariant={selectedVariant}
-          performanceDatasets={performanceDatasets}
-          takeoffCalculator={bundledPerformance?.takeoffCalculator}
-        />
-      </section>
-    </FtFastPathProvider>
+          <FtFastPathPanel
+            activeFlight={activeFlight}
+            emergency={emergency}
+            referenceAircraft={aircraft}
+            referenceContent={publishedLimitations}
+            referencePerformance={bundledReferencePerformance?.content}
+            selectedVariant={selectedVariant}
+            performanceDatasets={performanceDatasets}
+            takeoffCalculator={bundledPerformance?.takeoffCalculator}
+          />
+        </section>
+      </FtFastPathProvider>
+    </FtWorkspaceScopeProvider>
   );
 }
