@@ -48,6 +48,30 @@ test("W1 mounts the new shell without duplicate legacy navigation when the flag 
   await expect(legacyNav).toBeHidden();
 });
 
+test("R1.1b query-aware scope slot synchronizes the shell without owning Fast Path filtering", async ({ page }) => {
+  const echo = page.locator('[data-ft-workspace-scope-echo="true"]');
+
+  await page.goto(`${shellOnBase}${aircraftPath}/efb?variant=Standard`);
+  await expect(echo).toHaveAttribute("data-workspace-scope-synchronized", "true");
+  await expect(echo).toHaveAttribute("data-workspace-scope-status", "selected");
+  await expect(echo).toHaveAttribute("data-workspace-scope-variant", "Standard");
+  await expect(echo).toHaveAttribute(
+    "data-workspace-scope-snapshot",
+    /^effective:v1:/,
+  );
+
+  await page.goto(`${shellOnBase}${aircraftPath}/efb?variant=unknown`);
+  await expect(echo).toHaveAttribute("data-workspace-scope-synchronized", "true");
+  await expect(echo).toHaveAttribute("data-workspace-scope-status", "unknown-variant");
+  await expect(echo).toHaveAttribute("data-workspace-scope-variant", "");
+
+  await page.goto(
+    `${shellOnBase}${aircraftPath}/efb?variant=Standard&variant=Standard`,
+  );
+  await expect(echo).toHaveAttribute("data-workspace-scope-synchronized", "true");
+  await expect(echo).toHaveAttribute("data-workspace-scope-status", "unknown-variant");
+});
+
 test("P1.1 exposes Learn/EFB mode controls on desktop and touch navigation", async ({ page }, testInfo) => {
   await page.goto(`${shellOnBase}${aircraftPath}/learn`);
 
