@@ -8,6 +8,7 @@ import type { ActiveFlight } from "@/lib/active-flight/types";
 import { getAircraftProductModeForPathname } from "@/lib/aircraft-product-mode";
 
 import { FtFastPathIndicator } from "@/components/ft-fast-path/FtFastPathIndicator";
+import { useOptionalFtFastPath } from "@/components/ft-fast-path/FtFastPathProvider";
 import { FtSearchOverlay } from "@/components/ft-search/FtSearchOverlay";
 
 import styles from "./ft-shell.module.css";
@@ -26,7 +27,10 @@ export function FtTopBar({
   navigationControl: ReactNode;
 }>) {
   const pathname = usePathname();
+  const fastPath = useOptionalFtFastPath();
   const mode = getAircraftProductModeForPathname(pathname, aircraftId);
+  const resolvedProfileLabel =
+    fastPath?.workspaceProjection?.profileLabel ?? aircraftProfileLabel;
   const { flight } = useActiveFlightState(aircraftId, activeFlight);
   const current = flight?.lifecycle === "ACTIVE" ? flight : null;
 
@@ -41,9 +45,9 @@ export function FtTopBar({
         <strong>{aircraftIdentity}</strong>
         <span
           className={styles.aircraftProfile}
-          aria-label={"Aircraft profile: " + aircraftProfileLabel}
+          aria-label={"Aircraft profile: " + resolvedProfileLabel}
         >
-          {aircraftProfileLabel}
+          {resolvedProfileLabel}
         </span>
       </div>
 
