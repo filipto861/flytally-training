@@ -14,6 +14,13 @@ This file is the authoritative version history for completed FlyTally Training w
 
 ## Unreleased
 
+### Browser responsive acceptance reliability
+- Corrected the Playwright shell acceptance harness to follow the application’s effective media queries instead of assuming the `desktop-chromium` project always renders the desktop rail.
+- Navigation, Fast Path sizing, Procedures selector and touch-target checks now derive desktop/touch behavior from `matchMedia`, matching the same responsive contracts used by production CSS.
+- This addresses the scheduled Browser smoke baseline in which headless Desktop Chrome reports a touch-like hover/pointer environment and therefore legitimately renders the touch shell while project-name-based tests expected desktop-only controls.
+- No product runtime, aviation data, database schema or responsive CSS behavior changed.
+
+
 ### R1.1a workspace-scope resolver contract — PR #283
 - Added a new-shell-only, aircraft-agnostic workspace aircraft-scope resolver without changing the legacy `resolveSelectedVariant()` behavior.
 - Explicit invalid variant requests now have a fail-closed `unknown-variant` result in the new contract instead of permission to select a sole/default/common configuration.
