@@ -29,7 +29,7 @@ import { resolveWorkspaceAircraftScopeFromSearchParam } from "@/lib/workspace-ai
 
 function queryVariantValues(variant: string | readonly string[] | undefined): readonly string[] {
   if (variant === undefined) return [];
-  return Array.isArray(variant) ? variant : [variant];
+  return typeof variant === "string" ? [variant] : variant;
 }
 
 export async function FtWorkspaceScopeSlot({
