@@ -30,7 +30,8 @@ export function FtTopBar({
   const fastPath = useOptionalFtFastPath();
   const mode = getAircraftProductModeForPathname(pathname, aircraftId);
   const resolvedProfileLabel =
-    fastPath?.workspaceProjection?.profileLabel ?? aircraftProfileLabel;
+    fastPath?.workspaceProjection?.profileLabel
+    ?? (fastPath ? "Resolving configuration…" : aircraftProfileLabel);
   const { flight } = useActiveFlightState(aircraftId, activeFlight);
   const current = flight?.lifecycle === "ACTIVE" ? flight : null;
 
