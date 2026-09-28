@@ -3,16 +3,29 @@ import { expect, test, type Locator, type Page } from "@playwright/test";
 const shellOnBase = "http://127.0.0.1:3001";
 const aircraftPath = "/aircraft/browser-ci-aircraft";
 
-async function workspaceNavigation(
-  page: Page,
-  projectName: string,
-): Promise<Locator> {
-  const shell = page.locator('[data-ft-shell="true"]');
+async function shellUsesTouchLayout(page: Page): Promise<boolean> {
+  return page.evaluate(() =>
+    window.matchMedia("(max-width: 1180px), (hover: none)").matches,
+  );
+}
 
-  if (projectName === "desktop-chromium") {
-    return shell
-      .getByRole("navigation", { name: "Aircraft workspace sections" })
-      .first();
+async function proceduresUseCompactLayout(page: Page): Promise<boolean> {
+  return page.evaluate(() =>
+    window.matchMedia(
+      "(max-width: 1180px), (hover: none), (pointer: coarse)",
+    ).matches,
+  );
+}
+
+async function workspaceNavigation(page: Page): Promise<Locator> {
+  const shell = page.locator('[data-ft-shell="true"]');
+  const sideNav = shell
+    .getByRole("navigation", { name: "Aircraft workspace sections" })
+    .first();
+
+  if (!(await shellUsesTouchLayout(page))) {
+    await expect(sideNav).toBeVisible();
+    return sideNav;
   }
 
   const trigger = shell.getByRole("button", { name: "Open aircraft navigation" });
@@ -48,14 +61,14 @@ test("W1 mounts the new shell without duplicate legacy navigation when the flag 
   await expect(legacyNav).toBeHidden();
 });
 
-test("P1.1 exposes Learn/EFB mode controls on desktop and touch navigation", async ({ page }, testInfo) => {
+test("P1.1 exposes Learn/EFB mode controls on desktop and touch navigation", async ({ page }) => {
   await page.goto(`${shellOnBase}${aircraftPath}/learn`);
 
   const shell = page.locator('[data-ft-shell="true"]');
   const sideNav = shell.getByRole("navigation", { name: "Aircraft workspace sections" }).first();
   const drawerTrigger = shell.getByRole("button", { name: "Open aircraft navigation" });
 
-  if (testInfo.project.name === "desktop-chromium") {
+  if (!(await shellUsesTouchLayout(page))) {
     await expect(sideNav).toBeVisible();
     await expect(drawerTrigger).toBeHidden();
     await expect(sideNav.getByRole("link", { name: "Learn", exact: true })).toBeVisible();
@@ -97,12 +110,12 @@ test("P1.1 keeps operational fast path inside EFB only", async ({ page }) => {
 
 test("P1.1 mode-specific navigation exposes only the selected product surface", async ({ page }, testInfo) => {
   await page.goto(`${shellOnBase}${aircraftPath}/systems`);
-  let nav = await workspaceNavigation(page, testInfo.project.name);
+  let nav = await workspaceNavigation(page);
   await expect(nav.getByRole("link", { name: "Systems", exact: true })).toHaveAttribute("aria-current", "page");
   await expect(nav.getByRole("link", { name: "Performance", exact: true })).toHaveCount(0);
 
   await page.goto(`${shellOnBase}${aircraftPath}/performance`);
-  nav = await workspaceNavigation(page, testInfo.project.name);
+  nav = await workspaceNavigation(page);
   await expect(nav.getByRole("link", { name: "Performance", exact: true })).toHaveAttribute("aria-current", "page");
   await expect(nav.getByRole("link", { name: "Systems", exact: true })).toHaveCount(0);
 });
@@ -479,7 +492,7 @@ test("P5 legacy checklist progress migrates into the flight-scoped new-shell ses
   expect(storageState.canonical).not.toBeNull();
 });
 
-test("W3 panel is a 520px desktop drawer and a full-screen touch sheet", async ({ page }, testInfo) => {
+test("W3 panel is a 520px desktop drawer and a full-screen touch sheet", async ({ page }) => {
   const panel = await openFastPath(page, "CHECKLIST");
   const box = await panel.boundingBox();
   const viewport = page.viewportSize();
@@ -488,7 +501,7 @@ test("W3 panel is a 520px desktop drawer and a full-screen touch sheet", async (
   expect(viewport).not.toBeNull();
   if (!box || !viewport) return;
 
-  if (testInfo.project.name === "desktop-chromium") {
+  if (!(await shellUsesTouchLayout(page))) {
     expect(Math.abs(box.width - 520)).toBeLessThanOrEqual(2);
     expect(Math.abs(box.height - viewport.height)).toBeLessThanOrEqual(2);
   } else {
@@ -1402,7 +1415,7 @@ test("P3 Systems opens inside Learn mode", async ({ page }, testInfo) => {
     systems.getByRole("heading", { name: "Generic Source System", exact: true }),
   ).toBeVisible();
 
-  const nav = await workspaceNavigation(page, testInfo.project.name);
+  const nav = await workspaceNavigation(page);
   await expect(nav.getByRole("link", { name: "Systems", exact: true })).toHaveAttribute(
     "aria-current",
     "page",
@@ -1503,7 +1516,7 @@ test("P3 Cockpit Orientation remains inside Learn mode", async ({ page }, testIn
   await expect(page.getByText("Region A", { exact: true }).first()).toBeVisible();
   await expect(page.locator('[data-ft-systems-page="true"]')).toHaveCount(0);
 
-  const nav = await workspaceNavigation(page, testInfo.project.name);
+  const nav = await workspaceNavigation(page);
   await expect(nav.getByRole("link", { name: "Learn", exact: true })).toHaveAttribute(
     "aria-current",
     "page",
@@ -1554,7 +1567,7 @@ test("P4 Procedures opens under PROCEDURES in new shell", async ({ page }, testI
     }),
   ).toBeVisible();
 
-  const nav = await workspaceNavigation(page, testInfo.project.name);
+  const nav = await workspaceNavigation(page);
   await expect(
     nav.getByRole("link", { name: "Procedures", exact: true }),
   ).toHaveAttribute("aria-current", "page");
@@ -1777,7 +1790,7 @@ test("P6 Training opens as the Learn home", async ({ page }, testInfo) => {
     training.getByRole("heading", { name: "Scenario training", exact: true }),
   ).toBeVisible();
 
-  const nav = await workspaceNavigation(page, testInfo.project.name);
+  const nav = await workspaceNavigation(page);
   await expect(
     nav.getByRole("link", { name: "Learn", exact: true }),
   ).toHaveAttribute("aria-current", "page");
@@ -1934,7 +1947,7 @@ test("P7 new-shell Reference page reuses the REF limitation presentation", async
     `${aircraftPath}/limitations?variant=Standard`,
   );
 
-  const nav = await workspaceNavigation(page, testInfo.project.name);
+  const nav = await workspaceNavigation(page);
   await expect(
     nav.getByRole("link", { name: "Reference", exact: true }),
   ).toHaveAttribute("aria-current", "page");
@@ -2077,28 +2090,28 @@ test("UX4 fast path returns keyboard focus to the initiating rail action", async
 
 test("P1.1 compact rail exposes mode-specific accessible destination names", async ({ page }, testInfo) => {
   await page.goto(`${shellOnBase}${aircraftPath}/learn`);
-  let nav = await workspaceNavigation(page, testInfo.project.name);
+  let nav = await workspaceNavigation(page);
   for (const label of ["Learn", "Systems", "Procedures", "Limitations", "Reference"]) {
     await expect(nav.getByRole("link", { name: label, exact: true })).toBeVisible();
   }
   await expect(nav.getByRole("link", { name: "Performance", exact: true })).toHaveCount(0);
 
   await page.goto(`${shellOnBase}${aircraftPath}/efb`);
-  nav = await workspaceNavigation(page, testInfo.project.name);
+  nav = await workspaceNavigation(page);
   for (const label of ["Flight Brief", "Performance", "Checklist"]) {
     await expect(nav.getByRole("link", { name: label, exact: true })).toBeVisible();
   }
   await expect(nav.getByRole("link", { name: "Systems", exact: true })).toHaveCount(0);
 });
 
-test("UX6.8 touch Procedures exposes compact selector controls before procedure content", async ({ page }, testInfo) => {
+test("UX6.8 touch Procedures exposes compact selector controls before procedure content", async ({ page }) => {
   await page.goto(`${shellOnBase}${aircraftPath}/procedures`);
   const procedures = page.locator('[data-ft-procedures-page="true"]');
   await expect(procedures).toBeVisible();
 
   const picker = procedures.getByRole("combobox", { name: "Procedure", exact: true });
 
-  if (testInfo.project.name === "desktop-chromium") {
+  if (!(await proceduresUseCompactLayout(page))) {
     await expect(picker).toBeHidden();
     await expect(
       procedures.getByRole("navigation", { name: "Available procedures" }),
@@ -2110,10 +2123,9 @@ test("UX6.8 touch Procedures exposes compact selector controls before procedure 
   await expect(procedures.getByText("Filter", { exact: true })).toBeVisible();
 });
 
-test("UX6.8 primary touch shell controls meet the 44px boundary", async ({ page }, testInfo) => {
-  if (testInfo.project.name === "desktop-chromium") return;
-
+test("UX6.8 primary touch shell controls meet the 44px boundary", async ({ page }) => {
   await page.goto(`${shellOnBase}${aircraftPath}/efb`);
+  if (!(await shellUsesTouchLayout(page))) return;
   const trigger = page.getByRole("button", { name: "Open aircraft navigation" });
   const fastPath = page.getByRole("navigation", { name: "Operational fast path" });
   const controls = [
