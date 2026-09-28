@@ -6,6 +6,7 @@ import { useFtFastPath } from "@/components/ft-fast-path/FtFastPathProvider";
 import { getAircraftProductModeForPathname } from "@/lib/aircraft-product-mode";
 
 import { ftFastPathDestinations } from "./navigation";
+import { useFtWorkspaceScope } from "./FtWorkspaceScopeProvider";
 import styles from "./ft-shell.module.css";
 
 const iconFor = (key: string) =>
@@ -14,6 +15,7 @@ const iconFor = (key: string) =>
 export function FtFastPathRail({ aircraftId }: Readonly<{ aircraftId: string }>) {
   const pathname = usePathname();
   const { activeTab, panelOpen, openPanel, shortcutsReady } = useFtFastPath();
+  const { scope } = useFtWorkspaceScope();
   const mode = getAircraftProductModeForPathname(pathname, aircraftId);
 
   if (mode !== "efb") return null;
@@ -23,6 +25,17 @@ export function FtFastPathRail({ aircraftId }: Readonly<{ aircraftId: string }>)
       className={styles.fastPathRail}
       aria-label="Operational fast path"
       data-shortcuts-ready={shortcutsReady ? "true" : "false"}
+      data-workspace-scope-status={scope?.status ?? "unavailable"}
+      data-workspace-scope-variant={
+        scope?.status === "selected"
+          ? scope.variantKey ?? "common"
+          : undefined
+      }
+      data-workspace-scope-snapshot={
+        scope?.status === "selected"
+          ? scope.effectiveConfigurationSnapshotId
+          : undefined
+      }
     >
       {ftFastPathDestinations(aircraftId).map((destination) => (
         <button

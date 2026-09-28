@@ -95,6 +95,30 @@ test("P1.1 keeps operational fast path inside EFB only", async ({ page }) => {
   }
 });
 
+test("R1.1b Fast Path receives the current query-aware workspace scope", async ({ page }) => {
+  await page.goto(`${shellOnBase}${aircraftPath}/efb?variant=Standard`);
+
+  const rail = page.getByRole("navigation", { name: "Operational fast path" });
+  await expect(rail).toHaveAttribute("data-workspace-scope-status", "selected");
+  await expect(rail).toHaveAttribute("data-workspace-scope-variant", "Standard");
+  await expect(rail).toHaveAttribute(
+    "data-workspace-scope-snapshot",
+    /^effective:v1:/,
+  );
+
+  await page.goto(`${shellOnBase}${aircraftPath}/efb?variant=unknown`);
+
+  const invalidRail = page.getByRole("navigation", { name: "Operational fast path" });
+  await expect(invalidRail).toHaveAttribute(
+    "data-workspace-scope-status",
+    "unknown-variant",
+  );
+  await expect(invalidRail).not.toHaveAttribute(
+    "data-workspace-scope-variant",
+    /.+/,
+  );
+});
+
 test("P1.1 mode-specific navigation exposes only the selected product surface", async ({ page }, testInfo) => {
   await page.goto(`${shellOnBase}${aircraftPath}/systems`);
   let nav = await workspaceNavigation(page, testInfo.project.name);
