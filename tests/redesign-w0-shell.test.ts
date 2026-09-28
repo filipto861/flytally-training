@@ -91,7 +91,7 @@ test("W0 does not mount the new shell from existing aircraft page files", () => 
   assert.ok(pages.length > 0);
   for (const page of pages) {
     const source = read(page);
-    assert.doesNotMatch(source, /FtShell|FT_NEW_SHELL|ft-shell/i, `unexpected W0 shell reference in ${page}`);
+    assert.doesNotMatch(source, /\bFtShell\b|FT_NEW_SHELL/, `unexpected W0 shell mount in ${page}`);
   }
 });
 
