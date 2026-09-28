@@ -3,6 +3,11 @@ import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
 
+import {
+  fastPathProjectionMatchesVariantQuery,
+  type FastPathWorkspaceProjection,
+} from "../lib/fast-path/workspace-projection.ts";
+
 const root = path.resolve(import.meta.dirname, "..");
 const read = (file: string) => fs.readFileSync(path.join(root, file), "utf8");
 
@@ -57,4 +62,41 @@ test("R1.1c LEARN Reference keeps common-only unselected behavior explicit", () 
   assert.match(source, /workspaceScope\?\.status === "unselected"/);
   assert.match(source, /FtConfigurationNotice/);
   assert.match(source, /configurationForAircraftVariant\(aircraft, undefined\)/);
+});
+
+
+test("R1.1c query echo rejects stale Fast Path projections before registration catches up", () => {
+  const projection: FastPathWorkspaceProjection = {
+    scope: {
+      status: "selected",
+      aircraftId: "generic-aircraft",
+      requestedVariant: "variant-a",
+      selectionSource: "explicit",
+      variantKey: "variant-a",
+      effectiveConfigurationSnapshotId: "effective:v1:test",
+    },
+    queryVariantValues: ["variant-a"],
+    profileLabel: "Variant A",
+    performanceDatasets: [],
+  };
+
+  assert.equal(
+    fastPathProjectionMatchesVariantQuery(projection, ["variant-a"]),
+    true,
+  );
+  assert.equal(
+    fastPathProjectionMatchesVariantQuery(projection, ["variant-b"]),
+    false,
+  );
+  assert.equal(
+    fastPathProjectionMatchesVariantQuery(projection, []),
+    false,
+  );
+  assert.equal(
+    fastPathProjectionMatchesVariantQuery(
+      { ...projection, queryVariantValues: ["variant-a", "variant-b"] },
+      ["variant-a"],
+    ),
+    false,
+  );
 });
