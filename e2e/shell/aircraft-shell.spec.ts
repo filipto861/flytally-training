@@ -124,6 +124,73 @@ test("R1.1b query-aware workspace scope slot follows search params through the s
   await expect(scope).toHaveAttribute("data-requested-variant", "unknown");
 });
 
+test("R1.1c.1 server projection registers only when its request echo matches the current query", async ({ page }) => {
+  await page.goto(`${shellOnBase}${aircraftPath}/efb?variant=Standard`);
+
+  let registrar = page.locator(
+    '[data-ft-fast-path-projection-registrar="true"]',
+  );
+  await expect(registrar).toHaveAttribute("data-projection-echo", "ready");
+  await expect(registrar).toHaveAttribute(
+    "data-projection-request-key",
+    "variant:one:Standard",
+  );
+  await expect(registrar).toHaveAttribute(
+    "data-projection-scope-status",
+    "selected",
+  );
+  await expect(registrar).toHaveAttribute(
+    "data-projection-variant-key",
+    "Standard",
+  );
+  await expect(registrar).toHaveAttribute(
+    "data-projection-effective-configuration-snapshot-id",
+    /^effective:v1:/,
+  );
+
+  await page
+    .getByRole("link", { name: "Open full Performance", exact: true })
+    .first()
+    .click();
+  await expect(page).toHaveURL(
+    `${shellOnBase}${aircraftPath}/performance?variant=Standard`,
+  );
+
+  registrar = page.locator(
+    '[data-ft-fast-path-projection-registrar="true"]',
+  );
+  await expect(registrar).toHaveAttribute("data-projection-echo", "ready");
+  await expect(registrar).toHaveAttribute(
+    "data-projection-request-key",
+    "variant:one:Standard",
+  );
+
+  await page.goto(`${shellOnBase}${aircraftPath}/efb?variant=unknown`);
+  registrar = page.locator(
+    '[data-ft-fast-path-projection-registrar="true"]',
+  );
+  await expect(registrar).toHaveAttribute("data-projection-echo", "ready");
+  await expect(registrar).toHaveAttribute(
+    "data-projection-scope-status",
+    "unknown-variant",
+  );
+
+  await page.goto(
+    `${shellOnBase}${aircraftPath}/efb?variant=Standard&variant=Other`,
+  );
+  registrar = page.locator(
+    '[data-ft-fast-path-projection-registrar="true"]',
+  );
+  await expect(registrar).toHaveAttribute("data-projection-echo", "ready");
+  await expect(registrar).toHaveAttribute(
+    "data-projection-scope-status",
+    "configuration-invalid",
+  );
+  await expect(
+    page.locator('[data-ft-workspace-scope-slot="true"]'),
+  ).toHaveAttribute("data-scope-reason", "ambiguous-variant-request");
+});
+
 test("P1.1 keeps operational fast path inside EFB only", async ({ page }) => {
   await page.goto(`${shellOnBase}${aircraftPath}/learn`);
   await expect(page.getByRole("navigation", { name: "Operational fast path" })).toHaveCount(0);
