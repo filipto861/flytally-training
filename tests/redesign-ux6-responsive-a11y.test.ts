@@ -12,7 +12,8 @@ test("UX6.8 compact rail exposes full accessible destination names",()=>{
 
 test("UX6.8 aircraft profile is explicitly labelled for assistive technology",()=>{
   const top=read("components/ft-shell/FtTopBar.tsx");
-  assert.match(top,/aria-label=\{"Aircraft profile: " \+ aircraftProfileLabel\}/);
+  assert.match(top,/aria-label=\{"Aircraft profile: " \+ resolvedProfileLabel\}/);
+  assert.match(top,/workspaceProjection\?\.profileLabel/);
 });
 
 test("UX6.8 Procedures uses the compact control path on touch layouts",()=>{
