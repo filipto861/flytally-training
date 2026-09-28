@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
 import { FtPerformancePage } from "@/components/ft-performance/FtPerformancePage";
 import { FtConfigurationState } from "@/components/ft-shell/FtConfigurationState";
+import { FtWorkspaceScopeIdentity } from "@/components/ft-shell/FtWorkspaceScopeIdentity";
 import { PerformanceCalculator } from "@/components/performance-calculator";
 import {
   configurationForAircraftVariant,
@@ -100,15 +101,20 @@ export default async function PerformancePage({
     : undefined;
 
   return (
-    <FtPerformancePage
-      aircraftId={aircraft.id}
-      aircraftName={aircraft.displayName}
-      activeFlight={activeFlight}
-      selectedVariant={selectedVariant}
-      datasets={datasets}
-      takeoffCalculator={bundledPackage?.takeoffCalculator}
-      landingCalculator={bundledPackage?.landingCalculator}
-      disclaimer={disclaimer}
-    />
+    <>
+      {workspaceScope?.status === "selected" ? (
+        <FtWorkspaceScopeIdentity scope={workspaceScope} />
+      ) : null}
+      <FtPerformancePage
+        aircraftId={aircraft.id}
+        aircraftName={aircraft.displayName}
+        activeFlight={activeFlight}
+        selectedVariant={selectedVariant}
+        datasets={datasets}
+        takeoffCalculator={bundledPackage?.takeoffCalculator}
+        landingCalculator={bundledPackage?.landingCalculator}
+        disclaimer={disclaimer}
+      />
+    </>
   );
 }
