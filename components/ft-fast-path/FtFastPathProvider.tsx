@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import {
   createContext,
   useCallback,
@@ -22,6 +22,10 @@ import {
   toggleFastPathChecklistItem,
 } from "@/lib/fast-path/checklist-adapter";
 import {
+  fastPathProjectionMatchesVariantQuery,
+  type FastPathWorkspaceProjection,
+} from "@/lib/fast-path/workspace-projection";
+import {
   fastPathTabForShortcut,
   initialFastPathPanelState,
   reduceFastPathPanelState,
@@ -37,6 +41,13 @@ import type { RuntimeChecklist } from "@/lib/checklist-runtime";
 
 type FtFastPathContextValue = {
   readonly aircraftId: string;
+  readonly workspaceProjection?: FastPathWorkspaceProjection;
+  readonly registerWorkspaceProjection: (
+    projection: FastPathWorkspaceProjection,
+  ) => void;
+  readonly clearWorkspaceProjection: (
+    projection: FastPathWorkspaceProjection,
+  ) => void;
   readonly panelOpen: boolean;
   readonly activeTab: FastPathTab;
   readonly openPanel: (tab: FastPathTab) => void;
@@ -61,20 +72,34 @@ const FtFastPathContext = createContext<FtFastPathContextValue | null>(null);
 
 export function FtFastPathProvider({
   aircraftId,
-  checklist,
-  selectedVariant,
   activeFlight,
   children,
 }: Readonly<{
   aircraftId: string;
-  checklist?: RuntimeChecklist;
-  selectedVariant?: string;
   activeFlight?: ActiveFlight | null;
   children: ReactNode;
 }>) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const efbMode = getAircraftProductModeForPathname(pathname, aircraftId) === "efb";
   const { flight } = useActiveFlightState(aircraftId, activeFlight);
+  const [registeredProjection, setRegisteredProjection] =
+    useState<FastPathWorkspaceProjection>();
+  const currentVariantValues = searchParams.getAll("variant");
+  const workspaceProjection =
+    registeredProjection
+    && registeredProjection.scope.aircraftId === aircraftId
+    && fastPathProjectionMatchesVariantQuery(
+      registeredProjection,
+      currentVariantValues,
+    )
+      ? registeredProjection
+      : undefined;
+  const checklist = workspaceProjection?.checklist;
+  const selectedVariant =
+    workspaceProjection?.scope.status === "selected"
+      ? workspaceProjection.scope.variantKey ?? undefined
+      : undefined;
   const checklistSessionScope = efbMode
     ? `flight:${flight?.lifecycle === "ACTIVE" ? flight.id : "no-active-flight"}`
     : undefined;
@@ -95,6 +120,21 @@ export function FtFastPathProvider({
     );
   const [hydratedChecklistKey, setHydratedChecklistKey] = useState<string>();
   const [shortcutsReady, setShortcutsReady] = useState(false);
+
+  const registerWorkspaceProjection = useCallback(
+    (projection: FastPathWorkspaceProjection) => {
+      setRegisteredProjection(projection);
+    },
+    [],
+  );
+  const clearWorkspaceProjection = useCallback(
+    (projection: FastPathWorkspaceProjection) => {
+      setRegisteredProjection((current) =>
+        current === projection ? undefined : current,
+      );
+    },
+    [],
+  );
 
   const checklistHydrated =
     !checklist || (
@@ -291,6 +331,9 @@ export function FtFastPathProvider({
   const value = useMemo<FtFastPathContextValue>(
     () => ({
       aircraftId,
+      workspaceProjection,
+      registerWorkspaceProjection,
+      clearWorkspaceProjection,
       panelOpen: panel.open,
       activeTab: panel.activeTab,
       openPanel,
@@ -309,6 +352,8 @@ export function FtFastPathProvider({
     [
       aircraftId,
       checklist,
+      clearWorkspaceProjection,
+      registerWorkspaceProjection,
       checklistHydrated,
       checklistProgress,
       checklistSnapshot,
@@ -322,6 +367,7 @@ export function FtFastPathProvider({
       selectTab,
       shortcutsReady,
       toggleChecklistItem,
+      workspaceProjection,
     ],
   );
 
