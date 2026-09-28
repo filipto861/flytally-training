@@ -150,21 +150,118 @@ Therefore:
 
 ### R1.1 — Effective-configuration consistency — AVIATION-CRITICAL GATE
 
-Confirmed audit finding: the current shell/Fast Path resolves its selected variant independently from child routes, while child pages may resolve an explicit `?variant=`.
+Independent review plus direct repo reconciliation confirms the core defect and adds two state-integrity gaps.
+
+Confirmed current-main facts:
+
+- the new-shell `FtShell` resolves Fast Path configuration with `resolveSelectedVariant(undefined, aircraft.variants)`, so it does not consume the child route's explicit `?variant=`;
+- child routes such as `/fly`, `/performance` and `/reference` independently resolve `searchParams.variant`;
+- `FtFastPathReference` separately re-reads `window.location.search`, confirming configuration ownership is fragmented rather than canonical;
+- the existing legacy `resolveSelectedVariant()` is permissive: an explicit unknown query can fall back to the sole variant or to undefined/common configuration;
+- `FtSideNav` and `FtNavDrawer` already preserve the `variant` query when they navigate; the Fast Path rail itself is button-driven rather than link-driven;
+- `effectiveConfigurationSnapshotIdForAircraftVariant()` is a deterministic content-derived configuration fingerprint over aircraft/variant, serial, base variant, equipment/capability tags, modifications and structured equipment state. It is separate from the Active Flight dependency snapshot;
+- Performance Snapshot V2 currently validates only the variant key plus operation-specific derived/source dependencies; it does **not** currently include the effective-configuration snapshot identity;
+- Checklist persistence currently keys by aircraft + variant + checklist + Active Flight scope, but the saved snapshot does **not** include the effective-configuration snapshot identity;
+- `normalizeChecklistSessionSnapshot()` silently drops item/phase IDs that no longer exist, so a same-variant configuration/content change must not be allowed to masquerade as uninterrupted current progress;
+- Active Flight does **not** currently own the technical aircraft variant/configuration. Its `configuration` field is flight-operation data such as flaps/anti-ice. R1.1 must not move technical aircraft-configuration ownership into Active Flight merely to solve this shell problem;
+- the Partial Power training-preview controller currently binds the Aeronca path when that mode is selected. Although operational enablement remains source-gated, the preview still must not imply source applicability that conflicts with the effective aircraft configuration.
 
 Goal:
 
-> One effective aircraft configuration must drive the page, Fast Path and all operational projections for the same rendered workspace.
+> One explicit effective aircraft configuration must drive the page, Fast Path and every operational projection in the rendered workspace.
 
-Acceptance:
+#### Resolution contract
 
-- explicit regression test proving the page and Fast Path resolve the same effective variant/configuration for a route;
-- CHECKLIST/QRH/PERF/REF use the same applicability context;
-- persisted operational state either scopes to or invalidates against configuration identity as appropriate;
-- correcting/changing configuration cannot silently continue with stale configuration-dependent state;
-- no silent fallback from an invalid explicit configuration to a generic/default configuration.
+Create a **new new-shell workspace resolver** rather than tightening the legacy resolver in place. Legacy flag-OFF behavior remains unchanged until its own retirement/migration decision.
 
-This gate closes before final QRH cockpit acceptance so the acceptance run exercises the same configuration context the pilot actually selected.
+The new-shell resolution result has four states:
+
+1. **unselected** — no explicit variant was requested and no safe EFB selection can be inferred;
+2. **selected** — one valid effective configuration is resolved;
+3. **unknown-variant** — an explicit `?variant=` does not exist for this aircraft;
+4. **configuration-invalid** — the variant exists but its persisted/derived configuration cannot be validated/resolved.
+
+For a selected result expose:
+
+- aircraft id;
+- requested variant, if any;
+- selection source: `explicit` or `sole-variant-default`;
+- selected variant key;
+- effective `AircraftConfiguration`;
+- effective-configuration snapshot id.
+
+Fail-closed product decision:
+
+- **single selectable variant + no query:** new EFB may use the sole variant as `sole-variant-default`;
+- **multiple selectable variants + no query:** EFB operational surfaces show **Configuration not selected** and do not project configurable operational content;
+- **LEARN with multiple variants + no query:** common content may remain visible, but with an explicit persistent **Configuration not selected** indication wherever applicability-dependent content is affected;
+- **explicit invalid query:** never fall back to sole/common/default content.
+
+#### Shared ownership
+
+- Page and Fast Path must consume the same workspace-resolution identity.
+- Remove the `window.location.search` configuration workaround from Fast Path REF after the shared boundary exists.
+- Do not introduce a second persisted selected-variant truth.
+- Do not use undocumented request-header tricks.
+- Do not move all aviation filtering client-side merely to gain access to `useSearchParams`.
+
+Next.js mechanism is deliberately **not frozen until a spike proves it**. The first implementation batch must test the smallest architecture that lets one resolved scope drive both the page and a provider that owns Fast Path/shared checklist state. A parallel-route/slot approach is a candidate only if it can preserve the existing shared provider semantics without duplicate resolution. If the spike cannot prove that, reject it rather than forcing the architecture.
+
+#### Configuration-dependent state
+
+**Performance**
+- keep Active Flight's global dependency snapshot audit-only;
+- add the effective-configuration snapshot id as a distinct operation-validity dependency for Takeoff and Landing;
+- existing persisted snapshots without that dependency must become explicit recalculation/migration state rather than being treated current merely because the variant string matches.
+
+**Checklist**
+- evolve the checklist session contract to carry effective-configuration snapshot identity;
+- on snapshot mismatch, do not silently continue and do not silently reset;
+- surface a configuration-changed state and require an explicit start/restart decision for the current configuration;
+- previous progress may be retained as historical/local evidence but cannot silently become progress for a different effective configuration.
+
+**QRH / REF**
+- re-filter from governed source content using the shared effective configuration;
+- no domain-local variant resolver remains.
+
+**Partial Power training preview**
+- validate the source schedule/equipment path against the effective configuration where that state is declared;
+- unknown/incompatible technical configuration stays unsupported rather than selecting Aeronca by UI mode alone;
+- this does not promote Partial Power to operational status.
+
+#### R1.1 implementation order
+
+1. Write failing fixture/regression tests against current main for:
+   - valid explicit variant;
+   - invalid explicit variant on single-variant aircraft;
+   - invalid explicit variant on multi-variant aircraft;
+   - multi-variant EFB with no selection.
+2. Add the shared new-shell resolution contract and deterministic identity assertions.
+3. Run the Next.js shell/provider integration spike.
+4. Wire page + Fast Path to the proven shared scope.
+5. Add Performance effective-configuration invalidation.
+6. Add Checklist effective-configuration mismatch handling.
+7. Remove the REF query workaround.
+8. Verify Partial Power preview applicability against the same scope.
+9. Run full R1.1 responsive/legacy regression gates.
+
+#### Acceptance
+
+- page and Fast Path report the same `{aircraftId, variantKey, effectiveConfigurationSnapshotId}` for a valid query-selected route;
+- explicit unknown variant on a single-variant aircraft remains invalid and never becomes the sole variant;
+- explicit unknown variant on a multi-variant aircraft remains invalid and never becomes common configuration;
+- a known variant with invalid persisted configuration is surfaced as `configuration-invalid`;
+- multi-variant EFB with no selection is visibly gated;
+- the effective snapshot id changes when serial/equipment/modification data change and is stable when inputs do not change;
+- Takeoff/Landing results stale when the effective snapshot changes even if the variant key does not;
+- Checklist progress cannot silently cross an effective-configuration change;
+- CHECKLIST / QRH / PERF / REF all use the same applicability context;
+- navigation continues to preserve an explicit valid variant;
+- no Fast Path component independently resolves `window.location.search`;
+- no aircraft-ID branch is introduced;
+- legacy flag-OFF behavior remains unchanged.
+
+This gate closes before final QRH cockpit acceptance so that QRH.4 runs against the configuration model the pilot actually selected.
 
 ### R1.2 — QRH.4 cockpit acceptance
 
@@ -180,18 +277,108 @@ Do not redesign the QRH content contract unless acceptance reveals a genuine def
 
 ### R1.3 — Offline governed-content currency
 
-Current explicit offline preparation is valuable, but a cached `/fly` page must not implicitly mean “current”.
+Independent review plus direct repo reconciliation confirms the current cache/currentness gap and exposes a more serious user-state boundary.
 
-Design and close an explicit currency contract covering:
+Confirmed current-main facts:
 
-- publication/source identity stored with prepared operational content;
-- what the UI may claim when offline currentness cannot be revalidated;
-- behavior after a publication becomes stale or is replaced;
-- variant/configuration-safe cache identity;
-- weather remains live-only/not cached;
-- fail-closed handling where currentness is safety-relevant.
+- explicit preparation caches the rendered `/fly` navigation response plus immutable/static assets and aviation support data;
+- the current canonical cache key preserves `?variant=`, so different variant URLs do not overwrite one another;
+- the cache key does **not** include effective-configuration snapshot identity;
+- cached HTML has no explicit governed operational-package identity;
+- online readiness correctly fails closed on unresolved stale flags/source authority for the operational modules it governs, but a cached offline page cannot re-run that server check;
+- live weather is explicitly excluded from the service-worker cache and remains live-only;
+- `OfflineFlightBootstrap` currently uses `navigator.onLine` for the display state, so a navigation that was actually satisfied by cache fallback may still be presented as online/ready on a degraded connection;
+- the new-shell `FtShell` server-renders the current Active Flight into `/fly`; therefore the cached HTML can contain an old server Active Flight;
+- `reconcileActiveFlightMirror()` intentionally makes a defined server value authoritative over the local mirror. Replaying a cached server-rendered flight offline could therefore resurrect/overwrite stale Active Flight context if the offline artifact is not made flight-safe.
 
-Do not invent arbitrary time-expiry thresholds that look like operational validity.
+Product rule:
+
+> **Offline availability is not a currentness claim.**
+
+Do not solve source currentness with arbitrary elapsed-time expiry thresholds.
+
+#### Operational package manifest
+
+Define one small server-derived **operational package manifest** for the prepared cockpit configuration.
+
+The package identity is derived from change-sensitive canonical truth, not from preparation time. Minimal manifest fields:
+
+- manifest schema version;
+- aircraft id;
+- selected variant key;
+- effective-configuration snapshot id;
+- relevant DB-published content identities, at minimum the published version IDs used by the prepared operational surfaces;
+- deterministic fingerprints for bundled Performance and bundled Reference packages that are not represented by DB publication IDs.
+
+Readiness is **not** part of the identity hash/fingerprint. It is a separate precondition and online verification result. This matters because a source revision can make a publication stale without changing the already-published version ID.
+
+Bundled package fingerprints must be computed from canonical content, not manually bumped version strings. A deployment/build ID must not be the sole content identity. Manifest schema handles incompatible runtime/offline-contract revisions.
+
+#### Same-response consistency
+
+The prepared page and its manifest must describe the same rendered package.
+
+Prefer computing/embedding the manifest from the same resolved aircraft/configuration/content objects used to render the prepared response. Avoid a second independent publication/configuration query between page render and cache commit that could produce "page A + manifest B".
+
+Preparation is committed only after the required HTML/metadata/support assets succeed. Existing immutable Next static assets may remain in the shared static cache; R1.3 does not require a new package-specific cache for every content-hashed asset if the commit/pointer semantics still prevent an incomplete package from being reported ready.
+
+#### Active Flight boundary
+
+A prepared offline cockpit artifact must not replay an authoritative stale **server Active Flight**.
+
+Preferred contract:
+
+- the offline-prepared cockpit response is flight-agnostic with respect to server Active Flight state;
+- when that prepared artifact is actually used offline, Active Flight comes from the device-local mirror/current offline state;
+- do not put the technical aircraft variant into Active Flight just to solve this problem;
+- if implementation cannot produce a flight-agnostic prepared artifact safely, R1.3 must stop and redesign rather than caching user-specific server state under a generic aircraft/variant URL.
+
+Add an explicit regression proving a cached/prepared artifact cannot overwrite the current local Active Flight with the flight that happened to exist when preparation occurred.
+
+#### Online verification state machine
+
+While online:
+
+- current package identity is recomputed from canonical truth;
+- current operational readiness is checked separately;
+- only a prepared copy whose identity matches **and** whose current readiness is acceptable may show **Offline ready**;
+- identity mismatch or readiness failure becomes **Offline copy outdated / refresh required**;
+- missing/corrupt/unknown-schema metadata becomes **Unverified**, never ready.
+
+While actually served from cache/offline:
+
+- keep the prepared cockpit content viewable when its manifest/provenance is internally valid;
+- show a neutral persistent state such as **Prepared offline · last verified online …**;
+- do not claim source content is currently revalidated;
+- no age-based warning color/expiry semantics.
+
+The UI must detect **cache-fallback service**, not rely only on `navigator.onLine`. The exact service-worker/client signalling mechanism is implementation work, but the acceptance test must simulate "browser reports online while navigation is served from cache".
+
+#### Configuration and routing
+
+- same variant key + changed serial/equipment/modification snapshot => different package identity;
+- an explicit invalid/unselected R1.1 scope cannot be prepared as an authoritative package;
+- current offline scope is explicitly `/fly` plus the operational content embedded/reachable inside that prepared surface;
+- links to routes that are not prepared for offline use must not look safely available while the app is running from the prepared offline copy.
+
+#### Acceptance
+
+- same variant key with changed effective configuration produces a different package identity;
+- changed published version produces a different package identity;
+- stale/not-ready source state with unchanged version identity fails online readiness verification;
+- not-ready/invalid configuration refuses authoritative preparation;
+- bundled Performance/Reference content change changes its deterministic fingerprint without manual version bookkeeping;
+- prepared HTML and manifest are proven to come from the same resolved package;
+- missing/corrupt/unknown-schema manifest fails closed to **Unverified**;
+- interrupted preparation cannot mark a partial package ready;
+- cache-fallback service is distinguishable even when `navigator.onLine === true`;
+- prepared offline UI distinguishes last-verified availability from current source revalidation;
+- prepared offline artifact cannot resurrect/overwrite a stale server Active Flight;
+- unprepared routes are explicitly unavailable/disabled while using the prepared offline surface;
+- no arbitrary expiry timer is introduced;
+- weather endpoints remain uncached.
+
+R1.3 may add a small manifest/verification endpoint or equivalent server helper, but it must remain a projection over existing publication/configuration truth, not a second content repository.
 
 ### R1.4 — EFB content-state acceptance
 
@@ -740,7 +927,10 @@ When evidence exists, decide full-workspace/Fast-Path placement from real usage 
 | Risk | Owner phase | Required treatment |
 | --- | --- | --- |
 | Shell/Fast Path may resolve a different variant than a query-selected child page | R1 | Fix/test before R2 |
+| Performance validity currently keys technical applicability only by variant, not effective configuration snapshot | R1 | Add distinct configuration-snapshot dependency |
+| Checklist session currently scopes by variant but not effective configuration snapshot | R1 | Add explicit mismatch/restart semantics |
 | Offline cached operational content has no closed currentness contract | R1 | Define and verify currency semantics |
+| Cached server Active Flight can be replayed from prepared `/fly` | R1 | Make prepared artifact flight-safe and prove local mirror is not overwritten |
 | Reviewed FM-102 is FC-200 while production target is FC-530 | SOURCE-GATED SG3 | Acquire/review applicable FM-108 family before Limitations publication; never substitute FM-102 by assumption |
 | QRH.4 is implemented substantially but not formally accepted/closed | R1 | Execute cockpit/production acceptance |
 | Flight Brief contains placeholder areas | R3 | Hide until meaningful deterministic contract exists |
