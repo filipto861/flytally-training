@@ -7,6 +7,10 @@ import {
   type FtReferenceDestination,
 } from "@/components/ft-reference/FtReferencePage";
 import {
+  FtConfigurationNotice,
+  FtConfigurationState,
+} from "@/components/ft-shell/FtConfigurationState";
+import {
   configurationForAircraftVariant,
   filterLimitationsForConfiguration,
   filterPerformanceForConfiguration,
@@ -23,13 +27,14 @@ import { getTrainingContentRepository } from "@/lib/content-store";
 import { isNewShellEnabled } from "@/lib/feature-flags";
 import { toReferencePresentation } from "@/lib/reference-presentation";
 import type { AircraftLimitationsContent } from "@/lib/universal-aircraft-content";
+import { resolveWorkspaceAircraftScopeFromSearchParam } from "@/lib/workspace-aircraft-scope";
 
 export default async function ReferenceHubPage({
   params,
   searchParams,
 }: Readonly<{
   params: Promise<{ aircraftId: string }>;
-  searchParams: Promise<{ variant?: string }>;
+  searchParams: Promise<{ variant?: string | string[] }>;
 }>) {
   const [{ aircraftId }, { variant }] = await Promise.all([params, searchParams]);
   const repository = getTrainingContentRepository();
@@ -44,7 +49,24 @@ export default async function ReferenceHubPage({
   if (!bundle) notFound();
   const { aircraft, capabilities } = bundle;
   const hasPerformance = capabilities.performance || Boolean(getBundledPerformancePackage(aircraftId));
-  const selectedVariant = resolveSelectedVariant(variant, aircraft.variants);
+  const newShell = isNewShellEnabled();
+  const workspaceScope = newShell
+    ? resolveWorkspaceAircraftScopeFromSearchParam(aircraft, variant)
+    : undefined;
+  if (
+    newShell
+    && workspaceScope
+    && workspaceScope.status !== "selected"
+    && workspaceScope.status !== "unselected"
+  ) {
+    return <FtConfigurationState scope={workspaceScope} />;
+  }
+
+  const selectedVariant = newShell
+    ? workspaceScope?.status === "selected"
+      ? workspaceScope.variantKey ?? undefined
+      : undefined
+    : resolveSelectedVariant(variant as string | undefined, aircraft.variants);
   const href = (section: string) => withVariantQuery(`/aircraft/${aircraft.id}/${section}`, selectedVariant);
 
   const hasQuickReference = hasPerformance && capabilities.limitations;
@@ -55,8 +77,11 @@ export default async function ReferenceHubPage({
     capabilities.limitations ? { key: "limitations", kicker: "Limits", title: "Limitations", text: "Speeds, weights and operating boundaries." } : undefined,
   ].filter((item): item is { key: string; kicker: string; title: string; text: string } => Boolean(item));
 
-  if (isNewShellEnabled()) {
-    const configuration = configurationForAircraftVariant(aircraft, selectedVariant);
+  if (newShell) {
+    const configuration =
+      workspaceScope?.status === "selected"
+        ? workspaceScope.configuration
+        : configurationForAircraftVariant(aircraft, undefined);
     const configuredLimitations = publishedLimitations
       ? filterLimitationsForConfiguration(
           publishedLimitations,
@@ -101,13 +126,16 @@ export default async function ReferenceHubPage({
     if (!reference && !referencePerformance?.datasets.length && !destinations.length) notFound();
 
     return (
-      <FtReferencePage
-        aircraftId={aircraft.id}
-        selectedVariant={selectedVariant}
-        reference={reference}
-        referencePerformance={referencePerformance}
-        destinations={destinations}
-      />
+      <>
+        {workspaceScope?.status === "unselected" ? <FtConfigurationNotice /> : null}
+        <FtReferencePage
+          aircraftId={aircraft.id}
+          selectedVariant={selectedVariant}
+          reference={reference}
+          referencePerformance={referencePerformance}
+          destinations={destinations}
+        />
+      </>
     );
   }
 
