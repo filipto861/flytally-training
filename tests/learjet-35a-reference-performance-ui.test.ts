@@ -9,7 +9,9 @@ test("15.2d LEARN Reference binds the separate Reference package after configura
   const route = read("app/aircraft/[aircraftId]/reference/page.tsx");
 
   assert.match(route, /getBundledReferencePerformancePackage/);
-  assert.match(route, /configurationForAircraftVariant\(aircraft, selectedVariant\)/);
+  assert.match(route, /workspaceScope\?\.status === "selected"/);
+  assert.match(route, /workspaceScope\.configuration/);
+  assert.match(route, /configurationForAircraftVariant\(aircraft, undefined\)/);
   assert.match(route, /filterPerformanceForConfiguration/);
   assert.match(route, /referencePerformance=\{referencePerformance\}/);
 });
@@ -28,15 +30,16 @@ test("15.2d LEARN Reference presents exact source tables instead of the input ca
 });
 
 test("15.2d EFB REF receives the Reference package without moving it into PERF", () => {
-  const shell = read("components/ft-shell/FtShell.tsx");
+  const slot = read("components/ft-shell/FtWorkspaceScopeSlot.tsx");
   const panel = read("components/ft-fast-path/FtFastPathPanel.tsx");
   const reference = read("components/ft-fast-path/FtFastPathReference.tsx");
 
-  assert.match(shell, /getBundledReferencePerformancePackage/);
-  assert.match(shell, /referencePerformance=\{bundledReferencePerformance\?\.content\}/);
-  assert.match(panel, /performance=\{referencePerformance\}/);
+  assert.match(slot, /getBundledReferencePerformancePackage/);
+  assert.match(slot, /filterPerformanceForConfiguration/);
+  assert.match(slot, /referencePerformance/);
+  assert.match(panel, /workspaceProjection\.referencePerformance/);
   assert.match(reference, /FtReferencePerformance/);
-  assert.match(reference, /filterPerformanceForConfiguration/);
+  assert.doesNotMatch(reference, /filterPerformanceForConfiguration/);
   assert.doesNotMatch(
     read("app/aircraft/[aircraftId]/performance/page.tsx"),
     /getBundledReferencePerformancePackage/,
