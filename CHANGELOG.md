@@ -14,6 +14,15 @@ This file is the authoritative version history for completed FlyTally Training w
 
 ## Unreleased
 
+### R1.1c.1 scoped Fast Path projection contract
+- Began the R1.1c cutover as a shadow/dark-launch batch rather than changing page and Fast Path state ownership simultaneously.
+- Added one server-side, aircraft-agnostic Fast Path workspace projection derived from the accepted workspace scope and carrying configuration-filtered Checklist, QRH, Performance and Reference payloads.
+- Added a shared request-echo identity for absent, single and ambiguous `variant` query states; duplicate variant query values remain fail-closed.
+- Added a client registrar inside the existing `FtFastPathProvider` using a pre-paint layout effect. The provider exposes the registered projection only when its server request key matches the browser's current query, preventing a retained layout from treating a different-query payload as current.
+- The existing Fast Path consumers remain on their pre-R1.1c data path in this batch. R1.1c.3 owns the authoritative consumer cutover and removal of the REF query workaround.
+- Performance validity, Checklist session schema, aviation source data, DB schema and legacy flag-OFF behavior are unchanged.
+
+
 ### R1.1b query-aware shell/provider scope spike
 - Started the bounded Next.js 16 scope-propagation spike after the independent review and R1.1a resolver merge.
 - Added a query-aware parallel-route slot under the aircraft workspace. The slot is a Page (therefore receives current `searchParams`) and is rendered inside the existing `FtFastPathProvider`; the shared Layout itself remains query-agnostic as required by Next.js.
