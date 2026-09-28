@@ -14,6 +14,22 @@ This file is the authoritative version history for completed FlyTally Training w
 
 ## Unreleased
 
+### Independent R1 safety review reconciliation
+- Reconciled the independent R1.1/R1.3 review against current `main` rather than accepting its unverified assumptions.
+- Confirmed the page/Fast Path variant split, permissive explicit-invalid fallback, and the Fast Path REF `window.location.search` workaround.
+- Confirmed the effective configuration snapshot is a deterministic content-derived fingerprint over serial/equipment/modification state, distinct from the Active Flight dependency snapshot.
+- Confirmed Performance Snapshot V2 currently invalidates on variant but not effective-configuration snapshot; R1.1 now requires same-variant technical configuration changes to stale Takeoff/Landing results.
+- Confirmed Checklist sessions scope by variant + Active Flight but do not carry effective-configuration snapshot identity; R1.1 now forbids silent continuation/reset across same-variant configuration changes.
+- Froze the product decision that a sole variant may auto-resolve when no query is supplied, while multi-variant EFB requires explicit configuration selection; LEARN may show common content only with visible unselected-state disclosure.
+- Kept the legacy resolver unchanged for flag-OFF compatibility; R1.1 will add a new-shell resolution contract with unselected / selected / unknown-variant / configuration-invalid states.
+- Confirmed Active Flight does not own technical aircraft variant/configuration and will not become a second selector.
+- Confirmed the Partial Power training preview currently selects the Aeronca path from the mode choice; R1.1 now requires that source path to remain compatible with the effective configuration.
+- Confirmed a deeper R1.3 risk: cached new-shell `/fly` can contain the server Active Flight, while mirror reconciliation makes a defined server value authoritative. The offline contract now requires a flight-safe prepared artifact so cached server state cannot resurrect/overwrite the current local Active Flight.
+- Refined package identity: publication/bundled content identity is change-sensitive; readiness is verified separately because stale-source state can change without a publication version change.
+- Rejected a forced Next.js implementation choice at design time. A bounded spike must prove the shared-scope/provider mechanism before runtime implementation.
+- Runtime code, aviation data, database schema and deployment remain unchanged in this review-reconciliation commit.
+
+
 ### R1 safety design audit
 - Reconstructed the effective configuration and offline PWA paths from current `main` before R1 implementation.
 - Confirmed the shell/Fast Path configuration split: `FtShell` resolves a private default variant while child routes consume explicit `?variant=`; REF already carries a separate client-side workaround, demonstrating fragmented ownership.
