@@ -10,6 +10,7 @@ import {
   FtConfigurationNotice,
   FtConfigurationState,
 } from "@/components/ft-shell/FtConfigurationState";
+import { FtWorkspaceScopeIdentity } from "@/components/ft-shell/FtWorkspaceScopeIdentity";
 import {
   configurationForAircraftVariant,
   filterLimitationsForConfiguration,
@@ -127,6 +128,9 @@ export default async function ReferenceHubPage({
 
     return (
       <>
+        {workspaceScope?.status === "selected" ? (
+          <FtWorkspaceScopeIdentity scope={workspaceScope} />
+        ) : null}
         {workspaceScope?.status === "unselected" ? <FtConfigurationNotice /> : null}
         <FtReferencePage
           aircraftId={aircraft.id}
