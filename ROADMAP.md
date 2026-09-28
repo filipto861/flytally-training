@@ -240,14 +240,15 @@ Next.js mechanism is deliberately **not frozen until a spike proves it**. The fi
   - selected scope exposes the deterministic effective-configuration snapshot identity;
   - configuration derivation failure becomes `configuration-invalid`;
   - acceptance on PR head: TypeScript PASS; full Node **1471 total / 1470 PASS / 0 FAIL / 1 SKIP**; production build PASS.
-- **R1.1b — Next.js shell/provider scope spike — IN PROGRESS**
+- **R1.1b — Next.js shell/provider scope spike — ACCEPTED · READY TO MERGE · PR #286**
   - use a query-aware parallel-route slot page because Next.js 16 pages receive `searchParams` while shared layouts deliberately do not;
   - pass that slot through the existing aircraft layout and render it inside `FtFastPathProvider`, proving a future server-resolved Fast Path registration can share the existing provider without a header hack or second persisted selector;
   - keep the spike non-authoritative: the existing Fast Path payload is not rewired in this batch, so R1.1c still owns actual CHECKLIST / QRH / PERF / REF scope wiring;
   - add browser evidence that the slot receives explicit `?variant=`, updates across client navigation under the shared layout, exposes the effective snapshot identity, and preserves an explicit invalid variant as invalid;
   - duplicate `variant` query values are ambiguous and fail closed as `configuration-invalid`;
-  - reject/roll back the slot approach if build/browser acceptance disproves its query-update behavior or it creates stale-slot state.
-- **R1.1c — page + Fast Path scope wiring — PLANNED**
+  - acceptance on PR head `ce82c47d0cad22693984dec0f247e81b08c689e2`: Verify Training **PASS**; TypeScript **PASS**; full Node **1472 total / 1471 PASS / 0 FAIL / 1 SKIP**; production build **PASS**; Browser smoke **420/420 PASS** across desktop, mobile, iPad landscape and iPad portrait;
+  - the first Verify build attempt hit a transient Turbopack/next-font internal resolution failure while the parallel Browser build passed; rerun passed without a code change, so no product defect was attributed to that runner failure.
+- **R1.1c — page + Fast Path scope wiring — NEXT**
   - wire CHECKLIST / QRH / PERF / REF to the proven shared scope;
   - gate invalid/unselected EFB states;
   - preserve explicit variant through navigation;
