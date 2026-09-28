@@ -61,7 +61,7 @@ test("W1 mounts the new shell without duplicate legacy navigation when the flag 
   await expect(legacyNav).toBeHidden();
 });
 
-test("P1.1 exposes Learn/EFB mode controls in the effective responsive shell", async ({ page }) => {
+test("P1.1 exposes Learn/EFB mode controls on desktop and touch navigation", async ({ page }) => {
   await page.goto(`${shellOnBase}${aircraftPath}/learn`);
 
   const shell = page.locator('[data-ft-shell="true"]');
@@ -492,7 +492,7 @@ test("P5 legacy checklist progress migrates into the flight-scoped new-shell ses
   expect(storageState.canonical).not.toBeNull();
 });
 
-test("W3 panel follows the effective desktop/touch media contract", async ({ page }) => {
+test("W3 panel is a 520px desktop drawer and a full-screen touch sheet", async ({ page }) => {
   const panel = await openFastPath(page, "CHECKLIST");
   const box = await panel.boundingBox();
   const viewport = page.viewportSize();
@@ -2104,7 +2104,7 @@ test("P1.1 compact rail exposes mode-specific accessible destination names", asy
   await expect(nav.getByRole("link", { name: "Systems", exact: true })).toHaveCount(0);
 });
 
-test("UX6.8 Procedures follows the effective compact media contract", async ({ page }) => {
+test("UX6.8 touch Procedures exposes compact selector controls before procedure content", async ({ page }) => {
   await page.goto(`${shellOnBase}${aircraftPath}/procedures`);
   const procedures = page.locator('[data-ft-procedures-page="true"]');
   await expect(procedures).toBeVisible();
