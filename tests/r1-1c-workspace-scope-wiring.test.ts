@@ -46,7 +46,7 @@ test("R1.1c new-shell operational pages use the fail-closed workspace resolver",
     const source = read(file);
     assert.match(source, /resolveWorkspaceAircraftScopeFromSearchParam/);
     assert.match(source, /FtConfigurationState/);
-    assert.match(source, /workspaceScope\?\.status !== "selected"/);
+    assert.match(source, /workspaceScope\.status !== "selected"/);
   }
 });
 
