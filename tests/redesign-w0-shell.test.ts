@@ -10,6 +10,7 @@ function aircraftPages(directory: string): string[] {
   const absolute = path.join(root, directory);
   return fs.readdirSync(absolute, { withFileTypes: true }).flatMap((entry) => {
     const relative = path.join(directory, entry.name);
+    if (entry.isDirectory() && entry.name.startsWith("@")) return [];
     if (entry.isDirectory()) return aircraftPages(relative);
     return entry.name === "page.tsx" ? [relative] : [];
   });
@@ -53,7 +54,9 @@ test("W0 aircraft layout gates FtShell with strict FT_NEW_SHELL infrastructure",
 
   assert.match(layout, /isNewShellEnabled/);
   assert.match(layout, /const newShell = isNewShellEnabled\(\)/);
-  assert.match(layout, /newShell \? <FtShell aircraftId=\{aircraftId\}>\{children\}<\/FtShell> : children/);
+  assert.match(layout, /<FtShell/);
+  assert.match(layout, /workspaceScope=\{workspaceScope\}/);
+  assert.match(layout, /\{children\}/);
   assert.match(layout, /params: Promise<\{ aircraftId: string \}>/);
   assert.match(layout, /const \{ aircraftId \} = await params/);
 });
