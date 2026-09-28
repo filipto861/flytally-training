@@ -80,14 +80,21 @@ const read = (path: string) =>
 
 test("R1.1b parallel slot is the only server reader of query scope for the shell spike", () => {
   const slot = read(
-    "app/aircraft/[aircraftId]/@workspaceScope/[[...scopePath]]/page.tsx",
+    "app/aircraft/[aircraftId]/@workspaceScope/[...scopePath]/page.tsx",
+  );
+  const rootSlot = read(
+    "app/aircraft/[aircraftId]/@workspaceScope/page.tsx",
+  );
+  const projection = read(
+    "components/ft-shell/FtWorkspaceScopeServerProjection.tsx",
   );
   const layout = read("app/aircraft/[aircraftId]/layout.tsx");
 
   assert.match(slot, /searchParams/);
-  assert.match(slot, /resolveWorkspaceAircraftScopeRequest/);
-  assert.match(slot, /workspaceAircraftScopeIdentity/);
-  assert.doesNotMatch(slot, /headers\(|window\.location/);
+  assert.match(rootSlot, /searchParams/);
+  assert.match(projection, /resolveWorkspaceAircraftScopeRequest/);
+  assert.match(projection, /workspaceAircraftScopeIdentity/);
+  assert.doesNotMatch(slot + rootSlot + projection, /headers\(|window\.location/);
 
   assert.match(layout, /workspaceScope: ReactNode/);
   assert.match(layout, /workspaceScopeSlot=\{workspaceScope\}/);
