@@ -141,12 +141,24 @@ test("R1.1c explicit invalid configuration gates the EFB page and Fast Path", as
   await expect(panel.getByText(/not registered for this aircraft/i)).toBeVisible();
 });
 
-test("R1.1c valid explicit configuration drives Fast Path and shell profile together", async ({ page }) => {
-  await page.goto(`${shellOnBase}${aircraftPath}/efb?variant=Standard`);
+test("R1.1c valid explicit configuration drives page and Fast Path with one identity", async ({ page }) => {
+  await page.goto(`${shellOnBase}${aircraftPath}/performance?variant=Standard`);
 
-  await expect(
-    page.locator('[data-ft-workspace-scope-slot="true"]'),
-  ).toHaveAttribute("data-variant-key", "Standard");
+  const slotScope = page.locator('[data-ft-workspace-scope-slot="true"]');
+  const pageScope = page.locator('[data-ft-page-workspace-scope="true"]');
+
+  await expect(slotScope).toHaveAttribute("data-variant-key", "Standard");
+  await expect(pageScope).toHaveAttribute("data-variant-key", "Standard");
+
+  const slotSnapshot = await slotScope.getAttribute(
+    "data-effective-configuration-snapshot-id",
+  );
+  const pageSnapshot = await pageScope.getAttribute(
+    "data-effective-configuration-snapshot-id",
+  );
+  expect(slotSnapshot).toBeTruthy();
+  expect(pageSnapshot).toBe(slotSnapshot);
+
   await expect(
     page.locator('[aria-label="Aircraft profile: Standard"]'),
   ).toBeVisible();
