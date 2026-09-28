@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
 import { FlightDeck } from "@/components/flight-deck";
 import { FtConfigurationState } from "@/components/ft-shell/FtConfigurationState";
+import { FtWorkspaceScopeIdentity } from "@/components/ft-shell/FtWorkspaceScopeIdentity";
 import {
   configurationForAircraftVariant,
   filterAbnormalEmergencyForConfiguration,
@@ -117,6 +118,9 @@ export default async function FlyPage({
   if (newShell) {
     return (
       <main data-ft-fly-page="true" aria-label="Checklist workspace">
+        {workspaceScope?.status === "selected" ? (
+          <FtWorkspaceScopeIdentity scope={workspaceScope} />
+        ) : null}
         {deck}
       </main>
     );
