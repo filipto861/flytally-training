@@ -173,5 +173,29 @@ export async function FtWorkspaceScopeSlot({
     };
   }
 
-  return <FtFastPathScopeRegistrar projection={projection} />;
+  return (
+    <>
+      <span
+        hidden
+        data-ft-workspace-scope-slot="true"
+        data-aircraft-id={scope.aircraftId}
+        data-scope-status={scope.status}
+        data-selection-source={scope.selectionSource}
+        {...("requestedVariant" in scope && scope.requestedVariant !== undefined
+          ? { "data-requested-variant": scope.requestedVariant }
+          : {})}
+        {...(scope.status === "selected"
+          ? {
+              "data-variant-key": scope.variantKey ?? "common",
+              "data-effective-configuration-snapshot-id":
+                scope.effectiveConfigurationSnapshotId,
+            }
+          : {})}
+        {...(scope.status === "configuration-invalid"
+          ? { "data-scope-reason": scope.reason }
+          : {})}
+      />
+      <FtFastPathScopeRegistrar projection={projection} />
+    </>
+  );
 }
