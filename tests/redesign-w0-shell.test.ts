@@ -53,7 +53,7 @@ test("W0 aircraft layout gates FtShell with strict FT_NEW_SHELL infrastructure",
 
   assert.match(layout, /isNewShellEnabled/);
   assert.match(layout, /const newShell = isNewShellEnabled\(\)/);
-  assert.match(layout, /newShell \? <FtShell aircraftId=\{aircraftId\}>\{children\}<\/FtShell> : children/);
+  assert.match(layout, /newShell \? \([\s\S]*<FtShell[\s\S]*aircraftId=\{aircraftId\}[\s\S]*workspaceScopeSlot=\{workspaceScope\}[\s\S]*>\s*\{children\}\s*<\/FtShell>[\s\S]*\) : children/);
   assert.match(layout, /params: Promise<\{ aircraftId: string \}>/);
   assert.match(layout, /const \{ aircraftId \} = await params/);
 });
@@ -88,7 +88,11 @@ test("W0 does not mount the new shell from existing aircraft page files", () => 
   assert.ok(pages.length > 0);
   for (const page of pages) {
     const source = read(page);
-    assert.doesNotMatch(source, /FtShell|FT_NEW_SHELL|ft-shell/i, `unexpected W0 shell reference in ${page}`);
+    assert.doesNotMatch(
+      source,
+      /<FtShell\b|import\s*\{\s*FtShell\s*\}|\bFT_NEW_SHELL\b/,
+      `unexpected W0 shell mount/gate in ${page}`,
+    );
   }
 });
 

@@ -53,6 +53,27 @@ export type WorkspaceAircraftScope =
   | WorkspaceScopeUnknownVariant
   | WorkspaceScopeConfigurationInvalid;
 
+export type WorkspaceVariantSearchParam =
+  | string
+  | string[]
+  | undefined;
+
+export type WorkspaceAircraftScopeIdentity = {
+  readonly status: WorkspaceAircraftScope["status"];
+  readonly aircraftId: string;
+  readonly requestKey: string;
+  readonly requestedVariant?: string;
+  readonly selectionSource: WorkspaceAircraftScope["selectionSource"];
+  readonly variantKey?: string | null;
+  readonly effectiveConfigurationSnapshotId?: string;
+  readonly reason?: WorkspaceScopeConfigurationInvalid["reason"];
+};
+
+export type WorkspaceAircraftScopeRequestResolution = {
+  readonly scope: WorkspaceAircraftScope;
+  readonly requestKey: string;
+};
+
 function resolveSelected(
   aircraft: Pick<
     TrainingAircraft,
@@ -158,6 +179,73 @@ export function resolveWorkspaceAircraftScope(
     status: "unselected",
     aircraftId: aircraft.id,
     selectionSource: "none",
+  };
+}
+
+export function workspaceVariantRequestKey(
+  requestedVariant: WorkspaceVariantSearchParam,
+): string {
+  if (requestedVariant === undefined) return "none";
+  if (Array.isArray(requestedVariant)) {
+    return `multiple:${encodeURIComponent(JSON.stringify(requestedVariant))}`;
+  }
+  return `single:${encodeURIComponent(requestedVariant)}`;
+}
+
+export function resolveWorkspaceAircraftScopeRequest(
+  aircraft: Pick<
+    TrainingAircraft,
+    "id" | "variants" | "variantProfiles" | "equipmentTags"
+  >,
+  requestedVariant: WorkspaceVariantSearchParam,
+): WorkspaceAircraftScopeRequestResolution {
+  const requestKey = workspaceVariantRequestKey(requestedVariant);
+
+  /*
+   * Repeated variant query parameters are ambiguous input, never permission to
+   * pick one candidate. Reuse the existing unknown-variant fail-closed state
+   * without broadening the accepted workspace state machine in this spike.
+   */
+  if (Array.isArray(requestedVariant)) {
+    return {
+      requestKey,
+      scope: {
+        status: "unknown-variant",
+        aircraftId: aircraft.id,
+        requestedVariant: requestedVariant.join(","),
+        selectionSource: "explicit",
+      },
+    };
+  }
+
+  return {
+    requestKey,
+    scope: resolveWorkspaceAircraftScope(aircraft, requestedVariant),
+  };
+}
+
+export function workspaceAircraftScopeIdentity(
+  scope: WorkspaceAircraftScope,
+  requestKey: string,
+): WorkspaceAircraftScopeIdentity {
+  return {
+    status: scope.status,
+    aircraftId: scope.aircraftId,
+    requestKey,
+    ...("requestedVariant" in scope && scope.requestedVariant !== undefined
+      ? { requestedVariant: scope.requestedVariant }
+      : {}),
+    selectionSource: scope.selectionSource,
+    ...("variantKey" in scope ? { variantKey: scope.variantKey } : {}),
+    ...(scope.status === "selected"
+      ? {
+          effectiveConfigurationSnapshotId:
+            scope.effectiveConfigurationSnapshotId,
+        }
+      : {}),
+    ...(scope.status === "configuration-invalid"
+      ? { reason: scope.reason }
+      : {}),
   };
 }
 
