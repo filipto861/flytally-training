@@ -2,17 +2,9 @@
 
 import { useEffect, useRef, type KeyboardEvent } from "react";
 
-import type { ActiveFlight } from "@/lib/active-flight/types";
-import type { TrainingAircraft } from "@/lib/aircraft-catalog";
-import { fastPathTabs, type FastPathTab } from "@/lib/fast-path/panel-state";
-import type { PilotTakeoffCalculatorDefinition } from "@/lib/pilot-takeoff-calculator";
-import type {
-  AircraftLimitationsContent,
-  AircraftPerformanceContent,
-  PerformanceDataset,
-} from "@/lib/universal-aircraft-content";
-import type { OperationalEmergencyContent } from "@/lib/operational-flight-data";
 import { FtPerformancePresentation } from "@/components/ft-performance/FtPerformancePresentation";
+import type { ActiveFlight } from "@/lib/active-flight/types";
+import { fastPathTabs, type FastPathTab } from "@/lib/fast-path/panel-state";
 
 import { FtFastPathChecklist } from "./FtFastPathChecklist";
 import { FtFastPathQrh } from "./FtFastPathQrh";
@@ -30,29 +22,40 @@ const TAB_LABELS: Readonly<Record<FastPathTab, string>> = {
   ref: "REF",
 };
 
+function scopeUnavailableText(
+  status: "unselected" | "unknown-variant" | "configuration-invalid",
+): { title: string; body: string } {
+  if (status === "unselected") {
+    return {
+      title: "Configuration not selected",
+      body: "Select an aircraft configuration before using operational Fast Path content.",
+    };
+  }
+  if (status === "unknown-variant") {
+    return {
+      title: "Unknown configuration",
+      body: "The requested aircraft configuration is not registered for this aircraft.",
+    };
+  }
+  return {
+    title: "Invalid configuration",
+    body: "The requested aircraft configuration could not be resolved safely.",
+  };
+}
+
 export function FtFastPathPanel({
   activeFlight,
-  emergency,
-  referenceAircraft,
-  referenceContent,
-  referencePerformance,
-  selectedVariant,
-  performanceDatasets,
-  takeoffCalculator,
 }: Readonly<{
   activeFlight?: ActiveFlight | null;
-  emergency?: OperationalEmergencyContent;
-  referenceAircraft?: Pick<
-    TrainingAircraft,
-    "id" | "variants" | "variantProfiles" | "equipmentTags"
-  >;
-  referenceContent?: AircraftLimitationsContent;
-  referencePerformance?: AircraftPerformanceContent;
-  selectedVariant?: string;
-  performanceDatasets: readonly PerformanceDataset[];
-  takeoffCalculator?: PilotTakeoffCalculatorDefinition;
 }>) {
-  const { aircraftId, panelOpen, activeTab, closePanel, selectTab } = useFtFastPath();
+  const {
+    aircraftId,
+    panelOpen,
+    activeTab,
+    closePanel,
+    selectTab,
+    workspaceProjection,
+  } = useFtFastPath();
   const panelRef = useRef<HTMLDivElement>(null);
   const returnFocusRef = useRef<HTMLElement | null>(null);
   const wasOpenRef = useRef(false);
@@ -61,7 +64,9 @@ export function FtFastPathPanel({
     if (panelOpen) {
       if (!wasOpenRef.current) {
         returnFocusRef.current =
-          document.activeElement instanceof HTMLElement ? document.activeElement : null;
+          document.activeElement instanceof HTMLElement
+            ? document.activeElement
+            : null;
       }
       wasOpenRef.current = true;
       const frame = window.requestAnimationFrame(() => {
@@ -110,6 +115,50 @@ export function FtFastPathPanel({
       event.preventDefault();
       first.focus();
     }
+  }
+
+  let content;
+  if (!workspaceProjection) {
+    content = (
+      <section className={styles.placeholder} role="status">
+        <p className={styles.eyebrow}>CONFIGURATION</p>
+        <h2>Resolving configuration…</h2>
+        <p>Operational content remains unavailable until the route configuration is resolved.</p>
+      </section>
+    );
+  } else if (workspaceProjection.scope.status !== "selected") {
+    const state = scopeUnavailableText(workspaceProjection.scope.status);
+    content = (
+      <section className={styles.placeholder} role="status">
+        <p className={styles.eyebrow}>CONFIGURATION</p>
+        <h2>{state.title}</h2>
+        <p>{state.body}</p>
+      </section>
+    );
+  } else if (activeTab === "checklist") {
+    content = <FtFastPathChecklist />;
+  } else if (activeTab === "qrh") {
+    content = <FtFastPathQrh emergency={workspaceProjection.emergency} />;
+  } else if (activeTab === "perf") {
+    content = (
+      <FtPerformancePresentation
+        aircraftId={aircraftId}
+        activeFlight={activeFlight}
+        selectedVariant={workspaceProjection.scope.variantKey ?? undefined}
+        datasets={workspaceProjection.performanceDatasets}
+        takeoffCalculator={workspaceProjection.takeoffCalculator}
+        view="operational"
+      />
+    );
+  } else {
+    content = (
+      <FtFastPathReference
+        aircraftId={aircraftId}
+        selectedVariant={workspaceProjection.scope.variantKey ?? undefined}
+        reference={workspaceProjection.reference}
+        performance={workspaceProjection.referencePerformance}
+      />
+    );
   }
 
   return (
@@ -161,26 +210,7 @@ export function FtFastPathPanel({
         </header>
 
         <div className={styles.panelBody} data-fast-path-scroll-container="true">
-          {activeTab === "checklist" ? (
-            <FtFastPathChecklist />
-          ) : activeTab === "qrh" ? (
-            <FtFastPathQrh emergency={emergency} />
-          ) : activeTab === "perf" ? (
-            <FtPerformancePresentation
-              aircraftId={aircraftId}
-              activeFlight={activeFlight}
-              selectedVariant={selectedVariant}
-              datasets={performanceDatasets}
-              takeoffCalculator={takeoffCalculator}
-              view="operational"
-            />
-          ) : (
-            <FtFastPathReference
-              aircraft={referenceAircraft}
-              content={referenceContent}
-              performance={referencePerformance}
-            />
-          )}
+          {content}
         </div>
       </div>
     </div>
