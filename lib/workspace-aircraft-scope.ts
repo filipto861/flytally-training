@@ -55,7 +55,7 @@ export type WorkspaceAircraftScope =
 
 export type WorkspaceVariantSearchParam =
   | string
-  | readonly string[]
+  | string[]
   | undefined;
 
 export type WorkspaceAircraftScopeIdentity = {
