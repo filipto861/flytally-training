@@ -23,9 +23,11 @@ const workspaceMono = IBM_Plex_Mono({
 
 export default async function AircraftWorkspaceLayout({
   children,
+  workspaceScope,
   params,
 }: Readonly<{
   children: ReactNode;
+  workspaceScope: ReactNode;
   params: Promise<{ aircraftId: string }>;
 }>) {
   const { aircraftId } = await params;
@@ -33,7 +35,14 @@ export default async function AircraftWorkspaceLayout({
 
   return (
     <WorkspaceThemeProvider className={`${workspaceSans.variable} ${workspaceMono.variable}`}>
-      {newShell ? <FtShell aircraftId={aircraftId}>{children}</FtShell> : children}
+      {newShell ? (
+        <FtShell
+          aircraftId={aircraftId}
+          workspaceScopeSlot={workspaceScope}
+        >
+          {children}
+        </FtShell>
+      ) : children}
     </WorkspaceThemeProvider>
   );
 }
