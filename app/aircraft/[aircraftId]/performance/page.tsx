@@ -39,7 +39,7 @@ export default async function PerformancePage({
   const workspaceScope = newShell
     ? resolveWorkspaceAircraftScopeFromSearchParam(aircraft, variant)
     : undefined;
-  if (newShell && workspaceScope?.status !== "selected") {
+  if (newShell && workspaceScope && workspaceScope.status !== "selected") {
     return <FtConfigurationState scope={workspaceScope} />;
   }
 
