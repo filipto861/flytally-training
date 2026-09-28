@@ -94,6 +94,36 @@ test("P1.1 exposes Learn/EFB mode controls on desktop and touch navigation", asy
   await expect(drawerTrigger).toBeFocused();
 });
 
+test("R1.1b query-aware workspace scope slot follows search params through the shared layout", async ({ page }) => {
+  await page.goto(`${shellOnBase}${aircraftPath}/efb?variant=Standard`);
+
+  let scope = page.locator('[data-ft-workspace-scope-slot="true"]');
+  await expect(scope).toHaveAttribute("data-scope-status", "selected");
+  await expect(scope).toHaveAttribute("data-selection-source", "explicit");
+  await expect(scope).toHaveAttribute("data-variant-key", "Standard");
+  await expect(scope).toHaveAttribute(
+    "data-effective-configuration-snapshot-id",
+    /^effective:v1:/,
+  );
+
+  await page
+    .getByRole("link", { name: "Open full Performance", exact: true })
+    .first()
+    .click();
+  await expect(page).toHaveURL(
+    `${shellOnBase}${aircraftPath}/performance?variant=Standard`,
+  );
+
+  scope = page.locator('[data-ft-workspace-scope-slot="true"]');
+  await expect(scope).toHaveAttribute("data-scope-status", "selected");
+  await expect(scope).toHaveAttribute("data-variant-key", "Standard");
+
+  await page.goto(`${shellOnBase}${aircraftPath}/efb?variant=unknown`);
+  scope = page.locator('[data-ft-workspace-scope-slot="true"]');
+  await expect(scope).toHaveAttribute("data-scope-status", "unknown-variant");
+  await expect(scope).toHaveAttribute("data-requested-variant", "unknown");
+});
+
 test("P1.1 keeps operational fast path inside EFB only", async ({ page }) => {
   await page.goto(`${shellOnBase}${aircraftPath}/learn`);
   await expect(page.getByRole("navigation", { name: "Operational fast path" })).toHaveCount(0);

@@ -44,7 +44,9 @@ export type WorkspaceScopeConfigurationInvalid = {
     | WorkspaceScopeSelectionSource
     | "explicit";
   readonly variantKey: string | null;
-  readonly reason: "effective-configuration-resolution-failed";
+  readonly reason:
+    | "effective-configuration-resolution-failed"
+    | "ambiguous-variant-request";
 };
 
 export type WorkspaceAircraftScope =
@@ -159,6 +161,29 @@ export function resolveWorkspaceAircraftScope(
     aircraftId: aircraft.id,
     selectionSource: "none",
   };
+}
+
+export function resolveWorkspaceAircraftScopeFromSearchParam(
+  aircraft: Pick<
+    TrainingAircraft,
+    "id" | "variants" | "variantProfiles" | "equipmentTags"
+  >,
+  requestedVariant: string | readonly string[] | undefined,
+): WorkspaceAircraftScope {
+  if (Array.isArray(requestedVariant)) {
+    return {
+      status: "configuration-invalid",
+      aircraftId: aircraft.id,
+      selectionSource: "explicit",
+      variantKey: null,
+      reason: "ambiguous-variant-request",
+    };
+  }
+
+  return resolveWorkspaceAircraftScope(
+    aircraft,
+    requestedVariant as string | undefined,
+  );
 }
 
 export function isSelectedWorkspaceAircraftScope(

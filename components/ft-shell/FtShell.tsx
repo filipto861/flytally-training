@@ -37,9 +37,11 @@ import styles from "./ft-shell.module.css";
 export async function FtShell({
   aircraftId,
   children,
+  workspaceScope,
 }: Readonly<{
   aircraftId: string;
   children: ReactNode;
+  workspaceScope?: ReactNode;
 }>) {
   if (!isNewShellEnabled()) return <>{children}</>;
 
@@ -138,6 +140,7 @@ export async function FtShell({
       selectedVariant={selectedVariant}
       activeFlight={activeFlight}
     >
+      {workspaceScope}
       <section className={styles.shell} data-ft-shell="true" aria-label="Aircraft workspace shell">
         <FtSideNav aircraftId={aircraftId} />
 

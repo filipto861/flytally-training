@@ -7,6 +7,7 @@ import type {
 } from "../lib/aircraft-catalog.ts";
 import {
   resolveWorkspaceAircraftScope,
+  resolveWorkspaceAircraftScopeFromSearchParam,
 } from "../lib/workspace-aircraft-scope.ts";
 
 function aircraft(args: {
@@ -251,5 +252,21 @@ test("R1.1 configuration derivation failure becomes configuration-invalid instea
     selectionSource: "explicit",
     variantKey: "configured",
     reason: "effective-configuration-resolution-failed",
+  });
+});
+
+
+test("R1.1b duplicate variant query fails closed as ambiguous configuration", () => {
+  const result = resolveWorkspaceAircraftScopeFromSearchParam(
+    aircraft({ variants: ["variant-a", "variant-b"] }),
+    ["variant-a", "variant-b"],
+  );
+
+  assert.deepEqual(result, {
+    status: "configuration-invalid",
+    aircraftId: "generic-aircraft",
+    selectionSource: "explicit",
+    variantKey: null,
+    reason: "ambiguous-variant-request",
   });
 });

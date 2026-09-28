@@ -14,6 +14,17 @@ This file is the authoritative version history for completed FlyTally Training w
 
 ## Unreleased
 
+### R1.1b query-aware shell/provider scope spike
+- Started the bounded Next.js 16 scope-propagation spike after the independent review and R1.1a resolver merge.
+- Added a query-aware parallel-route slot under the aircraft workspace. The slot is a Page (therefore receives current `searchParams`) and is rendered inside the existing `FtFastPathProvider`; the shared Layout itself remains query-agnostic as required by Next.js.
+- The spike carries only scope identity and is deliberately non-authoritative: existing Fast Path filtering/data ownership is unchanged until R1.1c.
+- Added fail-closed handling for duplicate/ambiguous `variant` query values.
+- Added browser acceptance for explicit valid scope, effective-configuration snapshot identity, client navigation with preserved variant, and explicit invalid scope.
+- Runtime aviation content, Performance calculations, Checklist persistence and legacy flag-OFF behavior are unchanged in this spike.
+- Acceptance on implementation head `ce82c47d0cad22693984dec0f247e81b08c689e2`: Verify Training PASS; TypeScript PASS; full Node **1472 total / 1471 PASS / 0 FAIL / 1 SKIP**; production build PASS; Browser smoke **420/420 PASS** across desktop, mobile, iPad landscape and iPad portrait.
+- The first Verify build attempt failed in a transient Turbopack/next-font internal resolver path while the Browser workflow built the same head successfully; a rerun of the failed Verify job passed without a code change.
+
+
 ### Browser responsive acceptance reliability
 - Corrected the Playwright shell acceptance harness to follow the application’s effective media queries instead of assuming the `desktop-chromium` project always renders the desktop rail.
 - Navigation, Fast Path sizing, Procedures selector and touch-target checks now derive desktop/touch behavior from `matchMedia`, matching the same responsive contracts used by production CSS.
