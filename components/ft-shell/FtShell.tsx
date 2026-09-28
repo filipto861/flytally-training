@@ -32,13 +32,19 @@ import { FtFastPathRail } from "./FtFastPathRail";
 import { FtNavDrawer } from "./FtNavDrawer";
 import { FtSideNav } from "./FtSideNav";
 import { FtTopBar } from "./FtTopBar";
+import {
+  FtWorkspaceScopeBridge,
+  FtWorkspaceScopeEcho,
+} from "./FtWorkspaceScopeBridge";
 import styles from "./ft-shell.module.css";
 
 export async function FtShell({
   aircraftId,
+  workspaceScopeSlot,
   children,
 }: Readonly<{
   aircraftId: string;
+  workspaceScopeSlot?: ReactNode;
   children: ReactNode;
 }>) {
   if (!isNewShellEnabled()) return <>{children}</>;
@@ -132,13 +138,16 @@ export async function FtShell({
     : undefined;
 
   return (
-    <FtFastPathProvider
-      aircraftId={aircraftId}
-      checklist={checklist}
-      selectedVariant={selectedVariant}
-      activeFlight={activeFlight}
-    >
-      <section className={styles.shell} data-ft-shell="true" aria-label="Aircraft workspace shell">
+    <FtWorkspaceScopeBridge>
+      <FtFastPathProvider
+        aircraftId={aircraftId}
+        checklist={checklist}
+        selectedVariant={selectedVariant}
+        activeFlight={activeFlight}
+      >
+        {workspaceScopeSlot}
+        <FtWorkspaceScopeEcho />
+        <section className={styles.shell} data-ft-shell="true" aria-label="Aircraft workspace shell">
         <FtSideNav aircraftId={aircraftId} />
 
         <div className={styles.workspace}>
@@ -163,7 +172,8 @@ export async function FtShell({
           performanceDatasets={performanceDatasets}
           takeoffCalculator={bundledPerformance?.takeoffCalculator}
         />
-      </section>
-    </FtFastPathProvider>
+        </section>
+      </FtFastPathProvider>
+    </FtWorkspaceScopeBridge>
   );
 }
