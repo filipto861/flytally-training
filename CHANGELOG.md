@@ -14,6 +14,15 @@ This file is the authoritative version history for completed FlyTally Training w
 
 ## Unreleased
 
+### R1 safety design audit
+- Reconstructed the effective configuration and offline PWA paths from current `main` before R1 implementation.
+- Confirmed the shell/Fast Path configuration split: `FtShell` resolves a private default variant while child routes consume explicit `?variant=`; REF already carries a separate client-side workaround, demonstrating fragmented ownership.
+- Identified an additional fail-closed defect in the permissive variant resolver: an explicit unknown variant can fall back to the sole variant or common/undefined configuration instead of remaining invalid.
+- Froze the R1.1 design direction around one shared requested/effective configuration resolution contract, reuse of existing Performance/checklist invalidation semantics, and explicit invalid-query regression coverage.
+- Confirmed the current offline cache is variant-keyed but not effective-configuration-snapshot/package-identity keyed. R1.3 now requires an operational package identity and distinguishes offline availability from source currentness without arbitrary time expiry.
+- No runtime code, aviation data, database schema or deployment changed in this design-only audit.
+
+
 ### Roadmap phase decomposition — R2 through R6
 - Expanded the post-R1 roadmap into explicit analysis/implementation/acceptance milestones without changing runtime behavior.
 - R2 now separates cockpit UX baseline/reachability, shell hierarchy, Fast Path surface contract, state preservation, domain presentation and responsive/night acceptance.

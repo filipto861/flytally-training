@@ -150,19 +150,54 @@ Therefore:
 
 ### R1.1 — Effective-configuration consistency — AVIATION-CRITICAL GATE
 
-Confirmed audit finding: the current shell/Fast Path resolves its selected variant independently from child routes, while child pages may resolve an explicit `?variant=`.
+Confirmed code audit findings:
+
+- the new-shell `FtShell` currently resolves its Fast Path configuration with `resolveSelectedVariant(undefined, aircraft.variants)`, so it does not consume the route's explicit `?variant=`;
+- child routes such as `/fly`, `/performance` and `/reference` independently resolve `searchParams.variant`;
+- `FtFastPathReference` already contains its own client-side query-variant workaround, which proves configuration ownership is currently fragmented across surfaces rather than canonical;
+- `resolveSelectedVariant()` is permissive for an invalid explicit query: on a single-variant aircraft it can fall back to that sole variant, while on a multi-variant aircraft it can collapse to undefined/common configuration. An explicit invalid selector must instead fail closed;
+- Performance Snapshot V2 already records the selected variant as an invalidation dependency, and Checklist persistence already includes variant identity. R1.1 should reuse these contracts rather than inventing a second state model.
 
 Goal:
 
-> One effective aircraft configuration must drive the page, Fast Path and all operational projections for the same rendered workspace.
+> One explicit effective aircraft configuration must drive the page, Fast Path and all operational projections for the same rendered workspace.
+
+Design direction:
+
+1. Introduce one shared **requested/effective configuration resolution contract** used by both server routes and the new-shell Fast Path.
+2. Treat an explicit unknown/invalid `?variant=` as an **invalid configuration state**, never as permission to choose another variant or common/default configuration.
+3. Separate:
+   - no variant requested;
+   - one valid effective variant selected;
+   - explicit invalid variant requested.
+4. The shared resolution result should expose, where available:
+   - selected variant key;
+   - effective configuration;
+   - effective-configuration snapshot identity;
+   - invalid/unavailable status.
+5. Fast Path must consume the same route-selected effective configuration rather than resolving a private default.
+6. Existing domain-specific invalidation should remain authoritative:
+   - Performance uses Snapshot V2 dependency invalidation;
+   - Checklist session identity remains configuration/variant scoped;
+   - QRH/REF are re-filtered from governed content for the resolved effective configuration.
+7. Do not persist a second "selected variant" truth merely to solve shell routing. The URL/explicit aircraft configuration contract remains the selector until a future product decision changes that model.
+
+Implementation constraint:
+
+- Next.js layouts do not receive page `searchParams` as the current page components do. R1.1 must therefore solve query-aware shell resolution deliberately rather than using undocumented request headers or duplicated default heuristics.
+- Prefer a small aircraft-agnostic configuration boundary/provider or equivalent shared resolver over introducing route-specific Learjet code.
+- Do not move all aviation filtering client-side merely for convenience unless serialization, readiness and fail-closed behavior are explicitly proven.
 
 Acceptance:
 
-- explicit regression test proving the page and Fast Path resolve the same effective variant/configuration for a route;
+- explicit regression test proving the page and Fast Path resolve the same effective variant/configuration for a valid query-selected route;
+- explicit invalid-query regression proving `?variant=unknown` cannot silently become the sole/default/common variant;
 - CHECKLIST/QRH/PERF/REF use the same applicability context;
+- effective-configuration snapshot identity is available where state invalidation/scope requires it;
 - persisted operational state either scopes to or invalidates against configuration identity as appropriate;
 - correcting/changing configuration cannot silently continue with stale configuration-dependent state;
-- no silent fallback from an invalid explicit configuration to a generic/default configuration.
+- no aircraft-ID branch is introduced;
+- legacy flag-OFF behavior remains unchanged.
 
 This gate closes before final QRH cockpit acceptance so the acceptance run exercises the same configuration context the pilot actually selected.
 
@@ -180,18 +215,53 @@ Do not redesign the QRH content contract unless acceptance reveals a genuine def
 
 ### R1.3 — Offline governed-content currency
 
-Current explicit offline preparation is valuable, but a cached `/fly` page must not implicitly mean “current”.
+Confirmed code audit findings:
 
-Design and close an explicit currency contract covering:
+- offline preparation caches the rendered `/fly` response plus required static/aviation support assets;
+- the current cache key preserves `?variant=`, which prevents one variant URL from overwriting another;
+- the cache key does **not** encode the effective-configuration snapshot, so serial/equipment/modification changes under the same variant key can leave an older prepared page addressable;
+- the cached page has no explicit governed publication/source package identity;
+- online operational readiness correctly fails closed on unresolved stale flags, but an already cached offline page cannot ask the server whether its published content later became stale;
+- weather requests are already explicitly bypassed by the service worker and must remain live-only.
 
-- publication/source identity stored with prepared operational content;
-- what the UI may claim when offline currentness cannot be revalidated;
-- behavior after a publication becomes stale or is replaced;
-- variant/configuration-safe cache identity;
-- weather remains live-only/not cached;
-- fail-closed handling where currentness is safety-relevant.
+Product rule:
 
-Do not invent arbitrary time-expiry thresholds that look like operational validity.
+> **Offline availability is not a currentness claim.**
+
+Do not solve this with arbitrary elapsed-time expiry thresholds. Source currency is evidence/state based, not "you have been offline for N minutes".
+
+Design direction:
+
+1. Define one server-generated **operational package identity** for the prepared cockpit configuration.
+2. The identity should be aircraft/configuration specific and include enough immutable/change-sensitive evidence to detect a changed package, for example:
+   - aircraft id;
+   - selected variant;
+   - effective-configuration snapshot id;
+   - relevant published module/version identities and readiness state;
+   - bundled Performance/Reference package fingerprint or equivalent change identity where content is not DB-published.
+3. Persist the package identity alongside the prepared cache as metadata; do not infer it from a preparation timestamp.
+4. While online:
+   - compare the current package identity with the prepared identity;
+   - only label the device **Offline ready** when the prepared cache matches the current package identity;
+   - if identity/readiness changes, retire or refresh the prepared cache before claiming readiness.
+5. While offline:
+   - the application may state that content was **prepared/verified when last online**;
+   - it must not claim that the content is currently source-current because that cannot be revalidated offline;
+   - surface the inability to revalidate without blocking access to the explicitly prepared copy unless a domain-specific contract requires stronger fail-closed behavior.
+6. An explicit configuration change must produce a distinct prepared identity. Same variant key with a changed serial/equipment/modification snapshot must not reuse an older "ready" claim.
+7. A package that was not operationally ready at preparation time cannot become an authoritative offline package merely because HTML was cached.
+8. Live weather remains outside all offline package caches.
+
+Acceptance:
+
+- regression proving cache/preparation identity changes when effective configuration changes under the same variant key;
+- regression proving a changed/stale publication identity invalidates the online **Offline ready** claim;
+- offline UI language distinguishes **prepared copy / last verified online** from currentness;
+- no operational-expiry timer is introduced;
+- weather API remains uncached;
+- failure to read/validate package metadata fails closed to "not verified/offline unavailable" rather than silently reporting ready.
+
+R1.3 may require a small manifest/metadata endpoint or equivalent server contract, but it must not become a second content repository or duplicate publication truth.
 
 ### R1.4 — EFB content-state acceptance
 
