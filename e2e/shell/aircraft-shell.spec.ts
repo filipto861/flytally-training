@@ -124,6 +124,53 @@ test("R1.1b query-aware workspace scope slot follows search params through the s
   await expect(scope).toHaveAttribute("data-requested-variant", "unknown");
 });
 
+test("R1.1c explicit invalid configuration gates the EFB page and Fast Path", async ({ page }) => {
+  await page.goto(`${shellOnBase}${aircraftPath}/fly?variant=unknown`);
+
+  await expect(
+    page.locator('[data-ft-configuration-state="unknown-variant"]'),
+  ).toBeVisible();
+
+  const rail = page.getByRole("navigation", { name: "Operational fast path" });
+  await rail.getByRole("button", { name: "CHECKLIST", exact: true }).click();
+
+  const panel = page.getByRole("dialog", { name: "Operational fast path" });
+  await expect(
+    panel.getByRole("heading", { name: "Unknown configuration", exact: true }),
+  ).toBeVisible();
+  await expect(panel.getByText(/not registered for this aircraft/i)).toBeVisible();
+});
+
+test("R1.1c valid explicit configuration drives page and Fast Path with one identity", async ({ page }) => {
+  await page.goto(`${shellOnBase}${aircraftPath}/performance?variant=Standard`);
+
+  const slotScope = page.locator('[data-ft-workspace-scope-slot="true"]');
+  const pageScope = page.locator('[data-ft-page-workspace-scope="true"]');
+
+  await expect(slotScope).toHaveAttribute("data-variant-key", "Standard");
+  await expect(pageScope).toHaveAttribute("data-variant-key", "Standard");
+
+  const slotSnapshot = await slotScope.getAttribute(
+    "data-effective-configuration-snapshot-id",
+  );
+  const pageSnapshot = await pageScope.getAttribute(
+    "data-effective-configuration-snapshot-id",
+  );
+  expect(slotSnapshot).toBeTruthy();
+  expect(pageSnapshot).toBe(slotSnapshot);
+
+  await expect(
+    page.locator('[aria-label="Aircraft profile: Standard"]'),
+  ).toBeVisible();
+
+  const rail = page.getByRole("navigation", { name: "Operational fast path" });
+  await rail.getByRole("button", { name: "REF", exact: true }).click();
+  const panel = page.getByRole("dialog", { name: "Operational fast path" });
+  await expect(
+    panel.getByText("Maximum generic speed", { exact: true }),
+  ).toBeVisible();
+});
+
 test("P1.1 keeps operational fast path inside EFB only", async ({ page }) => {
   await page.goto(`${shellOnBase}${aircraftPath}/learn`);
   await expect(page.getByRole("navigation", { name: "Operational fast path" })).toHaveCount(0);

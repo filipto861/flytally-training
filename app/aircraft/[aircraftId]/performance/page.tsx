@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 
 import { AircraftWorkspaceNav } from "@/components/aircraft-workspace-nav";
 import { FtPerformancePage } from "@/components/ft-performance/FtPerformancePage";
+import { FtConfigurationState } from "@/components/ft-shell/FtConfigurationState";
+import { FtWorkspaceScopeIdentity } from "@/components/ft-shell/FtWorkspaceScopeIdentity";
 import { PerformanceCalculator } from "@/components/performance-calculator";
 import {
   configurationForAircraftVariant,
@@ -16,16 +18,18 @@ import { isNewShellEnabled } from "@/lib/feature-flags";
 import { mergePerformanceDatasets } from "@/lib/performance-package";
 import { getTrainingSession } from "@/lib/training-session";
 import type { AircraftPerformanceContent } from "@/lib/universal-aircraft-content";
+import { resolveWorkspaceAircraftScopeFromSearchParam } from "@/lib/workspace-aircraft-scope";
 
 export default async function PerformancePage({
   params,
   searchParams,
 }: Readonly<{
   params: Promise<{ aircraftId: string }>;
-  searchParams: Promise<{ variant?: string }>;
+  searchParams: Promise<{ variant?: string | string[] }>;
 }>) {
   const [{ aircraftId }, { variant }] = await Promise.all([params, searchParams]);
   const repository = getTrainingContentRepository();
+  const newShell = isNewShellEnabled();
   const bundledPackage = getBundledPerformancePackage(aircraftId);
   const [aircraft, content] = await Promise.all([
     repository.getAircraft(aircraftId),
@@ -33,8 +37,22 @@ export default async function PerformancePage({
   ]);
   if (!aircraft || (!content && !bundledPackage)) notFound();
 
-  const selectedVariant = resolveSelectedVariant(variant, aircraft.variants);
-  const configuration = configurationForAircraftVariant(aircraft, selectedVariant);
+  const workspaceScope = newShell
+    ? resolveWorkspaceAircraftScopeFromSearchParam(aircraft, variant)
+    : undefined;
+  if (newShell && workspaceScope && workspaceScope.status !== "selected") {
+    return <FtConfigurationState scope={workspaceScope} />;
+  }
+
+  const selectedVariant = newShell
+    ? workspaceScope?.status === "selected"
+      ? workspaceScope.variantKey ?? undefined
+      : undefined
+    : resolveSelectedVariant(variant as string | undefined, aircraft.variants);
+  const configuration =
+    newShell && workspaceScope?.status === "selected"
+      ? workspaceScope.configuration
+      : configurationForAircraftVariant(aircraft, selectedVariant);
   const configuredPublished = content
     ? filterPerformanceForConfiguration(content, configuration)
     : undefined;
@@ -50,7 +68,7 @@ export default async function PerformancePage({
   const disclaimer =
     configuredPublished?.disclaimer ?? configuredBundled?.disclaimer;
 
-  if (!isNewShellEnabled()) {
+  if (!newShell) {
     return (
       <main className="shell aircraft-detail">
         <AircraftWorkspaceNav
@@ -83,15 +101,20 @@ export default async function PerformancePage({
     : undefined;
 
   return (
-    <FtPerformancePage
-      aircraftId={aircraft.id}
-      aircraftName={aircraft.displayName}
-      activeFlight={activeFlight}
-      selectedVariant={selectedVariant}
-      datasets={datasets}
-      takeoffCalculator={bundledPackage?.takeoffCalculator}
-      landingCalculator={bundledPackage?.landingCalculator}
-      disclaimer={disclaimer}
-    />
+    <>
+      {workspaceScope?.status === "selected" ? (
+        <FtWorkspaceScopeIdentity scope={workspaceScope} />
+      ) : null}
+      <FtPerformancePage
+        aircraftId={aircraft.id}
+        aircraftName={aircraft.displayName}
+        activeFlight={activeFlight}
+        selectedVariant={selectedVariant}
+        datasets={datasets}
+        takeoffCalculator={bundledPackage?.takeoffCalculator}
+        landingCalculator={bundledPackage?.landingCalculator}
+        disclaimer={disclaimer}
+      />
+    </>
   );
 }

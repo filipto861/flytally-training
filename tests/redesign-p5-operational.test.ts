@@ -199,13 +199,13 @@ test("P5.2 QRH adapter reuses the operational DTO and strips training interactio
 
 
 test("P5.3 shell loads only source-authoritative QRH data through the P5 adapter", () => {
-  const shell = read("components/ft-shell/FtShell.tsx");
+  const slot = read("components/ft-shell/FtWorkspaceScopeSlot.tsx");
 
-  assert.match(shell, /getPublishedAircraftModule<unknown>[\s\S]*"abnormal"/);
-  assert.match(shell, /getOperationalFlightReadiness\(aircraftId\)/);
-  assert.match(shell, /resolveFastPathQrh\([\s\S]*operationalReadiness\.abnormal\.ready/);
-  assert.match(shell, /emergency=\{emergency\}/);
-  assert.doesNotMatch(shell, /normalizeLegacyAbnormalTraining|normalizeUniversalAbnormalEmergency/);
+  assert.match(slot, /getPublishedAircraftModule<unknown>[\s\S]*"abnormal"/);
+  assert.match(slot, /getOperationalFlightReadiness\(aircraftId\)/);
+  assert.match(slot, /resolveFastPathQrh\([\s\S]*operationalReadiness\.abnormal\.ready/);
+  assert.match(slot, /emergency/);
+  assert.doesNotMatch(slot, /normalizeLegacyAbnormalTraining|normalizeUniversalAbnormalEmergency/);
 });
 
 test("P5.3 fills the existing QRH slot without changing W3 or REF ownership", () => {
@@ -213,7 +213,7 @@ test("P5.3 fills the existing QRH slot without changing W3 or REF ownership", ()
   const qrh = read("components/ft-fast-path/FtFastPathQrh.tsx");
 
   assert.match(panel, /activeTab === "qrh"/);
-  assert.match(panel, /<FtFastPathQrh emergency=\{emergency\} \/>/);
+  assert.match(panel, /<FtFastPathQrh emergency=\{workspaceProjection\.emergency\} \/>/);
   assert.match(panel, /activeTab === "perf"/);
   assert.match(qrh, /<OperationalEmergency emergency=\{emergency\} \/>/);
   assert.match(qrh, /QRH unavailable/);

@@ -89,27 +89,28 @@ test("P7 reference implementation is presentation-only and aircraft-agnostic", (
 
 
 test("P7.3 shell loads governed limitations for REF without changing PERF", () => {
-  const shell = read("components/ft-shell/FtShell.tsx");
+  const slot = read("components/ft-shell/FtWorkspaceScopeSlot.tsx");
   const panel = read("components/ft-fast-path/FtFastPathPanel.tsx");
 
   assert.match(
-    shell,
+    slot,
     /getPublishedAircraftModule<AircraftLimitationsContent>[\s\S]*"limitations"/,
   );
-  assert.match(shell, /referenceContent=\{publishedLimitations\}/);
+  assert.match(slot, /filterLimitationsForConfiguration/);
+  assert.match(slot, /toReferencePresentation/);
   assert.match(panel, /<FtFastPathReference/);
-  assert.match(panel, /content=\{referenceContent\}/);
+  assert.match(panel, /reference=\{workspaceProjection\.reference\}/);
   assert.match(panel, /<FtPerformancePresentation/);
   assert.doesNotMatch(panel, /FtFastPathPlaceholder/);
 });
 
-test("P7.3 fast-path REF resolves variant query through the existing applicability resolver", () => {
+test("P7.3 fast-path REF consumes the shared R1.1 workspace projection", () => {
   const fast = read("components/ft-fast-path/FtFastPathReference.tsx");
+  const slot = read("components/ft-shell/FtWorkspaceScopeSlot.tsx");
 
-  assert.match(fast, /window\.location\.search/);
-  assert.match(fast, /resolveSelectedVariant/);
-  assert.match(fast, /configurationForAircraftVariant/);
-  assert.match(fast, /filterLimitationsForConfiguration/);
+  assert.doesNotMatch(fast, /window\.location\.search|resolveSelectedVariant|configurationForAircraftVariant/);
+  assert.match(slot, /resolveWorkspaceAircraftScopeFromSearchParam/);
+  assert.match(slot, /filterLimitationsForConfiguration/);
   assert.match(fast, /withVariantQuery/);
   assert.doesNotMatch(fast, /aircraft\.model\s*===/i);
 });

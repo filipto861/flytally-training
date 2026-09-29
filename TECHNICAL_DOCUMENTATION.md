@@ -273,6 +273,24 @@ The frozen fast-path tab order is:
 
 Keyboard shortcuts remain Ctrl+Shift+1 through Ctrl+Shift+4 in the same order.
 
+### Workspace configuration boundary
+
+Under the new shell, operational Fast Path content is no longer allowed to resolve its own default/query variant independently.
+
+The query-aware aircraft parallel-route slot resolves the shared `WorkspaceAircraftScope` on the server. A selected scope contains the effective aircraft configuration and deterministic `effectiveConfigurationSnapshotId`. The slot filters CHECKLIST / QRH / PERF / REF from that same configuration and registers only the resulting projection into the existing Fast Path provider.
+
+The provider validates the projection against the current URL's complete `variant` query echo before exposing it. During navigation, a projection for the previous query is therefore unavailable rather than briefly treated as the new configuration.
+
+New-shell operational routes use the same resolver contract:
+- selected scope → configuration-applicable content may render;
+- unselected / unknown-variant / configuration-invalid → EFB operational content fails closed;
+- LEARN Reference may explicitly project common-aircraft-only content for an intentionally unselected multi-variant aircraft;
+- duplicate/ambiguous `variant` query values fail closed.
+
+Fast Path domains must not re-read `window.location.search` or maintain another selected-variant truth. The legacy `resolveSelectedVariant()` path remains for feature-flag-OFF compatibility until explicit legacy retirement.
+
+This shared scope does not by itself complete configuration-dependent persisted-state safety: Performance Snapshot V2 and Checklist session mismatch semantics are separate R1.1d/R1.1e gates.
+
 ### CHECKLIST
 
 Uses the shared canonical operational checklist session described above.

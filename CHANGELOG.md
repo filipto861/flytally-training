@@ -14,6 +14,17 @@ This file is the authoritative version history for completed FlyTally Training w
 
 ## Unreleased
 
+### R1.1c page + Fast Path workspace scope wiring — PR #289
+- Rewired the new-shell Fast Path to a query-aware server projection derived from the accepted `WorkspaceAircraftScope` contract instead of a shell-private/default variant.
+- CHECKLIST, QRH, PERF and REF are now filtered from the same effective aircraft configuration; the Fast Path provider rejects a stale projection when the current `variant` query no longer matches its server echo.
+- Removed Fast Path REF's client-side `window.location.search` / domain-local variant resolver.
+- New-shell Fly and Performance fail closed on unselected, unknown or invalid technical configuration. LEARN Reference may show only common aircraft content when a multi-variant aircraft is intentionally unselected, with an explicit notice.
+- Added page/Fast Path scope identity evidence using `aircraftId`, `variantKey` and deterministic `effectiveConfigurationSnapshotId`.
+- Kept legacy flag-OFF resolution unchanged; no aircraft-specific branch, aviation source change, DB schema change, Performance snapshot migration or Checklist snapshot migration is included.
+- CI on the functional PR #289 head before this documentation-close commit: Verify Training PASS — 1477 total / 1476 pass / 0 fail / 1 skip and production build PASS; Browser smoke PASS — 427 Playwright tests across the configured responsive Chromium projects.
+- Remaining R1.1 work is intentionally separate: Performance snapshot invalidation on effective configuration (R1.1d), Checklist same-variant configuration mismatch handling (R1.1e), and Partial Power applicability/final acceptance (R1.1f).
+
+
 ### R1.1b query-aware shell/provider scope spike
 - Started the bounded Next.js 16 scope-propagation spike after the independent review and R1.1a resolver merge.
 - Added a query-aware parallel-route slot under the aircraft workspace. The slot is a Page (therefore receives current `searchParams`) and is rendered inside the existing `FtFastPathProvider`; the shared Layout itself remains query-agnostic as required by Next.js.

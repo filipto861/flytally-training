@@ -2,7 +2,7 @@
 
 **Status:** Active  
 **Owner:** Filip Točík  
-**Last reconciled:** 27 September 2026
+**Last reconciled:** 29 September 2026
 
 This is the canonical execution plan for `flytally-training`.
 
@@ -240,7 +240,7 @@ Next.js mechanism is deliberately **not frozen until a spike proves it**. The fi
   - selected scope exposes the deterministic effective-configuration snapshot identity;
   - configuration derivation failure becomes `configuration-invalid`;
   - acceptance on PR head: TypeScript PASS; full Node **1471 total / 1470 PASS / 0 FAIL / 1 SKIP**; production build PASS.
-- **R1.1b — Next.js shell/provider scope spike — ACCEPTED · READY TO MERGE · PR #286**
+- **R1.1b — Next.js shell/provider scope spike — COMPLETE · PR #286**
   - use a query-aware parallel-route slot page because Next.js 16 pages receive `searchParams` while shared layouts deliberately do not;
   - pass that slot through the existing aircraft layout and render it inside `FtFastPathProvider`, proving a future server-resolved Fast Path registration can share the existing provider without a header hack or second persisted selector;
   - keep the spike non-authoritative: the existing Fast Path payload is not rewired in this batch, so R1.1c still owns actual CHECKLIST / QRH / PERF / REF scope wiring;
