@@ -248,12 +248,15 @@ Next.js mechanism is deliberately **not frozen until a spike proves it**. The fi
   - duplicate `variant` query values are ambiguous and fail closed as `configuration-invalid`;
   - acceptance on implementation head `ce82c47d0cad22693984dec0f247e81b08c689e2`: Verify Training **PASS**; TypeScript **PASS**; full Node **1472 total / 1471 PASS / 0 FAIL / 1 SKIP**; production build **PASS**; Browser smoke **420/420 PASS** across desktop, mobile, iPad landscape and iPad portrait;
   - the first Verify build attempt hit a transient Turbopack/next-font internal resolution failure while the parallel Browser build passed; rerun passed without a code change, so no product defect was attributed to that runner failure.
-- **R1.1c — page + Fast Path scope wiring — NEXT**
-  - wire CHECKLIST / QRH / PERF / REF to the proven shared scope;
-  - gate invalid/unselected EFB states;
-  - preserve explicit variant through navigation;
-  - remove the Fast Path REF query workaround.
-- **R1.1d — Performance effective-configuration invalidation — PLANNED**
+- **R1.1c — page + Fast Path scope wiring — COMPLETE · PR #289**
+  - CHECKLIST / QRH / PERF / REF consume one query-aware server-resolved workspace scope;
+  - invalid/unselected operational EFB states fail closed;
+  - explicit valid variant is preserved through navigation;
+  - Fast Path REF no longer resolves `window.location.search` independently;
+  - page and Fast Path share `{aircraftId, variantKey, effectiveConfigurationSnapshotId}`;
+  - LOCAL acceptance on PR head `f64e86c`: TypeScript PASS; full Node **1477 total / 1476 PASS / 0 FAIL / 1 SKIP**; production build PASS; Playwright **428/428 PASS** across desktop, mobile, iPad landscape and iPad portrait;
+  - merged to `main` as `832afd10f05f5b46abf2811e309a24e314b7316c`.
+- **R1.1d — Performance effective-configuration invalidation — NEXT**
   - add effective-configuration snapshot identity as a distinct Takeoff/Landing validity dependency;
   - old stored snapshots without this dependency require explicit recalculation.
 - **R1.1e — Checklist configuration mismatch handling — PLANNED**
