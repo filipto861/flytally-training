@@ -257,9 +257,17 @@ Characteristics:
 - Fast Path and full workspaces are intended to share domain state;
 - responsive drawer/full-screen behavior exists.
 
-Known R1 safety gap:
+Current configuration behavior:
 
-- effective variant/configuration resolution must be unified between the shell/Fast Path and query-selected child pages before EFB foundation closure.
+- the new-shell page and Fast Path use the same query-aware workspace-scope contract and effective-configuration snapshot identity;
+- explicit unknown/ambiguous/invalid technical configuration fails closed instead of falling back to another/default configuration;
+- CHECKLIST / QRH / PERF / REF Fast Path projections are server-filtered from that shared effective configuration.
+
+Remaining R1 safety gates:
+
+- persisted Performance results must invalidate on effective-configuration snapshot changes even when the variant key is unchanged;
+- Checklist sessions must detect same-variant effective-configuration mismatch without silently continuing or destructive reset;
+- Partial Power applicability and final R1.1 acceptance remain separate gates.
 
 ## Weather and runway operational boundaries — IMPLEMENTED
 
