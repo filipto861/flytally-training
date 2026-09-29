@@ -21,7 +21,9 @@ This file is the authoritative version history for completed FlyTally Training w
 - New-shell Fly and Performance fail closed on unselected, unknown or invalid technical configuration. LEARN Reference may show only common aircraft content when a multi-variant aircraft is intentionally unselected, with an explicit notice.
 - Added page/Fast Path scope identity evidence using `aircraftId`, `variantKey` and deterministic `effectiveConfigurationSnapshotId`.
 - Kept legacy flag-OFF resolution unchanged; no aircraft-specific branch, aviation source change, DB schema change, Performance snapshot migration or Checklist snapshot migration is included.
-- CI on the functional PR #289 head before this documentation-close commit: Verify Training PASS — 1477 total / 1476 pass / 0 fail / 1 skip and production build PASS; Browser smoke PASS — 427 Playwright tests across the configured responsive Chromium projects.
+- LOCAL acceptance on PR #289 head `f64e86c`: standalone TypeScript PASS after clearing stale generated `.next` types; full Node **1477 total / 1476 PASS / 0 FAIL / 1 SKIP**; production build PASS; Playwright **428/428 PASS** across desktop, mobile, iPad landscape and iPad portrait; working tree clean after verification.
+- GitHub Verify Training and Browser smoke were also green on the same PR head, but local verification is the recorded acceptance gate for this closure.
+- PR #289 was squash-merged to `main` as `832afd10f05f5b46abf2811e309a24e314b7316c`.
 - Remaining R1.1 work is intentionally separate: Performance snapshot invalidation on effective configuration (R1.1d), Checklist same-variant configuration mismatch handling (R1.1e), and Partial Power applicability/final acceptance (R1.1f).
 
 
