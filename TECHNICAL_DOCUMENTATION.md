@@ -545,7 +545,7 @@ npm run test:quick
 
 **Verified incompatibility (22 Oct 2026):** Training lib/db.ts uses the Neon serverless HTTP SQL client via neon(), not native PostgreSQL TCP. A plain postgres:16 Docker container cannot serve that client. The original explicit destructive no-code acceptance runner supports a separately verified disposable/preview Training database with TRAINING_ACCEPTANCE_DATABASE_URL and an exact acknowledgement; its contract remains unchanged. Do not silently reuse the Logbook fixture or production Neon. A future, independently reviewed step must supply a secured local HTTP-compatible proxy or a demonstrably isolated Training-specific test backend, with negative remote-target checks and real browser/DB evidence, before enabling these aliases.
 
-The facade strips inherited TRAINING_DATABASE_URL and purpose/hosting flags before running the non-DB tests. Existing .env.local is not modified. No production schema operation, remote destructive test, release flag, merge or deploy is authorized. Record each mandatory gate as PASS/FAIL/NOT RUN for the exact commit SHA.
+The facade masks inherited TRAINING_DATABASE_URL and Next.js .env.local database values using explicit empty environment defaults, and strips unrelated purpose/hosting flags before non-DB tests. Existing .env.local is not modified. No production schema operation, remote destructive test, release flag, merge or deploy is authorized. Record each mandatory gate as PASS/FAIL/NOT RUN for the exact commit SHA.
 
 ### 15.4 Production
 
