@@ -525,9 +525,9 @@ Ordinary runtime requests must never silently self-provision schema.
 
 The destructive no-code PostgreSQL acceptance path uses `TRAINING_ACCEPTANCE_DATABASE_URL` and must point only to a disposable/preview PostgreSQL database, never production.
 
-### 15.3a Portable two-PC developer testing workflow
+### 15.3a Portable two-PC developer workflow — safe initial milestone
 
-This is a permanent local operations contract, not a new authoritative release gate. Git shares scripts between home and office PCs; .env.test.local and the disposable database remain machine-local, ignored by Git.
+Both Windows PCs can reuse existing Node 24, Git, npm dependencies and Playwright Chromium, synchronized through Git rather than reinstalled at each switch. Per-machine credentials and DB connections stay uncommitted.
 
 ~~~powershell
 git fetch origin
@@ -537,21 +537,15 @@ npm run doctor
 npm run test:quick
 ~~~
 
-Setup preserves existing npm dependencies and Playwright Chromium when installed, and only installs missing components. It never installs/replaces Node, Git, Docker or system PostgreSQL. Docker is optional for non-DB testing; for a required local database, use npm run setup:local -- --with-db or npm run setup:db.
+- npm run setup:local checks existing npm packages and Playwright Chromium; only missing npm/Chromium components are installed. It never reinstalls Node/Git/Docker. A separate database is NOT created by this command in Training.
+- npm run doctor is a read-only prerequisite/configuration check; it is NOT a DB connectivity probe, test PASS or approval.
+- npm run test:quick runs TypeScript and existing focused UI contracts. npm run verify retains the canonical Training typecheck/Node/build gate. npm run test:local-workflow checks the local fixture guards without DB access.
+- npm run test:full runs the existing typecheck/Node/build gate but **returns blocked** because full responsive browser+database acceptance cannot yet be verified in a safe, reproducible local environment. Do not interpret main-gate PASS as full acceptance.
+- npm run setup:db, npm run db:init:local, npm run test:db:local and npm run test:browser:local are **deliberately blocked** in the Training facade (exit nonzero, no DB write) pending approval of a compatible disposable backend. No automatic disposable database acknowledgement is supplied by these blocked paths.
 
-A new managed Training fixture is a separate Docker PostgreSQL 16 container called flytally-training-local-pg16, bound only to 127.0.0.1:55440, database flytally_training_acceptance_test, user flytally_local, random password in ignored .env.test.local. It is **not the Logbook DB**. The existing matching container is reused without reset. Name/config/credentials conflicts fail closed. For newly created managed containers only, setup waits for database readiness and then invokes the existing Training db:init bootstrap against the verified disposable localhost URL. For a pre-existing dedicated Training fixture that still needs bootstrap, run npm run db:init:local.
+**Verified incompatibility (22 Oct 2026):** Training lib/db.ts uses the Neon serverless HTTP SQL client via neon(), not native PostgreSQL TCP. A plain postgres:16 Docker container cannot serve that client. The original explicit destructive no-code acceptance runner supports a separately verified disposable/preview Training database with TRAINING_ACCEPTANCE_DATABASE_URL and an exact acknowledgement; its contract remains unchanged. Do not silently reuse the Logbook fixture or production Neon. A future, independently reviewed step must supply a secured local HTTP-compatible proxy or a demonstrably isolated Training-specific test backend, with negative remote-target checks and real browser/DB evidence, before enabling these aliases.
 
-Commands and exact scope:
-- npm run doctor: read-only checks of tools, Chromium and configured local URL; this is not a live DB connectivity test.
-- npm run test:quick: TypeScript plus the existing targeted UI contract tests; not a comprehensive product gate.
-- npm run test:full: the existing verify typecheck/Node/build gate followed by Playwright desktop, mobile and iPad acceptance using the dedicated local database.
-- npm run test:db:local: **destructive disposable** no-code second-aircraft PostgreSQL acceptance, delegated to the existing guarded runner.
-- npm run test:browser:local: direct Playwright browser acceptance against the dedicated local database.
-- npm run test:local-workflow: pure guard regression test; no DB access.
-
-The facade strips inherited TRAINING_DATABASE_URL, TRAINING_ACCEPTANCE_DATABASE_URL and other hosting/purpose flags before local test execution. It then supplies only the strictly validated exact 127.0.0.1:55440 fixture identity (user, database and password required) to the selected runner. It does not change .env.local or copy remote secrets. The original disposable acknowledgement is retained for the no-code acceptance runner. Remote Neon, production, staging, alternate DBs and Logbook credentials cannot be accepted by this facade.
-
-Do not silently adopt an existing differently named local DB: continue existing manual commands or provision the dedicated test fixture. No production migration, destructive remote test, deploy, merge or feature flag change is authorized. A blocked or unrun mandatory gate remains NOT RUN, irrespective of build success. Store exact commit evidence per the normal technical and release documentation process.
+The facade strips inherited TRAINING_DATABASE_URL and purpose/hosting flags before running the non-DB tests. Existing .env.local is not modified. No production schema operation, remote destructive test, release flag, merge or deploy is authorized. Record each mandatory gate as PASS/FAIL/NOT RUN for the exact commit SHA.
 
 ### 15.4 Production
 
