@@ -93,6 +93,10 @@ function safeEnv({ database = false, browser = false } = {}) {
     "FLYTALLY_CURRENCY_V21_BROWSER", "FLYTALLY_V21_RISK_BROWSER",
     "FLYTALLY_BROWSER_EVIDENCE_FILE", "VERCEL", "VERCEL_ENV",
   ]) delete env[name];
+  // Explicit empty variables override any real DB URLs Next.js might load from .env.local.
+  env.DATABASE_URL = "";
+  env.TRAINING_DATABASE_URL = "";
+  env.TRAINING_ACCEPTANCE_DATABASE_URL = "";
   if (logbook && findPsql()) env.FLYTALLY_PSQL = findPsql();
   if (database) {
     const url = testUrl();
