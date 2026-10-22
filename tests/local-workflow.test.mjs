@@ -3,7 +3,7 @@ import { strict as assert } from "node:assert";
 import { readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { assertLocalFixtureUrl } from "../tooling/local-workflow.mjs";
+import { assertLocalFixtureUrl, isLocalDockerEndpoint } from "../tooling/local-workflow.mjs";
 
 const pkg = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
 const isLogbook = pkg.name === "pilot-logbook-web";
@@ -48,4 +48,12 @@ test("Training database automation refuses plain PostgreSQL TCP before any Docke
   const result = spawnSync(process.execPath, [script, "db"], { encoding: "utf8", timeout: 5000 });
   assert.equal(result.status, 2);
   assert.match(result.stderr, /Neon HTTP SQL/);
+});
+
+test("remote Docker contexts are not accepted as localhost-owned test fixtures", () => {
+  assert.equal(isLocalDockerEndpoint("unix:///var/run/docker.sock"), true);
+  assert.equal(isLocalDockerEndpoint("npipe:////./pipe/docker_engine"), true);
+  assert.equal(isLocalDockerEndpoint("ssh://remote.example"), false);
+  assert.equal(isLocalDockerEndpoint("tcp://10.0.0.20:2375"), false);
+  assert.equal(isLocalDockerEndpoint("tcp://127.0.0.1:2375"), false);
 });
