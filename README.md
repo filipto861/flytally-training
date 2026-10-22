@@ -23,6 +23,8 @@ The five-file surface is intentional. Detailed milestone history belongs in `CHA
 - LEARN and EFB are separate product contexts; Active Flight defines flight context while Performance owns calculations.
 - Missing or source-blocked aviation data remains unavailable rather than being replaced by representative values.
 
+The canonical [technical documentation](TECHNICAL_DOCUMENTATION.md#153a-portable-two-pc-developer-testing-workflow) contains the portable two-PC Windows setup, dedicated Training-only localhost PG16 profile, safety checks, and quick/full/DB/browser test commands.
+
 ## Development
 
 FlyTally Training targets Node.js 24.
