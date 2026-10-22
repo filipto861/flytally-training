@@ -30,7 +30,8 @@
     "test:full": "node tooling/local-workflow.mjs full",
     "test:db:local": "node tooling/local-workflow.mjs db-test",
     "test:browser:local": "node tooling/local-workflow.mjs browser-test",
-    "test:local-workflow": "node --test tests/local-workflow.test.mjs"
+    "test:local-workflow": "node --test tests/local-workflow.test.mjs",
+    "db:init:local": "node tooling/local-workflow.mjs db-init"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.0",
