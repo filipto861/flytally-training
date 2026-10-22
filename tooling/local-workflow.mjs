@@ -129,6 +129,7 @@ function ownedContainerInfo() {
   return c;
 }
 function ensureDatabase() {
+  if (!logbook) throw new Error("Training uses Neon HTTP SQL, not native PostgreSQL TCP. A compatible isolated local HTTP proxy has not been validated; no database was created or changed.");
   const existingUrl = testUrl(); // validates before Docker operations
   if (!dockerInfo()) {
     if (existingUrl) {
@@ -201,6 +202,7 @@ async function doctor() {
   try {
     const configured = testUrl();
     console.log("Dedicated local database: " + (configured ? "URL VERIFIED (connectivity not checked)" : "NOT CONFIGURED"));
+    if (!logbook) console.log("Training local DB/browser acceptance: BLOCKED pending Neon HTTP-compatible backend (plain PostgreSQL TCP insufficient).");
   } catch (e) { console.log("Dedicated local database: BLOCKED — " + e.message); }
 }
 async function setup({ requireDb = false } = {}) {
@@ -213,7 +215,10 @@ async function setup({ requireDb = false } = {}) {
     console.log("[Playwright] Chromium missing; installing browser once.");
     checked(npm(["exec", "--", "playwright", "install", "chromium"]), "Playwright browser install");
   } else console.log("[Playwright] Existing Chromium retained.");
-  if (testUrl() || dockerInfo() || requireDb) {
+  if (!logbook) {
+    if (requireDb) throw new Error("Training database setup is blocked pending a verified Neon HTTP-compatible local proxy. No remote/disposable database touched.");
+    console.log("[DB] Training database automation NOT CONFIGURED: Neon HTTP backend needs a separate proven adapter.");
+  } else if (testUrl() || dockerInfo() || requireDb) {
     ensureDatabase();
   } else {
     console.log("[DB] Not configured and Docker unavailable. Quick non-DB tests remain available; use npm run setup:db after preparing Docker.");
@@ -221,6 +226,13 @@ async function setup({ requireDb = false } = {}) {
   await doctor();
 }
 function delegate(action, args = []) {
+  if (!logbook && ["db-init", "db-test", "browser-test"].includes(action)) {
+    throw new Error("Training local DB/browser acceptance NOT RUN: Neon HTTP-compatible disposable backend not verified. Existing explicit canonical acceptance remains available with a separately verified disposable target.");
+  }
+  if (!logbook && action === "full") {
+    checked(npm(["run", "verify"], safeEnv()), "Training main typecheck/Node/build gate");
+    throw new Error("Training main verification completed, but local browser/DB gate NOT RUN: Neon HTTP-compatible disposable backend not verified. Do not claim full acceptance.");
+  }
   if (action === "db-init") {
     if (logbook) throw new Error("db-init:local is a Training-only operation.");
     checked(npm(["run", "db:init"], safeEnv({ database: true })), "Training local DB bootstrap");
