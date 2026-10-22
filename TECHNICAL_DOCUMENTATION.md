@@ -525,6 +525,28 @@ Ordinary runtime requests must never silently self-provision schema.
 
 The destructive no-code PostgreSQL acceptance path uses `TRAINING_ACCEPTANCE_DATABASE_URL` and must point only to a disposable/preview PostgreSQL database, never production.
 
+### 15.3a Portable two-PC developer workflow — safe initial milestone
+
+Both Windows PCs can reuse existing Node 24, Git, npm dependencies and Playwright Chromium, synchronized through Git rather than reinstalled at each switch. Per-machine credentials and DB connections stay uncommitted.
+
+~~~powershell
+git fetch origin
+git status --short
+npm run setup:local
+npm run doctor
+npm run test:quick
+~~~
+
+- npm run setup:local checks existing npm packages and Playwright Chromium; only missing npm/Chromium components are installed. It never reinstalls Node/Git/Docker. A separate database is NOT created by this command in Training.
+- npm run doctor is a read-only prerequisite/configuration check; it is NOT a DB connectivity probe, test PASS or approval.
+- npm run test:quick runs TypeScript and existing focused UI contracts. npm run verify retains the canonical Training typecheck/Node/build gate. npm run test:local-workflow checks the local fixture guards without DB access.
+- npm run test:full runs the existing typecheck/Node/build gate but **returns blocked** because full responsive browser+database acceptance cannot yet be verified in a safe, reproducible local environment. Do not interpret main-gate PASS as full acceptance.
+- npm run setup:db, npm run db:init:local, npm run test:db:local and npm run test:browser:local are **deliberately blocked** in the Training facade (exit nonzero, no DB write) pending approval of a compatible disposable backend. No automatic disposable database acknowledgement is supplied by these blocked paths.
+
+**Verified incompatibility (22 Oct 2026):** Training lib/db.ts uses the Neon serverless HTTP SQL client via neon(), not native PostgreSQL TCP. A plain postgres:16 Docker container cannot serve that client. The original explicit destructive no-code acceptance runner supports a separately verified disposable/preview Training database with TRAINING_ACCEPTANCE_DATABASE_URL and an exact acknowledgement; its contract remains unchanged. Do not silently reuse the Logbook fixture or production Neon. A future, independently reviewed step must supply a secured local HTTP-compatible proxy or a demonstrably isolated Training-specific test backend, with negative remote-target checks and real browser/DB evidence, before enabling these aliases.
+
+The facade masks inherited TRAINING_DATABASE_URL and Next.js .env.local database values using explicit empty environment defaults, and strips unrelated purpose/hosting flags before non-DB tests. Existing .env.local is not modified. No production schema operation, remote destructive test, release flag, merge or deploy is authorized. Record each mandatory gate as PASS/FAIL/NOT RUN for the exact commit SHA.
+
 ### 15.4 Production
 
 Production deployment follows validated merge to `main` and serves `training.fly-tally.com`.

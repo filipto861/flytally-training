@@ -1,5 +1,7 @@
 # FlyTally Training Roadmap
 
+**2026-10-22 — DEV-ENV Portable Local Testing V1 — WORK BRANCH / NOT MERGED:** Scope is developer-only, independent of active R1.1c configuration scope. Proposed tool on chore/portable-local-test-workflow-20261022 reuses installed npm/Chromium and delegates non-DB verification only. **Training DB/browser automation BLOCKED** because its Neon HTTP query driver cannot use an ordinary local PostgreSQL TCP container; a separate source-reviewed compatible backend is required. Documented in TECHNICAL_DOCUMENTATION §15.3a. Tests and actual two-Windows-machine acceptance **NOT RUN**; existing product roadmap/flags/source governance/DB production untouched. Next: exact branch test and review, no merge/deploy.
+
 **Status:** Active  
 **Owner:** Filip Točík  
 **Last reconciled:** 29 September 2026

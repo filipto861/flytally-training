@@ -22,7 +22,16 @@
     "capture:ux6": "node scripts/capture-ux6-visuals.mjs",
     "verify:ux6": "npm run typecheck && npm test && npm run build && npx playwright test",
     "verify:ux6:browser": "npm run build && npx playwright test",
-    "capture:ux6:auth-state": "node scripts/capture-ux6-auth-state.mjs"
+    "capture:ux6:auth-state": "node scripts/capture-ux6-auth-state.mjs",
+    "doctor": "node tooling/local-workflow.mjs doctor",
+    "setup:local": "node tooling/local-workflow.mjs setup",
+    "setup:db": "node tooling/local-workflow.mjs db",
+    "test:quick": "node tooling/local-workflow.mjs quick",
+    "test:full": "node tooling/local-workflow.mjs full",
+    "test:db:local": "node tooling/local-workflow.mjs db-test",
+    "test:browser:local": "node tooling/local-workflow.mjs browser-test",
+    "test:local-workflow": "node --test tests/local-workflow.test.mjs",
+    "db:init:local": "node tooling/local-workflow.mjs db-init"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.0",
