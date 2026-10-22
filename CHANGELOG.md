@@ -2,7 +2,7 @@
 
 ## 2026-10-22 — Developer tooling candidate (NOT MERGED / NOT RELEASED)
 
-- Isolated work branch chore/portable-local-test-workflow-20261022: incremental two-PC local setup, guarded separate Training-only loopback PG16 fixture + local schema bootstrap for newly created managed DB, npm aliases to existing tests, non-DB guard tests, permanent reference in TECHNICAL_DOCUMENTATION §15.3a.
+- Isolated work branch chore/portable-local-test-workflow-20261022: incremental two-PC non-DB local setup, npm aliases to existing tests, negative URL guards and explicit fail-closed Training DB/browser commands. The existing Neon HTTP query driver is incompatible with plain local PostgreSQL TCP; no DB/bootstrap was attempted. Permanent reference in TECHNICAL_DOCUMENTATION §15.3a.
 - Training R1.1 scope, operational data and aviation source content unchanged. No production database, migration, feature-flag or deploy operation. Exact-head Windows/CI/Playwright/DB evidence **NOT RUN**.
 
 
