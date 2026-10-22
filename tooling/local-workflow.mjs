@@ -226,6 +226,7 @@ async function setup({ requireDb = false } = {}) {
   await doctor();
 }
 function delegate(action, args = []) {
+  if (action === "quick" || action === "full") checked(npm(["run", "test:local-workflow"], safeEnv()), "local workflow safety tests");
   if (!logbook && ["db-init", "db-test", "browser-test"].includes(action)) {
     throw new Error("Training local DB/browser acceptance NOT RUN: Neon HTTP-compatible disposable backend not verified. Existing explicit canonical acceptance remains available with a separately verified disposable target.");
   }
