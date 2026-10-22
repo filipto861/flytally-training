@@ -1,6 +1,8 @@
 import { test } from "node:test";
 import { strict as assert } from "node:assert";
 import { readFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import { assertLocalFixtureUrl } from "../tooling/local-workflow.mjs";
 
 const pkg = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
@@ -9,7 +11,7 @@ const database = isLogbook ? "flytally_logbook_test" : "flytally_training_accept
 const port = isLogbook ? "55439" : "55440";
 const fixture = "postgresql://flytally_local:testpassword@127.0.0.1:" + port + "/" + database;
 
-test("dedicated local disposable PostgreSQL identity is accepted", () => {
+test("reserved local PostgreSQL URL format is recognized but does not certify Training HTTP compatibility", () => {
   assert.equal(assertLocalFixtureUrl(fixture), true);
 });
 
@@ -39,4 +41,11 @@ test("one-command scripts exist without replacing canonical product release gate
   assert.ok(pkg.scripts.verify);
   if (isLogbook) assert.ok(pkg.scripts["verify:release:risk"]);
   else assert.ok(pkg.scripts["test:no-code-aircraft"]);
+});
+
+test("Training database automation refuses plain PostgreSQL TCP before any Docker call", () => {
+  const script = fileURLToPath(new URL("../tooling/local-workflow.mjs", import.meta.url));
+  const result = spawnSync(process.execPath, [script, "db"], { encoding: "utf8", timeout: 5000 });
+  assert.equal(result.status, 2);
+  assert.match(result.stderr, /Neon HTTP SQL/);
 });
